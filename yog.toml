@@ -1,0 +1,13 @@
+[mod]
+id          = "HexMod-Yog"
+name        = "HexMod Yog"
+version     = "0.1.0"
+description = "Unofficial Rust port of Hex Casting (by gamma-delta / FallingColors) for the Yog Mod Loader."
+authors     = ["F000NK", "Yog Team", "gamma-delta (original Hex Casting)", "FallingColors & HexMod contributors (original Hex Casting)"]
+license     = "MIT"
+
+# Points yog-api at the local monorepo crate.
+# Real third-party mods omit this and get yog-api from crates.io.
+[dependencies]
+uuid = "1.23.3"
+serde = "*"
