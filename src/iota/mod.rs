@@ -84,7 +84,9 @@ impl Iota {
                 (a1 - b1).abs() < 1e-9 && (a2 - b2).abs() < 1e-9 && (a3 - b3).abs() < 1e-9
             }
             (Iota::Pattern(a), Iota::Pattern(b)) => a == b,
-            (Iota::List(a), Iota::List(b)) => a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.tolerates(y)),
+            (Iota::List(a), Iota::List(b)) => {
+                a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.tolerates(y))
+            }
             (Iota::Null, Iota::Null) => true,
             _ => false,
         }
@@ -101,7 +103,11 @@ impl Iota {
             Iota::Vec3(x, y, z) => format!("vec3:{} {} {}", x, y, z),
             Iota::Pattern(p) => format!("pattern:{}", p.serialized_form()),
             Iota::List(items) => {
-                let inner = items.iter().map(|i| i.serialize()).collect::<Vec<_>>().join(",");
+                let inner = items
+                    .iter()
+                    .map(|i| i.serialize())
+                    .collect::<Vec<_>>()
+                    .join(",");
                 format!("list:[{}]", inner)
             }
             Iota::Null => "null".to_string(),
@@ -191,9 +197,15 @@ impl IotaTypeRegistry {
 pub struct BoolIotaType;
 
 impl IotaType for BoolIotaType {
-    fn id(&self) -> IotaTypeId { IotaTypeId::BOOLEAN }
-    fn name(&self) -> &'static str { "boolean" }
-    fn color(&self) -> u32 { 0xff_ffff55 }
+    fn id(&self) -> IotaTypeId {
+        IotaTypeId::BOOLEAN
+    }
+    fn name(&self) -> &'static str {
+        "boolean"
+    }
+    fn color(&self) -> u32 {
+        0xff_ffff55
+    }
     fn display(&self, _payload: &dyn std::any::Any) -> String {
         let b = _payload.downcast_ref::<bool>().copied().unwrap_or(false);
         format!("{}", b)
@@ -204,9 +216,15 @@ impl IotaType for BoolIotaType {
 pub struct DoubleIotaType;
 
 impl IotaType for DoubleIotaType {
-    fn id(&self) -> IotaTypeId { IotaTypeId::DOUBLE }
-    fn name(&self) -> &'static str { "double" }
-    fn color(&self) -> u32 { 0xff_55_55_ff }
+    fn id(&self) -> IotaTypeId {
+        IotaTypeId::DOUBLE
+    }
+    fn name(&self) -> &'static str {
+        "double"
+    }
+    fn color(&self) -> u32 {
+        0xff_55_55_ff
+    }
     fn display(&self, _payload: &dyn std::any::Any) -> String {
         let d = _payload.downcast_ref::<f64>().copied().unwrap_or(0.0);
         format!("{}", d)
@@ -217,9 +235,15 @@ impl IotaType for DoubleIotaType {
 pub struct PatternIotaType;
 
 impl IotaType for PatternIotaType {
-    fn id(&self) -> IotaTypeId { IotaTypeId::PATTERN }
-    fn name(&self) -> &'static str { "pattern" }
-    fn color(&self) -> u32 { 0xff_ff_55_ff }
+    fn id(&self) -> IotaTypeId {
+        IotaTypeId::PATTERN
+    }
+    fn name(&self) -> &'static str {
+        "pattern"
+    }
+    fn color(&self) -> u32 {
+        0xff_ff_55_ff
+    }
     fn display(&self, _payload: &dyn std::any::Any) -> String {
         "Pattern".to_string()
     }

@@ -2,10 +2,14 @@
 
 use crate::iota::Iota;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum SpellList {
     Pair(Box<Iota>, Box<SpellList>),
-    Array { idx: usize, data: Vec<Iota> },
+    Array {
+        idx: usize,
+        data: Vec<Iota>,
+    },
+    #[default]
     Nil,
 }
 
@@ -23,7 +27,10 @@ impl SpellList {
             SpellList::Pair(_, cdr) => Some(*cdr.clone()),
             SpellList::Array { idx, data } => {
                 if *idx + 1 < data.len() {
-                    Some(SpellList::Array { idx: idx + 1, data: data.clone() })
+                    Some(SpellList::Array {
+                        idx: idx + 1,
+                        data: data.clone(),
+                    })
                 } else {
                     Some(SpellList::Nil)
                 }
@@ -90,12 +97,6 @@ impl SpellList {
     }
 }
 
-impl Default for SpellList {
-    fn default() -> Self {
-        SpellList::Nil
-    }
-}
-
 // Owned iterator — clones values as it goes.
 pub struct IntoIter {
     list: Option<SpellList>,
@@ -140,25 +141,15 @@ mod tests {
 
     #[test]
     fn test_spell_list_basic() {
-        let list = SpellList::from_vec(vec![
-            Iota::Boolean(true),
-            Iota::Double(3.14),
-            Iota::Null,
-        ]);
+        let list = SpellList::from_vec(vec![Iota::Boolean(true), Iota::Double(2.5), Iota::Null]);
         assert_eq!(list.len(), 3);
         assert_eq!(list.car(), Some(&Iota::Boolean(true)));
     }
 
     #[test]
     fn test_modify_at() {
-        let list = SpellList::from_vec(vec![
-            Iota::Int(1),
-            Iota::Int(2),
-            Iota::Int(3),
-        ]);
-        let modified = list.modify_at(1, |_sub| {
-            SpellList::from_vec(vec![Iota::Int(42)])
-        });
+        let list = SpellList::from_vec(vec![Iota::Int(1), Iota::Int(2), Iota::Int(3)]);
+        let modified = list.modify_at(1, |_sub| SpellList::from_vec(vec![Iota::Int(42)]));
         let vec = modified.to_vec();
         assert_eq!(vec, vec![Iota::Int(1), Iota::Int(42)]);
     }

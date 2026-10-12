@@ -140,24 +140,32 @@ impl HexCoord {
         HexCoord(q, r)
     }
 
-    pub fn add(self, other: Self) -> Self {
-        HexCoord(self.0 + other.0, self.1 + other.1)
-    }
-
-    pub fn sub(self, other: Self) -> Self {
-        HexCoord(self.0 - other.0, self.1 - other.1)
-    }
-
     /// Get the six neighbors of this coordinate.
     pub fn neighbors(self) -> [HexCoord; 6] {
         [
-            self.add(HexDir::NorthEast.as_delta()),
-            self.add(HexDir::East.as_delta()),
-            self.add(HexDir::SouthEast.as_delta()),
-            self.add(HexDir::SouthWest.as_delta()),
-            self.add(HexDir::West.as_delta()),
-            self.add(HexDir::NorthWest.as_delta()),
+            self + HexDir::NorthEast.as_delta(),
+            self + HexDir::East.as_delta(),
+            self + HexDir::SouthEast.as_delta(),
+            self + HexDir::SouthWest.as_delta(),
+            self + HexDir::West.as_delta(),
+            self + HexDir::NorthWest.as_delta(),
         ]
+    }
+}
+
+impl std::ops::Add for HexCoord {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        HexCoord(self.0 + other.0, self.1 + other.1)
+    }
+}
+
+impl std::ops::Sub for HexCoord {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        HexCoord(self.0 - other.0, self.1 - other.1)
     }
 }
 
@@ -170,7 +178,7 @@ pub struct HexPattern {
 
 impl HexPattern {
     pub fn new(start: HexDir, steps: Vec<HexDir>) -> Self {
-        HexPattern { start, steps: steps }
+        HexPattern { start, steps }
     }
 
     /// Create a pattern from a list of directions (first is start, rest are steps).
@@ -200,8 +208,8 @@ impl HexPattern {
         let mut pos = self.start.as_delta();
         let mut sum = pos;
         for step in &self.steps {
-            pos = pos.add(step.as_delta());
-            sum = sum.add(pos);
+            pos = pos + step.as_delta();
+            sum = sum + pos;
         }
         let count = (self.steps.len() + 1) as i32;
         HexCoord(sum.0 / count, sum.1 / count)
@@ -223,7 +231,8 @@ impl HexPattern {
             HexDir::SouthWest => "D",
             HexDir::West => "E",
             HexDir::NorthWest => "F",
-        }.to_string();
+        }
+        .to_string();
         for step in &self.steps {
             s.push(match step {
                 HexDir::NorthEast => 'A',
@@ -249,15 +258,17 @@ impl HexPattern {
             Some('F') => HexDir::NorthWest,
             _ => return None,
         };
-        let steps = chars.filter_map(|c| match c {
-            'A' => Some(HexDir::NorthEast),
-            'B' => Some(HexDir::East),
-            'C' => Some(HexDir::SouthEast),
-            'D' => Some(HexDir::SouthWest),
-            'E' => Some(HexDir::West),
-            'F' => Some(HexDir::NorthWest),
-            _ => None,
-        }).collect();
+        let steps = chars
+            .filter_map(|c| match c {
+                'A' => Some(HexDir::NorthEast),
+                'B' => Some(HexDir::East),
+                'C' => Some(HexDir::SouthEast),
+                'D' => Some(HexDir::SouthWest),
+                'E' => Some(HexDir::West),
+                'F' => Some(HexDir::NorthWest),
+                _ => None,
+            })
+            .collect();
         Some(HexPattern { start, steps })
     }
 }

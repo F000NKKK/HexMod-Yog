@@ -51,7 +51,7 @@ fn screen_to_coord(mx: f32, my: f32, ox: f32, oy: f32) -> Option<HexCoord> {
     for c in std::iter::once(cand).chain(cand.neighbors()) {
         let (sx, sy) = coord_to_screen(c, ox, oy);
         let d2 = (sx - mx).powi(2) + (sy - my).powi(2);
-        if d2 <= SNAP * SNAP && best.map_or(true, |(bd, _)| d2 < bd) {
+        if d2 <= SNAP * SNAP && best.is_none_or(|(bd, _)| d2 < bd) {
             best = Some((d2, c));
         }
     }
@@ -59,15 +59,21 @@ fn screen_to_coord(mx: f32, my: f32, ox: f32, oy: f32) -> Option<HexCoord> {
 }
 
 fn dir_between(a: HexCoord, b: HexCoord) -> Option<HexDir> {
-    let d = b.sub(a);
-    (0..6u8).map(HexDir::from_ordinal).find(|dir| dir.as_delta() == d)
+    let d = b - a;
+    (0..6u8)
+        .map(HexDir::from_ordinal)
+        .find(|dir| dir.as_delta() == d)
 }
 
 // ── UI state ─────────────────────────────────────────────────────────────────
 
 /// One completed stroke plus how its cast resolved, for stroke colouring.
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum StrokeResult { Pending, Ok, Mishap }
+enum StrokeResult {
+    Pending,
+    Ok,
+    Mishap,
+}
 
 /// Dots of the stroke currently being drawn.
 static STROKE: Mutex<Vec<HexCoord>> = Mutex::new(Vec::new());
@@ -126,8 +132,8 @@ pub fn render(gfx: &GfxContext) {
     *ORIGIN.lock().unwrap() = (ox, oy);
 
     // Panels
-    d2d.rect(0.0, 0.0, grid_w, sh, 0xAA_0b0b12);
-    d2d.rect(grid_w, 0.0, sw, sh, 0xCC_14141c);
+    d2d.rect(0.0, 0.0, grid_w, sh, 0xAA_0B0B12);
+    d2d.rect(grid_w, 0.0, sw, sh, 0xCC_14141C);
 
     // Lattice dots covering the grid panel — smooth anti-aliased circles.
     let r_range = (sh / (SPACING * ROW_F) / 2.0).ceil() as i32 + 1;
@@ -157,8 +163,8 @@ pub fn render(gfx: &GfxContext) {
     for (pat, result) in DRAWN.lock().unwrap().iter() {
         let color = match result {
             StrokeResult::Pending => 0x99_9a7b2f,
-            StrokeResult::Ok      => 0xCC_4fd67a,
-            StrokeResult::Mishap  => 0xCC_e05a4f,
+            StrokeResult::Ok => 0xCC_4FD67A,
+            StrokeResult::Mishap => 0xCC_E05A4F,
         };
         for pair in pat.windows(2) {
             let (x0, y0) = coord_to_screen(pair[0], ox, oy);
@@ -200,7 +206,10 @@ pub fn render(gfx: &GfxContext) {
     // Hint
     d2d.text(
         "Drag across the dots to draw a pattern. ESC to close.",
-        8.0, sh - 14.0, 0x77_AAAAAA, false,
+        8.0,
+        sh - 14.0,
+        0x77_AAAAAA,
+        false,
     );
 }
 
@@ -213,7 +222,7 @@ pub fn handle_event(_ui_id: &str, event: &str) {
     };
     let (ox, oy) = *ORIGIN.lock().unwrap();
 
-    if let Some((mx, my)) = event.strip_prefix("click:").and_then(|r| parse_xy(r)) {
+    if let Some((mx, my)) = event.strip_prefix("click:").and_then(parse_xy) {
         *CURSOR.lock().unwrap() = Some((mx, my));
         if let Some(c) = screen_to_coord(mx, my, ox, oy) {
             let mut stroke = STROKE.lock().unwrap();
@@ -223,9 +232,11 @@ pub fn handle_event(_ui_id: &str, event: &str) {
         return;
     }
 
-    if let Some((mx, my)) = event.strip_prefix("drag:").and_then(|r| parse_xy(r)) {
+    if let Some((mx, my)) = event.strip_prefix("drag:").and_then(parse_xy) {
         *CURSOR.lock().unwrap() = Some((mx, my));
-        let Some(c) = screen_to_coord(mx, my, ox, oy) else { return };
+        let Some(c) = screen_to_coord(mx, my, ox, oy) else {
+            return;
+        };
         let mut stroke = STROKE.lock().unwrap();
         let Some(&last) = stroke.last() else { return };
         if c == last {
@@ -240,7 +251,13 @@ pub fn handle_event(_ui_id: &str, event: &str) {
         // may repeat — closed shapes like the Mind's Reflection diamond pass
         // through the starting dot again.
         if dir_between(last, c).is_some() {
-            let edge = |a: HexCoord, b: HexCoord| if (a.0, a.1) <= (b.0, b.1) { (a, b) } else { (b, a) };
+            let edge = |a: HexCoord, b: HexCoord| {
+                if (a.0, a.1) <= (b.0, b.1) {
+                    (a, b)
+                } else {
+                    (b, a)
+                }
+            };
             let new_edge = edge(last, c);
             let used = stroke.windows(2).any(|p| edge(p[0], p[1]) == new_edge);
             if !used {
@@ -262,10 +279,12 @@ pub fn handle_event(_ui_id: &str, event: &str) {
             if let Some(srv) = yog_api::server() {
                 srv.send_to_server(CH_CAST, pattern.serialized_form().as_bytes());
             }
-            DRAWN.lock().unwrap().push((std::mem::take(&mut *stroke), StrokeResult::Pending));
+            DRAWN
+                .lock()
+                .unwrap()
+                .push((std::mem::take(&mut *stroke), StrokeResult::Pending));
         } else {
             stroke.clear();
         }
-        return;
     }
 }

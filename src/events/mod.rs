@@ -1,6 +1,6 @@
 //! Event handlers for hex casting interactions.
-use yog_api::{EventPhase, Registry};
 use yog_api::content::StartupGrant;
+use yog_api::{EventPhase, Registry};
 
 use crate::casting::vm;
 use crate::grid;
@@ -8,12 +8,10 @@ use crate::grid;
 pub fn register(registry: &mut Registry) {
     // Grant the Hexbook and a staff on first join.
     registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_hexbook")
-            .item("hexcasting:thehexbook")
+        StartupGrant::new("hexcasting:give_hexbook").item("hexcasting:thehexbook"),
     );
     registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_staff")
-            .item("hexcasting:staff")
+        StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff"),
     );
 
     // Packets carry player names; the VM needs uuids for entity iotas.

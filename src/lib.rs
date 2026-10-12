@@ -3,17 +3,17 @@
 
 use yog_api::{info, Mod, Registry};
 
-pub mod casting;
-pub mod iota;
-pub mod math;
-pub mod item;
 pub mod block;
-pub mod events;
-pub mod rendering;
-pub mod player;
 pub mod book;
+pub mod casting;
+pub mod events;
 pub mod grid;
 pub mod grid_gl;
+pub mod iota;
+pub mod item;
+pub mod math;
+pub mod player;
+pub mod rendering;
 
 pub struct HexMod;
 

@@ -21,7 +21,9 @@ static STACKS: Mutex<Option<HashMap<String, Vec<Iota>>>> = Mutex::new(None);
 static NAME2UUID: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
 
 pub fn remember_player(name: &str, uuid: &str) {
-    NAME2UUID.lock().unwrap()
+    NAME2UUID
+        .lock()
+        .unwrap()
         .get_or_insert_with(HashMap::new)
         .insert(name.to_string(), uuid.to_string());
 }
@@ -81,15 +83,13 @@ fn execute(sig: &str, player: &str, srv: &dyn Server, stack: &mut Vec<Iota>) -> 
 
         // Compass' Purification — entity → its position.
         "aa" => match stack.pop() {
-            Some(Iota::Entity(u)) => {
-                match Entity::new(srv, u.to_string()).position() {
-                    Some((x, y, z)) => {
-                        stack.push(Iota::Vec3(x, y, z));
-                        Outcome::Ok("Compass' Purification")
-                    }
-                    None => Outcome::Mishap("that entity is nowhere to be found".into()),
+            Some(Iota::Entity(u)) => match Entity::new(srv, u.to_string()).position() {
+                Some((x, y, z)) => {
+                    stack.push(Iota::Vec3(x, y, z));
+                    Outcome::Ok("Compass' Purification")
                 }
-            }
+                None => Outcome::Mishap("that entity is nowhere to be found".into()),
+            },
             Some(other) => {
                 stack.push(other);
                 Outcome::Mishap("expected an entity on the stack".into())
@@ -99,15 +99,13 @@ fn execute(sig: &str, player: &str, srv: &dyn Server, stack: &mut Vec<Iota>) -> 
 
         // Alidade's Purification — entity → its look vector.
         "wa" => match stack.pop() {
-            Some(Iota::Entity(u)) => {
-                match Entity::new(srv, u.to_string()).look_vector() {
-                    Some((x, y, z)) => {
-                        stack.push(Iota::Vec3(x, y, z));
-                        Outcome::Ok("Alidade's Purification")
-                    }
-                    None => Outcome::Mishap("that entity is nowhere to be found".into()),
+            Some(Iota::Entity(u)) => match Entity::new(srv, u.to_string()).look_vector() {
+                Some((x, y, z)) => {
+                    stack.push(Iota::Vec3(x, y, z));
+                    Outcome::Ok("Alidade's Purification")
                 }
-            }
+                None => Outcome::Mishap("that entity is nowhere to be found".into()),
+            },
             Some(other) => {
                 stack.push(other);
                 Outcome::Mishap("expected an entity on the stack".into())
