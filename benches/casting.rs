@@ -1,11 +1,9 @@
 //! The casting hot paths: pattern parsing and lookup, the VM running long
 //! hexes, and iotas going to and from their stored forms.
 
-mod stub_server;
-
 use std::hint::black_box;
 
-use criterion::{BatchSize, Criterion, criterion_group, criterion_main};
+use criterion::{BatchSize, Criterion};
 use hexcasting::casting::actions::{self, Lookup, dir};
 use hexcasting::casting::env::{CastEnv, Source, Stack};
 use hexcasting::casting::image::Image;
@@ -15,17 +13,15 @@ use hexcasting::item::holder;
 use hexcasting::math::{HexDir, HexPattern};
 use hexcasting::protocol::{Hand, ResolvedType};
 use hexcasting::snbt::Nbt;
-use stub_server::StubServer;
+use yog_api::core::NullServer;
 
-fn server() -> StubServer {
+fn server() -> NullServer {
     let dir = std::env::temp_dir().join("hexcasting-bench");
     std::fs::create_dir_all(&dir).unwrap();
-    StubServer {
-        game_dir: dir.to_string_lossy().into_owned(),
-    }
+    NullServer::new(dir.to_string_lossy())
 }
 
-fn env(srv: &StubServer) -> CastEnv<'_> {
+fn env(srv: &NullServer) -> CastEnv<'_> {
     CastEnv::new(
         srv,
         None,
@@ -88,7 +84,7 @@ fn thoth_hex() -> Vec<Iota> {
     hex
 }
 
-fn run(srv: &StubServer, hex: Vec<Iota>) -> ResolvedType {
+fn run(srv: &NullServer, hex: Vec<Iota>) -> ResolvedType {
     let mut vm = Vm::new(Image::default(), env(srv));
     vm.queue_execute(hex).kind
 }
@@ -112,6 +108,7 @@ fn big_list() -> Iota {
     Iota::List(items)
 }
 
+#[yog_api::bench]
 fn vm(c: &mut Criterion) {
     let srv = server();
     for (name, hex) in [
@@ -126,6 +123,7 @@ fn vm(c: &mut Criterion) {
     }
 }
 
+#[yog_api::bench]
 fn patterns(c: &mut Criterion) {
     let long = HexPattern::from_angles(&"qaqwedsaeqd".repeat(10), dir::E).unwrap();
     c.bench_function("pattern/signature", |b| {
@@ -139,6 +137,7 @@ fn patterns(c: &mut Criterion) {
     });
 }
 
+#[yog_api::bench]
 fn registry(c: &mut Criterion) {
     let srv = server();
     let env = env(&srv);
@@ -159,6 +158,7 @@ fn registry(c: &mut Criterion) {
     });
 }
 
+#[yog_api::bench]
 fn serialization(c: &mut Criterion) {
     let list = big_list();
     let text = list.serialize();
@@ -205,6 +205,3 @@ fn serialization(c: &mut Criterion) {
         b.iter(|| black_box(&focus.nbt).to_snbt())
     });
 }
-
-criterion_group!(benches, vm, patterns, registry, serialization);
-criterion_main!(benches);
