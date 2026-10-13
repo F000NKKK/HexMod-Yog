@@ -2,8 +2,9 @@
 //!
 //! * `hexcasting:cast` (client → server): a drawn pattern, in
 //!   [`HexPattern::serialized_form`].
-//! * `hexcasting:open_grid` (server → client): open the casting screen;
-//!   payload `reset` when the caster's stack was just cleared.
+//! * `hexcasting:reset` (client → server): the screen's Clear button —
+//!   wipe the caster's stack.
+//! * `hexcasting:open_grid` (server → client): open the casting screen.
 //! * `hexcasting:stack` (server → client): a [`Report`] — what the last
 //!   pattern did and the stack after it.
 //!
@@ -16,6 +17,7 @@ use crate::iota::Iota;
 pub const CH_CAST: &str = "hexcasting:cast";
 pub const CH_STACK: &str = "hexcasting:stack";
 pub const CH_OPEN: &str = "hexcasting:open_grid";
+pub const CH_RESET: &str = "hexcasting:reset";
 
 /// A pattern that ran.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

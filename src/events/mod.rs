@@ -3,7 +3,8 @@ use yog_api::content::StartupGrant;
 use yog_api::{EventPhase, Registry};
 
 use crate::casting::vm;
-use crate::grid;
+use crate::protocol::{CH_CAST, CH_OPEN, CH_RESET, CH_STACK};
+use crate::ui::casting_screen;
 
 pub fn register(registry: &mut Registry) {
     // Grant the Hexbook and a staff on first join.
@@ -27,32 +28,31 @@ pub fn register(registry: &mut Registry) {
     // itself always lives on the server and survives reopening the grid.
     registry.on_use_item(|ev, phase, srv| {
         if phase == EventPhase::Post && ev.item_id.starts_with("hexcasting:staff/") {
+            srv.send_to_player(&ev.player_name, CH_OPEN, b"");
             if ev.sneaking {
                 vm::reset(&ev.player_name, srv);
-                srv.send_to_player(&ev.player_name, grid::CH_OPEN, b"reset");
-            } else {
-                srv.send_to_player(&ev.player_name, grid::CH_OPEN, b"");
             }
         }
         true
     });
 
     // Server: a drawn pattern arrives — run it through the casting VM.
-    registry.on_packet(grid::CH_CAST, |ev, srv| {
+    registry.on_packet(CH_CAST, |ev, srv| {
         vm::handle_cast(&ev.player, &ev.payload, srv);
     });
 
-    // Client: open-grid order from the server ("reset" wipes the session).
-    registry.on_client_packet(grid::CH_OPEN, |ev, _srv| {
-        if ev.payload == b"reset" {
-            grid::on_reset();
-        }
-        grid::on_open();
-        yog_api::open_ui(grid::UI_ID, true, false);
+    // Server: the screen's Clear button.
+    registry.on_packet(CH_RESET, |ev, srv| {
+        vm::reset(&ev.player, srv);
     });
 
-    // Client: refreshed stack view for the grid side panel.
-    registry.on_client_packet(grid::CH_STACK, |ev, _srv| {
-        grid::on_stack_packet(&ev.payload);
+    // Client: open the casting screen on a fresh grid.
+    registry.on_client_packet(CH_OPEN, |_ev, _srv| {
+        casting_screen::open_session();
+    });
+
+    // Client: the server's answer to a pattern.
+    registry.on_client_packet(CH_STACK, |ev, _srv| {
+        casting_screen::on_report(&ev.payload);
     });
 }

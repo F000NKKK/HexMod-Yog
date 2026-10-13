@@ -8,12 +8,10 @@ yog_api::ui_include!("ui/hex_grid");
 use std::sync::{Arc, Mutex, OnceLock};
 
 use yog_api::ui::{Pointer, Rect, Surface};
-use yog_api::GfxContext;
+use yog_api::{GfxContext, Server};
 
 use super::grid_gl;
 use crate::math::{HexCoord, HexDir, HexPattern};
-
-impl HexGrid {}
 
 /// Distance between neighbouring dots in GUI pixels.
 const SPACING: f32 = 26.0;

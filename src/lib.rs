@@ -3,17 +3,21 @@
 
 use yog_api::{info, Mod, Registry};
 
-pub mod block;
 pub mod book;
 pub mod casting;
 pub mod events;
-pub mod grid;
-pub mod grid_gl;
 pub mod iota;
 pub mod item;
 pub mod math;
-pub mod player;
-pub mod rendering;
+pub mod protocol;
+pub mod ui;
+
+// `.yui` components without a code-behind (iota_row, mishap_banner,
+// pattern_entry).
+yog_api::ui_components!();
+
+// `crate::res` — typed accessors for resources/*.yres.
+yog_api::resources!();
 
 pub struct HexMod;
 
@@ -21,21 +25,16 @@ impl Mod for HexMod {
     fn register(registry: &mut Registry) {
         info!("[hexcasting-yog] initializing the gate between worlds...");
 
-        // Register items and blocks first.
         item::register(registry);
-        block::register(registry);
 
-        // Register the in-game book so the runtime knows to create a YogBookItem
-        // for hexcasting:thehexbook and handle right-click → open book UI.
+        // thehexbook: right-click opens the book UI.
         registry.register_book(&book::register_book());
 
-        // The casting grid UI (drawn patterns → server-side VM).
-        registry.register_ui(grid::UI_ID, grid::handle_event);
-        registry.on_ui_render(grid::UI_ID, grid::render);
+        // The casting screen and the grid it draws on.
+        ui::hex_grid::GridSurface::shared();
+        ui::casting_screen::register(registry);
 
-        // Register event handlers and rendering hooks.
         events::register(registry);
-        rendering::register(registry);
 
         info!("[hexcasting-yog] gate opened. The book is ready.");
     }

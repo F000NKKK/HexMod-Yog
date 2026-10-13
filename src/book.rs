@@ -1,123 +1,123 @@
-//! HexMod in-game book registration (yog-book).
+//! thehexbook (yog-book). Every text is a translation key of
+//! `resources/Book.yres` (English, `Book.ru_ru.yres` Russian): the book is
+//! registered with `i18n`, so it's shown in the game's language.
 //!
-//! The "Basics" category's flavour text below is ported (translated out of
-//! Patchouli's `$(...)`/`_keyword` markup into plain text) from the original
-//! Hex Casting book — see `assets/hexcasting/yog_book/` for the source
-//! category/entry definitions and `assets/hexcasting/lang/en_us.flatten.json5`
-//! for the prose itself. Original content © gamma-delta / FallingColors
-//! contributors, MIT-licensed — see LICENSE.
-//!
-//! Pages are chunked to roughly 220 characters each so a paragraph never
-//! overflows the physical page (yog-book does not auto-paginate long text —
-//! same as Patchouli, where the original authors split this same prose across
-//! several short pages for exactly this reason).
+//! The "Getting Started" prose is ported from the original Hex Casting
+//! book (Patchouli markup flattened to plain text, split into short pages:
+//! yog-book doesn't paginate). Original content (c) gamma-delta /
+//! FallingColors contributors, MIT-licensed -- see LICENSE.
 
-use yog_api::book::{Book, BookCategory, BookEntry, BookPage};
+use yog_api::book::{Book as YogBook, BookCategory, BookEntry, BookPage};
 
-pub fn register_book() -> Book {
-    Book::new("hexcasting:thehexbook", "The Hexbook")
+use crate::res::Book;
+
+fn page(key: &str) -> BookPage {
+    BookPage::Text { text: key.into(), title: None }
+}
+
+pub fn register_book() -> YogBook {
+    YogBook::new("hexcasting:thehexbook", Book::BOOK_NAME_KEY)
         .author("F000NK, Yog Team")
+        .i18n(true)
         .add_category(BookCategory {
             id: "hexcasting:basics".into(),
-            name: "Getting Started".into(),
-            description: Some(
-                "The practitioners of this art would cast their so-called Hexes by drawing \
-strange patterns in the air with a Staff -- or craft powerful magical items to do the casting \
-for them. How might I do the same?".into(),
-            ),
+            name: Book::BOOK_CATEGORY_BASICS_KEY.into(),
+            description: Some(Book::BOOK_CATEGORY_BASICS_DESC_KEY.into()),
             sortnum: 0,
-            icon: Some("hexcasting:item/staff".into()),
+            icon: Some("hexcasting:staff/oak".into()),
             icon_svg: None,
         })
         .add_category(BookCategory {
             id: "hexcasting:patterns".into(),
-            name: "Patterns".into(),
-            description: Some("A list of all the patterns I've discovered, as well as what they do.".into()),
+            name: Book::BOOK_CATEGORY_PATTERNS_KEY.into(),
+            description: Some(Book::BOOK_CATEGORY_PATTERNS_DESC_KEY.into()),
             sortnum: 1,
-            icon: Some("hexcasting:item/tome".into()),
+            icon: Some("hexcasting:tome".into()),
             icon_svg: None,
         })
-        // Order follows the original book's sortnum: media, geodes, couldnt_cast, start_to_see.
         .add_entry(BookEntry {
             id: "hexcasting:media".into(),
-            name: "Media".into(),
+            name: Book::BOOK_ENTRY_MEDIA_KEY.into(),
             category: "hexcasting:basics".into(),
             icon: Some("hexcasting:amethyst_dust".into()),
             priority: 0,
             read_by_default: true,
             pages: vec![
-                BookPage::Text { text: "Media is a form of mental energy external to a mind. All living creatures generate trace amounts of media when thinking about anything; after the thought is finished, the media is released into the environment.".into(), title: None },
-                BookPage::Text { text: "The art of casting Hexes is all about manipulating media to do your bidding.\nMedia can exert influences on other media-- the strength and type of influence can be manipulated by drawing media out into patterns.".into(), title: None },
-                BookPage::Text { text: "Scholars of the art used a concentrated blob of media on the end of a stick: by waving it in the air in precise configurations, they were able to manipulate enough media with enough precision to influence the world itself, in the form of a Hex.".into(), title: None },
-                BookPage::Text { text: "Sadly, even a fully sentient being (like myself, presumably) can only generate miniscule amounts of media. It would be quite impractical to try and use my own brainpower to cast Hexes.".into(), title: None },
-                BookPage::Text { text: "But legend has it that there are underground deposits where media slowly accumulates, growing into crystalline forms.\nIf I could just find one of those...".into(), title: None },
+                page(Book::BOOK_ENTRY_MEDIA_PAGE1_KEY),
+                page(Book::BOOK_ENTRY_MEDIA_PAGE2_KEY),
+                page(Book::BOOK_ENTRY_MEDIA_PAGE3_KEY),
+                page(Book::BOOK_ENTRY_MEDIA_PAGE4_KEY),
+                page(Book::BOOK_ENTRY_MEDIA_PAGE5_KEY),
             ],
             ..Default::default()
         })
         .add_entry(BookEntry {
             id: "hexcasting:geodes".into(),
-            name: "Geodes".into(),
+            name: Book::BOOK_ENTRY_GEODES_KEY.into(),
             category: "hexcasting:basics".into(),
             icon: Some("minecraft:amethyst_block".into()),
             priority: 1,
             read_by_default: true,
             pages: vec![
-                BookPage::Text { text: "Aha! While mining deep underground, I found an enormous geode resonating with energy-- energy which pressed against my skull and my thoughts. And now, I hold that pressure in my hand, in solid form. That proves it.".into(), title: None },
-                BookPage::Text { text: "This must be the place spoken about in legends where media accumulates.".into(), title: None },
-                BookPage::Text { text: "These amethyst crystals must be a convenient, solidified form of Media.".into(), title: None },
-                BookPage::Text { text: "It appears that, in addition to the Amethyst Shards I have seen in the past, these crystals can also drop bits of powdered Amethyst Dust, as well as these Charged Amethyst Crystals.".into(), title: None },
-                BookPage::Text { text: "It looks like I'll have a better chance of finding the Charged Amethyst Crystals by using a Fortune pickaxe.".into(), title: None },
-                BookPage::Text { text: "As I take the beauty of the crystal in, I can feel connections flashing wildly in my mind. It's like the media in the air is entering me, empowering me, elucidating me... It feels wonderful.".into(), title: None },
-                BookPage::Text { text: "Finally, my study into the arcane is starting to make some sense!\nLet me reread those old legends again, now that I know what I'm looking at.".into(), title: None },
+                page(Book::BOOK_ENTRY_GEODES_PAGE1_KEY),
+                page(Book::BOOK_ENTRY_GEODES_PAGE2_KEY),
+                page(Book::BOOK_ENTRY_GEODES_PAGE3_KEY),
+                page(Book::BOOK_ENTRY_GEODES_PAGE4_KEY),
+                page(Book::BOOK_ENTRY_GEODES_PAGE5_KEY),
+                page(Book::BOOK_ENTRY_GEODES_PAGE6_KEY),
+                page(Book::BOOK_ENTRY_GEODES_PAGE7_KEY),
             ],
             ..Default::default()
         })
         .add_entry(BookEntry {
             id: "hexcasting:couldnt_cast".into(),
-            name: "A Frustration".into(),
+            name: Book::BOOK_ENTRY_COULDNT_CAST_KEY.into(),
             category: "hexcasting:basics".into(),
             icon: Some("minecraft:textures/mob_effect/nausea.png".into()),
             priority: 2,
             read_by_default: true,
             pages: vec![
-                BookPage::Text { text: "Argh! Why won't it let me cast the spell?!\nThe scroll I found rings with authenticity. I can feel it humming in the scroll-- the pattern is true, or as true as it can be. The spell is right there.".into(), title: None },
-                BookPage::Text { text: "But it feels as if it's on the other side of some thin membrane. I called it-- it tried to manifest-- yet it COULD NOT.".into(), title: None },
-                BookPage::Text { text: "It felt like the barrier may have weakened ever so slightly from the force that I exerted on the spell; yet despite my greatest efforts-- my deepest focus, my finest amethyst, my precisest drawings-- it refuses to cross the barrier.".into(), title: None },
-                BookPage::Text { text: "It's maddening.".into(), title: None },
-                BookPage::Text { text: "This is where my arcane studies end? Cursed by impotence, cursed to lose my rightful powers?\nI should take a deep breath. I should meditate on what I have learned, even if it wasn't very much...".into(), title: None },
-                BookPage::Text { text: "...After careful reflection... I have discovered a change in myself.\nIt seems... in lieu of amethyst, I've unlocked the ability to cast spells using my own mind and life energy-- just as I read of in the legends of old.".into(), title: None },
-                BookPage::Text { text: "I'm not sure why I can now. It's just... the truth-knowledge-burden was always there, and I see it now. I know it. I bear it.".into(), title: None },
-                BookPage::Text { text: "Fortunately, I feel my limits as well-- I would get approximately two Charged Amethyst's worth of media out of my health at its prime.".into(), title: None },
-                BookPage::Text { text: "I shudder to even consider it-- I've kept my mind mostly intact so far, in my studies. But the fact is-- I form one side of a tenuous link.".into(), title: None },
-                BookPage::Text { text: "I'm connected to some other side-- a side whose boundary has thinned from that trauma. A place where simple actions spell out eternal glory.\nIs it so wrong, to want it for myself?".into(), title: None },
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE1_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE2_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE3_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE4_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE5_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE6_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE7_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE8_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE9_KEY),
+                page(Book::BOOK_ENTRY_COULDNT_CAST_PAGE10_KEY),
             ],
             ..Default::default()
         })
         .add_entry(BookEntry {
             id: "hexcasting:start_to_see".into(),
-            name: "WHAT DID I SEE".into(),
+            name: Book::BOOK_ENTRY_START_TO_SEE_KEY.into(),
             category: "hexcasting:basics".into(),
             icon: Some("minecraft:textures/mob_effect/blindness.png".into()),
             priority: 3,
             read_by_default: true,
             pages: vec![
-                BookPage::Text { text: "The texts weren't lying. Nature took its due.\nThat... that was...".into(), title: None },
-                BookPage::Text { text: "...that was one of the worst things I've ever experienced. I offered my plan to Nature, and got a firm smile and a tearing sensation in return-- a piece of myself breaking away, like amethyst dust in the rain.".into(), title: None },
-                BookPage::Text { text: "I feel lucky to have survived, much less have the sagacity to write this-- I should declare the matter closed, double-check my math before I cast any more Hexes, and never make such a mistake again.\n...But.".into(), title: None },
-                BookPage::Text { text: "But for the scarcest instant, that part of myself... it saw... something. A place-- a design, perhaps? (Such distinctions didn't seem to matter in the face of... that.)".into(), title: None },
-                BookPage::Text { text: "And a... a membrane-barrier-skin-border, separating myself from a realm of raw thought-flow-light-energy. I remember-- I saw-thought-recalled-felt-- the barrier fuzzing at its edges, just so slightly.\nI wanted through.".into(), title: None },
-                BookPage::Text { text: "I shouldn't. I know I shouldn't. It's dangerous. It's too dangerous. The force required... I'd have to bring myself within a hair's breadth of Death itself with a single stroke.\nBut I'm. So. Close.".into(), title: None },
-                BookPage::Text { text: "This is the culmination of my art. This is the Enlightenment I've been seeking.\nI want more. I need to see it again. I will see it.\nWhat is my mortal mind against immortal glory?".into(), title: None },
+                page(Book::BOOK_ENTRY_START_TO_SEE_PAGE1_KEY),
+                page(Book::BOOK_ENTRY_START_TO_SEE_PAGE2_KEY),
+                page(Book::BOOK_ENTRY_START_TO_SEE_PAGE3_KEY),
+                page(Book::BOOK_ENTRY_START_TO_SEE_PAGE4_KEY),
+                page(Book::BOOK_ENTRY_START_TO_SEE_PAGE5_KEY),
+                page(Book::BOOK_ENTRY_START_TO_SEE_PAGE6_KEY),
+                page(Book::BOOK_ENTRY_START_TO_SEE_PAGE7_KEY),
             ],
             ..Default::default()
         })
         .add_entry(BookEntry {
             id: "hexcasting:patterns_intro".into(),
-            name: "Patterns Introduction".into(),
+            name: Book::BOOK_ENTRY_PATTERNS_INTRO_KEY.into(),
             category: "hexcasting:patterns".into(),
+            icon: None,
+            priority: 0,
+            read_by_default: true,
             pages: vec![
-                BookPage::Text { text: "Patterns are the building blocks of every Hex. Each one is a sequence of straight lines drawn across the dots of the casting grid.".into(), title: None },
-                BookPage::Text { text: "Draw a pattern by dragging across the grid; release to cast it. Sneak and use the staff to clear your stack.".into(), title: None },
+                page(Book::BOOK_ENTRY_PATTERNS_INTRO_PAGE1_KEY),
+                page(Book::BOOK_ENTRY_PATTERNS_INTRO_PAGE2_KEY),
             ],
             ..Default::default()
         })

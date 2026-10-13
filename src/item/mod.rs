@@ -1,6 +1,4 @@
-//! Items: foci, armor, consumables.
-
-pub mod equipment;
+//! Items registered by hand (the rest are content/ files).
 
 use yog_api::Registry;
 
