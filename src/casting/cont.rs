@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use crate::iota::{read_stack, write_stack, Iota};
+use crate::iota::{Iota, read_stack, write_stack};
 use crate::wire::{Reader, Writer};
 
 #[derive(Debug, Clone, PartialEq)]

@@ -5,7 +5,7 @@
 // boxing it on every `Err` path buys nothing at hex-evaluation rates.
 #![allow(clippy::result_large_err)]
 
-use yog_api::{info, Mod, Registry};
+use yog_api::{Mod, Registry, info};
 
 pub mod akashic;
 pub mod book;

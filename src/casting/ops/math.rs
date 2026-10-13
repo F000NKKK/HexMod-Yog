@@ -1,7 +1,7 @@
 //! Numbers, vectors, logic and constants (`casting/actions/math`, the
 //! arithmetic `OperationAction`s and `Action.makeConstantOp`s).
 
-use crate::casting::actions::{actions, Action};
+use crate::casting::actions::{Action, actions};
 use crate::casting::args::NumOrVec;
 use crate::casting::env::random;
 use crate::iota::Iota;

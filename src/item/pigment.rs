@@ -184,11 +184,7 @@ impl JavaRandom {
     /// `RandomGenerator.nextFloat(origin, bound)`.
     pub fn next_float_in(&mut self, origin: f32, bound: f32) -> f32 {
         let r = self.next_float() * (bound - origin) + origin;
-        if r >= bound {
-            f32::from_bits(bound.to_bits() - 1)
-        } else {
-            r
-        }
+        if r >= bound { f32::from_bits(bound.to_bits() - 1) } else { r }
     }
 
     /// `Random.nextInt(bound)`.

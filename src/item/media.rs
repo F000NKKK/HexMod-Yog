@@ -4,7 +4,7 @@
 
 use yog_api::Server;
 
-use crate::casting::env::{Stack, SLOT_OFFHAND};
+use crate::casting::env::{SLOT_OFFHAND, Stack};
 use crate::snbt::Nbt;
 
 /// `MediaConstants`.

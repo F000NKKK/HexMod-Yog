@@ -12,7 +12,7 @@ use crate::casting::env::from_ypos;
 use crate::casting::ops::{great, query, spells};
 use crate::item::holder::ABACUS;
 use crate::item::media;
-use crate::protocol::{OpenGui, PatternResult, CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT};
+use crate::protocol::{CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT, OpenGui, PatternResult};
 use crate::ui::spellcasting::{self, CH_SCROLL};
 
 pub fn register(registry: &mut Registry) {

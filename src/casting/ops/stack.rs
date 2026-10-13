@@ -1,7 +1,7 @@
 //! Stack manipulation (`casting/actions/stack`).
 
-use crate::casting::actions::{actions, Action};
-use crate::casting::args::{int_between, Arg, Many, PosInt};
+use crate::casting::actions::{Action, actions};
+use crate::casting::args::{Arg, Many, PosInt, int_between};
 use crate::casting::cont::Cont;
 use crate::casting::env::CastEnv;
 use crate::casting::image::Image;

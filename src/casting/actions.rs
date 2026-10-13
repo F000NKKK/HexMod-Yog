@@ -12,7 +12,7 @@ use std::sync::{Mutex, OnceLock};
 use yog_api::Storage;
 
 use crate::casting::cont::Cont;
-use crate::casting::env::{random, CastEnv, MOD_ID};
+use crate::casting::env::{CastEnv, MOD_ID, random};
 use crate::casting::image::Image;
 use crate::casting::mishap::{MResult, Mishap};
 use crate::casting::vm::{OpResult, SideEffect, Sound, Spell};
@@ -20,7 +20,7 @@ use crate::iota::Iota;
 use crate::item::pigment::JavaRandom;
 use crate::math::{HexAngle, HexCoord, HexDir, HexPattern};
 use crate::protocol::ResolvedType;
-use crate::text::{fmt_double, Text};
+use crate::text::{Text, fmt_double};
 
 /// `Action.operate`.
 pub type OpFn = fn(&mut CastEnv<'_>, Image, &Cont) -> MResult<OpResult>;
@@ -348,10 +348,10 @@ pub fn per_world(srv: &dyn yog_api::Server) -> HashMap<String, &'static str> {
         }
     };
     let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
-    if let Some((s, map)) = cache.as_ref() {
-        if *s == seed {
-            return map.clone();
-        }
+    if let Some((s, map)) = cache.as_ref()
+        && *s == seed
+    {
+        return map.clone();
     }
     let map: HashMap<String, &'static str> = all()
         .iter()
@@ -525,7 +525,7 @@ impl Special {
                 const_op(env, image, cont, 0, 0, |_, _| Ok(vec![Iota::Double(*x)]))
             }
             Special::Mask(m) => const_op(env, image, cont, m.len(), 0, |args, _| {
-                Ok(args.into_iter().zip(m).filter(|(_, &k)| k).map(|(a, _)| a).collect())
+                Ok(args.into_iter().zip(m).filter(|(_, k)| **k).map(|(a, _)| a).collect())
             }),
         }
     }

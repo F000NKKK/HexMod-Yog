@@ -17,25 +17,24 @@ mod view {
 }
 
 use view::close;
-pub use view::{register, ID};
+pub use view::{ID, register};
 
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, MutexGuard, Once};
 
-use yog_api::client::{self, ui_flags, SoundHandle};
+use yog_api::client::{self, SoundHandle, ui_flags};
 use yog_api::ui::{Pointer, Rect, Surface};
 use yog_api::{GfxContext, Server};
 use yog_kit::prelude::*;
 
 use super::render_lib::{
-    coord_to_px, draw_pattern_from_points, draw_spot, find_dup_indices, positions_from,
-    px_to_coord, range_around, ticks, to_lines, Mesh, PatternStyle, Vec2,
-    DEFAULT_READABILITY_OFFSET,
+    DEFAULT_READABILITY_OFFSET, Mesh, PatternStyle, Vec2, coord_to_px, draw_pattern_from_points,
+    draw_spot, find_dup_indices, positions_from, px_to_coord, range_around, ticks, to_lines,
 };
 use crate::iota::Iota;
 use crate::math::{HexAngle, HexCoord, HexDir, HexPattern};
 use crate::protocol::{
-    Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType, CH_NEW_PATTERN,
+    CH_NEW_PATTERN, Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType,
 };
 use crate::wire::Writer;
 

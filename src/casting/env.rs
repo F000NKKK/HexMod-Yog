@@ -4,14 +4,14 @@
 
 use std::sync::atomic::{AtomicU8, Ordering};
 
-use yog_api::core::{entity_flags, EntityInfo};
+use yog_api::core::{EntityInfo, entity_flags};
 use yog_api::{Server, Storage};
 
-use crate::casting::mishap::{item_name, BlockPos, MResult, Mishap, ShownItem};
+use crate::casting::mishap::{BlockPos, MResult, Mishap, ShownItem, item_name};
 use crate::casting::vm::Sound;
 use crate::iota::EntityRef;
 use crate::item::media;
-use crate::item::pigment::{dye_pigment, Pigment};
+use crate::item::pigment::{Pigment, dye_pigment};
 use crate::math::Vec3;
 use crate::protocol::Hand;
 use crate::snbt::Nbt;
@@ -334,10 +334,10 @@ impl<'a> CastEnv<'a> {
 
     /// The caster's pigment; a packaged hex uses the one it was made with.
     pub fn pigment(&self) -> Pigment {
-        if self.source == Source::Packaged {
-            if let Some(p) = self.held(self.hand).and_then(|s| crate::item::packaged::pigment(&s)) {
-                return p;
-            }
+        if self.source == Source::Packaged
+            && let Some(p) = self.held(self.hand).and_then(|s| crate::item::packaged::pigment(&s))
+        {
+            return p;
         }
         match &self.caster {
             Some(c) => get_pigment(self.srv, &c.uuid),
@@ -360,11 +360,11 @@ impl<'a> CastEnv<'a> {
     pub fn post_execution(&mut self, sound: Sound) {
         match self.source {
             Source::Staff => {
-                if let (Some(id), Some(pos)) = (sound.id(), self.caster_pos()) {
-                    if self.sounds_played < 100 {
-                        self.srv.play_sound(&self.dim, pos.x, pos.y, pos.z, id, 1.0, 1.0);
-                        self.sounds_played += 1;
-                    }
+                if let (Some(id), Some(pos)) = (sound.id(), self.caster_pos())
+                    && self.sounds_played < 100
+                {
+                    self.srv.play_sound(&self.dim, pos.x, pos.y, pos.z, id, 1.0, 1.0);
+                    self.sounds_played += 1;
                 }
             }
             _ => self.loudest = self.loudest.max(sound),
@@ -633,13 +633,12 @@ impl<'a> CastEnv<'a> {
             let s = Stack { slot, ..with.clone() };
             s.save(self.srv, name);
         };
-        if let Some(h) = hand {
-            if let Some(s) = self.held(h) {
-                if ok(&s) {
-                    put(s.slot);
-                    return true;
-                }
-            }
+        if let Some(h) = hand
+            && let Some(s) = self.held(h)
+            && ok(&s)
+        {
+            put(s.slot);
+            return true;
         }
         let selected = self.srv.player_info(name).map_or(0, |p| p.selected_slot);
         for i in (0..36).rev().filter(|&i| i != selected) {
@@ -649,11 +648,11 @@ impl<'a> CastEnv<'a> {
             }
         }
         for h in [other_hand(self.hand), self.hand] {
-            if let Some(s) = self.held(h) {
-                if ok(&s) {
-                    put(s.slot);
-                    return true;
-                }
+            if let Some(s) = self.held(h)
+                && ok(&s)
+            {
+                put(s.slot);
+                return true;
             }
         }
         false

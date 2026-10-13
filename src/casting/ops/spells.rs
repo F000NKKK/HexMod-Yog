@@ -4,27 +4,27 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64::consts::PI;
 use std::sync::Mutex;
 
-use yog_api::core::Face;
 use yog_api::Server;
+use yog_api::core::Face;
 
 use crate::akashic;
-use crate::casting::actions::{actions, Action};
+use crate::casting::actions::{Action, actions};
 use crate::casting::args::{
-    double_between, pos_int_under, pos_int_under_incl, Arg, Block, Ent, ItemEnt, Living, Player,
-    PosDouble,
+    Arg, Block, Ent, ItemEnt, Living, Player, PosDouble, double_between, pos_int_under,
+    pos_int_under_incl,
 };
 use crate::casting::cont::Cont;
 use crate::casting::env::{
-    get_pigment, get_sentinel, look_vec, player_storage, random, set_pigment, set_sentinel,
-    to_ypos, CastEnv, Sentinel, Spray, Stack,
+    CastEnv, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec, player_storage, random,
+    set_pigment, set_sentinel, to_ypos,
 };
 use crate::casting::image::Image;
-use crate::casting::mishap::{dye, item_name, BlockPos, MResult, Mishap};
+use crate::casting::mishap::{BlockPos, MResult, Mishap, dye, item_name};
 use crate::casting::ops::rw::others_name;
 use crate::casting::vm::{OpResult, SideEffect, Sound, Spell};
 use crate::iota::Iota;
 use crate::item::media::{self, CRYSTAL, DUST, SHARD};
-use crate::item::pigment::{dye_pigment, is_pigment, Pigment};
+use crate::item::pigment::{Pigment, dye_pigment, is_pigment};
 use crate::item::{holder, packaged};
 use crate::math::Vec3;
 use crate::snbt::Nbt;
@@ -181,11 +181,7 @@ fn assert_battery_media(env: &CastEnv, e: &Ent) -> MResult<()> {
     let ok = item_entity_stack(env.srv, e.uuid()).is_some_and(|mut s| {
         media::is_media_item(&s) && media::extract_for_battery(&mut s, true) > 0
     });
-    if ok {
-        Ok(())
-    } else {
-        Err(Mishap::bad_entity(env, &e.r, "media_for_battery"))
-    }
+    if ok { Ok(()) } else { Err(Mishap::bad_entity(env, &e.r, "media_for_battery")) }
 }
 
 // ── teleports ──────────────────────────────────────────────────────────────

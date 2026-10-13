@@ -7,7 +7,7 @@
 
 use yog_api::GfxContext;
 
-use super::render_lib::{draw_line_seq, draw_spot, get_centered_pattern, Mesh, Vec2};
+use super::render_lib::{Mesh, Vec2, draw_line_seq, draw_spot, get_centered_pattern};
 use crate::math::HexPattern;
 
 /// `PatternColors.DEFAULT_PATTERN_COLOR`: inner stroke, outer stroke.

@@ -9,7 +9,7 @@ use std::collections::{HashSet, VecDeque};
 
 use yog_api::{Server, Storage};
 
-use crate::casting::env::{random, to_ypos, MOD_ID};
+use crate::casting::env::{MOD_ID, random, to_ypos};
 use crate::casting::mishap::BlockPos;
 use crate::iota::Iota;
 use crate::math::HexPattern;

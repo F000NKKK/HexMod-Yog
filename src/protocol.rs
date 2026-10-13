@@ -11,7 +11,7 @@
 //! Iotas travel whole ([`crate::wire`]); the client words them in its own
 //! language, as the original sends iota tags and lets the client render.
 
-use crate::iota::{read_stack, write_stack, Iota};
+use crate::iota::{Iota, read_stack, write_stack};
 use crate::math::{HexCoord, HexPattern};
 use crate::wire::{Reader, Writer};
 

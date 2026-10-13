@@ -2,10 +2,10 @@
 //! (`casting/actions/{rw,akashic}`).
 
 use crate::akashic;
-use crate::casting::actions::{actions, Action};
+use crate::casting::actions::{Action, actions};
 use crate::casting::args::{Block, Ent};
 use crate::casting::env::{CastEnv, Spray, Stack};
-use crate::casting::mishap::{true_name_in, MResult, Mishap};
+use crate::casting::mishap::{MResult, Mishap, true_name_in};
 use crate::casting::vm::Spell;
 use crate::iota::Iota;
 use crate::item::holder::{self, EntityHolder};
@@ -132,10 +132,10 @@ fn write_entity(env: &mut CastEnv, e: Ent, datum: Iota) -> MResult<Spell> {
     let uuid = e.uuid().to_owned();
     let type_id = e.info.type_id.clone();
     Ok(Spell::new(0, vec![spray], move |env, _| {
-        if let Some((mut s, how)) = holder::entity_stack(env.srv, &uuid, &type_id) {
-            if holder::write(&mut s, Some(&datum), false) {
-                holder::save_entity_stack(env.srv, &uuid, &s, how);
-            }
+        if let Some((mut s, how)) = holder::entity_stack(env.srv, &uuid, &type_id)
+            && holder::write(&mut s, Some(&datum), false)
+        {
+            holder::save_entity_stack(env.srv, &uuid, &s, how);
         }
     }))
 }

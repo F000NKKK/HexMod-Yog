@@ -468,10 +468,11 @@ fn power_of(i: &Iota) -> Text {
 pub fn true_name_in(env: &CastEnv, datum: &Iota, caster: Option<&str>) -> Option<EntityRef> {
     let mut pool = std::collections::VecDeque::from([datum]);
     while let Some(d) = pool.pop_front() {
-        if let Iota::Entity(e) = d {
-            if Some(e.uuid.as_str()) != caster && env.is_player(&e.uuid) {
-                return Some(e.clone());
-            }
+        if let Iota::Entity(e) = d
+            && Some(e.uuid.as_str()) != caster
+            && env.is_player(&e.uuid)
+        {
+            return Some(e.clone());
         }
         if let Iota::List(l) = d {
             pool.extend(l.iter());

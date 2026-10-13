@@ -3,7 +3,7 @@
 
 use yog_api::Server;
 
-use crate::casting::env::{random, CastEnv, Caster, Source, Spray};
+use crate::casting::env::{CastEnv, Caster, Source, Spray, random};
 use crate::casting::vm::Vm;
 use crate::item::holder::{self, ABACUS, SPELLBOOK};
 use crate::item::{media, packaged};
@@ -53,23 +53,22 @@ pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
     if let Some(id) = env.loudest.id() {
         srv.play_sound(&env.dim, pos.x, pos.y, pos.z, id, 1.0, 1.0);
     }
-    if let Some(mut stack) = env.held(hand) {
-        if stack.id == item_id
-            && media::breaks_after_depletion(&stack.id)
-            && media::media(&stack) == 0
-        {
-            stack.count -= 1;
-            env.save(&stack);
-            srv.play_sound(
-                &env.dim,
-                pos.x,
-                pos.y,
-                pos.z,
-                "minecraft:entity.item.break",
-                0.8,
-                0.8 + random() as f32 * 0.4,
-            );
-        }
+    if let Some(mut stack) = env.held(hand)
+        && stack.id == item_id
+        && media::breaks_after_depletion(&stack.id)
+        && media::media(&stack) == 0
+    {
+        stack.count -= 1;
+        env.save(&stack);
+        srv.play_sound(
+            &env.dim,
+            pos.x,
+            pos.y,
+            pos.z,
+            "minecraft:entity.item.break",
+            0.8,
+            0.8 + random() as f32 * 0.4,
+        );
     }
 }
 

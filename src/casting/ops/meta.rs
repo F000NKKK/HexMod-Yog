@@ -3,8 +3,8 @@
 
 use std::sync::Arc;
 
-use crate::casting::actions::{actions, Action};
-use crate::casting::args::{evaluatable, Arg, PosInt};
+use crate::casting::actions::{Action, actions};
+use crate::casting::args::{Arg, PosInt, evaluatable};
 use crate::casting::cont::{Cont, Frame};
 use crate::casting::env::{CastEnv, MAX_OP_COUNT};
 use crate::casting::image::{Image, ParenIota};

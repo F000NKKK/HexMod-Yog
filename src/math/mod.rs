@@ -276,11 +276,7 @@ impl Vec3 {
     /// Unit vector; the zero vector stays zero (like Minecraft's).
     pub fn normalize(self) -> Vec3 {
         let len = self.length();
-        if len < 1.0e-4 {
-            Vec3::ZERO
-        } else {
-            self * (1.0 / len)
-        }
+        if len < 1.0e-4 { Vec3::ZERO } else { self * (1.0 / len) }
     }
 
     pub fn distance_sqr(self, o: Vec3) -> f64 {

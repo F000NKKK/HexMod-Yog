@@ -5,12 +5,12 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use yog_api::core::{entity_flags as ef, EntityInfo};
 use yog_api::Server;
+use yog_api::core::{EntityInfo, entity_flags as ef};
 
-use crate::casting::actions::{actions, Action};
-use crate::casting::args::{block_center, Block, Ent, Player, PosDouble};
-use crate::casting::env::{get_sentinel, look_vec, to_ypos, CastEnv, Source, Stack};
+use crate::casting::actions::{Action, actions};
+use crate::casting::args::{Block, Ent, Player, PosDouble, block_center};
+use crate::casting::env::{CastEnv, Source, Stack, get_sentinel, look_vec, to_ypos};
 use crate::casting::mishap::{MResult, Mishap};
 use crate::iota::{EntityRef, Iota};
 use crate::item::media::DUST;

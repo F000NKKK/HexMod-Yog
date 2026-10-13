@@ -2,6 +2,7 @@
 id          = "hexcasting"
 name        = "@Strings.mod_name"
 version     = "0.1.0"
+edition     = "2024"
 description = "@Strings.mod_description"
 authors     = ["F000NK", "Yog Team", "gamma-delta (original Hex Casting)", "FallingColors & HexMod contributors (original Hex Casting)"]
 license     = "MIT"

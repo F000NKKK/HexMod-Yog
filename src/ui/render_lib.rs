@@ -10,9 +10,9 @@ use std::ops::{Add, Mul, Neg, Sub};
 use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
 
-use yog_api::gfx_core::{blend, DataType, DrawMode};
-use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
 use yog_api::GfxContext;
+use yog_api::gfx_core::{DataType, DrawMode, blend};
+use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
 
 use super::noise::get_noise;
 use crate::math::{HexCoord, HexPattern};
@@ -50,11 +50,7 @@ impl Vec2 {
     /// `ZERO` when (almost) zero-length, like Minecraft's.
     pub fn normalized(self) -> Vec2 {
         let l = self.length();
-        if l < 1.0e-4 {
-            Vec2::ZERO
-        } else {
-            Vec2::new(self.x / l, self.y / l)
-        }
+        if l < 1.0e-4 { Vec2::ZERO } else { Vec2::new(self.x / l, self.y / l) }
     }
 }
 

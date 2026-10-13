@@ -1,7 +1,7 @@
 //! Lists (`casting/actions/lists` and the list `OperationAction`s).
 
-use crate::casting::actions::{actions, Action};
-use crate::casting::args::{pos_int_under_incl, Many};
+use crate::casting::actions::{Action, actions};
+use crate::casting::args::{Many, pos_int_under_incl};
 use crate::casting::cont::Cont;
 use crate::casting::env::CastEnv;
 use crate::casting::image::Image;

@@ -5,7 +5,7 @@
 //! one (`MishapInvalidIota`, with the argument's index counted from the top
 //! of the stack).
 
-use yog_api::core::{entity_flags, EntityInfo};
+use yog_api::core::{EntityInfo, entity_flags};
 
 use crate::casting::env::CastEnv;
 use crate::casting::mishap::{BlockPos, MResult, Mishap};
@@ -221,14 +221,14 @@ fn entity(
     deny: u32,
     name: &str,
 ) -> MResult<Ent> {
-    if let Iota::Entity(r) = iota {
-        if let Some(info) = env.srv.entity_info(&r.uuid) {
-            if info.flags & flags == flags && info.flags & deny == 0 {
-                // The name it's shown with is whatever it's called now.
-                let r = EntityRef { uuid: r.uuid.clone(), name: info.name.clone() };
-                return Ok(Ent { r, info });
-            }
-        }
+    if let Iota::Entity(r) = iota
+        && let Some(info) = env.srv.entity_info(&r.uuid)
+        && info.flags & flags == flags
+        && info.flags & deny == 0
+    {
+        // The name it's shown with is whatever it's called now.
+        let r = EntityRef { uuid: r.uuid.clone(), name: info.name.clone() };
+        return Ok(Ent { r, info });
     }
     Err(Mishap::of_type(iota, rev, name))
 }

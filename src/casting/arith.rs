@@ -188,10 +188,10 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     }
 
     // Vec3Arithmetic
-    if op == "construct_vec" {
-        if let Some(d) = nums(a) {
-            return one(Iota::vec(d[0], d[1], d[2]));
-        }
+    if op == "construct_vec"
+        && let Some(d) = nums(a)
+    {
+        return one(Iota::vec(d[0], d[1], d[2]));
     }
     if let Some(v) = vec_args(a) {
         match (op, v.as_slice()) {
@@ -304,17 +304,17 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
             _ => {}
         }
     }
-    if let Some(d) = nums(a) {
-        if let [x, y] = d.as_slice() {
-            let (x, y) = (*x, *y);
-            let eq = (x - y).abs() < TOLERANCE;
-            match op {
-                "greater" => return one(Iota::Bool(x > y)),
-                "less" => return one(Iota::Bool(x < y)),
-                "greater_eq" => return one(Iota::Bool(eq || x >= y)),
-                "less_eq" => return one(Iota::Bool(eq || x <= y)),
-                _ => {}
-            }
+    if let Some(d) = nums(a)
+        && let [x, y] = d.as_slice()
+    {
+        let (x, y) = (*x, *y);
+        let eq = (x - y).abs() < TOLERANCE;
+        match op {
+            "greater" => return one(Iota::Bool(x > y)),
+            "less" => return one(Iota::Bool(x < y)),
+            "greater_eq" => return one(Iota::Bool(eq || x >= y)),
+            "less_eq" => return one(Iota::Bool(eq || x <= y)),
+            _ => {}
         }
     }
 

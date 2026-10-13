@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use crate::casting::actions::{self, Lookup};
 use crate::casting::cont::{Cont, Frame};
-use crate::casting::env::{CastEnv, Spray, MAX_OP_COUNT};
+use crate::casting::env::{CastEnv, MAX_OP_COUNT, Spray};
 use crate::casting::image::Image;
 use crate::casting::mishap::{Context, MResult, Mishap};
 use crate::iota::Iota;
@@ -192,10 +192,10 @@ impl<'a> Vm<'a> {
     fn post_execution(&mut self, result: &CastResult) {
         self.env.post_execution(result.sound);
         for e in &result.effects {
-            if let SideEffect::Mishap(m, ctx) = e {
-                if let Some(msg) = m.message_with_name(&self.env, ctx) {
-                    self.env.print_message(&msg);
-                }
+            if let SideEffect::Mishap(m, ctx) = e
+                && let Some(msg) = m.message_with_name(&self.env, ctx)
+            {
+                self.env.print_message(&msg);
             }
         }
     }

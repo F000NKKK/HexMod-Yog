@@ -1,6 +1,6 @@
 //! The VM's state between patterns (Hex Casting's `CastingImage`).
 
-use crate::iota::{read_stack, write_stack, Iota};
+use crate::iota::{Iota, read_stack, write_stack};
 use crate::wire::{Reader, Writer};
 
 /// An iota collected inside Introspection–Retrospection, and whether it

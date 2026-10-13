@@ -2,7 +2,7 @@
 
 use crate::casting::cont::Cont;
 use crate::math::{HexPattern, Vec3};
-use crate::text::{fmt_double, Text};
+use crate::text::{Text, fmt_double};
 use crate::wire::{Reader, Writer};
 
 /// How close two numbers (or vectors) must be to count as equal.
@@ -288,11 +288,7 @@ pub fn fmt_vec(v: Vec3) -> String {
 /// `EAST qaq` — a pattern as Hex Casting's `displayNonInline` writes it.
 pub fn pattern_text(p: &HexPattern) -> String {
     let sig = p.signature();
-    if sig.is_empty() {
-        p.start.name().to_owned()
-    } else {
-        format!("{} {}", p.start.name(), sig)
-    }
+    if sig.is_empty() { p.start.name().to_owned() } else { format!("{} {}", p.start.name(), sig) }
 }
 
 /// A stack written as one string (top last, like the VM keeps it).
