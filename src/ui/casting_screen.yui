@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The casting screen (staff right-click). View model: CastingVm in casting_screen.rs. -->
+<Screen id="hexcasting:casting"
+        width="427"
+        height="240"
+        anchor="fill"
+        x:ViewModel="CastingVm">
+    <Screen.Resources>
+        <Color x:Key="Gold" value="#FFD700" />
+        <Style x:Key="Heading" target="Label" w="100%" color="@Gold" no_wrap="true" />
+        <Style x:Key="Empty" target="Label" color="#FF888888" shadow="false" />
+    </Screen.Resources>
+    <Grid w="100%" h="100%" columns="2*,*">
+        <Column w="100%" h="100%" padding="0 0 4 0" bg="#AA0B0B12">
+            <HexGrid x:Name="grid" w="100%" flex="1" />
+            <Label x:Name="hint"
+                   w="100%"
+                   padding="0 8"
+                   text="@Strings.screen.hint"
+                   color="#77AAAAAA"
+                   shadow="false"
+                   ellipsis="true" />
+        </Column>
+        <Column Grid.Column="1" w="100%" h="100%" padding="8" gap="4" bg="#CC14141C">
+            <Label style="@Heading" text="@Strings.screen.stack" />
+            <ListView x:Name="stack"
+                      w="100%"
+                      flex="2"
+                      gap="1"
+                      items="{x:Bind stack_rows()}"
+                      key="{x:Bind id}"
+                      item_height="12">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="IotaView">
+                        <IotaRow w="100%" kind="{x:Bind kind}" value="{x:Bind value}" accent="{x:Bind accent}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.Empty>
+                    <Label style="@Empty" text="@Strings.screen.stack_empty" />
+                </ListView.Empty>
+            </ListView>
+            <MishapBanner x:Name="status"
+                          w="100%"
+                          text="{x:Bind status_text()}"
+                          accent="{x:Bind status_color()}"
+                          visible="{x:Bind has_status()}" />
+            <Label style="@Heading" text="@Strings.screen.patterns" />
+            <ListView x:Name="patterns"
+                      w="100%"
+                      flex="1"
+                      gap="1"
+                      items="{x:Bind patterns()}"
+                      key="{x:Bind id}"
+                      item_height="12">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="PatternView">
+                        <PatternEntry w="100%" name="{x:Bind name}" signature="{x:Bind signature}" accent="{x:Bind accent}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.Empty>
+                    <Label style="@Empty" text="@Strings.screen.patterns_empty" />
+                </ListView.Empty>
+            </ListView>
+            <Button x:Name="clear"
+                    w="100%"
+                    h="14"
+                    text="@Strings.screen.clear"
+                    bg="#FF2A2A36"
+                    color="#FFFFFFFF"
+                    hover:bg="#FF3A3A4A"
+                    command="{x:Bind clear()}" />
+        </Column>
+    </Grid>
+</Screen>
