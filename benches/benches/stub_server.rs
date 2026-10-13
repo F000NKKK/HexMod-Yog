@@ -2,8 +2,8 @@
 //! action fails. Enough to run hexes that only touch the stack.
 //! Regenerate from `yog-core`'s `server.rs` when the trait changes.
 
-use yog_api::core::{BlockHit, BlockInfo, BlockPos, EntityInfo, Face, PlayerInfo};
 use yog_api::Server;
+use yog_api::core::{BlockHit, BlockInfo, BlockPos, EntityInfo, Face, PlayerInfo};
 
 /// `game_dir` is where the mod's storage goes (a scratch directory).
 pub struct StubServer {
@@ -48,10 +48,24 @@ impl Server for StubServer {
     fn entity_kill(&self, uuid: &str) -> bool {
         Default::default()
     }
-    fn spawn_entity(&self, entity_type: &str, dimension: &str, x: f64, y: f64, z: f64) -> Option<String> {
+    fn spawn_entity(
+        &self,
+        entity_type: &str,
+        dimension: &str,
+        x: f64,
+        y: f64,
+        z: f64,
+    ) -> Option<String> {
         Default::default()
     }
-    fn entity_add_effect(&self, uuid: &str, effect_id: &str, duration_ticks: i32, amplifier: u8, show_particles: bool) -> bool {
+    fn entity_add_effect(
+        &self,
+        uuid: &str,
+        effect_id: &str,
+        duration_ticks: i32,
+        amplifier: u8,
+        show_particles: bool,
+    ) -> bool {
         Default::default()
     }
     fn entity_remove_effect(&self, uuid: &str, effect_id: &str) -> bool {
@@ -99,13 +113,30 @@ impl Server for StubServer {
     fn scoreboard_add(&self, objective: &str, player: &str, delta: i32) -> Option<i32> {
         Default::default()
     }
-    fn play_sound(&self, dimension: &str, x: f64, y: f64, z: f64, sound_id: &str, volume: f32, pitch: f32) -> bool {
+    fn play_sound(
+        &self,
+        dimension: &str,
+        x: f64,
+        y: f64,
+        z: f64,
+        sound_id: &str,
+        volume: f32,
+        pitch: f32,
+    ) -> bool {
         Default::default()
     }
     fn play_sound_to_player(&self, player: &str, sound_id: &str, volume: f32, pitch: f32) -> bool {
         Default::default()
     }
-    fn send_title(&self, player: &str, title: &str, subtitle: &str, fadein: i32, stay: i32, fadeout: i32) -> bool {
+    fn send_title(
+        &self,
+        player: &str,
+        title: &str,
+        subtitle: &str,
+        fadein: i32,
+        stay: i32,
+        fadeout: i32,
+    ) -> bool {
         Default::default()
     }
     fn send_actionbar(&self, player: &str, message: &str) -> bool {
@@ -156,10 +187,22 @@ impl Server for StubServer {
     fn set_block_nbt(&self, dimension: &str, pos: BlockPos, snbt: &str) -> bool {
         Default::default()
     }
-    fn get_inventory_slot(&self, dimension: &str, pos: BlockPos, slot: u32) -> Option<(String, u32)> {
+    fn get_inventory_slot(
+        &self,
+        dimension: &str,
+        pos: BlockPos,
+        slot: u32,
+    ) -> Option<(String, u32)> {
         Default::default()
     }
-    fn set_inventory_slot(&self, dimension: &str, pos: BlockPos, slot: u32, item_id: &str, count: u32) -> bool {
+    fn set_inventory_slot(
+        &self,
+        dimension: &str,
+        pos: BlockPos,
+        slot: u32,
+        item_id: &str,
+        count: u32,
+    ) -> bool {
         Default::default()
     }
     fn player_inventory(&self, player: &str) -> Vec<(u32, String, u32)> {
@@ -183,7 +226,19 @@ impl Server for StubServer {
     fn entity_set_nbt(&self, uuid: &str, snbt: &str) -> bool {
         Default::default()
     }
-    fn spawn_particles(&self, dimension: &str, x: f64, y: f64, z: f64, particle_type: &str, count: i32, dx: f64, dy: f64, dz: f64, speed: f64) -> bool {
+    fn spawn_particles(
+        &self,
+        dimension: &str,
+        x: f64,
+        y: f64,
+        z: f64,
+        particle_type: &str,
+        count: i32,
+        dx: f64,
+        dy: f64,
+        dz: f64,
+        speed: f64,
+    ) -> bool {
         Default::default()
     }
     fn entity_attribute_get(&self, uuid: &str, attribute_id: &str) -> Option<f64> {
@@ -207,19 +262,42 @@ impl Server for StubServer {
     fn get_slot_item(&self, player: &str, slot: u32) -> Option<(String, u32, String)> {
         Default::default()
     }
-    fn set_slot_item(&self, player: &str, slot: u32, item_id: &str, count: u32, snbt: &str) -> bool {
+    fn set_slot_item(
+        &self,
+        player: &str,
+        slot: u32,
+        item_id: &str,
+        count: u32,
+        snbt: &str,
+    ) -> bool {
         Default::default()
     }
     fn entity_info(&self, uuid: &str) -> Option<EntityInfo> {
         Default::default()
     }
-    fn entities_in_box(&self, dimension: &str, min: (f64, f64, f64), max: (f64, f64, f64)) -> Vec<String> {
+    fn entities_in_box(
+        &self,
+        dimension: &str,
+        min: (f64, f64, f64),
+        max: (f64, f64, f64),
+    ) -> Vec<String> {
         Default::default()
     }
-    fn raycast_block(&self, dimension: &str, from: (f64, f64, f64), to: (f64, f64, f64)) -> Option<BlockHit> {
+    fn raycast_block(
+        &self,
+        dimension: &str,
+        from: (f64, f64, f64),
+        to: (f64, f64, f64),
+    ) -> Option<BlockHit> {
         Default::default()
     }
-    fn raycast_entity(&self, dimension: &str, from: (f64, f64, f64), to: (f64, f64, f64), exclude: &str) -> Option<String> {
+    fn raycast_entity(
+        &self,
+        dimension: &str,
+        from: (f64, f64, f64),
+        to: (f64, f64, f64),
+        exclude: &str,
+    ) -> Option<String> {
         Default::default()
     }
     fn block_info(&self, dimension: &str, pos: BlockPos) -> Option<BlockInfo> {
@@ -228,13 +306,29 @@ impl Server for StubServer {
     fn break_block(&self, dimension: &str, pos: BlockPos, drop: bool, breaker: &str) -> bool {
         Default::default()
     }
-    fn place_block_from_slot(&self, player: &str, slot: u32, dimension: &str, pos: BlockPos) -> bool {
+    fn place_block_from_slot(
+        &self,
+        player: &str,
+        slot: u32,
+        dimension: &str,
+        pos: BlockPos,
+    ) -> bool {
         Default::default()
     }
     fn bonemeal(&self, dimension: &str, pos: BlockPos) -> bool {
         Default::default()
     }
-    #[allow(clippy::too_many_arguments)] fn explode(&self, dimension: &str, x: f64, y: f64, z: f64, power: f32, fire: bool, source: &str) -> bool {
+    #[allow(clippy::too_many_arguments)]
+    fn explode(
+        &self,
+        dimension: &str,
+        x: f64,
+        y: f64,
+        z: f64,
+        power: f32,
+        fire: bool,
+        source: &str,
+    ) -> bool {
         Default::default()
     }
     fn tellraw(&self, player: &str, json: &str) -> bool {
@@ -255,7 +349,16 @@ impl Server for StubServer {
     fn player_info(&self, player: &str) -> Option<PlayerInfo> {
         Default::default()
     }
-    #[allow(clippy::too_many_arguments)] fn spawn_item(&self, dimension: &str, pos: (f64, f64, f64), vel: (f64, f64, f64), item_id: &str, count: u32, snbt: &str) -> Option<String> {
+    #[allow(clippy::too_many_arguments)]
+    fn spawn_item(
+        &self,
+        dimension: &str,
+        pos: (f64, f64, f64),
+        vel: (f64, f64, f64),
+        item_id: &str,
+        count: u32,
+        snbt: &str,
+    ) -> Option<String> {
         Default::default()
     }
     fn item_entity_stack(&self, uuid: &str) -> Option<(String, u32, String)> {
@@ -267,7 +370,14 @@ impl Server for StubServer {
     fn actionbar_json(&self, player: &str, json: &str) -> bool {
         Default::default()
     }
-    fn use_item_on_block(&self, dimension: &str, pos: BlockPos, face: Face, item_id: &str, player: &str) -> bool {
+    fn use_item_on_block(
+        &self,
+        dimension: &str,
+        pos: BlockPos,
+        face: Face,
+        item_id: &str,
+        player: &str,
+    ) -> bool {
         Default::default()
     }
     fn pour_fluid(&self, dimension: &str, pos: BlockPos, bucket_item_id: &str) -> bool {

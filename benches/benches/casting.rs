@@ -5,8 +5,8 @@ mod stub_server;
 
 use std::hint::black_box;
 
-use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
-use hexcasting::casting::actions::{self, dir, Lookup};
+use criterion::{BatchSize, Criterion, criterion_group, criterion_main};
+use hexcasting::casting::actions::{self, Lookup, dir};
 use hexcasting::casting::env::{CastEnv, Source, Stack};
 use hexcasting::casting::image::Image;
 use hexcasting::casting::vm::Vm;
@@ -89,9 +89,11 @@ fn big_list() -> Iota {
 
 fn vm(c: &mut Criterion) {
     let srv = server();
-    for (name, hex) in
-        [("vm/long_hex", long_hex()), ("vm/deep_stack", deep_stack_hex()), ("vm/thoth", thoth_hex())]
-    {
+    for (name, hex) in [
+        ("vm/long_hex", long_hex()),
+        ("vm/deep_stack", deep_stack_hex()),
+        ("vm/thoth", thoth_hex()),
+    ] {
         assert!(run(&srv, hex.clone()).success(), "{name} mishapped");
         c.bench_function(name, |b| {
             b.iter_batched(|| hex.clone(), |h| run(&srv, h), BatchSize::SmallInput)
