@@ -20,11 +20,19 @@ use stub_server::StubServer;
 fn server() -> StubServer {
     let dir = std::env::temp_dir().join("hexcasting-bench");
     std::fs::create_dir_all(&dir).unwrap();
-    StubServer { game_dir: dir.to_string_lossy().into_owned() }
+    StubServer {
+        game_dir: dir.to_string_lossy().into_owned(),
+    }
 }
 
 fn env(srv: &StubServer) -> CastEnv<'_> {
-    CastEnv::new(srv, None, Hand::Main, Source::Staff, "minecraft:overworld".into())
+    CastEnv::new(
+        srv,
+        None,
+        Hand::Main,
+        Source::Staff,
+        "minecraft:overworld".into(),
+    )
 }
 
 fn pat(sig: &str, d: HexDir) -> Iota {
@@ -33,7 +41,11 @@ fn pat(sig: &str, d: HexDir) -> Iota {
 
 /// Numerical Reflection for a whole number in `0..=100`.
 fn num(n: u32) -> Iota {
-    let sig = format!("aqaa{}{}", "e".repeat((n / 10) as usize), "w".repeat((n % 10) as usize));
+    let sig = format!(
+        "aqaa{}{}",
+        "e".repeat((n / 10) as usize),
+        "w".repeat((n % 10) as usize)
+    );
     pat(&sig, dir::E)
 }
 
@@ -50,7 +62,13 @@ fn mul() -> Iota {
 fn long_hex() -> Vec<Iota> {
     let mut hex = vec![num(1)];
     for _ in 0..250 {
-        hex.extend([num(1), add(), pat("aadaa", dir::E), pat("aawdd", dir::E), pat("a", dir::SE)]);
+        hex.extend([
+            num(1),
+            add(),
+            pat("aadaa", dir::E),
+            pat("aawdd", dir::E),
+            pat("a", dir::SE),
+        ]);
     }
     hex
 }
@@ -81,8 +99,15 @@ fn big_list() -> Iota {
         items.push(Iota::Double(i as f64 * 1.5));
         items.push(Iota::vec(i as f64, -2.0, 3.25));
         items.push(pat("waqaw", dir::SE));
-        items.push(Iota::entity("069a79f4-44e9-4726-a5be-fca90e38aaf5", "Notch"));
-        items.push(Iota::List(vec![Iota::Bool(true), Iota::Null, Iota::Double(0.1)]));
+        items.push(Iota::entity(
+            "069a79f4-44e9-4726-a5be-fca90e38aaf5",
+            "Notch",
+        ));
+        items.push(Iota::List(vec![
+            Iota::Bool(true),
+            Iota::Null,
+            Iota::Double(0.1),
+        ]));
     }
     Iota::List(items)
 }
@@ -103,7 +128,9 @@ fn vm(c: &mut Criterion) {
 
 fn patterns(c: &mut Criterion) {
     let long = HexPattern::from_angles(&"qaqwedsaeqd".repeat(10), dir::E).unwrap();
-    c.bench_function("pattern/signature", |b| b.iter(|| black_box(&long).signature()));
+    c.bench_function("pattern/signature", |b| {
+        b.iter(|| black_box(&long).signature())
+    });
     c.bench_function("pattern/from_angles", |b| {
         b.iter(|| HexPattern::from_angles(black_box("qaqwedsaeqdqaqwedsaeqd"), dir::E))
     });
@@ -121,37 +148,62 @@ fn registry(c: &mut Criterion) {
         ("registry/lookup_unknown", pat("qqqqqqwwwwwweeeee", dir::E)),
     ];
     for (name, iota) in lookups {
-        let Iota::Pattern(p) = iota else { unreachable!() };
+        let Iota::Pattern(p) = iota else {
+            unreachable!()
+        };
         assert!(!matches!(actions::lookup(&p, &env), Lookup::Nothing) || name.ends_with("unknown"));
         c.bench_function(name, |b| b.iter(|| actions::lookup(black_box(&p), &env)));
     }
-    c.bench_function("registry/by_id", |b| b.iter(|| actions::by_id(black_box("for_each"))));
+    c.bench_function("registry/by_id", |b| {
+        b.iter(|| actions::by_id(black_box("for_each")))
+    });
 }
 
 fn serialization(c: &mut Criterion) {
     let list = big_list();
     let text = list.serialize();
-    c.bench_function("iota/serialize", |b| b.iter(|| black_box(&list).serialize()));
-    c.bench_function("iota/deserialize", |b| b.iter(|| Iota::deserialize(black_box(&text))));
+    c.bench_function("iota/serialize", |b| {
+        b.iter(|| black_box(&list).serialize())
+    });
+    c.bench_function("iota/deserialize", |b| {
+        b.iter(|| Iota::deserialize(black_box(&text)))
+    });
 
-    let image = Image { stack: vec![list.clone(), Iota::Double(2.0)], ..Image::default() };
+    let image = Image {
+        stack: vec![list.clone(), Iota::Double(2.0)],
+        ..Image::default()
+    };
     let encoded = image.encode();
     c.bench_function("image/encode", |b| b.iter(|| black_box(&image).encode()));
-    c.bench_function("image/decode", |b| b.iter(|| Image::decode(black_box(&encoded))));
+    c.bench_function("image/decode", |b| {
+        b.iter(|| Image::decode(black_box(&encoded)))
+    });
 
-    let mut focus = Stack { slot: 0, id: holder::FOCUS.into(), count: 1, nbt: Nbt::default() };
+    let mut focus = Stack {
+        slot: 0,
+        id: holder::FOCUS.into(),
+        count: 1,
+        nbt: Nbt::default(),
+    };
     assert!(holder::write(&mut focus, Some(&list), false));
     let snbt = focus.nbt.to_snbt();
     c.bench_function("nbt/focus_write", |b| {
         b.iter_batched(
-            || Stack { nbt: Nbt::default(), ..focus.clone() },
+            || Stack {
+                nbt: Nbt::default(),
+                ..focus.clone()
+            },
             |mut s| holder::write(&mut s, Some(&list), false),
             BatchSize::SmallInput,
         )
     });
-    c.bench_function("nbt/focus_read", |b| b.iter(|| holder::read(black_box(&focus))));
+    c.bench_function("nbt/focus_read", |b| {
+        b.iter(|| holder::read(black_box(&focus)))
+    });
     c.bench_function("nbt/parse", |b| b.iter(|| Nbt::parse(black_box(&snbt))));
-    c.bench_function("nbt/to_snbt", |b| b.iter(|| black_box(&focus.nbt).to_snbt()));
+    c.bench_function("nbt/to_snbt", |b| {
+        b.iter(|| black_box(&focus.nbt).to_snbt())
+    });
 }
 
 criterion_group!(benches, vm, patterns, registry, serialization);
