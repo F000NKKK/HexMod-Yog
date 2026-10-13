@@ -806,9 +806,9 @@ checksum = "25c7825105d390e604067b97b2814466b20491defb53877e6b3e1dcbfa8a028f"
 
 [[package]]
 name = "yog-api"
-version = "0.92.5"
+version = "0.92.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "469ffe43a94c9077573553087ad6cfcae7f97fcf672ae24c4b05de518ce8fd3f"
+checksum = "38dc397766f87a1ed98489637f4ce9b5040acbb975dfd8a9a4d94e73b4439c40"
 dependencies = [
  "ctor",
  "rkyv",
@@ -915,9 +915,9 @@ dependencies = [
 
 [[package]]
 name = "yog-inventory"
-version = "0.14.0"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3952a38288238f9800d5b2f65e66ea2086eb0905d37fd21f772e8978ec9135d0"
+checksum = "4c9bd18a322583d6419162e0c0269a4fb34972951fbed754f8f22882bc876b2d"
 dependencies = [
  "serde",
  "serde_json",
@@ -973,9 +973,9 @@ checksum = "d300b68e1172c9cec95fee547a1cf641cc7063562b5851b91017814d39beb045"
 
 [[package]]
 name = "yog-ui"
-version = "0.40.3"
+version = "0.40.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a98547c407a801e9891d2df949a558fb75e1e89ec3b16b02e1f8c3ba6f5df527"
+checksum = "83c5e9221a00fc3f8e77fdb210153f88d0955ea0e773cdaf712279b7674add31"
 dependencies = [
  "yog-abi",
  "yog-gfx",
