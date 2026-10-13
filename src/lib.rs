@@ -1,8 +1,9 @@
 //! Hex Casting, ported to the Yog loader: programmable magic through hex
 //! patterns.
 
-// A `Mishap` carries the offending iotas, like the original's exceptions;
-// boxing it on every `Err` path buys nothing at hex-evaluation rates.
+// A `Mishap` (168 bytes) carries the offending iotas, like the original's
+// exceptions. Boxing it wouldn't shrink the hot `MResult<OpResult>`: the
+// `OpResult` itself is bigger (184 bytes).
 #![allow(clippy::result_large_err)]
 
 use yog_api::{Mod, Registry, info};
