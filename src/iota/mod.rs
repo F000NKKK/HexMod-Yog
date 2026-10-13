@@ -227,10 +227,8 @@ impl Iota {
                 w.tag('e').str(&e.uuid).str(&e.name);
             }
             Iota::List(l) => {
-                w.tag('l').int(l.len() as i64);
-                for i in l {
-                    i.write(w);
-                }
+                w.tag('l');
+                write_stack(w, l);
             }
             Iota::Pattern(p) => {
                 w.tag('p').str(&p.serialized_form());
@@ -251,14 +249,7 @@ impl Iota {
             'd' => Iota::Double(r.num()?),
             'v' => Iota::Vec3(Vec3::new(r.num()?, r.num()?, r.num()?)),
             'e' => Iota::entity(r.str()?, r.str()?),
-            'l' => {
-                let n = r.int()?;
-                let mut items = Vec::new();
-                for _ in 0..n {
-                    items.push(Iota::read(r)?);
-                }
-                Iota::List(items)
-            }
+            'l' => Iota::List(read_stack(r)?),
             'p' => Iota::Pattern(HexPattern::from_serialized(r.str()?)?),
             'c' => Iota::Continuation(Cont::read(r)?),
             _ => return None,
