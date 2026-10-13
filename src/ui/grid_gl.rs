@@ -1,4 +1,4 @@
-//! Smooth, resolution-independent rendering for the casting grid: dots and
+//! Smooth, resolution-independent drawing for the hex grid surface: dots and
 //! pattern lines are drawn as signed-distance-field quads (real circles and
 //! rounded-cap segments with anti-aliased edges) instead of blocky rects —
 //! looks crisp at any display resolution / GUI scale, unlike stepped quads.

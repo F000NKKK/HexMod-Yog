@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One iota of the stack: a colour mark, its type and its value. -->
+<Component name="IotaRow"
+           description="@Strings.component.iota_row"
+           icon="item:amethyst_shard"
+           design_w="150"
+           design_h="11">
+    <Property name="kind" type="text" default="Number" doc="The iota's type" />
+    <Property name="value" type="text" default="1.00" doc="The iota, as text" />
+    <Property name="accent" type="color" default="#FF5555FF" doc="Colour of the type" category="Appearance" />
+    <Row w="100%" h="11" gap="4" align="center">
+        <Spacer w="2" h="9" bg="{x:Bind accent}" />
+        <Label text="{x:Bind kind}" color="#FF9A9AB0" shadow="false" no_wrap="true" />
+        <Label flex="1" text="{x:Bind value}" color="#FFFFFFFF" ellipsis="true" />
+    </Row>
+</Component>

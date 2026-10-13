@@ -13,6 +13,7 @@ use yog_api::{Entity, Server};
 
 use crate::iota::Iota;
 use crate::math::{HexAngle, HexPattern};
+use crate::protocol::{Action, Mishap, Outcome, Report, CH_STACK};
 
 /// Per-player casting stacks, keyed by player name.
 static STACKS: Mutex<Option<HashMap<String, Vec<Iota>>>> = Mutex::new(None);
@@ -50,35 +51,16 @@ pub fn angle_signature(p: &HexPattern) -> String {
     sig
 }
 
-fn display_iota(i: &Iota) -> String {
-    match i {
-        Iota::Boolean(b) => b.to_string(),
-        Iota::Double(d) => format!("{d:.2}"),
-        Iota::Int(n) => n.to_string(),
-        Iota::String(s) => format!("\"{s}\""),
-        Iota::Entity(u) => format!("entity {}", &u.to_string()[..8]),
-        Iota::Vec3(x, y, z) => format!("({x:.1}, {y:.1}, {z:.1})"),
-        Iota::Pattern(p) => format!("pattern {}", angle_signature(p)),
-        Iota::List(l) => format!("[{} iotas]", l.len()),
-        Iota::Null => "null".into(),
-    }
-}
-
-enum Outcome {
-    Ok(&'static str),
-    Mishap(String),
-}
-
-/// Execute one drawn pattern for `player`. Returns a status line.
+/// Execute one drawn pattern for `player`.
 fn execute(sig: &str, player: &str, srv: &dyn Server, stack: &mut Vec<Iota>) -> Outcome {
     match sig {
         // Mind's Reflection — push a reference to the caster.
         "qaq" => match uuid_of(player).and_then(|u| uuid::Uuid::parse_str(&u).ok()) {
             Some(u) => {
                 stack.push(Iota::Entity(u));
-                Outcome::Ok("Mind's Reflection")
+                Outcome::Ok(Action::MindsReflection)
             }
-            None => Outcome::Mishap("the caster's mind is out of reach".into()),
+            None => Outcome::Mishap(Mishap::NoCaster),
         },
 
         // Compass' Purification — entity → its position.
@@ -86,15 +68,15 @@ fn execute(sig: &str, player: &str, srv: &dyn Server, stack: &mut Vec<Iota>) -> 
             Some(Iota::Entity(u)) => match Entity::new(srv, u.to_string()).position() {
                 Some((x, y, z)) => {
                     stack.push(Iota::Vec3(x, y, z));
-                    Outcome::Ok("Compass' Purification")
+                    Outcome::Ok(Action::CompassPurification)
                 }
-                None => Outcome::Mishap("that entity is nowhere to be found".into()),
+                None => Outcome::Mishap(Mishap::EntityGone),
             },
             Some(other) => {
                 stack.push(other);
-                Outcome::Mishap("expected an entity on the stack".into())
+                Outcome::Mishap(Mishap::ExpectedEntity)
             }
-            None => Outcome::Mishap("the stack is empty".into()),
+            None => Outcome::Mishap(Mishap::StackEmpty),
         },
 
         // Alidade's Purification — entity → its look vector.
@@ -102,24 +84,21 @@ fn execute(sig: &str, player: &str, srv: &dyn Server, stack: &mut Vec<Iota>) -> 
             Some(Iota::Entity(u)) => match Entity::new(srv, u.to_string()).look_vector() {
                 Some((x, y, z)) => {
                     stack.push(Iota::Vec3(x, y, z));
-                    Outcome::Ok("Alidade's Purification")
+                    Outcome::Ok(Action::AlidadePurification)
                 }
-                None => Outcome::Mishap("that entity is nowhere to be found".into()),
+                None => Outcome::Mishap(Mishap::EntityGone),
             },
             Some(other) => {
                 stack.push(other);
-                Outcome::Mishap("expected an entity on the stack".into())
+                Outcome::Mishap(Mishap::ExpectedEntity)
             }
-            None => Outcome::Mishap("the stack is empty".into()),
+            None => Outcome::Mishap(Mishap::StackEmpty),
         },
 
-        // Reveal — show the top iota without consuming it.
+        // Reveal — show the top iota (the caster's grid displays it).
         "de" => match stack.last() {
-            Some(top) => {
-                srv.send_title(player, "", &display_iota(top), 2, 30, 8);
-                Outcome::Ok("Reveal")
-            }
-            None => Outcome::Mishap("nothing to reveal".into()),
+            Some(_) => Outcome::Ok(Action::Reveal),
+            None => Outcome::Mishap(Mishap::NothingToReveal),
         },
 
         // Jester's Gambit — swap the top two iotas.
@@ -127,59 +106,43 @@ fn execute(sig: &str, player: &str, srv: &dyn Server, stack: &mut Vec<Iota>) -> 
             let n = stack.len();
             if n >= 2 {
                 stack.swap(n - 1, n - 2);
-                Outcome::Ok("Jester's Gambit")
+                Outcome::Ok(Action::JestersGambit)
             } else {
-                Outcome::Mishap("need two iotas to swap".into())
+                Outcome::Mishap(Mishap::NeedTwo)
             }
         }
 
         // Charon's Gambit-ish: clear the stack (practical while developing).
         "dsw" => {
             stack.clear();
-            Outcome::Ok("stack cleared")
+            Outcome::Ok(Action::ClearStack)
         }
 
-        _ => Outcome::Mishap(format!("the pattern `{sig}` fizzles")),
+        _ => Outcome::Mishap(Mishap::UnknownPattern(sig.to_string())),
     }
 }
 
-/// Clear a player's stack (sneak + use staff). Pushes the empty view.
+/// Clear a player's stack (sneak + use staff) and tell their grid.
 pub fn reset(player: &str, srv: &dyn Server) {
     if let Some(map) = STACKS.lock().unwrap().as_mut() {
         map.remove(player);
     }
-    srv.send_to_player(player, crate::grid::CH_STACK, b"#ok\treset");
+    let report = Report { outcome: Outcome::Reset, stack: Vec::new() };
+    srv.send_to_player(player, CH_STACK, &report.encode());
 }
 
-/// Entry point for the `hexcasting:cast` packet.
+/// Entry point for the `hexcasting:cast` packet: runs the pattern and sends
+/// the caster a [`Report`].
 pub fn handle_cast(player: &str, payload: &[u8], srv: &dyn Server) {
-    let serialized = String::from_utf8_lossy(payload);
-    let Some(pattern) = HexPattern::from_serialized(&serialized) else {
-        srv.send_actionbar(player, "the strokes make no sense");
-        return;
-    };
-    let sig = angle_signature(&pattern);
-
     let mut guard = STACKS.lock().unwrap();
     let stack = guard
         .get_or_insert_with(HashMap::new)
         .entry(player.to_string())
         .or_default();
-
-    // First line is a result marker (`#ok\tname` / `#mishap\tmsg`) so the
-    // grid can colour the just-drawn stroke; the rest is the stack, top first.
-    let marker = match execute(&sig, player, srv, stack) {
-        Outcome::Ok(name) => {
-            srv.send_actionbar(player, name);
-            format!("#ok\t{name}")
-        }
-        Outcome::Mishap(msg) => {
-            srv.send_actionbar(player, &format!("mishap: {msg}"));
-            format!("#mishap\t{msg}")
-        }
+    let outcome = match HexPattern::from_serialized(&String::from_utf8_lossy(payload)) {
+        Some(pattern) => execute(&angle_signature(&pattern), player, srv, stack),
+        None => Outcome::Mishap(Mishap::BadStrokes),
     };
-
-    let mut lines = vec![marker];
-    lines.extend(stack.iter().rev().map(display_iota));
-    srv.send_to_player(player, crate::grid::CH_STACK, lines.join("\n").as_bytes());
+    let report = Report { outcome, stack: stack.iter().rev().cloned().collect() };
+    srv.send_to_player(player, CH_STACK, &report.encode());
 }
