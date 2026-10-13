@@ -3,7 +3,8 @@
 //!
 //! A bookshelf's pattern and iota are kept in the chunk's mod storage
 //! (the blocks themselves are plain); breaking or placing a bookshelf
-//! clears its entry.
+//! clears its entry, and writing to a chunk forgets the shelves that
+//! vanished from it some other way.
 
 use std::collections::{HashSet, VecDeque};
 
@@ -11,12 +12,13 @@ use yog_api::{Server, Storage};
 
 use crate::casting::env::{MOD_ID, random, to_ypos};
 use crate::casting::mishap::BlockPos;
+use crate::content::Blocks;
 use crate::iota::Iota;
 use crate::math::HexPattern;
 
-pub const RECORD: &str = "hexcasting:akashic_record";
-pub const BOOKSHELF: &str = "hexcasting:akashic_bookshelf";
-pub const LIGATURE: &str = "hexcasting:akashic_connector";
+pub const RECORD: &str = Blocks::AKASHIC_RECORD;
+pub const BOOKSHELF: &str = Blocks::AKASHIC_BOOKSHELF;
+pub const LIGATURE: &str = Blocks::AKASHIC_CONNECTOR;
 
 /// `AkashicFloodfiller.floodFillFor`'s default range.
 const MAX_RANGE: i64 = 128;
@@ -34,15 +36,27 @@ fn store(srv: &dyn Server, dim: &str, pos: BlockPos) -> Storage {
     Storage::open_chunk(&srv.game_dir(), MOD_ID, dim, pos.0 >> 4, pos.2 >> 4)
 }
 
+const KEY_PREFIX: &str = "akashic.";
+const PATTERN: &str = "pattern";
+const IOTA: &str = "iota";
+
 fn key(pos: BlockPos, what: &str) -> String {
-    format!("akashic.{}.{}.{}.{what}", pos.0, pos.1, pos.2)
+    format!("{KEY_PREFIX}{}.{}.{}.{what}", pos.0, pos.1, pos.2)
+}
+
+/// The shelf a `pattern` key belongs to.
+fn pos_of_key(key: &str) -> Option<BlockPos> {
+    let rest = key.strip_prefix(KEY_PREFIX)?.strip_suffix(PATTERN)?.strip_suffix('.')?;
+    let mut it = rest.split('.').map(str::parse);
+    let pos = (it.next()?.ok()?, it.next()?.ok()?, it.next()?.ok()?);
+    it.next().is_none().then_some(pos)
 }
 
 /// A bookshelf's mapping: its pattern and iota.
 pub fn shelf(srv: &dyn Server, dim: &str, pos: BlockPos) -> Option<(HexPattern, Iota)> {
     let s = store(srv, dim, pos);
-    let pattern = HexPattern::from_serialized(s.get_str(&key(pos, "pattern"))?)?;
-    let iota = Iota::deserialize(s.get_str(&key(pos, "iota")).unwrap_or(""));
+    let pattern = HexPattern::from_serialized(s.get_str(&key(pos, PATTERN))?)?;
+    let iota = Iota::deserialize(s.get_str(&key(pos, IOTA)).unwrap_or(""));
     Some((pattern, iota))
 }
 
@@ -56,13 +70,29 @@ pub fn set_shelf(
     let mut s = store(srv, dim, pos);
     match mapping {
         Some((p, i)) => {
-            s.set(key(pos, "pattern"), p.serialized_form());
-            s.set(key(pos, "iota"), i.serialize());
+            forget_lost_shelves(srv, dim, &mut s);
+            s.set(key(pos, PATTERN), p.serialized_form());
+            s.set(key(pos, IOTA), i.serialize());
         }
         None => {
-            s.remove(&key(pos, "pattern"));
-            s.remove(&key(pos, "iota"));
+            s.remove(&key(pos, PATTERN));
+            s.remove(&key(pos, IOTA));
         }
+    }
+}
+
+/// Drops what shelves no longer there held: blown up, pushed away or
+/// replaced without a player (only player breaks and Break Block clear
+/// their entry as it happens).
+fn forget_lost_shelves(srv: &dyn Server, dim: &str, s: &mut Storage) {
+    let lost: Vec<BlockPos> = s
+        .iter()
+        .filter_map(|(k, _)| pos_of_key(k))
+        .filter(|&pos| srv.block_info(dim, to_ypos(pos)).is_some_and(|b| b.block_id() != BOOKSHELF))
+        .collect();
+    for pos in lost {
+        s.remove(&key(pos, PATTERN));
+        s.remove(&key(pos, IOTA));
     }
 }
 
@@ -131,4 +161,17 @@ pub fn add_new_datum(
     })?;
     set_shelf(srv, dim, open, Some((key, datum)));
     Some(open)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn keys_name_their_shelf() {
+        let pos = (-3, 64, 17);
+        assert_eq!(pos_of_key(&key(pos, PATTERN)), Some(pos));
+        assert_eq!(pos_of_key(&key(pos, IOTA)), None);
+        assert_eq!(pos_of_key("akashic.1.2.pattern"), None);
+    }
 }
