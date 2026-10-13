@@ -26,21 +26,58 @@ pub struct ShownItem {
 
 #[derive(Debug, Clone)]
 pub enum Mishap {
-    AlreadyBrainswept { mob: EntityRef, eye: Vec3 },
-    BadBlock { pos: BlockPos, expected: Text },
-    BadBrainsweep { mob: EntityRef, pos: BlockPos },
+    AlreadyBrainswept {
+        mob: EntityRef,
+        eye: Vec3,
+    },
+    BadBlock {
+        pos: BlockPos,
+        expected: Text,
+    },
+    BadBrainsweep {
+        mob: EntityRef,
+        pos: BlockPos,
+    },
     BadCaster,
-    BadEntity { entity: EntityRef, pos: Vec3, wanted: Text },
+    BadEntity {
+        entity: EntityRef,
+        pos: Vec3,
+        wanted: Text,
+    },
     /// A dropped item entity that isn't the right item.
-    BadItem { entity: EntityRef, item: Option<ShownItem>, wanted: Text },
-    BadLocation { pos: Vec3, kind: &'static str },
-    BadOffhandItem { item: Option<ShownItem>, wanted: Text },
-    DivideByZero { a: Text, b: Text, suffix: &'static str },
-    EntityTooFar { entity: EntityRef, pos: Vec3 },
+    BadItem {
+        entity: EntityRef,
+        item: Option<ShownItem>,
+        wanted: Text,
+    },
+    BadLocation {
+        pos: Vec3,
+        kind: &'static str,
+    },
+    BadOffhandItem {
+        item: Option<ShownItem>,
+        wanted: Text,
+    },
+    DivideByZero {
+        a: Text,
+        b: Text,
+        suffix: &'static str,
+    },
+    EntityTooFar {
+        entity: EntityRef,
+        pos: Vec3,
+    },
     EvalTooMuch,
-    ImmuneEntity { entity: EntityRef, pos: Vec3 },
+    ImmuneEntity {
+        entity: EntityRef,
+        pos: Vec3,
+    },
     Internal(String),
-    InvalidIota { perp: Iota, rev_idx: usize, expected: Text },
+    InvalidIota {
+        perp: Iota,
+        rev_idx: usize,
+        expected: Text,
+    },
     InvalidOperatorArgs(Vec<Iota>),
     InvalidPattern(Option<HexPattern>),
     LackingHotbarItem(Text),
@@ -48,9 +85,15 @@ pub enum Mishap {
     NeedsParens,
     NoAkashicRecord(BlockPos),
     NoSpellCircle,
-    NotEnoughArgs { expected: usize, got: usize },
+    NotEnoughArgs {
+        expected: usize,
+        got: usize,
+    },
     NotEnoughMedia(i64),
-    OthersName { name: String, is_self: bool },
+    OthersName {
+        name: String,
+        is_self: bool,
+    },
     StackSize,
     Unenlightened,
     Unescaped(Iota),
@@ -178,7 +221,9 @@ impl Mishap {
             Mishap::EntityTooFar { .. } => PINK,
             Mishap::EvalTooMuch | Mishap::ImmuneEntity { .. } => BLUE,
             Mishap::Internal(_) | Mishap::OthersName { .. } | Mishap::StackSize => BLACK,
-            Mishap::InvalidIota { .. } | Mishap::InvalidOperatorArgs(_) | Mishap::Unescaped(_) => GRAY,
+            Mishap::InvalidIota { .. } | Mishap::InvalidOperatorArgs(_) | Mishap::Unescaped(_) => {
+                GRAY
+            }
             Mishap::InvalidPattern(_) => YELLOW,
             Mishap::NeedsParens => ORANGE,
             Mishap::NoAkashicRecord(_) => PURPLE,
@@ -223,7 +268,12 @@ impl Mishap {
             Mishap::BadLocation { pos, .. } => env.yeet_held_items_towards(*pos),
             Mishap::BadItem { entity, .. } => {
                 let r = crate::casting::env::random();
-                env.srv.entity_add_velocity(&entity.uuid, (r - 0.5) * 0.05, 0.75, (r * 7.0 % 1.0 - 0.5) * 0.05);
+                env.srv.entity_add_velocity(
+                    &entity.uuid,
+                    (r - 0.5) * 0.05,
+                    0.75,
+                    (r * 7.0 % 1.0 - 0.5) * 0.05,
+                );
             }
             Mishap::BadOffhandItem { .. } | Mishap::LackingHotbarItem(_) => env.drop_held_items(),
             Mishap::DivideByZero { .. } => {
@@ -271,7 +321,15 @@ impl Mishap {
                 env.drop_held_items();
                 env.print_message(&Text::key("hexcasting.message.cant_great_spell"));
                 let p = env.mishap_spray_pos();
-                env.srv.play_sound(&env.dim, p.x, p.y, p.z, "minecraft:block.glass.break", 0.5, 0.7);
+                env.srv.play_sound(
+                    &env.dim,
+                    p.x,
+                    p.y,
+                    p.z,
+                    "minecraft:block.glass.break",
+                    0.5,
+                    0.7,
+                );
                 // HexAdvancementTriggers.FAIL_GREAT_SPELL_TRIGGER: unlocks
                 // overcasting ("Blind Diversion").
                 env.grant_flag(crate::casting::env::FLAG_CAN_OVERCAST);
@@ -286,7 +344,9 @@ impl Mishap {
             Mishap::BadBlock { pos, expected } => {
                 error("bad_block", vec![expected.clone(), pos_text(*pos), env.block_name(*pos)])
             }
-            Mishap::BadBrainsweep { pos, .. } => error("bad_brainsweep", vec![env.block_name(*pos)]),
+            Mishap::BadBrainsweep { pos, .. } => {
+                error("bad_brainsweep", vec![env.block_name(*pos)])
+            }
             Mishap::BadCaster => error("bad_caster", vec![]),
             Mishap::BadEntity { entity, wanted, .. } => {
                 error("bad_entity", vec![wanted.clone(), entity_name(entity)])
@@ -295,7 +355,9 @@ impl Mishap {
             Mishap::BadItem { item: Some(i), wanted, .. } => {
                 error("bad_item", vec![wanted.clone(), Text::int(i.count as i64), i.name.clone()])
             }
-            Mishap::BadLocation { pos, kind } => error(&format!("location_{kind}"), vec![vec_text(*pos)]),
+            Mishap::BadLocation { pos, kind } => {
+                error(&format!("location_{kind}"), vec![vec_text(*pos)])
+            }
             Mishap::BadOffhandItem { item: Some(i), wanted } => error(
                 "bad_item.offhand",
                 vec![wanted.clone(), Text::int(i.count as i64), i.name.clone()],
@@ -306,13 +368,22 @@ impl Mishap {
             Mishap::DivideByZero { a, b, suffix } => {
                 error(&format!("divide_by_zero.{suffix}"), vec![a.clone(), b.clone()])
             }
-            Mishap::EntityTooFar { entity, .. } => error("entity_too_far", vec![entity_name(entity)]),
+            Mishap::EntityTooFar { entity, .. } => {
+                error("entity_too_far", vec![entity_name(entity)])
+            }
             Mishap::EvalTooMuch => error("eval_too_much", vec![]),
-            Mishap::ImmuneEntity { entity, .. } => error("immune_entity", vec![entity_name(entity)]),
+            Mishap::ImmuneEntity { entity, .. } => {
+                error("immune_entity", vec![entity_name(entity)])
+            }
             Mishap::Internal(e) => error("unknown", vec![Text::lit(e.clone())]),
             Mishap::InvalidIota { perp, rev_idx, expected } => error(
                 "invalid_value",
-                vec![expected.clone(), Text::int(*rev_idx as i64), perp.kind().desc(), perp.display()],
+                vec![
+                    expected.clone(),
+                    Text::int(*rev_idx as i64),
+                    perp.kind().desc(),
+                    perp.display(),
+                ],
             ),
             Mishap::InvalidOperatorArgs(perps) if perps.len() == 1 => {
                 error("invalid_operator_args.one", vec![Text::int(0), perps[0].display()])
@@ -331,9 +402,10 @@ impl Mishap {
                 error("invalid_pattern", vec![Iota::Pattern(p.clone()).display()])
             }
             Mishap::LackingHotbarItem(wanted) => error("bad_item.hotbar", vec![wanted.clone()]),
-            Mishap::WrongDimension(proper) => {
-                error("wrong_dimension", vec![Text::lit(proper.clone()), Text::lit(env.dim.clone())])
-            }
+            Mishap::WrongDimension(proper) => error(
+                "wrong_dimension",
+                vec![Text::lit(proper.clone()), Text::lit(env.dim.clone())],
+            ),
             Mishap::NeedsParens => error("needs_parens", vec![]),
             Mishap::NoAkashicRecord(pos) => error("no_akashic_record", vec![pos_text(*pos)]),
             Mishap::NoSpellCircle => error("no_spell_circle", vec![]),

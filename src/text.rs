@@ -48,9 +48,7 @@ impl Text {
                     args.iter().map(|a| a as &dyn std::fmt::Display).collect();
                 yog_api::tr_args(key, &refs)
             }
-            Text::Join(parts, sep) => {
-                parts.iter().map(Text::render).collect::<Vec<_>>().join(sep)
-            }
+            Text::Join(parts, sep) => parts.iter().map(Text::render).collect::<Vec<_>>().join(sep),
         }
     }
 
@@ -182,7 +180,10 @@ mod tests {
     fn texts_round_trip() {
         let t = Text::key_args(
             "hexcasting.mishap",
-            vec![Text::lit("Jester's: Gambit"), Text::Join(vec![Text::num(1.5), Text::key("x")], ", ".into())],
+            vec![
+                Text::lit("Jester's: Gambit"),
+                Text::Join(vec![Text::num(1.5), Text::key("x")], ", ".into()),
+            ],
         );
         assert_eq!(Text::decode(&t.encode()), Some(t));
     }

@@ -12,8 +12,8 @@ use crate::casting::actions::{actions, Action};
 use crate::casting::args::{block_center, Block, Ent, Player, PosDouble};
 use crate::casting::env::{get_sentinel, look_vec, to_ypos, CastEnv, Source, Stack};
 use crate::casting::mishap::{MResult, Mishap};
-use crate::item::media::DUST;
 use crate::iota::{EntityRef, Iota};
+use crate::item::media::DUST;
 use crate::math::Vec3;
 
 /// `Action.RAYCAST_DISTANCE`.
@@ -215,7 +215,13 @@ fn entity_at(env: &CastEnv, pos: Vec3, ok: fn(&EntityInfo) -> bool) -> MResult<O
 }
 
 /// `OpGetEntitiesBy`.
-fn zone(env: &CastEnv, pos: Vec3, r: f64, ok: fn(&EntityInfo) -> bool, negate: bool) -> MResult<Iota> {
+fn zone(
+    env: &CastEnv,
+    pos: Vec3,
+    r: f64,
+    ok: fn(&EntityInfo) -> bool,
+    negate: bool,
+) -> MResult<Iota> {
     env.assert_vec_in_range(pos)?;
     let got = around(env, pos, r, |i| ok(i) != negate);
     Ok(Iota::List(got.into_iter().filter(|(d, _)| *d <= r * r).map(|(_, i)| i).collect()))
@@ -237,7 +243,9 @@ fn held_item(env: &CastEnv, e: &Ent, rev: usize) -> MResult<Stack> {
     } else {
         crate::item::holder::entity_stack(env.srv, e.uuid(), &e.info.type_id).map(|(s, _)| s)
     };
-    stack.filter(|s| !s.is_empty()).ok_or_else(|| Mishap::of_type(&e.iota(), rev, "entity.item_holder"))
+    stack
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| Mishap::of_type(&e.iota(), rev, "entity.item_holder"))
 }
 
 // ── velocity (`HexAPI.getEntityVelocitySpecial`) ───────────────────────────
@@ -274,8 +282,12 @@ fn velocity(srv: &dyn Server, info: &EntityInfo, uuid: &str) -> Vec3 {
     let nbt = || srv.entity_get_nbt(uuid).map(|s| crate::snbt::Nbt::parse(&s)).unwrap_or_default();
     match info.type_id.as_str() {
         // Resting items still get gravity added every tick.
-        "minecraft:item" if v.x * v.x + v.z * v.z <= 1.0e-5 && nbt().get_bool("OnGround") => Vec3::ZERO,
-        "minecraft:arrow" | "minecraft:spectral_arrow" | "minecraft:trident" if nbt().get_bool("inGround") => {
+        "minecraft:item" if v.x * v.x + v.z * v.z <= 1.0e-5 && nbt().get_bool("OnGround") => {
+            Vec3::ZERO
+        }
+        "minecraft:arrow" | "minecraft:spectral_arrow" | "minecraft:trident"
+            if nbt().get_bool("inGround") =>
+        {
             Vec3::ZERO
         }
         _ => v,

@@ -69,7 +69,10 @@ impl ResolvedType {
 
     pub fn from_index(i: i64) -> Self {
         // Like the original's `getSafe`: unknown → the first.
-        usize::try_from(i).ok().and_then(|i| Self::ALL.get(i).copied()).unwrap_or(ResolvedType::Unresolved)
+        usize::try_from(i)
+            .ok()
+            .and_then(|i| Self::ALL.get(i).copied())
+            .unwrap_or(ResolvedType::Unresolved)
     }
 }
 
@@ -223,7 +226,11 @@ mod tests {
     #[test]
     fn packets_round_trip() {
         let p = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
-        let rp = ResolvedPattern { pattern: p.clone(), origin: HexCoord(-2, 3), kind: ResolvedType::Escaped };
+        let rp = ResolvedPattern {
+            pattern: p.clone(),
+            origin: HexCoord(-2, 3),
+            kind: ResolvedType::Escaped,
+        };
         let n = NewPattern { hand: Hand::Off, pattern: p, resolved: vec![rp.clone()] };
         assert_eq!(NewPattern::decode(&n.encode()), Some(n));
         let r = PatternResult {
@@ -234,7 +241,13 @@ mod tests {
             index: 4,
         };
         assert_eq!(PatternResult::decode(&r.encode()), Some(r));
-        let o = OpenGui { hand: Hand::Main, patterns: vec![rp], stack: vec![], ravenmind: None, paren_count: 1 };
+        let o = OpenGui {
+            hand: Hand::Main,
+            patterns: vec![rp],
+            stack: vec![],
+            ravenmind: None,
+            paren_count: 1,
+        };
         assert_eq!(OpenGui::decode(&o.encode()), Some(o));
         assert_eq!(ResolvedType::from_index(99), ResolvedType::Unresolved);
     }

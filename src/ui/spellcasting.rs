@@ -16,8 +16,8 @@ mod view {
     yog_api::ui_include!("ui/spellcasting");
 }
 
-pub use view::{handle, register, ID};
 use view::close;
+pub use view::{handle, register, ID};
 
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, MutexGuard, Once};
@@ -28,12 +28,15 @@ use yog_api::{GfxContext, Server};
 use yog_kit::prelude::*;
 
 use super::render_lib::{
-    coord_to_px, draw_pattern_from_points, draw_spot, find_dup_indices, positions_from, px_to_coord, range_around,
-    ticks, to_lines, Mesh, PatternStyle, Vec2, DEFAULT_READABILITY_OFFSET,
+    coord_to_px, draw_pattern_from_points, draw_spot, find_dup_indices, positions_from,
+    px_to_coord, range_around, ticks, to_lines, Mesh, PatternStyle, Vec2,
+    DEFAULT_READABILITY_OFFSET,
 };
 use crate::iota::Iota;
 use crate::math::{HexAngle, HexCoord, HexDir, HexPattern};
-use crate::protocol::{Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType, CH_NEW_PATTERN};
+use crate::protocol::{
+    Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType, CH_NEW_PATTERN,
+};
 use crate::wire::Writer;
 
 /// `MsgShiftScrollC2S` (client → server): `num` main-hand delta, `num`
@@ -108,7 +111,8 @@ struct Grid {
 
 impl Grid {
     fn new(gui: OpenGui) -> Self {
-        let used_spots = gui.patterns.iter().flat_map(|p| positions_from(&p.pattern, p.origin)).collect();
+        let used_spots =
+            gui.patterns.iter().flat_map(|p| positions_from(&p.pattern, p.origin)).collect();
         Grid {
             hand: gui.hand,
             patterns: gui.patterns,
@@ -177,7 +181,9 @@ impl Grid {
         let angle = delta.y.atan2(delta.x);
         // 0 is right, increases clockwise.
         let snapped = (angle / std::f32::consts::TAU).rem_euclid(6.0);
-        let new_dir = HexDir::from_ordinal((super::render_lib::round_to_int(snapped * 6.0) + 1).rem_euclid(6) as u8);
+        let new_dir = HexDir::from_ordinal(
+            (super::render_lib::round_to_int(snapped * 6.0) + 1).rem_euclid(6) as u8,
+        );
         // A lousy aim still lands on the ideal next dot.
         let ideal_next = anchor_coord + new_dir.as_delta();
         if self.used_spots.contains(&ideal_next) {
@@ -304,7 +310,12 @@ impl Grid {
             // 1 on the cursor, 0 at the full radius (no popping in and out),
             // with a little island of full brightness around the cursor.
             let d = (1.0 - (delta - size) / (radius as f32 * size)).clamp(0.0, 1.0);
-            let color = super::render_lib::argb_f(d, lerp(d, 0.4, 0.5), lerp(d, 0.8, 1.0), lerp(d, 0.7, 0.9));
+            let color = super::render_lib::argb_f(
+                d,
+                lerp(d, 0.4, 0.5),
+                lerp(d, 0.8, 1.0),
+                lerp(d, 0.7, 0.9),
+            );
             draw_spot(&mut mesh, px, d * 2.0, color);
         }
 
@@ -384,11 +395,23 @@ impl Grid {
         let w = self.size.0;
         let rows = self.stack_descs(width_of).len();
         if rows > 0 {
-            draw_box(&mut mesh, 10.0, 10.0, w * LHS_IOTAS_ALLOCATION + 5.0, (rows as f32 + 1.0) * 10.0);
+            draw_box(
+                &mut mesh,
+                10.0,
+                10.0,
+                w * LHS_IOTAS_ALLOCATION + 5.0,
+                (rows as f32 + 1.0) * 10.0,
+            );
         }
         if self.ravenmind_desc(width_of).is_some() {
             let (x, y) = ravenmind_origin(w);
-            draw_box(&mut mesh, x, y, w * RHS_IOTAS_ALLOCATION * RAVENMIND_SCALE, 15.0 * RAVENMIND_SCALE);
+            draw_box(
+                &mut mesh,
+                x,
+                y,
+                w * RHS_IOTAS_ALLOCATION * RAVENMIND_SCALE,
+                15.0 * RAVENMIND_SCALE,
+            );
         }
         mesh
     }
@@ -477,7 +500,8 @@ struct Session {
     closing: bool,
 }
 
-static SESSION: Mutex<Session> = Mutex::new(Session { grid: None, ambiance: SoundHandle(0), closing: false });
+static SESSION: Mutex<Session> =
+    Mutex::new(Session { grid: None, ambiance: SoundHandle(0), closing: false });
 
 fn session() -> MutexGuard<'static, Session> {
     SESSION.lock().unwrap_or_else(|e| e.into_inner())
@@ -795,7 +819,13 @@ mod tests {
     }
 
     fn result(kind: ResolvedType, index: i64) -> PatternResult {
-        PatternResult { stack_clear: false, kind, stack: vec![Iota::Double(1.0)], ravenmind: None, index }
+        PatternResult {
+            stack_clear: false,
+            kind,
+            stack: vec![Iota::Double(1.0)],
+            ravenmind: None,
+            index,
+        }
     }
 
     #[test]
@@ -805,7 +835,10 @@ mod tests {
         assert!(g.recv_server_update(result(ResolvedType::Errored, 0)));
         assert_eq!(g.patterns[0].kind, ResolvedType::Errored);
         assert_eq!(g.stack, [Iota::Double(1.0)]);
-        assert!(!g.recv_server_update(PatternResult { stack_clear: true, ..result(ResolvedType::Evaluated, 0) }));
+        assert!(!g.recv_server_update(PatternResult {
+            stack_clear: true,
+            ..result(ResolvedType::Evaluated, 0)
+        }));
     }
 
     #[test]
@@ -813,10 +846,26 @@ mod tests {
         let mut g = grid();
         let pat = |sig: &str| HexPattern::from_angles(sig, HexDir::East).unwrap();
         g.patterns = vec![
-            ResolvedPattern { pattern: pat("qqq"), origin: HexCoord(0, 0), kind: ResolvedType::Evaluated },
-            ResolvedPattern { pattern: pat("qaq"), origin: HexCoord(5, 0), kind: ResolvedType::Escaped },
-            ResolvedPattern { pattern: pat("aaa"), origin: HexCoord(9, 0), kind: ResolvedType::Evaluated },
-            ResolvedPattern { pattern: pat("eee"), origin: HexCoord(0, 5), kind: ResolvedType::Unresolved },
+            ResolvedPattern {
+                pattern: pat("qqq"),
+                origin: HexCoord(0, 0),
+                kind: ResolvedType::Evaluated,
+            },
+            ResolvedPattern {
+                pattern: pat("qaq"),
+                origin: HexCoord(5, 0),
+                kind: ResolvedType::Escaped,
+            },
+            ResolvedPattern {
+                pattern: pat("aaa"),
+                origin: HexCoord(9, 0),
+                kind: ResolvedType::Evaluated,
+            },
+            ResolvedPattern {
+                pattern: pat("eee"),
+                origin: HexCoord(0, 5),
+                kind: ResolvedType::Unresolved,
+            },
         ];
         g.recv_server_update(result(ResolvedType::Undone, 3));
         assert_eq!(g.patterns[1].kind, ResolvedType::Undone);

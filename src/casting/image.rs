@@ -106,7 +106,15 @@ impl Image {
         for _ in 0..m {
             marked_moved.push(r.str()?.to_owned());
         }
-        Some(Image { stack, paren_count, parenthesized, escape_next, ops_consumed, ravenmind, marked_moved })
+        Some(Image {
+            stack,
+            paren_count,
+            parenthesized,
+            escape_next,
+            ops_consumed,
+            ravenmind,
+            marked_moved,
+        })
     }
 
     pub fn encode(&self) -> String {

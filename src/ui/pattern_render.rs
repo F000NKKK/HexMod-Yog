@@ -7,9 +7,7 @@
 
 use yog_api::GfxContext;
 
-use super::render_lib::{
-    draw_line_seq, draw_spot, get_centered_pattern, Mesh, Vec2,
-};
+use super::render_lib::{draw_line_seq, draw_spot, get_centered_pattern, Mesh, Vec2};
 use crate::math::HexPattern;
 
 /// `PatternColors.DEFAULT_PATTERN_COLOR`: inner stroke, outer stroke.
@@ -25,7 +23,15 @@ pub const TOOLTIP_SIZE: f32 = 128.0;
 /// Adds `pattern`, centred in the `w`×`h` box at `x, y`, to `mesh`: a pale
 /// outline under a dark stroke (`stroke` thick), a dot on every point it
 /// visits and the starting dot.
-pub fn mesh_pattern(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, w: f32, h: f32, stroke: f32) {
+pub fn mesh_pattern(
+    mesh: &mut Mesh,
+    pattern: &HexPattern,
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    stroke: f32,
+) {
     let (scale, pts) = get_centered_pattern(pattern, w, h, 16.0_f32.max(w.min(h) / 4.0));
     let center = Vec2::new(x + w / 2.0, y + h / 2.0);
     let pts: Vec<Vec2> = pts.into_iter().map(|p| p + center).collect();

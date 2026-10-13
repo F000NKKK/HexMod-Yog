@@ -3,9 +3,9 @@
 //! item holds.
 
 use crate::casting::env::Stack;
+use crate::iota::Iota;
 use crate::item::media;
 use crate::item::pigment::Pigment;
-use crate::iota::Iota;
 use crate::snbt::Nbt;
 
 /// `ItemPackagedHex.TAG_PROGRAM` / `TAG_PIGMENT`.
@@ -27,7 +27,12 @@ pub fn hex(stack: &Stack) -> Option<Vec<Iota>> {
 
 /// `writeHex`: stores the hex, the caster's pigment and `media` (also the
 /// item's capacity).
-pub fn write_hex(stack: &mut Stack, program: &[Iota], pigment: Option<&Pigment>, media_amount: i64) {
+pub fn write_hex(
+    stack: &mut Stack,
+    program: &[Iota],
+    pigment: Option<&Pigment>,
+    media_amount: i64,
+) {
     stack.nbt.set(TAG_PROGRAM, Nbt::str(Iota::List(program.to_vec()).serialize()));
     match pigment {
         Some(p) => {
@@ -54,7 +59,10 @@ pub fn clear_hex(stack: &mut Stack) {
 /// `getPigment`: the pigment it was made with.
 pub fn pigment(stack: &Stack) -> Option<Pigment> {
     let c = stack.nbt.get(TAG_PIGMENT)?;
-    Some(Pigment { item: c.get_str("item")?.to_owned(), owner: c.get_str("owner").unwrap_or_default().to_owned() })
+    Some(Pigment {
+        item: c.get_str("item")?.to_owned(),
+        owner: c.get_str("owner").unwrap_or_default().to_owned(),
+    })
 }
 
 #[cfg(test)]
@@ -63,7 +71,8 @@ mod tests {
 
     #[test]
     fn round_trip() {
-        let mut s = Stack { slot: 0, id: "hexcasting:trinket".into(), count: 1, nbt: Nbt::default() };
+        let mut s =
+            Stack { slot: 0, id: "hexcasting:trinket".into(), count: 1, nbt: Nbt::default() };
         assert!(!has_hex(&s));
         let p = Pigment::default();
         write_hex(&mut s, &[Iota::Double(1.0), Iota::Null], Some(&p), 500);

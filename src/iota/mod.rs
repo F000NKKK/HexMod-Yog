@@ -220,16 +220,17 @@ impl Iota {
             Iota::Bool(false) => Text::key("hexcasting.tooltip.boolean_false"),
             Iota::Double(d) => Text::Lit(fmt_double(*d)),
             Iota::Vec3(v) => Text::Lit(fmt_vec(*v)),
-            Iota::Entity(e) if e.name.is_empty() => Text::key("hexcasting.spelldata.entity.whoknows"),
+            Iota::Entity(e) if e.name.is_empty() => {
+                Text::key("hexcasting.spelldata.entity.whoknows")
+            }
             Iota::Entity(e) => Text::Lit(e.name.clone()),
             Iota::List(l) => Text::key_args(
                 "hexcasting.tooltip.list_contents",
                 vec![Text::Join(l.iter().map(Iota::display).collect(), ", ".into())],
             ),
-            Iota::Pattern(p) => Text::key_args(
-                "hexcasting.tooltip.pattern_iota",
-                vec![Text::Lit(pattern_text(p))],
-            ),
+            Iota::Pattern(p) => {
+                Text::key_args("hexcasting.tooltip.pattern_iota", vec![Text::Lit(pattern_text(p))])
+            }
             Iota::Continuation(_) => Text::key("hexcasting.tooltip.jump_iota"),
         }
     }

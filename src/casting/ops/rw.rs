@@ -7,9 +7,9 @@ use crate::casting::args::{Block, Ent};
 use crate::casting::env::{CastEnv, Spray, Stack};
 use crate::casting::mishap::{true_name_in, MResult, Mishap};
 use crate::casting::vm::Spell;
+use crate::iota::Iota;
 use crate::item::holder::{self, EntityHolder};
 use crate::item::media::DUST;
-use crate::iota::Iota;
 use crate::math::{HexPattern, Vec3};
 
 pub fn actions() -> Vec<Action> {
@@ -122,7 +122,13 @@ fn write_entity(env: &mut CastEnv, e: Ent, datum: Iota) -> MResult<Spell> {
         // The item is drawn well above the entity's position.
         burst.y += 3.0 / 8.0;
     }
-    let spray = Spray { pos: burst, vel: Vec3::new(1.0, 0.0, 0.0), fuzziness: 0.25, spread: std::f64::consts::PI, count: 40 };
+    let spray = Spray {
+        pos: burst,
+        vel: Vec3::new(1.0, 0.0, 0.0),
+        fuzziness: 0.25,
+        spread: std::f64::consts::PI,
+        count: 40,
+    };
     let uuid = e.uuid().to_owned();
     let type_id = e.info.type_id.clone();
     Ok(Spell::new(0, vec![spray], move |env, _| {

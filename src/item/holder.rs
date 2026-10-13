@@ -131,21 +131,19 @@ fn write_datum(stack: &mut Stack, iota: Option<&Iota>) {
                 nbt.compound_mut("pages").set(&key, Nbt::str(i.serialize()));
             }
         }
-        SLATE => {
-            match iota {
-                Some(Iota::Pattern(p)) => {
-                    nbt.compound_mut("BlockEntityTag").set("pattern", Nbt::str(p.serialized_form()))
-                }
-                None => {
-                    let bet = nbt.compound_mut("BlockEntityTag");
-                    bet.remove("pattern");
-                    if bet.is_empty() {
-                        nbt.remove("BlockEntityTag");
-                    }
-                }
-                Some(_) => {}
+        SLATE => match iota {
+            Some(Iota::Pattern(p)) => {
+                nbt.compound_mut("BlockEntityTag").set("pattern", Nbt::str(p.serialized_form()))
             }
-        }
+            None => {
+                let bet = nbt.compound_mut("BlockEntityTag");
+                bet.remove("pattern");
+                if bet.is_empty() {
+                    nbt.remove("BlockEntityTag");
+                }
+            }
+            Some(_) => {}
+        },
         id if is_scroll(id) => match iota {
             Some(Iota::Pattern(p)) => nbt.set("pattern", Nbt::str(p.serialized_form())),
             None => {
@@ -171,7 +169,11 @@ pub enum EntityHolder {
 const CUSTOM_DATA: &str = "minecraft:custom_data";
 
 /// The item an entity holds, if it's one that may hold an iota.
-pub fn entity_stack(srv: &dyn yog_api::Server, uuid: &str, type_id: &str) -> Option<(Stack, EntityHolder)> {
+pub fn entity_stack(
+    srv: &dyn yog_api::Server,
+    uuid: &str,
+    type_id: &str,
+) -> Option<(Stack, EntityHolder)> {
     match type_id {
         "minecraft:item" => {
             let (id, count, snbt) = srv.item_entity_stack(uuid)?;

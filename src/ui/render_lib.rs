@@ -94,10 +94,7 @@ pub fn round_to_int(v: f32) -> i32 {
 
 /// The pixel centre of grid point `coord`.
 pub fn coord_to_px(coord: HexCoord, size: f32, offset: Vec2) -> Vec2 {
-    Vec2::new(
-        SQRT_3 * coord.0 as f32 + SQRT_3 / 2.0 * coord.1 as f32,
-        1.5 * coord.1 as f32,
-    ) * size
+    Vec2::new(SQRT_3 * coord.0 as f32 + SQRT_3 / 2.0 * coord.1 as f32, 1.5 * coord.1 as f32) * size
         + offset
 }
 
@@ -177,7 +174,10 @@ pub fn blue(c: u32) -> i32 {
     (c & 0xFF) as i32
 }
 pub fn argb(a: i32, r: i32, g: i32, b: i32) -> u32 {
-    ((a as u32 & 0xFF) << 24) | ((r as u32 & 0xFF) << 16) | ((g as u32 & 0xFF) << 8) | (b as u32 & 0xFF)
+    ((a as u32 & 0xFF) << 24)
+        | ((r as u32 & 0xFF) << 16)
+        | ((g as u32 & 0xFF) << 8)
+        | (b as u32 & 0xFF)
 }
 
 /// A colour from 0..1 components (`drawSpot`'s float overload).
@@ -271,12 +271,8 @@ impl Mesh {
 
     /// A filled axis-aligned rectangle (`renderQuad`).
     pub fn quad(&mut self, x: f32, y: f32, w: f32, h: f32, color: u32) {
-        let (a, b, c, d) = (
-            Vec2::new(x, y),
-            Vec2::new(x, y + h),
-            Vec2::new(x + w, y + h),
-            Vec2::new(x + w, y),
-        );
+        let (a, b, c, d) =
+            (Vec2::new(x, y), Vec2::new(x, y + h), Vec2::new(x + w, y + h), Vec2::new(x + w, y));
         self.tri((color, a), (color, b), (color, c));
         self.tri((color, a), (color, c), (color, d));
     }
@@ -344,11 +340,19 @@ static GL: Mutex<Option<Gl>> = Mutex::new(None);
 /// `drawLineSeq`: a `width`-thick polyline through `points`, coloured from
 /// `tail` to `head` along its length when `gradient` (holding Ctrl in the
 /// original), else `tail` throughout; round joins and caps.
-pub fn draw_line_seq(mesh: &mut Mesh, points: &[Vec2], width: f32, tail: u32, head: u32, gradient: bool) {
+pub fn draw_line_seq(
+    mesh: &mut Mesh,
+    points: &[Vec2],
+    width: f32,
+    tail: u32,
+    head: u32,
+    gradient: bool,
+) {
     if points.len() <= 1 {
         return;
     }
-    let (r1, g1, b1, a1) = (red(tail) as f32, green(tail) as f32, blue(tail) as f32, alpha(tail) as f32);
+    let (r1, g1, b1, a1) =
+        (red(tail) as f32, green(tail) as f32, blue(tail) as f32, alpha(tail) as f32);
     let head_source = if gradient { head } else { tail };
     let (r2, g2, b2, a2) = (
         red(head_source) as f32,
@@ -489,7 +493,14 @@ pub fn draw_pattern_from_points(
     );
     let nodes = if draw_last { points } else { &points[..points.len().saturating_sub(1)] };
     draw_line_seq(mesh, &zappy, 5.0, style.tail, style.head, style.gradient);
-    draw_line_seq(mesh, &zappy, 2.0, screen_col(style.tail), screen_col(style.head), style.gradient);
+    draw_line_seq(
+        mesh,
+        &zappy,
+        2.0,
+        screen_col(style.tail),
+        screen_col(style.head),
+        style.gradient,
+    );
     let h = style.head;
     let spot = argb_f(
         alpha(h) as f32 / 255.0,
@@ -540,9 +551,11 @@ pub fn make_zappy(
             for j in 1..=max_j {
                 let progress = j as f64 / (hops + 1) as f64;
                 let pos = src + delta * progress as f32;
-                let minor_perturb = get_noise(i as f64, j as f64, z_seed.sin()) * flow_irregular as f64;
-                let theta =
-                    (3.0 * get_noise(i as f64 + progress + minor_perturb - z_seed, 1337.0, seed) * TAU) as f32;
+                let minor_perturb =
+                    get_noise(i as f64, j as f64, z_seed.sin()) * flow_irregular as f64;
+                let theta = (3.0
+                    * get_noise(i as f64 + progress + minor_perturb - z_seed, 1337.0, seed)
+                    * TAU) as f32;
                 let r = (get_noise(i as f64 + progress - z_seed, 69420.0, seed)
                     * max_variance as f64
                     * scale_variance(progress)) as f32;
@@ -595,7 +608,12 @@ pub fn find_center(points: &[Vec2]) -> Vec2 {
 
 /// `getCenteredPattern`: the scale that fits `pattern` into a third of
 /// `width`×`height` (at most `min_size`), and its points around `0,0`.
-pub fn get_centered_pattern(pattern: &HexPattern, width: f32, height: f32, min_size: f32) -> (f32, Vec<Vec2>) {
+pub fn get_centered_pattern(
+    pattern: &HexPattern,
+    width: f32,
+    height: f32,
+    min_size: f32,
+) -> (f32, Vec<Vec2>) {
     let lines1 = to_lines(pattern, 1.0, Vec2::ZERO);
     let com1 = find_center(&lines1);
     let (mut max_dx, mut max_dy) = (-1f32, -1f32);
@@ -658,7 +676,14 @@ mod tests {
         draw_spot(&mut m, Vec2::new(5.0, 5.0), 2.0, 0xFFFFFFFF);
         assert_eq!(m.vertex_count(), 6 * 3);
         let mut m = Mesh::new();
-        draw_line_seq(&mut m, &[Vec2::ZERO, Vec2::new(10.0, 0.0)], 5.0, 0xFF000000, 0xFFFFFFFF, true);
+        draw_line_seq(
+            &mut m,
+            &[Vec2::ZERO, Vec2::new(10.0, 0.0)],
+            5.0,
+            0xFF000000,
+            0xFFFFFFFF,
+            true,
+        );
         // One segment (4 triangles) and two caps of 10 triangles.
         assert_eq!(m.vertex_count(), (4 + 20) * 3);
     }

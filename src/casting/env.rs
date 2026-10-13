@@ -126,7 +126,13 @@ impl Spray {
     }
 
     pub fn burst_n(pos: Vec3, size: f64, count: u32) -> Self {
-        Spray { pos, vel: Vec3::new(size, 0.0, 0.0), fuzziness: 0.0, spread: std::f64::consts::PI, count }
+        Spray {
+            pos,
+            vel: Vec3::new(size, 0.0, 0.0),
+            fuzziness: 0.0,
+            spread: std::f64::consts::PI,
+            count,
+        }
     }
 
     pub fn cloud(pos: Vec3, size: f64) -> Self {
@@ -143,13 +149,19 @@ impl Spray {
         let time = srv.world_time(dim).unwrap_or(0) as f32;
         let speed = self.vel.length() / 20.0;
         let v = self.vel.normalize();
-        let k = if v.x == 0.0 && v.y == 0.0 { Vec3::new(1.0, 0.0, 0.0) } else { v.cross(Vec3::new(0.0, 0.0, 1.0)) };
+        let k = if v.x == 0.0 && v.y == 0.0 {
+            Vec3::new(1.0, 0.0, 0.0)
+        } else {
+            v.cross(Vec3::new(0.0, 0.0, 1.0))
+        };
         for _ in 0..self.count.min(64) {
             let offset = random_on_sphere() * (random() * self.fuzziness / 2.0);
             let pos = self.pos + offset;
             let phi = (1.0 - random() * (1.0 - self.spread.cos())).acos();
             let theta = std::f64::consts::TAU * random();
-            let unlen = v * phi.cos() + k * (phi.sin() * theta.cos()) + v.cross(k) * (phi.sin() * theta.sin());
+            let unlen = v * phi.cos()
+                + k * (phi.sin() * theta.cos())
+                + v.cross(k) * (phi.sin() * theta.sin());
             let vel = unlen * speed;
             let color = pigment.color(time, unlen);
             spawn_dust(srv, dim, pos, vel, color);
@@ -176,7 +188,8 @@ pub fn spawn_dust(srv: &dyn Server, dim: &str, pos: Vec3, vel: Vec3, color: u32)
     );
     let new = || format!("minecraft:dust{{color:[{r:.3}f,{g:.3}f,{b:.3}f],scale:1.0f}}");
     let old = || format!("minecraft:dust {r:.3} {g:.3} {b:.3} 1.0");
-    let send = |ty: &str| srv.spawn_particles(dim, pos.x, pos.y, pos.z, ty, 0, vel.x, vel.y, vel.z, 1.0);
+    let send =
+        |ty: &str| srv.spawn_particles(dim, pos.x, pos.y, pos.z, ty, 0, vel.x, vel.y, vel.z, 1.0);
     match DUST_SYNTAX.load(Ordering::Relaxed) {
         1 => {
             send(&new());
@@ -237,12 +250,32 @@ pub struct CastEnv<'a> {
 }
 
 impl<'a> CastEnv<'a> {
-    pub fn new(srv: &'a dyn Server, caster: Option<Caster>, hand: Hand, source: Source, dim: String) -> Self {
-        CastEnv { srv, dim, caster, hand, source, sounds_played: 0, loudest: Sound::Nothing, circle_media: 0 }
+    pub fn new(
+        srv: &'a dyn Server,
+        caster: Option<Caster>,
+        hand: Hand,
+        source: Source,
+        dim: String,
+    ) -> Self {
+        CastEnv {
+            srv,
+            dim,
+            caster,
+            hand,
+            source,
+            sounds_played: 0,
+            loudest: Sound::Nothing,
+            circle_media: 0,
+        }
     }
 
     /// A player's env, in the dimension they're in.
-    pub fn for_player(srv: &'a dyn Server, caster: Caster, hand: Hand, source: Source) -> Option<Self> {
+    pub fn for_player(
+        srv: &'a dyn Server,
+        caster: Caster,
+        hand: Hand,
+        source: Source,
+    ) -> Option<Self> {
         let dim = srv.entity_info(&caster.uuid)?.dimension;
         Some(Self::new(srv, Some(caster), hand, source, dim))
     }
@@ -273,7 +306,9 @@ impl<'a> CastEnv<'a> {
 
     pub fn has_flag(&self, flag: &str) -> bool {
         match &self.caster {
-            Some(c) => player_storage(self.srv, &c.uuid).get_bool(&format!("flag.{flag}")).unwrap_or(false),
+            Some(c) => {
+                player_storage(self.srv, &c.uuid).get_bool(&format!("flag.{flag}")).unwrap_or(false)
+            }
             None => false,
         }
     }
@@ -379,7 +414,9 @@ impl<'a> CastEnv<'a> {
         let Some(c) = &self.caster else { return false };
         match get_sentinel(self.srv, &c.uuid) {
             Some(s) => {
-                s.great && s.dim == self.dim && v.distance_sqr(s.pos) <= SENTINEL_RADIUS * SENTINEL_RADIUS + 1e-11
+                s.great
+                    && s.dim == self.dim
+                    && v.distance_sqr(s.pos) <= SENTINEL_RADIUS * SENTINEL_RADIUS + 1e-11
             }
             None => false,
         }
@@ -511,10 +548,7 @@ impl<'a> CastEnv<'a> {
             return Vec::new();
         }
         let other = other_hand(self.hand);
-        [other, self.hand]
-            .into_iter()
-            .filter_map(|h| Some((self.held(h)?, h)))
-            .collect()
+        [other, self.hand].into_iter().filter_map(|h| Some((self.held(h)?, h))).collect()
     }
 
     /// `getHeldItemToOperateOn`.
@@ -592,7 +626,12 @@ impl<'a> CastEnv<'a> {
     }
 
     /// `replaceItem`: puts `with` where the first matching stack is.
-    pub fn replace_item(&self, ok: impl Fn(&Stack) -> bool, with: &Stack, hand: Option<Hand>) -> bool {
+    pub fn replace_item(
+        &self,
+        ok: impl Fn(&Stack) -> bool,
+        with: &Stack,
+        hand: Option<Hand>,
+    ) -> bool {
         let Some(name) = self.caster_name() else { return false };
         let put = |slot: u32| {
             let s = Stack { slot, ..with.clone() };
@@ -758,14 +797,23 @@ impl<'a> CastEnv<'a> {
         let (Some(name), Some(pos)) = (self.caster_name(), self.caster_pos()) else { return };
         for slot in 0..=SLOT_OFFHAND {
             let stack = self.stack_at(slot);
-            if stack.is_empty() || (36..40).contains(&slot) && stack.nbt.to_snbt().contains("binding_curse") {
+            if stack.is_empty()
+                || (36..40).contains(&slot) && stack.nbt.to_snbt().contains("binding_curse")
+            {
                 continue;
             }
             Stack { slot, ..Stack::default() }.save(self.srv, name);
             // `Player.drop(stack, dropAround = true)`.
             let (f, a) = (random() * 0.5, random() * std::f64::consts::TAU);
             let delta = Vec3::new(-a.sin() * f, 0.2, a.cos() * f);
-            self.srv.spawn_item(&self.dim, (pos.x, pos.y + 1.3, pos.z), delta.tuple(), &stack.id, stack.count, &stack.nbt.to_snbt());
+            self.srv.spawn_item(
+                &self.dim,
+                (pos.x, pos.y + 1.3, pos.z),
+                delta.tuple(),
+                &stack.id,
+                stack.count,
+                &stack.nbt.to_snbt(),
+            );
         }
     }
 
@@ -853,7 +901,11 @@ pub fn get_sentinel(srv: &dyn Server, uuid: &str) -> Option<Sentinel> {
     let s = player_storage(srv, uuid);
     Some(Sentinel {
         great: s.get_bool("sentinel.great").unwrap_or(false),
-        pos: Vec3::new(s.get_float("sentinel.x")?, s.get_float("sentinel.y")?, s.get_float("sentinel.z")?),
+        pos: Vec3::new(
+            s.get_float("sentinel.x")?,
+            s.get_float("sentinel.y")?,
+            s.get_float("sentinel.z")?,
+        ),
         dim: s.get_str("sentinel.dim")?.to_owned(),
     })
 }

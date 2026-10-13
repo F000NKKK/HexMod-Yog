@@ -38,12 +38,8 @@ pub fn register(registry: &mut Registry) {
         true
     });
 
-    registry.on_packet(CH_NEW_PATTERN, |ev, srv| {
-        staff::new_pattern(srv, &ev.player, &ev.payload)
-    });
-    registry.on_packet(CH_SCROLL, |ev, srv| {
-        items::shift_scroll(srv, &ev.player, &ev.payload)
-    });
+    registry.on_packet(CH_NEW_PATTERN, |ev, srv| staff::new_pattern(srv, &ev.player, &ev.payload));
+    registry.on_packet(CH_SCROLL, |ev, srv| items::shift_scroll(srv, &ev.player, &ev.payload));
 
     registry.on_client_packet(CH_OPEN_GUI, |ev, _| {
         if let Some(gui) = OpenGui::decode(&ev.payload) {

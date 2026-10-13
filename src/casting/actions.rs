@@ -67,7 +67,13 @@ pub struct Action {
 }
 
 impl Action {
-    pub fn new(id: &'static str, dir: HexDir, sig: &'static str, op: OpFn, parens: Option<ParenFn>) -> Self {
+    pub fn new(
+        id: &'static str,
+        dir: HexDir,
+        sig: &'static str,
+        op: OpFn,
+        parens: Option<ParenFn>,
+    ) -> Self {
         Action { id, dir, sig, op, parens }
     }
 
@@ -95,7 +101,10 @@ impl Action {
     ) -> MResult<(OpResult, ResolvedType)> {
         match self.parens {
             Some(f) => f(env, image, cont, this),
-            None => Ok((OpResult::new(image.with_new_parenthesized(this.clone(), false), cont), ResolvedType::Escaped)),
+            None => Ok((
+                OpResult::new(image.with_new_parenthesized(this.clone(), false), cont),
+                ResolvedType::Escaped,
+            )),
         }
     }
 }
@@ -332,7 +341,8 @@ pub fn per_world(srv: &dyn yog_api::Server) -> HashMap<String, &'static str> {
     let seed = match store.get_int(SEED_KEY) {
         Some(s) => s,
         None => {
-            let s = (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
+            let s =
+                (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
             store.set(SEED_KEY, s);
             s
         }
@@ -397,7 +407,8 @@ fn walk_path(original: &HexPattern, rand: &mut JavaRandom) -> Option<HexPattern>
         add(&mut graph, cursor + d.as_delta(), d.rotated_by(HexAngle::OneEighty));
         cursor = cursor + d.as_delta();
     }
-    let odd: Vec<HexCoord> = graph.iter().filter(|(_, e)| e.len() % 2 == 1).map(|(c, _)| *c).collect();
+    let odd: Vec<HexCoord> =
+        graph.iter().filter(|(_, e)| e.len() % 2 == 1).map(|(c, _)| *c).collect();
     let mut current = match odd.len() {
         0 => graph[rand.next_int(graph.len() as i32) as usize].0,
         2 => odd[rand.next_int(2) as usize],
@@ -497,9 +508,10 @@ impl Special {
     /// `hexcasting.special.hexcasting:<handler>`.
     pub fn name(&self) -> Text {
         match self {
-            Special::Number(x) => {
-                Text::key_args(format!("hexcasting.special.{MOD_ID}:number"), vec![Text::lit(fmt_double(*x))])
-            }
+            Special::Number(x) => Text::key_args(
+                format!("hexcasting.special.{MOD_ID}:number"),
+                vec![Text::lit(fmt_double(*x))],
+            ),
             Special::Mask(m) => {
                 let fp: String = m.iter().map(|&k| if k { '-' } else { 'v' }).collect();
                 Text::key_args(format!("hexcasting.special.{MOD_ID}:mask"), vec![Text::lit(fp)])
@@ -509,7 +521,9 @@ impl Special {
 
     pub fn operate(&self, env: &mut CastEnv<'_>, image: Image, cont: &Cont) -> MResult<OpResult> {
         match self {
-            Special::Number(x) => const_op(env, image, cont, 0, 0, |_, _| Ok(vec![Iota::Double(*x)])),
+            Special::Number(x) => {
+                const_op(env, image, cont, 0, 0, |_, _| Ok(vec![Iota::Double(*x)]))
+            }
             Special::Mask(m) => const_op(env, image, cont, m.len(), 0, |args, _| {
                 Ok(args.into_iter().zip(m).filter(|(_, &k)| k).map(|(a, _)| a).collect())
             }),
@@ -536,7 +550,10 @@ mod tests {
     #[test]
     fn masks() {
         // Bookkeeper's: "-" is a straight stroke, "v" a dip.
-        assert_eq!(Special::mask(&HexPattern::from_list(vec![dir::E])), Some(Special::Mask(vec![true])));
+        assert_eq!(
+            Special::mask(&HexPattern::from_list(vec![dir::E])),
+            Some(Special::Mask(vec![true]))
+        );
         assert_eq!(Special::mask(&pat("ea", dir::E)), Some(Special::Mask(vec![true, false])));
         assert_eq!(Special::mask(&pat("ada", dir::SE)), Some(Special::Mask(vec![false, false])));
     }
@@ -559,11 +576,17 @@ mod tests {
         let b = alt_drawing(&a, 12345);
         let edges = |p: &HexPattern| {
             let pts = p.positions();
-            let mut e: Vec<_> = pts
-                .windows(2)
-                .map(|w| if (w[0].0, w[0].1) < (w[1].0, w[1].1) { (w[0], w[1]) } else { (w[1], w[0]) })
-                .map(|(x, y)| (x - pts[0], y - pts[0]))
-                .collect();
+            let mut e: Vec<_> =
+                pts.windows(2)
+                    .map(|w| {
+                        if (w[0].0, w[0].1) < (w[1].0, w[1].1) {
+                            (w[0], w[1])
+                        } else {
+                            (w[1], w[0])
+                        }
+                    })
+                    .map(|(x, y)| (x - pts[0], y - pts[0]))
+                    .collect();
             e.sort_by_key(|(x, y)| (x.0, x.1, y.0, y.1));
             e
         };

@@ -101,15 +101,7 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
                 let pitch =
                     holder::abacus_scroll(&mut stack.nbt, delta, hand == Hand::Main, ctrl != 0);
                 let pos = env.caster_pos().unwrap_or_default();
-                srv.play_sound(
-                    &env.dim,
-                    pos.x,
-                    pos.y,
-                    pos.z,
-                    "hexcasting:abacus",
-                    0.5,
-                    pitch,
-                );
+                srv.play_sound(&env.dim, pos.x, pos.y, pos.z, "hexcasting:abacus", 0.5, pitch);
                 let v = stack.nbt.get_f64("value").unwrap_or(0.0);
                 Text::key_args("hexcasting.tooltip.abacus", vec![Text::num(v)])
                     .to_json_colored("green")
@@ -123,17 +115,12 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
                     Text::int(idx).to_json_colored("white"),
                     Text::int(len).to_json_colored("white"),
                 ];
-                let name = stack
-                    .nbt
-                    .get("display")
-                    .and_then(|d| d.get_str("Name"))
-                    .map(str::to_owned);
+                let name =
+                    stack.nbt.get("display").and_then(|d| d.get_str("Name")).map(str::to_owned);
                 let mut key = "hexcasting.tooltip.spellbook.page".to_owned();
                 if let Some(json) = name.filter(|_| hand == Hand::Off) {
                     key = "hexcasting.tooltip.spellbook.page_with_name".to_owned();
-                    args.push(format!(
-                        "{{\"text\":\"\",\"italic\":true,\"extra\":[{json}]}}"
-                    ));
+                    args.push(format!("{{\"text\":\"\",\"italic\":true,\"extra\":[{json}]}}"));
                 }
                 if holder::page_sealed(&stack.nbt) {
                     key.push_str(".sealed");
@@ -168,11 +155,7 @@ pub fn reset_abacus(srv: &dyn Server, player: &str) {
     else {
         return;
     };
-    let old = stack
-        .nbt
-        .remove("value")
-        .and_then(|v| v.as_f64())
-        .unwrap_or(0.0);
+    let old = stack.nbt.remove("value").and_then(|v| v.as_f64()).unwrap_or(0.0);
     env.save(&stack);
     srv.play_sound_to_player(player, "hexcasting:abacus.shake", 1.0, 1.0);
     let key = if old == 69.0 {

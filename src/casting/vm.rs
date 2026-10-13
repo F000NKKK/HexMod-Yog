@@ -61,7 +61,11 @@ pub struct Spell {
 }
 
 impl Spell {
-    pub fn new(cost: i64, particles: Vec<Spray>, effect: impl FnOnce(&mut CastEnv<'_>, &mut Image) + 'static) -> Self {
+    pub fn new(
+        cost: i64,
+        particles: Vec<Spray>,
+        effect: impl FnOnce(&mut CastEnv<'_>, &mut Image) + 'static,
+    ) -> Self {
         Spell { cost, particles, effect: Box::new(effect), ops: 1, sound: true }
     }
 
@@ -108,7 +112,13 @@ pub struct CastResult {
 impl CastResult {
     fn mishap(cont: Cont, image: Option<Image>, mishap: Mishap, ctx: Context) -> Self {
         let kind = mishap.resolution_type();
-        CastResult { cont, image, effects: vec![SideEffect::Mishap(mishap, ctx)], kind, sound: Sound::Mishap }
+        CastResult {
+            cont,
+            image,
+            effects: vec![SideEffect::Mishap(mishap, ctx)],
+            kind,
+            sound: Sound::Mishap,
+        }
     }
 }
 
@@ -134,8 +144,11 @@ impl<'a> Vm<'a> {
     /// `queueExecuteAndWrapIotas`: runs `iotas` to the end (or the first
     /// failure).
     pub fn queue_execute(&mut self, iotas: Vec<Iota>) -> ClientView {
-        let mut cont =
-            Cont::done().push(Frame::Evaluate { list: Arc::new(iotas), idx: 0, metacasting: false });
+        let mut cont = Cont::done().push(Frame::Evaluate {
+            list: Arc::new(iotas),
+            idx: 0,
+            metacasting: false,
+        });
         let mut last = ResolvedType::Unresolved;
         let mut early_exit = false;
         while !early_exit {
@@ -223,7 +236,11 @@ impl<'a> Vm<'a> {
                     };
                 };
                 let new_cont = if idx + 1 < list.len() {
-                    cont.push(Frame::Evaluate { list: list.clone(), idx: idx + 1, metacasting: *metacasting })
+                    cont.push(Frame::Evaluate {
+                        list: list.clone(),
+                        idx: idx + 1,
+                        metacasting: *metacasting,
+                    })
                 } else {
                     cont
                 };
@@ -252,7 +269,11 @@ impl<'a> Vm<'a> {
                                 base: Some(stack.clone()),
                                 acc: new_acc,
                             })
-                            .push(Frame::Evaluate { list: code.clone(), idx: 0, metacasting: true });
+                            .push(Frame::Evaluate {
+                                list: code.clone(),
+                                idx: 0,
+                                metacasting: true,
+                            });
                         (item.clone(), self.image.clone().with_used_op(), cont)
                     }
                     None => (Iota::List(new_acc), self.image.clone(), cont),
@@ -318,7 +339,10 @@ impl<'a> Vm<'a> {
                 image: None,
                 effects: vec![SideEffect::Mishap(
                     Mishap::Unescaped(other.clone()),
-                    Context { pattern: Some(HexPattern::new(HexDir::West, Vec::new())), name: None },
+                    Context {
+                        pattern: Some(HexPattern::new(HexDir::West, Vec::new())),
+                        name: None,
+                    },
                 )],
                 kind: ResolvedType::Invalid,
                 sound: Sound::Mishap,
@@ -327,7 +351,12 @@ impl<'a> Vm<'a> {
     }
 
     /// `PatternIota.lookupAndOperate`.
-    fn lookup_and_operate(&mut self, pattern: &HexPattern, cont: Cont, in_parens: bool) -> CastResult {
+    fn lookup_and_operate(
+        &mut self,
+        pattern: &HexPattern,
+        cont: Cont,
+        in_parens: bool,
+    ) -> CastResult {
         let mut ctx = Context { pattern: Some(pattern.clone()), name: None };
         match self.operate(pattern, &cont, in_parens, &mut ctx) {
             Ok(r) => r,
@@ -355,7 +384,12 @@ impl<'a> Vm<'a> {
                     return Err(Mishap::Unenlightened);
                 }
                 if in_parens {
-                    action.operate_in_parens(&mut self.env, image, cont, &Iota::Pattern(pattern.clone()))?
+                    action.operate_in_parens(
+                        &mut self.env,
+                        image,
+                        cont,
+                        &Iota::Pattern(pattern.clone()),
+                    )?
                 } else {
                     ((action.op)(&mut self.env, image, cont)?, ResolvedType::Evaluated)
                 }
@@ -363,13 +397,22 @@ impl<'a> Vm<'a> {
             Lookup::Special(special) => {
                 ctx.name = Some(special.name());
                 if in_parens {
-                    (OpResult::new(image.with_new_parenthesized(Iota::Pattern(pattern.clone()), false), cont), ResolvedType::Escaped)
+                    (
+                        OpResult::new(
+                            image.with_new_parenthesized(Iota::Pattern(pattern.clone()), false),
+                            cont,
+                        ),
+                        ResolvedType::Escaped,
+                    )
                 } else {
                     (special.operate(&mut self.env, image, cont)?, ResolvedType::Evaluated)
                 }
             }
             Lookup::Nothing if in_parens => (
-                OpResult::new(image.with_new_parenthesized(Iota::Pattern(pattern.clone()), false), cont),
+                OpResult::new(
+                    image.with_new_parenthesized(Iota::Pattern(pattern.clone()), false),
+                    cont,
+                ),
                 ResolvedType::Escaped,
             ),
             Lookup::Nothing => return Err(Mishap::InvalidPattern(Some(pattern.clone()))),

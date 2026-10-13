@@ -9,8 +9,8 @@ use crate::casting::image::Image;
 use crate::casting::vm::Vm;
 use crate::iota::Iota;
 use crate::protocol::{
-    read_patterns, write_patterns, Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, CH_OPEN_GUI,
-    CH_PATTERN_RESULT,
+    read_patterns, write_patterns, Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern,
+    CH_OPEN_GUI, CH_PATTERN_RESULT,
 };
 use crate::wire::{Reader, Writer};
 

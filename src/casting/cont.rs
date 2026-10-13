@@ -186,7 +186,11 @@ mod tests {
                 base: Some(vec![Iota::Bool(true)]),
                 acc: vec![],
             })
-            .push(Frame::Evaluate { list: Arc::new(vec![Iota::Null, Iota::Garbage]), idx: 0, metacasting: true });
+            .push(Frame::Evaluate {
+                list: Arc::new(vec![Iota::Null, Iota::Garbage]),
+                idx: 0,
+                metacasting: true,
+            });
         let i = Iota::Continuation(c.clone());
         let back = Iota::deserialize(&i.serialize());
         // ForEach's consumed data is dropped on the way out.

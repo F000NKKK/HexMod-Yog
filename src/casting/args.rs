@@ -125,15 +125,20 @@ impl Arg for PosDouble {
 /// `getIntBetween(min, max)` for an iota already taken off the stack.
 pub fn int_between(iota: &Iota, rev: usize, min: i64, max: i64) -> MResult<i64> {
     rounded(iota).filter(|n| (min..=max).contains(n)).ok_or_else(|| {
-        Mishap::invalid(iota, rev, "int.between", vec![crate::text::Text::int(min), crate::text::Text::int(max)])
+        Mishap::invalid(
+            iota,
+            rev,
+            "int.between",
+            vec![crate::text::Text::int(min), crate::text::Text::int(max)],
+        )
     })
 }
 
 /// `getPositiveIntUnder(max)` (`max` excluded).
 pub fn pos_int_under(iota: &Iota, rev: usize, max: i64) -> MResult<i64> {
-    rounded(iota)
-        .filter(|n| (0..max).contains(n))
-        .ok_or_else(|| Mishap::invalid(iota, rev, "int.positive.less", vec![crate::text::Text::int(max)]))
+    rounded(iota).filter(|n| (0..max).contains(n)).ok_or_else(|| {
+        Mishap::invalid(iota, rev, "int.positive.less", vec![crate::text::Text::int(max)])
+    })
 }
 
 /// `getPositiveIntUnderInclusive(max)`.
@@ -183,7 +188,9 @@ impl Arg for LongOrList {
         if let Iota::List(l) = iota {
             return Ok(LongOrList::List(l.clone()));
         }
-        rounded(iota).map(LongOrList::Long).ok_or_else(|| Mishap::invalid(iota, rev, "numlist", vec![]))
+        rounded(iota)
+            .map(LongOrList::Long)
+            .ok_or_else(|| Mishap::invalid(iota, rev, "numlist", vec![]))
     }
 }
 
@@ -232,7 +239,14 @@ impl Ent {
     }
 }
 
-fn entity(iota: &Iota, rev: usize, env: &CastEnv, flags: u32, deny: u32, name: &str) -> MResult<Ent> {
+fn entity(
+    iota: &Iota,
+    rev: usize,
+    env: &CastEnv,
+    flags: u32,
+    deny: u32,
+    name: &str,
+) -> MResult<Ent> {
     if let Iota::Entity(r) = iota {
         if let Some(info) = env.srv.entity_info(&r.uuid) {
             if info.flags & flags == flags && info.flags & deny == 0 {

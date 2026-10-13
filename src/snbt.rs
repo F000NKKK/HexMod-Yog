@@ -10,7 +10,10 @@ use std::fmt::Write as _;
 pub enum Nbt {
     Compound(Vec<(String, Nbt)>),
     /// `prefix` is `B`/`I`/`L` for typed arrays (`[I;1,2]`), else empty.
-    List { prefix: String, items: Vec<Nbt> },
+    List {
+        prefix: String,
+        items: Vec<Nbt>,
+    },
     Str(String),
     /// A number literal as written, e.g. `1b`, `3L`, `0.5d`, `7`.
     Num(String),
@@ -26,11 +29,12 @@ impl Nbt {
     /// Parses SNBT; anything unreadable gives an empty compound.
     pub fn parse(s: &str) -> Nbt {
         let mut p = Parser { s: s.as_bytes(), i: 0 };
-        p.value().filter(|_| {
-            p.ws();
-            p.i == p.s.len()
-        })
-        .unwrap_or_default()
+        p.value()
+            .filter(|_| {
+                p.ws();
+                p.i == p.s.len()
+            })
+            .unwrap_or_default()
     }
 
     pub fn long(v: i64) -> Nbt {
@@ -308,7 +312,8 @@ impl Parser<'_> {
             while self.i < self.s.len() && is_bare(self.s[self.i]) {
                 self.i += 1;
             }
-            return (start < self.i).then(|| String::from_utf8_lossy(&self.s[start..self.i]).into_owned());
+            return (start < self.i)
+                .then(|| String::from_utf8_lossy(&self.s[start..self.i]).into_owned());
         }
         self.i += 1;
         let mut out = Vec::new();

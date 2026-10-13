@@ -19,8 +19,8 @@ use crate::text::Text;
 /// How many iotas each operator takes.
 pub fn arity(op: &str) -> usize {
     match op {
-        "abs" | "floor" | "ceil" | "deconstruct_vec" | "not" | "sin" | "cos" | "tan" | "arcsin" | "arccos"
-        | "arctan" | "unique" | "unappend" | "reverse" | "deconstruct" => 1,
+        "abs" | "floor" | "ceil" | "deconstruct_vec" | "not" | "sin" | "cos" | "tan" | "arcsin"
+        | "arccos" | "arctan" | "unique" | "unappend" | "reverse" | "deconstruct" => 1,
         "construct_vec" | "slice" | "replace" => 3,
         _ => 2,
     }
@@ -131,7 +131,12 @@ fn double1(op: &str, a: f64) -> MResult<Option<f64>> {
         if (-1.0..=1.0).contains(&a) {
             Ok(a)
         } else {
-            Err(Mishap::invalid(&Iota::Double(a), 0, "double.between", vec![Text::num(-1.0), Text::num(1.0)]))
+            Err(Mishap::invalid(
+                &Iota::Double(a),
+                0,
+                "double.between",
+                vec![Text::num(-1.0), Text::num(1.0)],
+            ))
         }
     };
     Ok(Some(match op {
@@ -212,12 +217,12 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
                 // OperatorVec3Delegating: component by component, a
                 // division by zero blamed on the whole operands.
                 let comp = |x: f64, y: f64| -> MResult<f64> {
-                    double2(op, x, y)
-                        .map(|r| r.unwrap_or(f64::NAN))
-                        .map_err(|e| match e {
-                            Mishap::DivideByZero { suffix, .. } => Mishap::divide_by_zero(&a[0], &a[1], suffix),
-                            other => other,
-                        })
+                    double2(op, x, y).map(|r| r.unwrap_or(f64::NAN)).map_err(|e| match e {
+                        Mishap::DivideByZero { suffix, .. } => {
+                            Mishap::divide_by_zero(&a[0], &a[1], suffix)
+                        }
+                        other => other,
+                    })
                 };
                 return one(Iota::vec(comp(l.x, r.x)?, comp(l.y, r.y)?, comp(l.z, r.z)?));
             }
@@ -229,7 +234,10 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     match (op, a) {
         ("index", [Iota::List(l), Iota::Double(i)]) => {
             let idx = round_long(*i);
-            return one(usize::try_from(idx).ok().and_then(|i| l.get(i).cloned()).unwrap_or(Iota::Null));
+            return one(usize::try_from(idx)
+                .ok()
+                .and_then(|i| l.get(i).cloned())
+                .unwrap_or(Iota::Null));
         }
         ("slice", [Iota::List(l), Iota::Double(_), Iota::Double(_)]) => {
             let i0 = pos_int_under_incl(&a[1], 1, l.len() as i64)? as usize;
@@ -363,27 +371,48 @@ mod tests {
     #[test]
     fn numbers_and_vectors() {
         assert_eq!(apply("add", &[d(1.0), d(2.0)]).unwrap(), Some(vec![d(3.0)]));
-        assert_eq!(apply("mul", &[Iota::vec(1.0, 2.0, 3.0), d(2.0)]).unwrap(), Some(vec![Iota::vec(2.0, 4.0, 6.0)]));
-        assert_eq!(apply("mul", &[Iota::vec(1.0, 2.0, 3.0), Iota::vec(1.0, 1.0, 1.0)]).unwrap(), Some(vec![d(6.0)]));
+        assert_eq!(
+            apply("mul", &[Iota::vec(1.0, 2.0, 3.0), d(2.0)]).unwrap(),
+            Some(vec![Iota::vec(2.0, 4.0, 6.0)])
+        );
+        assert_eq!(
+            apply("mul", &[Iota::vec(1.0, 2.0, 3.0), Iota::vec(1.0, 1.0, 1.0)]).unwrap(),
+            Some(vec![d(6.0)])
+        );
         assert!(matches!(apply("div", &[d(1.0), d(0.0)]), Err(Mishap::DivideByZero { .. })));
         assert!(matches!(
             apply("div", &[Iota::vec(1.0, 1.0, 1.0), d(0.0)]),
             Err(Mishap::DivideByZero { suffix: "divide", .. })
         ));
         assert_eq!(apply("abs", &[Iota::vec(3.0, 4.0, 0.0)]).unwrap(), Some(vec![d(5.0)]));
-        assert_eq!(apply("construct_vec", &[d(1.0), d(2.0), d(3.0)]).unwrap(), Some(vec![Iota::vec(1.0, 2.0, 3.0)]));
+        assert_eq!(
+            apply("construct_vec", &[d(1.0), d(2.0), d(3.0)]).unwrap(),
+            Some(vec![Iota::vec(1.0, 2.0, 3.0)])
+        );
     }
 
     #[test]
     fn lists_bools_and_bits() {
         let l = Iota::List(vec![d(1.0), d(2.0), d(1.0)]);
         assert_eq!(apply("abs", std::slice::from_ref(&l)).unwrap(), Some(vec![d(3.0)]));
-        assert_eq!(apply("unique", std::slice::from_ref(&l)).unwrap(), Some(vec![Iota::List(vec![d(1.0), d(2.0)])]));
+        assert_eq!(
+            apply("unique", std::slice::from_ref(&l)).unwrap(),
+            Some(vec![Iota::List(vec![d(1.0), d(2.0)])])
+        );
         assert_eq!(apply("index", &[l.clone(), d(5.0)]).unwrap(), Some(vec![Iota::Null]));
         assert_eq!(apply("and", &[d(6.0), d(3.0)]).unwrap(), Some(vec![d(2.0)]));
-        assert_eq!(apply("and", &[Iota::Bool(true), Iota::Bool(false)]).unwrap(), Some(vec![Iota::Bool(false)]));
-        assert_eq!(apply("greater_eq", &[d(1.0), d(1.00001)]).unwrap(), Some(vec![Iota::Bool(true)]));
+        assert_eq!(
+            apply("and", &[Iota::Bool(true), Iota::Bool(false)]).unwrap(),
+            Some(vec![Iota::Bool(false)])
+        );
+        assert_eq!(
+            apply("greater_eq", &[d(1.0), d(1.00001)]).unwrap(),
+            Some(vec![Iota::Bool(true)])
+        );
         assert_eq!(apply("add", &[d(1.0), Iota::Bool(true)]).unwrap(), None);
-        assert!(matches!(apply("slice", &[l, d(0.0), d(9.0)]), Err(Mishap::InvalidIota { rev_idx: 0, .. })));
+        assert!(matches!(
+            apply("slice", &[l, d(0.0), d(9.0)]),
+            Err(Mishap::InvalidIota { rev_idx: 0, .. })
+        ));
     }
 }

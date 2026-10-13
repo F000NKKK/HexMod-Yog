@@ -47,7 +47,12 @@ pub fn shelf(srv: &dyn Server, dim: &str, pos: BlockPos) -> Option<(HexPattern, 
 }
 
 /// `BlockEntityAkashicBookshelf.setNewMapping` (`None` clears it).
-pub fn set_shelf(srv: &dyn Server, dim: &str, pos: BlockPos, mapping: Option<(&HexPattern, &Iota)>) {
+pub fn set_shelf(
+    srv: &dyn Server,
+    dim: &str,
+    pos: BlockPos,
+    mapping: Option<(&HexPattern, &Iota)>,
+) {
     let mut s = store(srv, dim, pos);
     match mapping {
         Some((p, i)) => {
@@ -71,14 +76,16 @@ fn flood_fill(
     skip_chance: f64,
     mut is_target: impl FnMut(BlockPos, &str) -> bool,
 ) -> Option<BlockPos> {
-    const DIRS: [(i32, i32, i32); 6] = [(0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1), (-1, 0, 0), (1, 0, 0)];
+    const DIRS: [(i32, i32, i32); 6] =
+        [(0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1), (-1, 0, 0), (1, 0, 0)];
     let mut seen = HashSet::new();
     let mut todo = VecDeque::from([start]);
     let mut skipped = None;
     while let Some(here) = todo.pop_front() {
         for d in DIRS {
             let n = (here.0 + d.0, here.1 + d.1, here.2 + d.2);
-            let (dx, dy, dz) = ((n.0 - start.0) as i64, (n.1 - start.1) as i64, (n.2 - start.2) as i64);
+            let (dx, dy, dz) =
+                ((n.0 - start.0) as i64, (n.1 - start.1) as i64, (n.2 - start.2) as i64);
             if dx * dx + dy * dy + dz * dz > MAX_RANGE * MAX_RANGE || !seen.insert(n) {
                 continue;
             }
@@ -109,11 +116,19 @@ pub fn lookup(srv: &dyn Server, dim: &str, record: BlockPos, key: &HexPattern) -
 
 /// `BlockAkashicRecord.addNewDatum`: where it was stored, or `None` if the
 /// key is taken or there's no empty shelf. Never overwrites.
-pub fn add_new_datum(srv: &dyn Server, dim: &str, record: BlockPos, key: &HexPattern, datum: &Iota) -> Option<BlockPos> {
+pub fn add_new_datum(
+    srv: &dyn Server,
+    dim: &str,
+    record: BlockPos,
+    key: &HexPattern,
+    datum: &Iota,
+) -> Option<BlockPos> {
     if flood_fill(srv, dim, record, 0.0, |pos, id| holds(srv, dim, pos, id, key)).is_some() {
         return None;
     }
-    let open = flood_fill(srv, dim, record, 0.9, |pos, id| id == BOOKSHELF && shelf(srv, dim, pos).is_none())?;
+    let open = flood_fill(srv, dim, record, 0.9, |pos, id| {
+        id == BOOKSHELF && shelf(srv, dim, pos).is_none()
+    })?;
     set_shelf(srv, dim, open, Some((key, datum)));
     Some(open)
 }
