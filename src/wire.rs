@@ -93,76 +93,6 @@ impl<'a> Reader<'a> {
     }
 }
 
-/// Quote `s` as an SNBT string (`"…"` with `\` escapes).
-pub fn snbt_quote(s: &str) -> String {
-    let mut out = String::with_capacity(s.len() + 2);
-    out.push('"');
-    for c in s.chars() {
-        if c == '"' || c == '\\' {
-            out.push('\\');
-        }
-        out.push(c);
-    }
-    out.push('"');
-    out
-}
-
-/// The string value of top-level key `key` in an SNBT compound, if it is a
-/// quoted string.
-pub fn snbt_string(snbt: &str, key: &str) -> Option<String> {
-    let bytes = snbt.as_bytes();
-    let mut depth = 0i32;
-    let mut i = 0;
-    while i < bytes.len() {
-        match bytes[i] {
-            b'{' | b'[' => depth += 1,
-            b'}' | b']' => depth -= 1,
-            b'"' | b'\'' => {
-                // Skip a quoted string that is not a key we want.
-                let (_, end) = read_quoted(snbt, i)?;
-                i = end;
-                continue;
-            }
-            _ if depth == 1 && snbt.is_char_boundary(i) && snbt[i..].starts_with(key) => {
-                let before = snbt[..i].trim_end();
-                let after = snbt[i + key.len()..].trim_start();
-                if (before.ends_with('{') || before.ends_with(',')) && after.starts_with(':') {
-                    let value = after[1..].trim_start();
-                    let start = snbt.len() - value.len();
-                    if matches!(value.as_bytes().first(), Some(b'"' | b'\'')) {
-                        return read_quoted(snbt, start).map(|(s, _)| s);
-                    }
-                    return None;
-                }
-            }
-            _ => {}
-        }
-        i += 1;
-    }
-    None
-}
-
-/// The unescaped content of the quoted string starting at byte `start`, and
-/// the index just past its closing quote.
-fn read_quoted(s: &str, start: usize) -> Option<(String, usize)> {
-    let quote = s[start..].chars().next()?;
-    let mut out = String::new();
-    let mut escaped = false;
-    for (off, c) in s[start + 1..].char_indices() {
-        if escaped {
-            out.push(c);
-            escaped = false;
-        } else if c == '\\' {
-            escaped = true;
-        } else if c == quote {
-            return Some((out, start + 1 + off + 1));
-        } else {
-            out.push(c);
-        }
-    }
-    None
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -179,13 +109,5 @@ mod tests {
         assert_eq!(r.int(), Some(42));
         assert_eq!(r.str(), Some(""));
         assert!(r.at_end());
-    }
-
-    #[test]
-    fn snbt_strings() {
-        let tag = format!("{{a:1b,hex_iota:{},n:{{hex_iota:\"no\"}}}}", snbt_quote("q\"uo\\te"));
-        assert_eq!(snbt_string(&tag, "hex_iota").as_deref(), Some("q\"uo\\te"));
-        assert_eq!(snbt_string("{a:1b}", "hex_iota"), None);
-        assert_eq!(snbt_string("{other_hex_iota:\"x\"}", "hex_iota"), None);
     }
 }

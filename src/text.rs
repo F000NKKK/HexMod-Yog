@@ -54,6 +54,48 @@ impl Text {
         }
     }
 
+    /// As a Minecraft JSON text component (for `tellraw`), so the player's
+    /// client words it in its own language.
+    pub fn to_json(&self) -> String {
+        fn s(v: &str) -> String {
+            let mut out = String::from("\"");
+            for c in v.chars() {
+                match c {
+                    '"' => out.push_str("\\\""),
+                    '\\' => out.push_str("\\\\"),
+                    '\n' => out.push_str("\\n"),
+                    c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+                    c => out.push(c),
+                }
+            }
+            out.push('"');
+            out
+        }
+        match self {
+            Text::Lit(v) => format!("{{\"text\":{}}}", s(v)),
+            Text::Key(key, args) if args.is_empty() => format!("{{\"translate\":{}}}", s(key)),
+            Text::Key(key, args) => format!(
+                "{{\"translate\":{},\"with\":[{}]}}",
+                s(key),
+                args.iter().map(Text::to_json).collect::<Vec<_>>().join(",")
+            ),
+            Text::Join(parts, sep) => {
+                let mut extra = Vec::new();
+                for (i, p) in parts.iter().enumerate() {
+                    if i > 0 && !sep.is_empty() {
+                        extra.push(Text::Lit(sep.clone()).to_json());
+                    }
+                    extra.push(p.to_json());
+                }
+                if extra.is_empty() {
+                    "{\"text\":\"\"}".to_owned()
+                } else {
+                    format!("{{\"text\":\"\",\"extra\":[{}]}}", extra.join(","))
+                }
+            }
+        }
+    }
+
     pub fn write(&self, w: &mut Writer) {
         match self {
             Text::Lit(s) => {

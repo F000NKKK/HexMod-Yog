@@ -1,5 +1,7 @@
-//! The casting screen and its components (`*.yui` + code-behind).
+//! The client's screens: the staff's casting grid (`GuiSpellcasting`) and
+//! the drawing code it shares (`RenderLib`).
 
-pub mod casting_screen;
-mod grid_gl;
-pub mod hex_grid;
+mod noise;
+pub mod pattern_render;
+pub mod render_lib;
+pub mod spellcasting;

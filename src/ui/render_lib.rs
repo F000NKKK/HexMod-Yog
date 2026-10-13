@@ -229,6 +229,22 @@ impl Mesh {
         self.verts.len() / 6
     }
 
+    /// Adds `other`'s triangles after these.
+    pub fn append(&mut self, other: Mesh) {
+        self.verts.extend(other.verts);
+    }
+
+    /// Moves every vertex by `dx, dy`.
+    pub fn offset(&mut self, dx: f32, dy: f32) {
+        if dx == 0.0 && dy == 0.0 {
+            return;
+        }
+        for v in self.verts.chunks_exact_mut(6) {
+            v[0] += dx;
+            v[1] += dy;
+        }
+    }
+
     fn vertex(&mut self, color: u32, p: Vec2) {
         self.verts.extend_from_slice(&[
             p.x,
