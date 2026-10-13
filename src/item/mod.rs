@@ -27,12 +27,6 @@ pub fn register(registry: &mut Registry) {
             .tooltip("A book bound in shimmering fabric."),
     );
 
-    // Amethyst Dust — media currency, dropped by amethyst-related blocks.
-    // Registered here (rather than just existing as a bundled texture) so it
-    // renders as a real item — e.g. as the "Media" book entry's icon.
-    registry.register_item(
-        ItemDef::new("hexcasting:amethyst_dust")
-            .name("Amethyst Dust")
-            .tooltip("A pile of dust, containing a small amount of media."),
-    );
+    // Amethyst Dust (media currency) and the Amethyst Sconce live in
+    // content/ — registered by `yog_api::content!()` in lib.rs.
 }

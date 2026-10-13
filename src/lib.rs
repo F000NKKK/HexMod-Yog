@@ -41,4 +41,7 @@ impl Mod for HexMod {
     }
 }
 
+// Blocks and items of content/ (*.yblock, *.yitem): registered on load.
+yog_api::content!();
+
 yog_api::export_mod!(HexMod);
