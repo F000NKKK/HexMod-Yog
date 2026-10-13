@@ -87,10 +87,9 @@ fn provider(item: &str) -> Option<Provider> {
         _ => {
             if let Some(c) = path.strip_prefix("dye_colorizer_") {
                 Provider::Solid(DYES.iter().find(|(n, _)| *n == c)?.1)
-            } else if let Some(t) = path.strip_prefix("pride_colorizer_") {
-                Provider::Morph(PRIDE.iter().find(|(n, _)| *n == t)?.1.to_vec(), 400.0)
             } else {
-                return None;
+                let t = path.strip_prefix("pride_colorizer_")?;
+                Provider::Morph(PRIDE.iter().find(|(n, _)| *n == t)?.1.to_vec(), 400.0)
             }
         }
     })

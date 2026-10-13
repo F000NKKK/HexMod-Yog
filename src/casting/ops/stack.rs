@@ -89,7 +89,7 @@ fn swizzle(env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpRe
     Ok(OpResult::new(image.with_used_op(), cont))
 }
 
-fn permute(stack: &mut Vec<Iota>, code: i64) -> MResult<()> {
+fn permute(stack: &mut [Iota], code: i64) -> MResult<()> {
     // 0!, 1!, 2!, … up to `code`.
     let mut strides = Vec::new();
     let (mut acc, mut n) = (1i64, 1i64);

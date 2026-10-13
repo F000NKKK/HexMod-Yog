@@ -362,7 +362,7 @@ impl Grid {
     /// The stack's lines, top first, cut to 70% of the screen.
     fn stack_descs(&mut self, width_of: &dyn Fn(&str) -> f32) -> &[Desc] {
         let max = (self.size.0 * LHS_IOTAS_ALLOCATION).trunc();
-        if self.stack_descs.as_ref().map_or(true, |(w, _)| *w != max) {
+        if self.stack_descs.as_ref().is_none_or(|(w, _)| *w != max) {
             let descs = self.stack.iter().rev().map(|i| describe(i, max, width_of)).collect();
             self.stack_descs = Some((max, descs));
         }
@@ -371,7 +371,7 @@ impl Grid {
 
     fn ravenmind_desc(&mut self, width_of: &dyn Fn(&str) -> f32) -> Option<&Desc> {
         let max = (self.size.0 * RHS_IOTAS_ALLOCATION).trunc();
-        if self.ravenmind_desc.as_ref().map_or(true, |(w, _)| *w != max) {
+        if self.ravenmind_desc.as_ref().is_none_or(|(w, _)| *w != max) {
             let desc = self.ravenmind.as_ref().map(|i| describe(i, max, width_of));
             self.ravenmind_desc = Some((max, desc));
         }

@@ -239,7 +239,7 @@ impl Mesh {
         if dx == 0.0 && dy == 0.0 {
             return;
         }
-        for v in self.verts.chunks_exact_mut(6) {
+        for v in self.verts.as_chunks_mut::<6>().0 {
             v[0] += dx;
             v[1] += dy;
         }

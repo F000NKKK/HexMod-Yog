@@ -126,7 +126,7 @@ impl Spray {
     }
 
     pub fn burst_n(pos: Vec3, size: f64, count: u32) -> Self {
-        Spray { pos, vel: Vec3::new(size, 0.0, 0.0), fuzziness: 0.0, spread: 3.14, count }
+        Spray { pos, vel: Vec3::new(size, 0.0, 0.0), fuzziness: 0.0, spread: std::f64::consts::PI, count }
     }
 
     pub fn cloud(pos: Vec3, size: f64) -> Self {

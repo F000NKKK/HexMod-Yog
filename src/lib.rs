@@ -1,6 +1,10 @@
 //! Hex Casting, ported to the Yog loader: programmable magic through hex
 //! patterns.
 
+// A `Mishap` carries the offending iotas, like the original's exceptions;
+// boxing it on every `Err` path buys nothing at hex-evaluation rates.
+#![allow(clippy::result_large_err)]
+
 use yog_api::{info, Mod, Registry};
 
 pub mod akashic;

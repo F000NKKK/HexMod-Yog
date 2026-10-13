@@ -377,8 +377,8 @@ mod tests {
     #[test]
     fn lists_bools_and_bits() {
         let l = Iota::List(vec![d(1.0), d(2.0), d(1.0)]);
-        assert_eq!(apply("abs", &[l.clone()]).unwrap(), Some(vec![d(3.0)]));
-        assert_eq!(apply("unique", &[l.clone()]).unwrap(), Some(vec![Iota::List(vec![d(1.0), d(2.0)])]));
+        assert_eq!(apply("abs", std::slice::from_ref(&l)).unwrap(), Some(vec![d(3.0)]));
+        assert_eq!(apply("unique", std::slice::from_ref(&l)).unwrap(), Some(vec![Iota::List(vec![d(1.0), d(2.0)])]));
         assert_eq!(apply("index", &[l.clone(), d(5.0)]).unwrap(), Some(vec![Iota::Null]));
         assert_eq!(apply("and", &[d(6.0), d(3.0)]).unwrap(), Some(vec![d(2.0)]));
         assert_eq!(apply("and", &[Iota::Bool(true), Iota::Bool(false)]).unwrap(), Some(vec![Iota::Bool(false)]));

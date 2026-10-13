@@ -133,8 +133,10 @@ fn raycast_end(origin: Vec3, look: Vec3) -> Vec3 {
     origin + look.normalize() * RAYCAST_DISTANCE
 }
 
+type BlockPos = (i32, i32, i32);
+
 /// The block hit (and its face's normal), if it's in range.
-fn block_hit(env: &CastEnv, origin: Vec3, look: Vec3) -> Option<((i32, i32, i32), (i32, i32, i32))> {
+fn block_hit(env: &CastEnv, origin: Vec3, look: Vec3) -> Option<(BlockPos, BlockPos)> {
     let hit = env.srv.raycast_block(&env.dim, origin.tuple(), raycast_end(origin, look).tuple())?;
     let pos = (hit.pos.x, hit.pos.y, hit.pos.z);
     env.is_vec_in_range(Vec3::center_of(pos)).then(|| (pos, hit.face.normal()))
@@ -241,7 +243,9 @@ fn held_item(env: &CastEnv, e: &Ent, rev: usize) -> MResult<Stack> {
 // ── velocity (`HexAPI.getEntityVelocitySpecial`) ───────────────────────────
 
 /// `PlayerPositionRecorder`: a player's last two positions.
-static PLAYER_POSITIONS: Mutex<Option<HashMap<String, (Vec3, Option<Vec3>)>>> = Mutex::new(None);
+/// Last and previous-tick position per player.
+type Positions = HashMap<String, (Vec3, Option<Vec3>)>;
+static PLAYER_POSITIONS: Mutex<Option<Positions>> = Mutex::new(None);
 
 /// `PlayerPositionRecorder.updateAllPlayers`, every server tick.
 pub fn record_players(srv: &dyn Server) {

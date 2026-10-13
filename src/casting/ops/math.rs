@@ -65,6 +65,6 @@ pub fn actions() -> Vec<Action> {
         "const/double/pi" NE "qdwdq" => konst [env] { std::f64::consts::PI };
         "const/double/tau" NW "eawae" => konst [env] { std::f64::consts::TAU };
         "const/double/e" E "aaq" => konst [env] { std::f64::consts::E };
-        "const/double/phi" NE "wdded" => konst [env] { 1.618033988749895 };
+        "const/double/phi" NE "wdded" => konst [env] { std::f64::consts::GOLDEN_RATIO };
     }
 }
