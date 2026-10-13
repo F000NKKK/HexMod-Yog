@@ -1,258 +1,370 @@
-//! Iota types — the basic values in the HexCasting VM.
+//! Iotas — the values on a hex's stack (Hex Casting's `Iota` types).
 
-use crate::math::HexPattern;
-use std::fmt;
+use crate::casting::cont::Cont;
+use crate::math::{HexPattern, Vec3};
+use crate::text::{fmt_double, Text};
+use crate::wire::{Reader, Writer};
 
-/// Unique identifier for each iota type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct IotaTypeId(u8);
+/// How close two numbers (or vectors) must be to count as equal.
+pub const TOLERANCE: f64 = 0.0001;
 
-impl IotaTypeId {
-    pub const BOOLEAN: Self = IotaTypeId(0);
-    pub const DOUBLE: Self = IotaTypeId(1);
-    pub const ENTITY: Self = IotaTypeId(2);
-    pub const LIST: Self = IotaTypeId(3);
-    pub const NULL: Self = IotaTypeId(4);
-    pub const PATTERN: Self = IotaTypeId(5);
-    pub const VEC3: Self = IotaTypeId(6);
-    pub const STRING: Self = IotaTypeId(7);
-    pub const INT: Self = IotaTypeId(8);
+/// Hex Casting's `MAX_SERIALIZATION_TOTAL`: no iota (counting nested ones)
+/// may be bigger than this.
+pub const MAX_SERIALIZATION_TOTAL: usize = 1024;
+/// Hex Casting's `MAX_SERIALIZATION_DEPTH`.
+pub const MAX_SERIALIZATION_DEPTH: usize = 256;
+
+/// An entity, by uuid; `name` is what it was called when the iota was
+/// made (shown on the stack, and in mishap messages).
+#[derive(Debug, Clone)]
+pub struct EntityRef {
+    pub uuid: String,
+    pub name: String,
 }
 
-/// Trait for iota type descriptors.
-pub trait IotaType: fmt::Debug {
-    fn id(&self) -> IotaTypeId;
-    fn name(&self) -> &'static str;
-    fn color(&self) -> u32;
-    fn display(&self, payload: &dyn std::any::Any) -> String;
+impl PartialEq for EntityRef {
+    fn eq(&self, other: &Self) -> bool {
+        self.uuid == other.uuid
+    }
 }
 
-/// The core Iota enum — a dynamically typed value used in the casting VM.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Iota {
-    Boolean(bool),
-    Double(f64),
-    Int(i64),
-    String(String),
-    Entity(uuid::Uuid),
-    Vec3(f64, f64, f64),
-    Pattern(HexPattern),
-    List(Vec<Iota>),
     Null,
+    Garbage,
+    Bool(bool),
+    Double(f64),
+    Vec3(Vec3),
+    Entity(EntityRef),
+    List(Vec<Iota>),
+    Pattern(HexPattern),
+    Continuation(Cont),
+}
+
+/// The kinds of iota, with their registry ids.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IotaType {
+    Null,
+    Garbage,
+    Bool,
+    Double,
+    Vec3,
+    Entity,
+    List,
+    Pattern,
+    Continuation,
+}
+
+impl IotaType {
+    /// Registry id path (`hexcasting:<id>`).
+    pub fn id(self) -> &'static str {
+        match self {
+            IotaType::Null => "null",
+            IotaType::Garbage => "garbage",
+            IotaType::Bool => "boolean",
+            IotaType::Double => "double",
+            IotaType::Vec3 => "vec3",
+            IotaType::Entity => "entity",
+            IotaType::List => "list",
+            IotaType::Pattern => "pattern",
+            // (sic) — the original's lang key.
+            IotaType::Continuation => "continution",
+        }
+    }
+
+    /// The type's name (`hexcasting.iota.hexcasting:<id>`).
+    pub fn name(self) -> Text {
+        Text::key(format!("hexcasting.iota.hexcasting:{}", self.id()))
+    }
+
+    /// The type described for mishap messages ("a number").
+    pub fn desc(self) -> Text {
+        Text::key(format!("hexcasting.iota.hexcasting:{}.desc", self.id()))
+    }
+
+    /// Hex Casting's display colour (ARGB).
+    pub fn color(self) -> u32 {
+        match self {
+            IotaType::Null => 0xFF_AAAAAA,
+            IotaType::Garbage => 0xFF_505050,
+            IotaType::Bool => 0xFF_AAFF55,
+            IotaType::Double => 0xFF_55FF55,
+            IotaType::Vec3 => 0xFF_FF3030,
+            IotaType::Entity => 0xFF_55FFFF,
+            IotaType::List => 0xFF_AAAAAA,
+            IotaType::Pattern => 0xFF_FFAA00,
+            IotaType::Continuation => 0xFF_CC0000,
+        }
+    }
+
+    pub fn from_id(id: &str) -> Option<Self> {
+        Some(match id {
+            "null" => IotaType::Null,
+            "garbage" => IotaType::Garbage,
+            "boolean" => IotaType::Bool,
+            "double" => IotaType::Double,
+            "vec3" => IotaType::Vec3,
+            "entity" => IotaType::Entity,
+            "list" => IotaType::List,
+            "pattern" => IotaType::Pattern,
+            "continution" => IotaType::Continuation,
+            _ => return None,
+        })
+    }
 }
 
 impl Iota {
-    pub fn get_type(&self) -> IotaTypeId {
+    pub fn vec(x: f64, y: f64, z: f64) -> Self {
+        Iota::Vec3(Vec3::new(x, y, z))
+    }
+
+    pub fn entity(uuid: impl Into<String>, name: impl Into<String>) -> Self {
+        Iota::Entity(EntityRef { uuid: uuid.into(), name: name.into() })
+    }
+
+    pub fn kind(&self) -> IotaType {
         match self {
-            Iota::Boolean(_) => IotaTypeId::BOOLEAN,
-            Iota::Double(_) => IotaTypeId::DOUBLE,
-            Iota::Int(_) => IotaTypeId::INT,
-            Iota::String(_) => IotaTypeId::STRING,
-            Iota::Entity(_) => IotaTypeId::ENTITY,
-            Iota::Vec3(_, _, _) => IotaTypeId::VEC3,
-            Iota::Pattern(_) => IotaTypeId::PATTERN,
-            Iota::List(_) => IotaTypeId::LIST,
-            Iota::Null => IotaTypeId::NULL,
+            Iota::Null => IotaType::Null,
+            Iota::Garbage => IotaType::Garbage,
+            Iota::Bool(_) => IotaType::Bool,
+            Iota::Double(_) => IotaType::Double,
+            Iota::Vec3(_) => IotaType::Vec3,
+            Iota::Entity(_) => IotaType::Entity,
+            Iota::List(_) => IotaType::List,
+            Iota::Pattern(_) => IotaType::Pattern,
+            Iota::Continuation(_) => IotaType::Continuation,
         }
     }
 
-    /// Whether this iota is considered "truthy" in the VM.
+    /// Hex Casting's `isTruthy`.
     pub fn is_truthy(&self) -> bool {
         match self {
-            Iota::Boolean(b) => *b,
-            Iota::Null => false,
+            Iota::Null | Iota::Garbage => false,
+            Iota::Bool(b) => *b,
             Iota::Double(d) => *d != 0.0,
-            Iota::Int(i) => *i != 0,
+            Iota::Vec3(v) => *v != Vec3::ZERO,
             Iota::List(l) => !l.is_empty(),
-            Iota::String(s) => !s.is_empty(),
-            _ => true,
+            Iota::Entity(_) | Iota::Pattern(_) | Iota::Continuation(_) => true,
         }
     }
 
-    /// Check if this iota tolerates (is equal to) another, within type constraints.
+    /// Hex Casting's `Iota.tolerates`: equality as Equality Distillation
+    /// sees it (numbers within [`TOLERANCE`], patterns by shape only).
     pub fn tolerates(&self, other: &Self) -> bool {
-        if self.get_type() != other.get_type() {
-            return false;
-        }
         match (self, other) {
-            (Iota::Boolean(a), Iota::Boolean(b)) => a == b,
-            (Iota::Double(a), Iota::Double(b)) => (a - b).abs() < 1e-9,
-            (Iota::Int(a), Iota::Int(b)) => a == b,
-            (Iota::String(a), Iota::String(b)) => a == b,
-            (Iota::Entity(a), Iota::Entity(b)) => a == b,
-            (Iota::Vec3(a1, a2, a3), Iota::Vec3(b1, b2, b3)) => {
-                (a1 - b1).abs() < 1e-9 && (a2 - b2).abs() < 1e-9 && (a3 - b3).abs() < 1e-9
-            }
-            (Iota::Pattern(a), Iota::Pattern(b)) => a == b,
+            (Iota::Null, Iota::Null) | (Iota::Garbage, Iota::Garbage) => true,
+            (Iota::Bool(a), Iota::Bool(b)) => a == b,
+            (Iota::Double(a), Iota::Double(b)) => (a - b).abs() < TOLERANCE,
+            (Iota::Vec3(a), Iota::Vec3(b)) => a.distance_sqr(*b) < TOLERANCE * TOLERANCE,
+            (Iota::Entity(a), Iota::Entity(b)) => a.uuid == b.uuid,
             (Iota::List(a), Iota::List(b)) => {
                 a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.tolerates(y))
             }
-            (Iota::Null, Iota::Null) => true,
+            (Iota::Pattern(a), Iota::Pattern(b)) => a.angles() == b.angles(),
+            (Iota::Continuation(a), Iota::Continuation(b)) => a == b,
             _ => false,
         }
     }
 
-    /// Serialize this iota to a simple string representation (for Yog storage / NBT-like).
+    /// Whether drawing this iota does something (patterns do; everything
+    /// else mishaps as "unescaped" when executed).
+    pub fn executable(&self) -> bool {
+        matches!(self, Iota::Pattern(_) | Iota::Continuation(_))
+    }
+
+    /// Iotas inside this one (for size checks and true-name scans).
+    pub fn sub_iotas(&self) -> Option<Box<dyn Iterator<Item = &Iota> + '_>> {
+        match self {
+            Iota::List(l) => Some(Box::new(l.iter())),
+            _ => None,
+        }
+    }
+
+    /// How many iotas this is, nested ones included, and how deep it nests.
+    pub fn size_and_depth(&self) -> (usize, usize) {
+        match self {
+            Iota::List(l) => {
+                let mut total = 1;
+                let mut depth = 0;
+                for i in l {
+                    let (t, d) = i.size_and_depth();
+                    total += t;
+                    depth = depth.max(d);
+                }
+                (total, depth + 1)
+            }
+            Iota::Continuation(c) => (1 + c.size(), 1),
+            _ => (1, 0),
+        }
+    }
+
+    /// Hex Casting's `isTooLargeToSerialize` for a whole stack.
+    pub fn too_large(iotas: &[Iota]) -> bool {
+        let mut total = 0;
+        for i in iotas {
+            let (t, d) = i.size_and_depth();
+            total += t;
+            if total > MAX_SERIALIZATION_TOTAL || d > MAX_SERIALIZATION_DEPTH {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// How the iota is shown on the stack and in messages.
+    pub fn display(&self) -> Text {
+        match self {
+            Iota::Null => Text::key("hexcasting.tooltip.null_iota"),
+            Iota::Garbage => Text::key("hexcasting.spelldata.unknown"),
+            Iota::Bool(true) => Text::key("hexcasting.tooltip.boolean_true"),
+            Iota::Bool(false) => Text::key("hexcasting.tooltip.boolean_false"),
+            Iota::Double(d) => Text::Lit(fmt_double(*d)),
+            Iota::Vec3(v) => Text::Lit(fmt_vec(*v)),
+            Iota::Entity(e) if e.name.is_empty() => Text::key("hexcasting.spelldata.entity.whoknows"),
+            Iota::Entity(e) => Text::Lit(e.name.clone()),
+            Iota::List(l) => Text::key_args(
+                "hexcasting.tooltip.list_contents",
+                vec![Text::Join(l.iter().map(Iota::display).collect(), ", ".into())],
+            ),
+            Iota::Pattern(p) => Text::key_args(
+                "hexcasting.tooltip.pattern_iota",
+                vec![Text::Lit(pattern_text(p))],
+            ),
+            Iota::Continuation(_) => Text::key("hexcasting.tooltip.jump_iota"),
+        }
+    }
+
+    pub fn write(&self, w: &mut Writer) {
+        match self {
+            Iota::Null => {
+                w.tag('n');
+            }
+            Iota::Garbage => {
+                w.tag('g');
+            }
+            Iota::Bool(b) => {
+                w.tag(if *b { 't' } else { 'f' });
+            }
+            Iota::Double(d) => {
+                w.tag('d').num(*d);
+            }
+            Iota::Vec3(v) => {
+                w.tag('v').num(v.x).num(v.y).num(v.z);
+            }
+            Iota::Entity(e) => {
+                w.tag('e').str(&e.uuid).str(&e.name);
+            }
+            Iota::List(l) => {
+                w.tag('l').int(l.len() as i64);
+                for i in l {
+                    i.write(w);
+                }
+            }
+            Iota::Pattern(p) => {
+                w.tag('p').str(&p.serialized_form());
+            }
+            Iota::Continuation(c) => {
+                w.tag('c');
+                c.write(w);
+            }
+        }
+    }
+
+    pub fn read(r: &mut Reader) -> Option<Self> {
+        Some(match r.tag()? {
+            'n' => Iota::Null,
+            'g' => Iota::Garbage,
+            't' => Iota::Bool(true),
+            'f' => Iota::Bool(false),
+            'd' => Iota::Double(r.num()?),
+            'v' => Iota::Vec3(Vec3::new(r.num()?, r.num()?, r.num()?)),
+            'e' => Iota::entity(r.str()?, r.str()?),
+            'l' => {
+                let n = r.int()?;
+                let mut items = Vec::new();
+                for _ in 0..n {
+                    items.push(Iota::read(r)?);
+                }
+                Iota::List(items)
+            }
+            'p' => Iota::Pattern(HexPattern::from_serialized(r.str()?)?),
+            'c' => Iota::Continuation(Cont::read(r)?),
+            _ => return None,
+        })
+    }
+
+    /// The iota as a self-contained string ([`crate::wire`]).
     pub fn serialize(&self) -> String {
-        match self {
-            Iota::Boolean(b) => format!("bool:{}", b),
-            Iota::Double(d) => format!("double:{}", d),
-            Iota::Int(i) => format!("int:{}", i),
-            Iota::String(s) => format!("str:{}", s),
-            Iota::Entity(u) => format!("entity:{}", u),
-            Iota::Vec3(x, y, z) => format!("vec3:{} {} {}", x, y, z),
-            Iota::Pattern(p) => format!("pattern:{}", p.serialized_form()),
-            Iota::List(items) => {
-                let inner = items
-                    .iter()
-                    .map(|i| i.serialize())
-                    .collect::<Vec<_>>()
-                    .join(",");
-                format!("list:[{}]", inner)
-            }
-            Iota::Null => "null".to_string(),
-        }
+        let mut w = Writer::new();
+        self.write(&mut w);
+        w.finish()
     }
 
-    pub fn deserialize(s: &str) -> Option<Self> {
-        if let Some(rest) = s.strip_prefix("bool:") {
-            match rest {
-                "true" => Some(Iota::Boolean(true)),
-                "false" => Some(Iota::Boolean(false)),
-                _ => None,
-            }
-        } else if let Some(rest) = s.strip_prefix("double:") {
-            rest.parse::<f64>().ok().map(Iota::Double)
-        } else if let Some(rest) = s.strip_prefix("int:") {
-            rest.parse::<i64>().ok().map(Iota::Int)
-        } else if let Some(rest) = s.strip_prefix("str:") {
-            Some(Iota::String(rest.to_string()))
-        } else if let Some(rest) = s.strip_prefix("entity:") {
-            uuid::Uuid::parse_str(rest).ok().map(Iota::Entity)
-        } else if let Some(rest) = s.strip_prefix("vec3:") {
-            let parts: Vec<&str> = rest.split_whitespace().collect();
-            if parts.len() == 3 {
-                let x = parts[0].parse::<f64>().ok()?;
-                let y = parts[1].parse::<f64>().ok()?;
-                let z = parts[2].parse::<f64>().ok()?;
-                Some(Iota::Vec3(x, y, z))
-            } else {
-                None
-            }
-        } else if let Some(rest) = s.strip_prefix("pattern:") {
-            HexPattern::from_serialized(rest).map(Iota::Pattern)
-        } else if let Some(rest) = s.strip_prefix("list:[") {
-            if let Some(inner) = rest.strip_suffix(']') {
-                let items = inner.split(',').filter_map(Iota::deserialize).collect();
-                Some(Iota::List(items))
-            } else {
-                None
-            }
-        } else if s == "null" {
-            Some(Iota::Null)
-        } else {
-            None
-        }
-    }
-
-    /// Human-readable display name for tooltips.
-    pub fn display_name(&self) -> String {
-        match self {
-            Iota::Boolean(b) => format!("{}", b),
-            Iota::Double(d) => format!("{}", d),
-            Iota::Int(i) => format!("{}", i),
-            Iota::String(s) => format!("\"{}\"", s),
-            Iota::Entity(_) => "Entity".to_string(),
-            Iota::Vec3(x, y, z) => format!("({}, {}, {})", x, y, z),
-            Iota::Pattern(p) => format!("Pattern({})", p.serialized_form()),
-            Iota::List(_) => "List".to_string(),
-            Iota::Null => "Null".to_string(),
-        }
+    /// Unreadable data comes back as garbage, like Hex Casting's.
+    pub fn deserialize(s: &str) -> Self {
+        Iota::read(&mut Reader::new(s)).unwrap_or(Iota::Garbage)
     }
 }
 
-impl fmt::Display for Iota {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.display_name())
+/// `(x, y, z)` with Hex Casting's number format.
+pub fn fmt_vec(v: Vec3) -> String {
+    format!("({}, {}, {})", fmt_double(v.x), fmt_double(v.y), fmt_double(v.z))
+}
+
+/// `EAST qaq` — a pattern as Hex Casting's `displayNonInline` writes it.
+pub fn pattern_text(p: &HexPattern) -> String {
+    let sig = p.signature();
+    if sig.is_empty() {
+        p.start.name().to_owned()
+    } else {
+        format!("{} {}", p.start.name(), sig)
     }
 }
 
-/// Registry of iota types — used for deserialization and display colors.
-#[derive(Debug, Default)]
-pub struct IotaTypeRegistry {
-    types: Vec<&'static dyn IotaType>,
-}
-
-impl IotaTypeRegistry {
-    pub fn register(&mut self, t: &'static dyn IotaType) {
-        self.types.push(t);
-    }
-
-    pub fn get(&self, id: IotaTypeId) -> Option<&dyn IotaType> {
-        self.types.iter().find(|t| t.id() == id).copied()
+/// A stack written as one string (top last, like the VM keeps it).
+pub fn write_stack(w: &mut Writer, stack: &[Iota]) {
+    w.int(stack.len() as i64);
+    for i in stack {
+        i.write(w);
     }
 }
 
-#[derive(Debug)]
-pub struct BoolIotaType;
-
-impl IotaType for BoolIotaType {
-    fn id(&self) -> IotaTypeId {
-        IotaTypeId::BOOLEAN
+pub fn read_stack(r: &mut Reader) -> Option<Vec<Iota>> {
+    let n = r.int()?;
+    let mut out = Vec::new();
+    for _ in 0..n {
+        out.push(Iota::read(r)?);
     }
-    fn name(&self) -> &'static str {
-        "boolean"
-    }
-    fn color(&self) -> u32 {
-        0xff_ffff55
-    }
-    fn display(&self, _payload: &dyn std::any::Any) -> String {
-        let b = _payload.downcast_ref::<bool>().copied().unwrap_or(false);
-        format!("{}", b)
-    }
+    Some(out)
 }
 
-#[derive(Debug)]
-pub struct DoubleIotaType;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::math::HexDir;
 
-impl IotaType for DoubleIotaType {
-    fn id(&self) -> IotaTypeId {
-        IotaTypeId::DOUBLE
+    #[test]
+    fn iotas_round_trip() {
+        let i = Iota::List(vec![
+            Iota::Double(1.25),
+            Iota::vec(1.0, -2.0, 3.5),
+            Iota::entity("069a79f4-44e9-4726-a5be-fca90e38aaf5", "Notch, the \"first\""),
+            Iota::List(vec![Iota::Null, Iota::Garbage, Iota::Bool(true)]),
+            Iota::Pattern(HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap()),
+        ]);
+        assert_eq!(Iota::deserialize(&i.serialize()), i);
+        assert_eq!(Iota::deserialize("nonsense"), Iota::Garbage);
     }
-    fn name(&self) -> &'static str {
-        "double"
-    }
-    fn color(&self) -> u32 {
-        0xff_55_55_ff
-    }
-    fn display(&self, _payload: &dyn std::any::Any) -> String {
-        let d = _payload.downcast_ref::<f64>().copied().unwrap_or(0.0);
-        format!("{}", d)
-    }
-}
 
-#[derive(Debug)]
-pub struct PatternIotaType;
-
-impl IotaType for PatternIotaType {
-    fn id(&self) -> IotaTypeId {
-        IotaTypeId::PATTERN
+    #[test]
+    fn tolerance_and_truth() {
+        assert!(Iota::Double(1.0).tolerates(&Iota::Double(1.00001)));
+        assert!(!Iota::Double(1.0).tolerates(&Iota::Bool(true)));
+        let a = Iota::Pattern(HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap());
+        let b = Iota::Pattern(HexPattern::from_angles("qaq", HexDir::West).unwrap());
+        assert!(a.tolerates(&b));
+        assert!(!Iota::List(vec![]).is_truthy());
+        assert!(!Iota::Vec3(Vec3::ZERO).is_truthy());
+        assert!(Iota::Double(-1.0).is_truthy());
     }
-    fn name(&self) -> &'static str {
-        "pattern"
-    }
-    fn color(&self) -> u32 {
-        0xff_ff_55_ff
-    }
-    fn display(&self, _payload: &dyn std::any::Any) -> String {
-        "Pattern".to_string()
-    }
-}
-
-/// Register all built-in iota types into a registry.
-pub fn register_builtin_types(reg: &mut IotaTypeRegistry) {
-    reg.register(&BoolIotaType);
-    reg.register(&DoubleIotaType);
-    reg.register(&PatternIotaType);
-    // Additional types can be added here by other modules.
 }
