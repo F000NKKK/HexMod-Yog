@@ -1,10 +1,12 @@
-//! Casting system — spell lists, VM, actions, mishaps.
+//! The casting system (Hex Casting's `api/casting` and
+//! `common/casting`): the VM, its environment, mishaps and the actions.
 
 pub mod actions;
-pub mod mishaps;
-pub mod spell_list;
+pub mod args;
+pub mod arith;
+pub mod cont;
+pub mod env;
+pub mod image;
+pub mod mishap;
+pub mod ops;
 pub mod vm;
-
-pub use actions::ActionRegistry;
-pub use mishaps::Mishap;
-pub use spell_list::SpellList;

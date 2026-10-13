@@ -76,10 +76,13 @@ impl Arg for Block {
     }
 }
 
-fn rounded(iota: &Iota) -> Option<i64> {
+/// The integer a number iota is (within tolerance), rounded like Kotlin's
+/// `roundToInt`.
+pub fn rounded(iota: &Iota) -> Option<i64> {
     match iota {
         Iota::Double(d) => {
-            let r = d.round();
+            // Kotlin's `roundToInt`: ties go up.
+            let r = (d + 0.5).floor();
             ((d - r).abs() <= TOLERANCE && r.abs() < 9.0e18).then_some(r as i64)
         }
         _ => None,

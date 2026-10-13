@@ -47,6 +47,7 @@ pub enum Mishap {
     WrongDimension(String),
     NeedsParens,
     NoAkashicRecord(BlockPos),
+    NoSpellCircle,
     NotEnoughArgs { expected: usize, got: usize },
     NotEnoughMedia(i64),
     OthersName { name: String, is_self: bool },
@@ -181,6 +182,7 @@ impl Mishap {
             Mishap::InvalidPattern(_) => YELLOW,
             Mishap::NeedsParens => ORANGE,
             Mishap::NoAkashicRecord(_) => PURPLE,
+            Mishap::NoSpellCircle => LIGHT_BLUE,
             Mishap::NotEnoughArgs { .. } => LIGHT_GRAY,
         }
     }
@@ -248,6 +250,7 @@ impl Mishap {
                 }
             }
             Mishap::NoAkashicRecord(_) => env.remove_xp(100),
+            Mishap::NoSpellCircle => env.drop_everything(),
             Mishap::NotEnoughArgs { expected, got } => {
                 for _ in *got..*expected {
                     stack.push(Iota::Garbage);
@@ -333,6 +336,7 @@ impl Mishap {
             }
             Mishap::NeedsParens => error("needs_parens", vec![]),
             Mishap::NoAkashicRecord(pos) => error("no_akashic_record", vec![pos_text(*pos)]),
+            Mishap::NoSpellCircle => error("no_spell_circle", vec![]),
             Mishap::NotEnoughArgs { expected, got: 0 } => {
                 error("no_args", vec![Text::int(*expected as i64)])
             }

@@ -96,6 +96,11 @@ impl Text {
         }
     }
 
+    /// [`to_json`](Self::to_json) in a colour (`"gray"`, `"#RRGGBB"`, …).
+    pub fn to_json_colored(&self, color: &str) -> String {
+        format!("{{\"text\":\"\",\"color\":\"{color}\",\"extra\":[{}]}}", self.to_json())
+    }
+
     pub fn write(&self, w: &mut Writer) {
         match self {
             Text::Lit(s) => {

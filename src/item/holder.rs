@@ -157,6 +157,69 @@ fn write_datum(stack: &mut Stack, iota: Option<&Iota>) {
     }
 }
 
+// ── entities holding such an item (`ItemDelegatingEntityIotaHolder`) ────
+
+/// How an entity keeps its item.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EntityHolder {
+    /// A dropped item.
+    Item,
+    /// An item frame; `modern` is 1.20.5+'s `count`/`components` layout.
+    Frame { modern: bool },
+}
+
+const CUSTOM_DATA: &str = "minecraft:custom_data";
+
+/// The item an entity holds, if it's one that may hold an iota.
+pub fn entity_stack(srv: &dyn yog_api::Server, uuid: &str, type_id: &str) -> Option<(Stack, EntityHolder)> {
+    match type_id {
+        "minecraft:item" => {
+            let (id, count, snbt) = srv.item_entity_stack(uuid)?;
+            Some((Stack { slot: 0, id, count, nbt: Nbt::parse(&snbt) }, EntityHolder::Item))
+        }
+        "minecraft:item_frame" | "minecraft:glow_item_frame" => {
+            let nbt = Nbt::parse(&srv.entity_get_nbt(uuid)?);
+            let item = nbt.get("Item")?;
+            let id = item.get_str("id")?.to_owned();
+            let modern = item.contains("count") || item.contains("components");
+            let count = item.get_i64("Count").or_else(|| item.get_i64("count")).unwrap_or(1) as u32;
+            let tag = if modern {
+                item.get("components").and_then(|c| c.get(CUSTOM_DATA))
+            } else {
+                item.get("tag")
+            };
+            let stack = Stack { slot: 0, id, count, nbt: tag.cloned().unwrap_or_default() };
+            Some((stack, EntityHolder::Frame { modern }))
+        }
+        _ => None,
+    }
+}
+
+/// Puts the (changed) item back into the entity. A dropped item no longer
+/// despawns, like the original.
+pub fn save_entity_stack(srv: &dyn yog_api::Server, uuid: &str, stack: &Stack, how: EntityHolder) {
+    match how {
+        EntityHolder::Item => {
+            srv.item_entity_set_stack(uuid, &stack.id, stack.count, &stack.nbt.to_snbt());
+            srv.entity_set_nbt(uuid, "{Age:-32768s}");
+        }
+        EntityHolder::Frame { modern } => {
+            let mut item = Nbt::default();
+            item.set("id", Nbt::str(stack.id.clone()));
+            if modern {
+                item.set("count", Nbt::int(stack.count as i32));
+                item.compound_mut("components").set(CUSTOM_DATA, stack.nbt.clone());
+            } else {
+                item.set("Count", Nbt::Num(format!("{}b", stack.count)));
+                item.set("tag", stack.nbt.clone());
+            }
+            let mut root = Nbt::default();
+            root.set("Item", item);
+            srv.entity_set_nbt(uuid, &root.to_snbt());
+        }
+    }
+}
+
 // ── the spellbook's pages ─────────────────────────────────────────────────
 
 fn pages_empty(nbt: &Nbt) -> bool {
@@ -229,12 +292,39 @@ pub fn set_page_sealed(nbt: &mut Nbt, sealed: bool) {
     }
 }
 
-/// The abacus' value (scrolled with sneak).
-pub fn abacus_scroll(nbt: &mut Nbt, delta: f64, sneaking: bool) {
-    let v = nbt.get_f64("value").unwrap_or(0.0);
-    // ItemAbacus: ctrl (here: sneak) scrolls by 10, otherwise by 1.
-    let step = if sneaking { 10.0 } else { 1.0 };
-    nbt.set("value", Nbt::double(v + delta.signum() * step));
+/// `MsgShiftScrollC2S.abacus`: the main hand counts by 1 (10 with the
+/// sprint key), the off hand by 0.1 (0.01). Returns the click's pitch.
+pub fn abacus_scroll(nbt: &mut Nbt, delta: f64, main_hand: bool, ctrl: bool) -> f32 {
+    nbt.remove("page_idx");
+    nbt.remove("page_names");
+    let increase = delta < 0.0;
+    let (shift, mut pitch) = match (main_hand, ctrl) {
+        (true, true) => (10.0, 0.7f32),
+        (true, false) => (1.0, 0.9),
+        (false, true) => (0.01, 1.3),
+        (false, false) => (0.1, 1.0),
+    };
+    let scale = (delta.abs().floor() as i64).max(1) as f64;
+    let v = nbt.get_f64("value").unwrap_or(0.0) + scale * shift * if increase { 1.0 } else { -1.0 };
+    nbt.set("value", Nbt::double(v));
+    pitch *= if increase { 1.05 } else { 0.95 };
+    pitch + ((crate::casting::env::random() - 0.5) * 0.1) as f32
+}
+
+/// `ItemSpellbook.inventoryTick`, done before a page turn: the current page
+/// remembers the book's custom name.
+pub fn sync_page_name(nbt: &mut Nbt) {
+    let idx = page(nbt, 0);
+    nbt.set("page_idx", Nbt::int(idx as i32));
+    let key = idx.max(1).to_string();
+    let name = nbt.get("display").and_then(|d| d.get_str("Name")).map(str::to_owned);
+    let names = nbt.compound_mut("page_names");
+    match name {
+        Some(n) => names.set(&key, Nbt::str(n)),
+        None => {
+            names.remove(&key);
+        }
+    }
 }
 
 #[cfg(test)]

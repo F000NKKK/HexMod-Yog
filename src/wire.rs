@@ -76,6 +76,11 @@ impl<'a> Reader<'a> {
         Some(&rest[..i])
     }
 
+    /// Whether everything has been read.
+    pub fn is_done(&self) -> bool {
+        self.pos >= self.src.len()
+    }
+
     pub fn str(&mut self) -> Option<&'a str> {
         let len: usize = self.until(':')?.parse().ok()?;
         let end = self.pos.checked_add(len)?;

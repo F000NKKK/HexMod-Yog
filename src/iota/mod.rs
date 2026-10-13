@@ -302,7 +302,8 @@ impl Iota {
 
     /// Unreadable data comes back as garbage, like Hex Casting's.
     pub fn deserialize(s: &str) -> Self {
-        Iota::read(&mut Reader::new(s)).unwrap_or(Iota::Garbage)
+        let mut r = Reader::new(s);
+        Iota::read(&mut r).filter(|_| r.is_done()).unwrap_or(Iota::Garbage)
     }
 }
 

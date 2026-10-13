@@ -297,7 +297,13 @@ impl<'a> CastEnv<'a> {
         }
     }
 
+    /// The caster's pigment; a packaged hex uses the one it was made with.
     pub fn pigment(&self) -> Pigment {
+        if self.source == Source::Packaged {
+            if let Some(p) = self.held(self.hand).and_then(|s| crate::item::packaged::pigment(&s)) {
+                return p;
+            }
+        }
         match &self.caster {
             Some(c) => get_pigment(self.srv, &c.uuid),
             None => Pigment::default(),
@@ -744,6 +750,23 @@ impl<'a> CastEnv<'a> {
         let Some(c) = self.caster_info() else { return };
         let look = self.caster_uuid().map(|u| look_vec(self.srv, &u)).unwrap_or_default();
         self.yeet_held_items_towards(Vec3::from_tuple(c.pos) + look);
+    }
+
+    /// `MishapNoSpellCircle`: the whole inventory (but armour with Curse of
+    /// Binding) is thrown about.
+    pub fn drop_everything(&self) {
+        let (Some(name), Some(pos)) = (self.caster_name(), self.caster_pos()) else { return };
+        for slot in 0..=SLOT_OFFHAND {
+            let stack = self.stack_at(slot);
+            if stack.is_empty() || (36..40).contains(&slot) && stack.nbt.to_snbt().contains("binding_curse") {
+                continue;
+            }
+            Stack { slot, ..Stack::default() }.save(self.srv, name);
+            // `Player.drop(stack, dropAround = true)`.
+            let (f, a) = (random() * 0.5, random() * std::f64::consts::TAU);
+            let delta = Vec3::new(-a.sin() * f, 0.2, a.cos() * f);
+            self.srv.spawn_item(&self.dim, (pos.x, pos.y + 1.3, pos.z), delta.tuple(), &stack.id, stack.count, &stack.nbt.to_snbt());
+        }
     }
 
     /// `damage(healthProportion)`.

@@ -1,58 +1,66 @@
-//! Event handlers for hex casting interactions.
+//! What the mod listens to: right-clicks on its items, the grid's packets,
+//! and the per-tick bookkeeping.
+
+mod items;
+pub mod staff;
+
 use yog_api::content::StartupGrant;
 use yog_api::{EventPhase, Registry};
 
-use crate::casting::vm;
-use crate::protocol::{CH_CAST, CH_OPEN, CH_RESET, CH_STACK};
-use crate::ui::casting_screen;
+use crate::akashic;
+use crate::casting::env::from_ypos;
+use crate::casting::ops::query;
+use crate::item::holder::ABACUS;
+use crate::item::media;
+use crate::protocol::{OpenGui, PatternResult, CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT};
+use crate::ui::spellcasting::{self, CH_SCROLL};
 
 pub fn register(registry: &mut Registry) {
-    // Grant the Hexbook and a staff on first join.
-    registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_hexbook").item("hexcasting:thehexbook"),
-    );
-    registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff/oak"),
-    );
+    // The Hexbook and a staff on first join.
+    registry.register_startup_grant(StartupGrant::new("hexcasting:give_hexbook").item("hexcasting:thehexbook"));
+    registry.register_startup_grant(StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff/oak"));
 
-    // Packets carry player names; the VM needs uuids for entity iotas.
-    registry.on_player_join(|ev, phase, _srv| {
-        if phase == EventPhase::Post {
-            vm::remember_player(&ev.player_name, &ev.uuid);
-        }
-        true
-    });
-
-    // Right-clicking the staff (server side) tells that client to open the
-    // grid. Sneak + right-click resets the caster's stack first — the stack
-    // itself always lives on the server and survives reopening the grid.
     registry.on_use_item(|ev, phase, srv| {
-        if phase == EventPhase::Post && ev.item_id.starts_with("hexcasting:staff/") {
-            srv.send_to_player(&ev.player_name, CH_OPEN, b"");
-            if ev.sneaking {
-                vm::reset(&ev.player_name, srv);
+        if phase == EventPhase::Post {
+            let id = ev.item_id.as_str();
+            if staff::is_staff(id) {
+                staff::use_staff(srv, &ev.player_name, ev.sneaking);
+            } else if media::is_packaged(id) {
+                items::use_packaged(srv, &ev.player_name, id);
+            } else if id == ABACUS && ev.sneaking {
+                items::reset_abacus(srv, &ev.player_name);
             }
         }
         true
     });
 
-    // Server: a drawn pattern arrives — run it through the casting VM.
-    registry.on_packet(CH_CAST, |ev, srv| {
-        vm::handle_cast(&ev.player, &ev.payload, srv);
+    registry.on_packet(CH_NEW_PATTERN, |ev, srv| staff::new_pattern(srv, &ev.player, &ev.payload));
+    registry.on_packet(CH_SCROLL, |ev, srv| items::shift_scroll(srv, &ev.player, &ev.payload));
+
+    registry.on_client_packet(CH_OPEN_GUI, |ev, _| {
+        if let Some(gui) = OpenGui::decode(&ev.payload) {
+            spellcasting::open(gui);
+        }
+    });
+    registry.on_client_packet(CH_PATTERN_RESULT, |ev, _| {
+        if let Some(res) = PatternResult::decode(&ev.payload) {
+            spellcasting::on_result(res);
+        }
     });
 
-    // Server: the screen's Clear button.
-    registry.on_packet(CH_RESET, |ev, srv| {
-        vm::reset(&ev.player, srv);
-    });
+    registry.on_tick(query::record_players);
 
-    // Client: open the casting screen on a fresh grid.
-    registry.on_client_packet(CH_OPEN, |_ev, _srv| {
-        casting_screen::open_session();
+    // A bookshelf forgets what it held when it's broken or replaced.
+    registry.on_block_break(|ev, phase, srv| {
+        if phase == EventPhase::Post && ev.block_id == akashic::BOOKSHELF {
+            akashic::set_shelf(srv, &ev.dimension, from_ypos(ev.pos), None);
+        }
+        true
     });
-
-    // Client: the server's answer to a pattern.
-    registry.on_client_packet(CH_STACK, |ev, _srv| {
-        casting_screen::on_report(&ev.payload);
+    registry.on_player_place_block(|ev, phase, srv| {
+        if phase == EventPhase::Post {
+            akashic::set_shelf(srv, &ev.dimension, from_ypos(ev.pos), None);
+        }
+        true
     });
 }
