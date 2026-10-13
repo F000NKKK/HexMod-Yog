@@ -1,6 +1,6 @@
 //! A tiny self-delimiting text encoding used for everything this mod stores
-//! or sends: iotas (stack, item NBT, slates, akashic records), display texts
-//! and the casting reports.
+//! or sends: iotas (stack, item NBT, slates, akashic records) and the
+//! casting reports.
 //!
 //! Strings are length-prefixed (`5:hello`), numbers end with `;`, and a
 //! value starts with a one-character tag — so nested lists, names with
@@ -53,10 +53,6 @@ pub struct Reader<'a> {
 impl<'a> Reader<'a> {
     pub fn new(src: &'a str) -> Self {
         Reader { src, pos: 0 }
-    }
-
-    pub fn at_end(&self) -> bool {
-        self.pos >= self.src.len()
     }
 
     pub fn peek(&self) -> Option<char> {
@@ -113,6 +109,6 @@ mod tests {
         assert_eq!(r.num(), Some(-1.5));
         assert_eq!(r.int(), Some(42));
         assert_eq!(r.str(), Some(""));
-        assert!(r.at_end());
+        assert!(r.is_done());
     }
 }

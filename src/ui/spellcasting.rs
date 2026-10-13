@@ -17,7 +17,7 @@ mod view {
 }
 
 use view::close;
-pub use view::{handle, register, ID};
+pub use view::{register, ID};
 
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, MutexGuard, Once};
@@ -900,7 +900,7 @@ mod tests {
     fn the_grid_draws() {
         let mut g = grid();
         g.mouse = g.coord_to_px(HexCoord(0, 0));
-        assert!(!g.mesh(false).is_empty());
+        assert!(g.mesh(false).vertex_count() > 0);
         draw(&mut g, &[HexCoord(0, 0), HexCoord(1, 0), HexCoord(2, 0)]);
         let px = g.coord_to_px(HexCoord(-3, 0));
         g.draw_start(px.x, px.y);

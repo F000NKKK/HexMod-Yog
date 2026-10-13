@@ -2,7 +2,7 @@
 //! (Hex Casting's `api/casting/mishaps/*`).
 
 use crate::casting::env::{CastEnv, Spray};
-use crate::iota::{EntityRef, Iota, IotaType};
+use crate::iota::{EntityRef, Iota};
 use crate::math::{HexPattern, Vec3};
 use crate::protocol::ResolvedType;
 use crate::text::Text;
@@ -72,7 +72,6 @@ pub enum Mishap {
         entity: EntityRef,
         pos: Vec3,
     },
-    Internal(String),
     InvalidIota {
         perp: Iota,
         rev_idx: usize,
@@ -220,7 +219,7 @@ impl Mishap {
             Mishap::BadLocation { .. } | Mishap::WrongDimension(_) => MAGENTA,
             Mishap::EntityTooFar { .. } => PINK,
             Mishap::EvalTooMuch | Mishap::ImmuneEntity { .. } => BLUE,
-            Mishap::Internal(_) | Mishap::OthersName { .. } | Mishap::StackSize => BLACK,
+            Mishap::OthersName { .. } | Mishap::StackSize => BLACK,
             Mishap::InvalidIota { .. } | Mishap::InvalidOperatorArgs(_) | Mishap::Unescaped(_) => {
                 GRAY
             }
@@ -261,7 +260,7 @@ impl Mishap {
                 env.srv.explode(&env.dim, p.x, p.y, p.z, 0.25, false, "");
             }
             Mishap::BadBrainsweep { mob, .. } => env.truly_hurt(&mob.uuid, 1.0),
-            Mishap::BadCaster | Mishap::Internal(_) | Mishap::Unescaped(_) => {}
+            Mishap::BadCaster | Mishap::Unescaped(_) => {}
             Mishap::BadEntity { pos, .. }
             | Mishap::EntityTooFar { pos, .. }
             | Mishap::ImmuneEntity { pos, .. } => env.yeet_held_items_towards(*pos),
@@ -375,7 +374,6 @@ impl Mishap {
             Mishap::ImmuneEntity { entity, .. } => {
                 error("immune_entity", vec![entity_name(entity)])
             }
-            Mishap::Internal(e) => error("unknown", vec![Text::lit(e.clone())]),
             Mishap::InvalidIota { perp, rev_idx, expected } => error(
                 "invalid_value",
                 vec![
@@ -480,19 +478,4 @@ pub fn true_name_in(env: &CastEnv, datum: &Iota, caster: Option<&str>) -> Option
         }
     }
     None
-}
-
-/// The type name `ofType` would use for an iota type.
-pub fn class_name(t: IotaType) -> &'static str {
-    match t {
-        IotaType::Double => "double",
-        IotaType::Bool => "boolean",
-        IotaType::Vec3 => "vector",
-        IotaType::List => "list",
-        IotaType::Pattern => "pattern",
-        IotaType::Continuation => "continuation",
-        IotaType::Garbage => "garbage",
-        IotaType::Null => "null",
-        IotaType::Entity => "entity",
-    }
 }

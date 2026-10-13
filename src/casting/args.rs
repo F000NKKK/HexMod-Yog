@@ -89,15 +89,6 @@ pub fn rounded(iota: &Iota) -> Option<i64> {
     }
 }
 
-/// `getInt` / `getLong`.
-pub struct Int(pub i64);
-
-impl Arg for Int {
-    fn get(iota: &Iota, rev: usize, _: &CastEnv) -> MResult<Self> {
-        rounded(iota).map(Int).ok_or_else(|| Mishap::invalid(iota, rev, "int", vec![]))
-    }
-}
-
 /// `getPositiveInt` / `getPositiveLong`.
 pub struct PosInt(pub i64);
 
@@ -174,23 +165,6 @@ impl Arg for NumOrVec {
             Iota::Vec3(v) => Ok(NumOrVec::Vec(*v)),
             _ => Err(Mishap::invalid(iota, rev, "numvec", vec![])),
         }
-    }
-}
-
-/// `getLongOrList`.
-pub enum LongOrList {
-    Long(i64),
-    List(Vec<Iota>),
-}
-
-impl Arg for LongOrList {
-    fn get(iota: &Iota, rev: usize, _: &CastEnv) -> MResult<Self> {
-        if let Iota::List(l) = iota {
-            return Ok(LongOrList::List(l.clone()));
-        }
-        rounded(iota)
-            .map(LongOrList::Long)
-            .ok_or_else(|| Mishap::invalid(iota, rev, "numlist", vec![]))
     }
 }
 

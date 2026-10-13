@@ -449,10 +449,6 @@ impl<'a> CastEnv<'a> {
         self.srv.block_info(&self.dim, to_ypos(v.block())).is_some_and(|b| b.in_world)
     }
 
-    pub fn is_vec_in_ambit(&self, v: Vec3) -> bool {
-        self.is_vec_in_range(v) && self.is_vec_in_world(v)
-    }
-
     /// `isEntityInRange` (players are always in range: `trueNameHasAmbit`).
     pub fn is_entity_in_range(&self, info: &EntityInfo) -> bool {
         let p = Vec3::from_tuple(info.pos);

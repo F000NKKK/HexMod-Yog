@@ -72,11 +72,6 @@ impl IotaType {
         }
     }
 
-    /// The type's name (`hexcasting.iota.hexcasting:<id>`).
-    pub fn name(self) -> Text {
-        Text::key(format!("hexcasting.iota.hexcasting:{}", self.id()))
-    }
-
     /// The type described for mishap messages ("a number").
     pub fn desc(self) -> Text {
         Text::key(format!("hexcasting.iota.hexcasting:{}.desc", self.id()))
@@ -95,21 +90,6 @@ impl IotaType {
             IotaType::Pattern => 0xFF_FFAA00,
             IotaType::Continuation => 0xFF_CC0000,
         }
-    }
-
-    pub fn from_id(id: &str) -> Option<Self> {
-        Some(match id {
-            "null" => IotaType::Null,
-            "garbage" => IotaType::Garbage,
-            "boolean" => IotaType::Bool,
-            "double" => IotaType::Double,
-            "vec3" => IotaType::Vec3,
-            "entity" => IotaType::Entity,
-            "list" => IotaType::List,
-            "pattern" => IotaType::Pattern,
-            "continution" => IotaType::Continuation,
-            _ => return None,
-        })
     }
 }
 
@@ -170,14 +150,6 @@ impl Iota {
     /// else mishaps as "unescaped" when executed).
     pub fn executable(&self) -> bool {
         matches!(self, Iota::Pattern(_) | Iota::Continuation(_))
-    }
-
-    /// Iotas inside this one (for size checks and true-name scans).
-    pub fn sub_iotas(&self) -> Option<Box<dyn Iterator<Item = &Iota> + '_>> {
-        match self {
-            Iota::List(l) => Some(Box::new(l.iter())),
-            _ => None,
-        }
     }
 
     /// How many iotas this is, nested ones included, and how deep it nests.

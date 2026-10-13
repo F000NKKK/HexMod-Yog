@@ -3,8 +3,6 @@
 //! formats a message itself: it sends keys and arguments, and the player's
 //! client fills them in its own language ([`Text::render`]).
 
-use crate::wire::{Reader, Writer};
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Text {
     /// Shown as is.
@@ -98,61 +96,6 @@ impl Text {
     pub fn to_json_colored(&self, color: &str) -> String {
         format!("{{\"text\":\"\",\"color\":\"{color}\",\"extra\":[{}]}}", self.to_json())
     }
-
-    pub fn write(&self, w: &mut Writer) {
-        match self {
-            Text::Lit(s) => {
-                w.tag('L').str(s);
-            }
-            Text::Key(key, args) => {
-                w.tag('K').str(key).int(args.len() as i64);
-                for a in args {
-                    a.write(w);
-                }
-            }
-            Text::Join(parts, sep) => {
-                w.tag('J').str(sep).int(parts.len() as i64);
-                for p in parts {
-                    p.write(w);
-                }
-            }
-        }
-    }
-
-    pub fn read(r: &mut Reader) -> Option<Self> {
-        Some(match r.tag()? {
-            'L' => Text::Lit(r.str()?.to_owned()),
-            'K' => {
-                let key = r.str()?.to_owned();
-                let n = r.int()?;
-                let mut args = Vec::new();
-                for _ in 0..n {
-                    args.push(Text::read(r)?);
-                }
-                Text::Key(key, args)
-            }
-            'J' => {
-                let sep = r.str()?.to_owned();
-                let n = r.int()?;
-                let mut parts = Vec::new();
-                for _ in 0..n {
-                    parts.push(Text::read(r)?);
-                }
-                Text::Join(parts, sep)
-            }
-            _ => return None,
-        })
-    }
-
-    pub fn encode(&self) -> String {
-        let mut w = Writer::new();
-        self.write(&mut w);
-        w.finish()
-    }
-
-    pub fn decode(s: &str) -> Option<Self> {
-        Text::read(&mut Reader::new(s))
-    }
 }
 
 /// Hex Casting's `DecimalFormat("####.####")`: at most four decimals,
@@ -175,18 +118,6 @@ pub fn fmt_double(v: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn texts_round_trip() {
-        let t = Text::key_args(
-            "hexcasting.mishap",
-            vec![
-                Text::lit("Jester's: Gambit"),
-                Text::Join(vec![Text::num(1.5), Text::key("x")], ", ".into()),
-            ],
-        );
-        assert_eq!(Text::decode(&t.encode()), Some(t));
-    }
 
     #[test]
     fn doubles_like_hex() {

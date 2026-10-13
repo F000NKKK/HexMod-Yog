@@ -67,18 +67,6 @@ impl HexDir {
         }
     }
 
-    pub fn from_string(s: &str) -> Option<Self> {
-        match s.to_uppercase().as_str() {
-            "NORTH_EAST" | "NE" => Some(HexDir::NorthEast),
-            "EAST" | "E" => Some(HexDir::East),
-            "SOUTH_EAST" | "SE" => Some(HexDir::SouthEast),
-            "SOUTH_WEST" | "SW" => Some(HexDir::SouthWest),
-            "WEST" | "W" => Some(HexDir::West),
-            "NORTH_WEST" | "NW" => Some(HexDir::NorthWest),
-            _ => None,
-        }
-    }
-
     fn letter(self) -> char {
         (b'A' + self.ordinal()) as char
     }
@@ -138,17 +126,6 @@ impl HexAngle {
 /// A point of the hex grid, in axial coordinates.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct HexCoord(pub i32, pub i32);
-
-impl HexCoord {
-    pub fn new(q: i32, r: i32) -> Self {
-        HexCoord(q, r)
-    }
-
-    /// The six neighbouring points, in [`HexDir::ALL`] order.
-    pub fn neighbors(self) -> [HexCoord; 6] {
-        HexDir::ALL.map(|d| self + d.as_delta())
-    }
-}
 
 impl Add for HexCoord {
     type Output = Self;
@@ -232,17 +209,6 @@ impl HexPattern {
             out.push(at);
         }
         out
-    }
-
-    /// Whether some edge is drawn twice (Hex Casting rejects such strokes).
-    pub fn reuses_an_edge(&self) -> bool {
-        let pts = self.positions();
-        let mut seen = std::collections::HashSet::new();
-        pts.windows(2).any(|w| {
-            let (a, b) = (w[0], w[1]);
-            let key = if (a.0, a.1) < (b.0, b.1) { (a, b) } else { (b, a) };
-            !seen.insert(key)
-        })
     }
 
     /// Compact form, one letter (`A`–`F`) per stroke.
@@ -399,13 +365,6 @@ mod tests {
         let back = HexPattern::from_serialized(&p.serialized_form()).unwrap();
         assert_eq!(back, p);
         assert!(HexPattern::from_angles("qxq", HexDir::East).is_none());
-    }
-
-    #[test]
-    fn edge_reuse() {
-        // Straight there and back again.
-        assert!(HexPattern::from_angles("s", HexDir::East).unwrap().reuses_an_edge());
-        assert!(!HexPattern::from_angles("qqqqq", HexDir::East).unwrap().reuses_an_edge());
     }
 
     #[test]

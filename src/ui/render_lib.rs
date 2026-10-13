@@ -23,7 +23,6 @@ const PI: f32 = std::f32::consts::PI;
 /// Degrees between the triangles of a line's round caps and joins.
 pub const CAP_THETA: f32 = 180.0 / 10.0;
 pub const DEFAULT_READABILITY_OFFSET: f32 = 0.2;
-pub const DEFAULT_LAST_SEGMENT_LEN_PROP: f32 = 0.8;
 
 /// Minecraft's `Vec2`.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -219,10 +218,6 @@ pub struct Mesh {
 impl Mesh {
     pub fn new() -> Self {
         Self::default()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.verts.is_empty()
     }
 
     pub fn vertex_count(&self) -> usize {

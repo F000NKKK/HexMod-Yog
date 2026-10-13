@@ -207,10 +207,6 @@ impl JavaRandom {
             }
         }
     }
-
-    pub fn next_long(&mut self) -> i64 {
-        ((self.next(32) as i64) << 32).wrapping_add(self.next(32) as i64)
-    }
 }
 
 /// `Mth.hsvToRgb`.

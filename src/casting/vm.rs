@@ -93,11 +93,6 @@ impl OpResult {
         self.sound = sound;
         self
     }
-
-    pub fn with_cont(mut self, cont: Cont) -> Self {
-        self.cont = cont;
-        self
-    }
 }
 
 /// `CastResult`.
