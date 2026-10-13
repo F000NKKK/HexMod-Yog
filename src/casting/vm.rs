@@ -7,10 +7,11 @@ use crate::casting::actions::{self, Lookup};
 use crate::casting::cont::{Cont, Frame};
 use crate::casting::env::{CastEnv, MAX_OP_COUNT, Spray};
 use crate::casting::image::Image;
-use crate::casting::mishap::{Context, MResult, Mishap};
+use crate::casting::mishap::{Context, Mishap};
 use crate::iota::Iota;
 use crate::math::{HexDir, HexPattern};
 use crate::protocol::ResolvedType;
+use crate::text::Text;
 
 /// `HexEvalSounds`, in priority order (a cast keeps the loudest).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
@@ -352,45 +353,48 @@ impl<'a> Vm<'a> {
         cont: Cont,
         in_parens: bool,
     ) -> CastResult {
-        let mut ctx = Context { pattern: Some(pattern.clone()), name: None };
-        match self.operate(pattern, &cont, in_parens, &mut ctx) {
+        match self.operate(pattern, &cont, in_parens) {
             Ok(r) => r,
-            Err(mishap) => {
+            Err((mishap, name)) => {
                 let wipe = matches!(cont.frame(), Some(Frame::Evaluate { metacasting: true, .. }));
                 let image = wipe.then(|| self.image.clone().with_reset_escape());
+                let ctx = Context { pattern: Some(pattern.clone()), name };
                 CastResult::mishap(cont, image, mishap, ctx)
             }
         }
     }
 
+    /// Fails with the mishap and the name of what was drawn (made only
+    /// then: most patterns never need it).
     fn operate(
         &mut self,
         pattern: &HexPattern,
         cont: &Cont,
         in_parens: bool,
-        ctx: &mut Context,
-    ) -> MResult<CastResult> {
+    ) -> Result<CastResult, (Mishap, Option<Text>)> {
         let image = self.image.clone();
         let (result, kind) = match actions::lookup(pattern, &self.env) {
             Lookup::Action(action) => {
-                ctx.name = Some(action.name());
+                let named = |m| (m, Some(action.name()));
                 // REQUIRES_ENLIGHTENMENT_IN_PARENS is empty.
                 if !in_parens && action.great() && !self.env.is_enlightened() {
-                    return Err(Mishap::Unenlightened);
+                    return Err(named(Mishap::Unenlightened));
                 }
                 if in_parens {
-                    action.operate_in_parens(
-                        &mut self.env,
-                        image,
-                        cont,
-                        &Iota::Pattern(pattern.clone()),
-                    )?
+                    action
+                        .operate_in_parens(
+                            &mut self.env,
+                            image,
+                            cont,
+                            &Iota::Pattern(pattern.clone()),
+                        )
+                        .map_err(named)?
                 } else {
-                    ((action.op)(&mut self.env, image, cont)?, ResolvedType::Evaluated)
+                    let r = (action.op)(&mut self.env, image, cont).map_err(named)?;
+                    (r, ResolvedType::Evaluated)
                 }
             }
             Lookup::Special(special) => {
-                ctx.name = Some(special.name());
                 if in_parens {
                     (
                         OpResult::new(
@@ -400,7 +404,10 @@ impl<'a> Vm<'a> {
                         ResolvedType::Escaped,
                     )
                 } else {
-                    (special.operate(&mut self.env, image, cont)?, ResolvedType::Evaluated)
+                    let r = special
+                        .operate(&mut self.env, image, cont)
+                        .map_err(|m| (m, Some(special.name())))?;
+                    (r, ResolvedType::Evaluated)
                 }
             }
             Lookup::Nothing if in_parens => (
@@ -410,7 +417,7 @@ impl<'a> Vm<'a> {
                 ),
                 ResolvedType::Escaped,
             ),
-            Lookup::Nothing => return Err(Mishap::InvalidPattern(Some(pattern.clone()))),
+            Lookup::Nothing => return Err((Mishap::InvalidPattern(Some(pattern.clone())), None)),
         };
         Ok(CastResult {
             cont: result.cont,
