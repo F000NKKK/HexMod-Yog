@@ -1,9 +1,10 @@
 {
-  "id": "hexcasting:amethyst_dust",
-  "name": "Amethyst Dust",
-  "tooltip": "A pile of dust, containing a small amount of media.",
+  "name": "@Items.amethyst_dust",
+  "tooltip": "@Items.amethyst_dust.desc",
   "model": {
     "parent": "generated",
-    "textures": { "layer0": "hexcasting:item/amethyst_dust" }
+    "textures": {
+      "layer0": "item/amethyst_dust.png"
+    }
   }
 }

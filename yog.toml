@@ -1,16 +1,14 @@
 [mod]
-id          = "HexMod-Yog"
-name        = "HexMod Yog"
+id          = "hexcasting"
+name        = "@Strings.mod_name"
 version     = "0.1.0"
-description = "Unofficial Rust port of Hex Casting (by gamma-delta / FallingColors) for the Yog Mod Loader."
+description = "@Strings.mod_description"
 authors     = ["F000NK", "Yog Team", "gamma-delta (original Hex Casting)", "FallingColors & HexMod contributors (original Hex Casting)"]
 license     = "MIT"
 
-# Points yog-api at the local monorepo crate.
-# Real third-party mods omit this and get yog-api from crates.io.
 [dependencies]
+yog-kit = "0.1"
 uuid = "1.23.3"
-serde = "*"
 
 ## `yog run <name>` — build, drop the .yog into the loader's own Gradle dev-run
 # instance, then launch it.

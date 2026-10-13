@@ -1,11 +1,14 @@
 {
-  "id": "hexcasting:thehexbook",
-  "name": "The Hexbook",
-  "tooltip": "A shimmering tome of hex knowledge.",
+  "name": "@Items.thehexbook",
+  "tooltip": "@Items.thehexbook.desc",
   "register": "manual",
-  "item": { "stack_size": 1 },
+  "item": {
+    "stack_size": 1
+  },
   "model": {
     "parent": "generated",
-    "textures": { "layer0": "hexcasting:item/thehexbook" }
+    "textures": {
+      "layer0": "item/thehexbook.png"
+    }
   }
 }

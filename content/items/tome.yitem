@@ -1,10 +1,13 @@
 {
-  "id": "hexcasting:tome",
-  "name": "Tome of the Glimmen",
-  "tooltip": "A book bound in shimmering fabric.",
-  "item": { "stack_size": 1 },
+  "name": "@Items.tome",
+  "tooltip": "@Items.tome.desc",
+  "item": {
+    "stack_size": 1
+  },
   "model": {
     "parent": "generated",
-    "textures": { "layer0": "hexcasting:item/tome" }
+    "textures": {
+      "layer0": "item/tome.png"
+    }
   }
 }
