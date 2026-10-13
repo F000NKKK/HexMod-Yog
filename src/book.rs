@@ -9,37 +9,41 @@
 
 use yog_api::book::{Book as YogBook, BookCategory, BookEntry, BookPage};
 
+use crate::content::Items;
 use crate::res::Book;
+
+const CATEGORY_BASICS: &str = "hexcasting:basics";
+const CATEGORY_PATTERNS: &str = "hexcasting:patterns";
 
 fn page(key: &str) -> BookPage {
     BookPage::Text { text: key.into(), title: None }
 }
 
 pub fn register_book() -> YogBook {
-    YogBook::new("hexcasting:thehexbook", Book::BOOK_NAME_KEY)
+    YogBook::new(Items::THEHEXBOOK, Book::BOOK_NAME_KEY)
         .author("F000NK, Yog Team")
         .i18n(true)
         .add_category(BookCategory {
-            id: "hexcasting:basics".into(),
+            id: CATEGORY_BASICS.into(),
             name: Book::BOOK_CATEGORY_BASICS_KEY.into(),
             description: Some(Book::BOOK_CATEGORY_BASICS_DESC_KEY.into()),
             sortnum: 0,
-            icon: Some("hexcasting:staff/oak".into()),
+            icon: Some(Items::STAFF_OAK.into()),
             icon_svg: None,
         })
         .add_category(BookCategory {
-            id: "hexcasting:patterns".into(),
+            id: CATEGORY_PATTERNS.into(),
             name: Book::BOOK_CATEGORY_PATTERNS_KEY.into(),
             description: Some(Book::BOOK_CATEGORY_PATTERNS_DESC_KEY.into()),
             sortnum: 1,
-            icon: Some("hexcasting:tome".into()),
+            icon: Some(Items::TOME.into()),
             icon_svg: None,
         })
         .add_entry(BookEntry {
             id: "hexcasting:media".into(),
             name: Book::BOOK_ENTRY_MEDIA_KEY.into(),
-            category: "hexcasting:basics".into(),
-            icon: Some("hexcasting:amethyst_dust".into()),
+            category: CATEGORY_BASICS.into(),
+            icon: Some(Items::AMETHYST_DUST.into()),
             priority: 0,
             read_by_default: true,
             pages: vec![
@@ -54,7 +58,7 @@ pub fn register_book() -> YogBook {
         .add_entry(BookEntry {
             id: "hexcasting:geodes".into(),
             name: Book::BOOK_ENTRY_GEODES_KEY.into(),
-            category: "hexcasting:basics".into(),
+            category: CATEGORY_BASICS.into(),
             icon: Some("minecraft:amethyst_block".into()),
             priority: 1,
             read_by_default: true,
@@ -72,7 +76,7 @@ pub fn register_book() -> YogBook {
         .add_entry(BookEntry {
             id: "hexcasting:couldnt_cast".into(),
             name: Book::BOOK_ENTRY_COULDNT_CAST_KEY.into(),
-            category: "hexcasting:basics".into(),
+            category: CATEGORY_BASICS.into(),
             icon: Some("minecraft:textures/mob_effect/nausea.png".into()),
             priority: 2,
             read_by_default: true,
@@ -93,7 +97,7 @@ pub fn register_book() -> YogBook {
         .add_entry(BookEntry {
             id: "hexcasting:start_to_see".into(),
             name: Book::BOOK_ENTRY_START_TO_SEE_KEY.into(),
-            category: "hexcasting:basics".into(),
+            category: CATEGORY_BASICS.into(),
             icon: Some("minecraft:textures/mob_effect/blindness.png".into()),
             priority: 3,
             read_by_default: true,
@@ -111,7 +115,7 @@ pub fn register_book() -> YogBook {
         .add_entry(BookEntry {
             id: "hexcasting:patterns_intro".into(),
             name: Book::BOOK_ENTRY_PATTERNS_INTRO_KEY.into(),
-            category: "hexcasting:patterns".into(),
+            category: CATEGORY_PATTERNS.into(),
             icon: None,
             priority: 0,
             read_by_default: true,

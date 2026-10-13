@@ -71,8 +71,12 @@ mod tests {
 
     #[test]
     fn round_trip() {
-        let mut s =
-            Stack { slot: 0, id: "hexcasting:trinket".into(), count: 1, nbt: Nbt::default() };
+        let mut s = Stack {
+            slot: 0,
+            id: crate::content::Items::TRINKET.into(),
+            count: 1,
+            nbt: Nbt::default(),
+        };
         assert!(!has_hex(&s));
         let p = Pigment::default();
         write_hex(&mut s, &[Iota::Double(1.0), Iota::Null], Some(&p), 500);

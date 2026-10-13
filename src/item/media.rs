@@ -5,6 +5,7 @@
 use yog_api::Server;
 
 use crate::casting::env::{SLOT_OFFHAND, Stack};
+use crate::content::{Blocks, Items};
 use crate::snbt::Nbt;
 
 /// `MediaConstants`.
@@ -18,37 +19,31 @@ pub const QUENCHED_BLOCK: i64 = 4 * QUENCHED_SHARD;
 pub const TAG_MEDIA: &str = "hexcasting:media";
 pub const TAG_MAX_MEDIA: &str = "hexcasting:start_media";
 
-pub const BATTERY: &str = "hexcasting:battery";
+pub const BATTERY: &str = Items::BATTERY;
 
 /// Items worth a fixed amount each, spent whole: (id, worth, priority).
 const STATIC: [(&str, i64, i32); 5] = [
-    ("hexcasting:amethyst_dust", DUST, 3000),
+    (Items::AMETHYST_DUST, DUST, 3000),
     ("minecraft:amethyst_shard", SHARD, 2000),
-    ("hexcasting:charged_amethyst", CRYSTAL, 1000),
-    ("hexcasting:quenched_allay_shard", QUENCHED_SHARD, 900),
-    ("hexcasting:quenched_allay", QUENCHED_BLOCK, 800),
+    (Items::CHARGED_AMETHYST, CRYSTAL, 1000),
+    (Items::QUENCHED_ALLAY_SHARD, QUENCHED_SHARD, 900),
+    (Blocks::QUENCHED_ALLAY, QUENCHED_BLOCK, 800),
 ];
 const BATTERY_PRIORITY: i32 = 4000;
 
 /// Cyphers, trinkets and artifacts (`ItemPackagedHex`).
 pub fn is_packaged(id: &str) -> bool {
-    matches!(
-        id,
-        "hexcasting:cypher"
-            | "hexcasting:ancient_cypher"
-            | "hexcasting:trinket"
-            | "hexcasting:artifact"
-    )
+    matches!(id, Items::CYPHER | Items::ANCIENT_CYPHER | Items::TRINKET | Items::ARTIFACT)
 }
 
 /// `canDrawMediaFromInventory`: only the artifact.
 pub fn draws_from_inventory(id: &str) -> bool {
-    id == "hexcasting:artifact"
+    id == Items::ARTIFACT
 }
 
 /// `breakAfterDepletion`: cyphers.
 pub fn breaks_after_depletion(id: &str) -> bool {
-    matches!(id, "hexcasting:cypher" | "hexcasting:ancient_cypher")
+    matches!(id, Items::CYPHER | Items::ANCIENT_CYPHER)
 }
 
 /// Items holding media in NBT.
@@ -177,7 +172,7 @@ mod tests {
 
     #[test]
     fn whole_items_are_spent() {
-        let mut s = stack("hexcasting:amethyst_dust", 3);
+        let mut s = stack(Items::AMETHYST_DUST, 3);
         assert_eq!(withdraw(&mut s, DUST + 1, true), 2 * DUST);
         assert_eq!(s.count, 3);
         assert_eq!(withdraw(&mut s, 10 * DUST, false), 3 * DUST);

@@ -9,8 +9,14 @@ use crate::item::holder::{self, ABACUS, SPELLBOOK};
 use crate::item::{media, packaged};
 use crate::math::Vec3;
 use crate::protocol::Hand;
+use crate::res::Lang;
 use crate::text::Text;
 use crate::wire::Reader;
+
+/// The abacus' click.
+const SOUND_ABACUS: &str = "hexcasting:abacus";
+/// Its reset.
+const SOUND_ABACUS_SHAKE: &str = "hexcasting:abacus.shake";
 
 /// `ItemPackagedHex.use`, for the hand holding `item_id`.
 pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
@@ -100,9 +106,9 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
                 let pitch =
                     holder::abacus_scroll(&mut stack.nbt, delta, hand == Hand::Main, ctrl != 0);
                 let pos = env.caster_pos().unwrap_or_default();
-                srv.play_sound(&env.dim, pos.x, pos.y, pos.z, "hexcasting:abacus", 0.5, pitch);
+                srv.play_sound(&env.dim, pos.x, pos.y, pos.z, SOUND_ABACUS, 0.5, pitch);
                 let v = stack.nbt.get_f64("value").unwrap_or(0.0);
-                Text::key_args("hexcasting.tooltip.abacus", vec![Text::num(v)])
+                Text::key_args(Lang::TOOLTIP_ABACUS_KEY, vec![Text::num(v)])
                     .to_json_colored("green")
             }
             SPELLBOOK => {
@@ -116,15 +122,15 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
                 ];
                 let name =
                     stack.nbt.get("display").and_then(|d| d.get_str("Name")).map(str::to_owned);
-                let mut key = "hexcasting.tooltip.spellbook.page".to_owned();
+                let mut key = Lang::TOOLTIP_SPELLBOOK_PAGE_KEY.to_owned();
                 if let Some(json) = name.filter(|_| hand == Hand::Off) {
-                    key = "hexcasting.tooltip.spellbook.page_with_name".to_owned();
+                    key = Lang::TOOLTIP_SPELLBOOK_PAGE_WITH_NAME_KEY.to_owned();
                     args.push(format!("{{\"text\":\"\",\"italic\":true,\"extra\":[{json}]}}"));
                 }
                 if holder::page_sealed(&stack.nbt) {
                     key.push_str(".sealed");
                     args.push(
-                        Text::key("hexcasting.tooltip.spellbook.sealed").to_json_colored("gold"),
+                        Text::key(Lang::TOOLTIP_SPELLBOOK_SEALED_KEY).to_json_colored("gold"),
                     );
                 }
                 format!(
@@ -156,11 +162,11 @@ pub fn reset_abacus(srv: &dyn Server, player: &str) {
     };
     let old = stack.nbt.remove("value").and_then(|v| v.as_f64()).unwrap_or(0.0);
     env.save(&stack);
-    srv.play_sound_to_player(player, "hexcasting:abacus.shake", 1.0, 1.0);
+    srv.play_sound_to_player(player, SOUND_ABACUS_SHAKE, 1.0, 1.0);
     let key = if old == 69.0 {
-        "hexcasting.tooltip.abacus.reset.nice"
+        Lang::TOOLTIP_ABACUS_RESET_NICE_KEY
     } else {
-        "hexcasting.tooltip.abacus.reset"
+        Lang::TOOLTIP_ABACUS_RESET_KEY
     };
     actionbar(srv, player, &Text::key(key).to_json());
 }

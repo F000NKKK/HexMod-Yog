@@ -10,6 +10,7 @@ use yog_api::{EventPhase, Registry};
 use crate::akashic;
 use crate::casting::env::from_ypos;
 use crate::casting::ops::{great, query, spells};
+use crate::content::Items;
 use crate::item::holder::ABACUS;
 use crate::item::media;
 use crate::protocol::{CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT, OpenGui, PatternResult};
@@ -18,11 +19,10 @@ use crate::ui::spellcasting::{self, CH_SCROLL};
 pub fn register(registry: &mut Registry) {
     // The Hexbook and a staff on first join.
     registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_hexbook").item("hexcasting:thehexbook"),
+        StartupGrant::new("hexcasting:give_hexbook").item(Items::THEHEXBOOK),
     );
-    registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff/oak"),
-    );
+    registry
+        .register_startup_grant(StartupGrant::new("hexcasting:give_staff").item(Items::STAFF_OAK));
 
     registry.on_use_item(|ev, phase, srv| {
         if phase == EventPhase::Post {

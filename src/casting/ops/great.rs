@@ -13,6 +13,7 @@ use crate::casting::ops::spells::{
     assert_teleportable, craft_battery, create_fluid, create_sentinel, potion, teleport_by,
 };
 use crate::casting::vm::Spell;
+use crate::content::Blocks;
 use crate::iota::Iota;
 use crate::item::media::{CRYSTAL, DUST, SHARD};
 use crate::math::Vec3;
@@ -165,9 +166,9 @@ enum Sweepee {
 /// `data/hexcasting/recipes/brainsweep/*.json`: (block, mob, result, cost).
 const RECIPES: [(&str, Sweepee, &str, i64); 8] = [
     (
-        "hexcasting:akashic_connector",
+        Blocks::AKASHIC_CONNECTOR,
         Sweepee::Villager(Some("librarian"), 5),
-        "hexcasting:akashic_record",
+        Blocks::AKASHIC_RECORD,
         1_000_000,
     ),
     (
@@ -177,39 +178,39 @@ const RECIPES: [(&str, Sweepee, &str, i64); 8] = [
         1_000_000,
     ),
     (
-        "hexcasting:directrix/empty",
+        Blocks::DIRECTRIX_EMPTY,
         Sweepee::Villager(Some("shepherd"), 1),
-        "hexcasting:directrix/boolean",
+        Blocks::DIRECTRIX_BOOLEAN,
         1_000_000,
     ),
     (
-        "hexcasting:directrix/empty",
+        Blocks::DIRECTRIX_EMPTY,
         Sweepee::Villager(Some("mason"), 1),
-        "hexcasting:directrix/redstone",
+        Blocks::DIRECTRIX_REDSTONE,
         1_000_000,
     ),
     (
-        "hexcasting:impetus/empty",
+        Blocks::IMPETUS_EMPTY,
         Sweepee::Villager(Some("fletcher"), 2),
-        "hexcasting:impetus/look",
+        Blocks::IMPETUS_LOOK,
         1_000_000,
     ),
     (
-        "hexcasting:impetus/empty",
+        Blocks::IMPETUS_EMPTY,
         Sweepee::Villager(Some("toolsmith"), 2),
-        "hexcasting:impetus/rightclick",
+        Blocks::IMPETUS_RIGHTCLICK,
         1_000_000,
     ),
     (
-        "hexcasting:impetus/empty",
+        Blocks::IMPETUS_EMPTY,
         Sweepee::Villager(Some("cleric"), 2),
-        "hexcasting:impetus/redstone",
+        Blocks::IMPETUS_REDSTONE,
         1_000_000,
     ),
     (
         "minecraft:amethyst_block",
         Sweepee::Entity("minecraft:allay"),
-        "hexcasting:quenched_allay",
+        Blocks::QUENCHED_ALLAY,
         100_000,
     ),
 ];
@@ -360,7 +361,7 @@ mod tests {
     #[test]
     fn brainswept_blocks_keep_their_state() {
         assert_eq!(
-            with_properties("hexcasting:impetus/empty[facing=north]", "hexcasting:impetus/look"),
+            with_properties("hexcasting:impetus/empty[facing=north]", Blocks::IMPETUS_LOOK),
             "hexcasting:impetus/look[facing=north]"
         );
         assert_eq!(

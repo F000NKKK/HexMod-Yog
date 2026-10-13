@@ -22,6 +22,7 @@ use crate::casting::image::Image;
 use crate::casting::mishap::{BlockPos, MResult, Mishap, dye, item_name};
 use crate::casting::ops::rw::others_name;
 use crate::casting::vm::{OpResult, SideEffect, Sound, Spell};
+use crate::content::{Blocks, Items};
 use crate::iota::Iota;
 use crate::item::media::{self, CRYSTAL, DUST, SHARD};
 use crate::item::pigment::{Pigment, dye_pigment, is_pigment};
@@ -92,13 +93,13 @@ pub fn actions() -> Vec<Action> {
                 .mute())
         };
         "craft/cypher" E "waqqqqq" => spell [env, img; e: ItemEnt, hex: Vec<Iota>] {
-            craft_packaged(env, e, hex, "hexcasting:cypher", CRYSTAL)
+            craft_packaged(env, e, hex, Items::CYPHER, CRYSTAL)
         };
         "craft/trinket" E "wwaqqqqqeaqeaeqqqeaeq" => spell [env, img; e: ItemEnt, hex: Vec<Iota>] {
-            craft_packaged(env, e, hex, "hexcasting:trinket", 5 * CRYSTAL)
+            craft_packaged(env, e, hex, Items::TRINKET, 5 * CRYSTAL)
         };
         "craft/artifact" E "wwaqqqqqeawqwqwqwqwqwwqqeadaeqqeqqeadaeqq" => spell [env, img; e: ItemEnt, hex: Vec<Iota>] {
-            craft_packaged(env, e, hex, "hexcasting:artifact", 10 * CRYSTAL)
+            craft_packaged(env, e, hex, Items::ARTIFACT, 10 * CRYSTAL)
         };
         "potion/weakness" NW "qqqqqaqwawaw" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
             potion(env, e, dur.0, Some(&pot), "minecraft:weakness", DUST / 10, false)
@@ -516,8 +517,7 @@ fn conjure(env: &mut CastEnv<'_>, pos: BlockPos, light: bool) -> MResult<Spell> 
     }
     Ok(Spell::new(DUST, vec![Spray::cloud(Vec3::center_of(pos), 1.0)], move |env, _| {
         if env.can_edit_block_at(pos) && replaceable(env, pos) {
-            let block =
-                if light { "hexcasting:conjured_light" } else { "hexcasting:conjured_block" };
+            let block = if light { Blocks::CONJURED_LIGHT } else { Blocks::CONJURED_BLOCK };
             env.srv.set_block(&env.dim, to_ypos(pos), block);
         }
     }))
@@ -636,10 +636,10 @@ fn variants(id: &str) -> Option<i64> {
         id,
         holder::FOCUS
             | holder::SPELLBOOK
-            | "hexcasting:cypher"
-            | "hexcasting:ancient_cypher"
-            | "hexcasting:trinket"
-            | "hexcasting:artifact"
+            | Items::CYPHER
+            | Items::ANCIENT_CYPHER
+            | Items::TRINKET
+            | Items::ARTIFACT
     )
     .then_some(8)
 }

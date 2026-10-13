@@ -31,6 +31,7 @@ use super::render_lib::{
     DEFAULT_READABILITY_OFFSET, Mesh, PatternStyle, Vec2, coord_to_px, draw_pattern_from_points,
     draw_spot, find_dup_indices, positions_from, px_to_coord, range_around, ticks, to_lines,
 };
+use crate::content::Items;
 use crate::iota::Iota;
 use crate::math::{HexAngle, HexCoord, HexDir, HexPattern};
 use crate::protocol::{
@@ -536,7 +537,7 @@ impl Surface for GridSurface {
 
         // `tick`: the staff must stay in the hand the grid was opened with.
         let held = client::held_item(grid.hand == Hand::Off);
-        if !held.is_some_and(|id| id.starts_with("hexcasting:staff/")) && !s.closing {
+        if !held.is_some_and(|id| crate::events::staff::is_staff(&id)) && !s.closing {
             s.closing = true;
             close();
         }
@@ -603,9 +604,8 @@ impl Surface for GridSurface {
 /// `ShiftScrollListener.onScroll(delta, needsSneaking = false)`: scrolls the
 /// spellbook or abacus in the main hand, else in the off hand.
 fn shift_scroll(delta: f64) {
-    let scrollable = |id: Option<String>| {
-        id.is_some_and(|id| id == "hexcasting:spellbook" || id == "hexcasting:abacus")
-    };
+    let scrollable =
+        |id: Option<String>| id.is_some_and(|id| id == Items::SPELLBOOK || id == Items::ABACUS);
     let (main, off) = if scrollable(client::held_item(false)) {
         (delta, 0.0)
     } else if scrollable(client::held_item(true)) {

@@ -5,6 +5,7 @@ use crate::casting::env::{CastEnv, Spray};
 use crate::iota::{EntityRef, Iota};
 use crate::math::{HexPattern, Vec3};
 use crate::protocol::ResolvedType;
+use crate::res::Lang;
 use crate::text::Text;
 
 /// A block position.
@@ -190,8 +191,8 @@ impl Mishap {
     pub fn tan(angle: f64) -> Self {
         let t = translate_operand(&Iota::Double(angle));
         Mishap::DivideByZero {
-            a: Text::key_args("hexcasting.mishap.divide_by_zero.sin", vec![t.clone()]),
-            b: Text::key_args("hexcasting.mishap.divide_by_zero.cos", vec![t]),
+            a: Text::key_args(Lang::MISHAP_DIVIDE_BY_ZERO_SIN_KEY, vec![t.clone()]),
+            b: Text::key_args(Lang::MISHAP_DIVIDE_BY_ZERO_COS_KEY, vec![t]),
             suffix: "divide",
         }
     }
@@ -318,7 +319,7 @@ impl Mishap {
             }
             Mishap::Unenlightened => {
                 env.drop_held_items();
-                env.print_message(&Text::key("hexcasting.message.cant_great_spell"));
+                env.print_message(&Text::key(Lang::MESSAGE_CANT_GREAT_SPELL_KEY));
                 let p = env.mishap_spray_pos();
                 env.srv.play_sound(
                     &env.dim,
@@ -413,7 +414,7 @@ impl Mishap {
             Mishap::NotEnoughArgs { expected, got } => {
                 error("not_enough_args", vec![Text::int(*expected as i64), Text::int(*got as i64)])
             }
-            Mishap::NotEnoughMedia(_) => Text::key("hexcasting.message.cant_overcast"),
+            Mishap::NotEnoughMedia(_) => Text::key(Lang::MESSAGE_CANT_OVERCAST_KEY),
             Mishap::OthersName { is_self: true, .. } => error("others_name.self", vec![]),
             Mishap::OthersName { name, .. } => error("others_name", vec![Text::lit(name.clone())]),
             Mishap::StackSize => error("stack_size", vec![]),
@@ -426,7 +427,7 @@ impl Mishap {
     pub fn message_with_name(&self, env: &CastEnv, ctx: &Context) -> Option<Text> {
         let msg = self.error_message(env)?;
         Some(match &ctx.name {
-            Some(name) => Text::key_args("hexcasting.mishap", vec![name.clone(), msg]),
+            Some(name) => Text::key_args(Lang::MISHAP_KEY, vec![name.clone(), msg]),
             None => msg,
         })
     }
@@ -434,7 +435,7 @@ impl Mishap {
 
 fn entity_name(e: &EntityRef) -> Text {
     if e.name.is_empty() {
-        Text::key("hexcasting.spelldata.entity.whoknows")
+        Text::key(Lang::SPELLDATA_ENTITY_WHOKNOWS_KEY)
     } else {
         Text::lit(e.name.clone())
     }
@@ -449,8 +450,8 @@ pub fn item_name(id: &str) -> Text {
 /// `MishapDivideByZero.translate`.
 fn translate_operand(i: &Iota) -> Text {
     match i {
-        Iota::Double(d) if *d == 0.0 => Text::key("hexcasting.mishap.divide_by_zero.zero"),
-        Iota::Vec3(v) if *v == Vec3::ZERO => Text::key("hexcasting.mishap.divide_by_zero.zero.vec"),
+        Iota::Double(d) if *d == 0.0 => Text::key(Lang::MISHAP_DIVIDE_BY_ZERO_ZERO_KEY),
+        Iota::Vec3(v) if *v == Vec3::ZERO => Text::key(Lang::MISHAP_DIVIDE_BY_ZERO_ZERO_VEC_KEY),
         other => other.display(),
     }
 }
@@ -458,8 +459,8 @@ fn translate_operand(i: &Iota) -> Text {
 /// `MishapDivideByZero.powerOf`.
 fn power_of(i: &Iota) -> Text {
     match i {
-        Iota::Double(d) if *d == 0.0 => Text::key("hexcasting.mishap.divide_by_zero.zero.power"),
-        other => Text::key_args("hexcasting.mishap.divide_by_zero.power", vec![other.display()]),
+        Iota::Double(d) if *d == 0.0 => Text::key(Lang::MISHAP_DIVIDE_BY_ZERO_ZERO_POWER_KEY),
+        other => Text::key_args(Lang::MISHAP_DIVIDE_BY_ZERO_POWER_KEY, vec![other.display()]),
     }
 }
 

@@ -2,6 +2,7 @@
 
 use crate::casting::cont::Cont;
 use crate::math::{HexPattern, Vec3};
+use crate::res::Lang;
 use crate::text::{Text, fmt_double};
 use crate::wire::{Reader, Writer};
 
@@ -186,24 +187,22 @@ impl Iota {
     /// How the iota is shown on the stack and in messages.
     pub fn display(&self) -> Text {
         match self {
-            Iota::Null => Text::key("hexcasting.tooltip.null_iota"),
-            Iota::Garbage => Text::key("hexcasting.spelldata.unknown"),
-            Iota::Bool(true) => Text::key("hexcasting.tooltip.boolean_true"),
-            Iota::Bool(false) => Text::key("hexcasting.tooltip.boolean_false"),
+            Iota::Null => Text::key(Lang::TOOLTIP_NULL_IOTA_KEY),
+            Iota::Garbage => Text::key(Lang::SPELLDATA_UNKNOWN_KEY),
+            Iota::Bool(true) => Text::key(Lang::TOOLTIP_BOOLEAN_TRUE_KEY),
+            Iota::Bool(false) => Text::key(Lang::TOOLTIP_BOOLEAN_FALSE_KEY),
             Iota::Double(d) => Text::Lit(fmt_double(*d)),
             Iota::Vec3(v) => Text::Lit(fmt_vec(*v)),
-            Iota::Entity(e) if e.name.is_empty() => {
-                Text::key("hexcasting.spelldata.entity.whoknows")
-            }
+            Iota::Entity(e) if e.name.is_empty() => Text::key(Lang::SPELLDATA_ENTITY_WHOKNOWS_KEY),
             Iota::Entity(e) => Text::Lit(e.name.clone()),
             Iota::List(l) => Text::key_args(
-                "hexcasting.tooltip.list_contents",
+                Lang::TOOLTIP_LIST_CONTENTS_KEY,
                 vec![Text::Join(l.iter().map(Iota::display).collect(), ", ".into())],
             ),
             Iota::Pattern(p) => {
-                Text::key_args("hexcasting.tooltip.pattern_iota", vec![Text::Lit(pattern_text(p))])
+                Text::key_args(Lang::TOOLTIP_PATTERN_IOTA_KEY, vec![Text::Lit(pattern_text(p))])
             }
-            Iota::Continuation(_) => Text::key("hexcasting.tooltip.jump_iota"),
+            Iota::Continuation(_) => Text::key(Lang::TOOLTIP_JUMP_IOTA_KEY),
         }
     }
 

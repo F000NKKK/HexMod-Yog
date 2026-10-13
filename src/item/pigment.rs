@@ -2,6 +2,7 @@
 //! `FrozenPigment` and the `ColorProvider`s of its pigment items).
 
 use crate::casting::mishap::dye;
+use crate::content::Items;
 use crate::math::Vec3;
 
 /// A pigment item and its owner, as the original freezes it.
@@ -12,7 +13,7 @@ pub struct Pigment {
 }
 
 /// `FrozenPigment.DEFAULT`.
-pub const DEFAULT_ITEM: &str = "hexcasting:default_colorizer";
+pub const DEFAULT_ITEM: &str = Items::DEFAULT_COLORIZER;
 const NIL_UUID: &str = "00000000-0000-0000-0000-000000000000";
 
 impl Default for Pigment {
@@ -69,7 +70,7 @@ const ANCIENT: [u32; 5] = [0x54398a, 0xcfa0f3, 0xfecbe6, 0xcfa0f3, 0xe77c56];
 
 /// Whether `item` is a pigment (`PigmentItem`).
 pub fn is_pigment(item: &str) -> bool {
-    provider(item).is_some() || item == "hexcasting:uuid_colorizer"
+    provider(item).is_some() || item == Items::UUID_COLORIZER
 }
 
 enum Provider {
@@ -102,7 +103,7 @@ impl Pigment {
         let raw = match provider(&self.item) {
             Some(Provider::Solid(c)) => c,
             Some(Provider::Morph(c, period)) => morph(&c, time / period, pos),
-            None if self.item == "hexcasting:uuid_colorizer" => {
+            None if self.item == Items::UUID_COLORIZER => {
                 morph(&uuid_colors(&self.owner), time / 400.0, pos)
             }
             // ColorProvider.MISSING
@@ -239,9 +240,9 @@ mod tests {
     fn colours() {
         let p = Pigment::default();
         assert_eq!(p.color(0.0, Vec3::ZERO), 0xab65eb);
-        assert!(is_pigment("hexcasting:pride_colorizer_gay"));
+        assert!(is_pigment(Items::PRIDE_COLORIZER_GAY));
         assert!(!is_pigment("minecraft:stick"));
-        assert!(is_pigment("hexcasting:uuid_colorizer"));
+        assert!(is_pigment(Items::UUID_COLORIZER));
         assert_eq!(dye_pigment(dye::RED).color(5.0, Vec3::ZERO), dye::RED);
     }
 }

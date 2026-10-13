@@ -5,21 +5,22 @@
 //! Iotas are kept in the item's NBT as [`crate::wire`] strings.
 
 use crate::casting::env::Stack;
+use crate::content::{Blocks, Items};
 use crate::iota::Iota;
 use crate::math::HexPattern;
 use crate::snbt::Nbt;
 
-pub const FOCUS: &str = "hexcasting:focus";
-pub const SPELLBOOK: &str = "hexcasting:spellbook";
-pub const THOUGHT_KNOT: &str = "hexcasting:thought_knot";
-pub const ABACUS: &str = "hexcasting:abacus";
-pub const SLATE: &str = "hexcasting:slate";
+pub const FOCUS: &str = Items::FOCUS;
+pub const SPELLBOOK: &str = Items::SPELLBOOK;
+pub const THOUGHT_KNOT: &str = Items::THOUGHT_KNOT;
+pub const ABACUS: &str = Items::ABACUS;
+pub const SLATE: &str = Blocks::SLATE;
 
 /// `ItemSpellbook.MAX_PAGES`.
 pub const MAX_PAGES: i64 = 64;
 
 pub fn is_scroll(id: &str) -> bool {
-    matches!(id, "hexcasting:scroll" | "hexcasting:scroll_small" | "hexcasting:scroll_medium")
+    matches!(id, Items::SCROLL | Items::SCROLL_SMALL | Items::SCROLL_MEDIUM)
 }
 
 /// `findDataHolder(stack) != null`.
@@ -357,7 +358,7 @@ mod tests {
 
     #[test]
     fn scrolls_take_patterns_only() {
-        let mut s = stack("hexcasting:scroll");
+        let mut s = stack(Items::SCROLL);
         let p = Iota::Pattern(HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap());
         assert!(!write(&mut s, Some(&Iota::Double(1.0)), true));
         assert!(write(&mut s, Some(&p), false));
