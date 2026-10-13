@@ -1,148 +1,385 @@
-//! Server-side casting VM: per-player stacks, pattern resolution, execution.
-//!
-//! Patterns are matched by their *angle signature* — the sequence of turns
-//! between consecutive segments — so a pattern means the same thing whatever
-//! direction it was drawn in, exactly like Hexcasting:
-//! `w` straight, `e` 60° right, `d` 120° right, `s` 180°, `a` 120° left,
-//! `q` 60° left.
+//! The casting VM (Hex Casting's `CastingVM`, `CastResult`,
+//! `OperatorSideEffect` and `HexEvalSounds`).
 
-use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::Arc;
 
-use yog_api::{Entity, Server};
-
+use crate::casting::actions::{self, Lookup};
+use crate::casting::cont::{Cont, Frame};
+use crate::casting::env::{CastEnv, Spray, MAX_OP_COUNT};
+use crate::casting::image::Image;
+use crate::casting::mishap::{Context, MResult, Mishap};
 use crate::iota::Iota;
-use crate::math::{HexAngle, HexPattern};
-use crate::protocol::{Action, Mishap, Outcome, Report, CH_STACK};
+use crate::math::{HexDir, HexPattern};
+use crate::protocol::ResolvedType;
 
-/// Per-player casting stacks, keyed by player name.
-static STACKS: Mutex<Option<HashMap<String, Vec<Iota>>>> = Mutex::new(None);
-
-/// player name → uuid, filled from join events (packets carry only names).
-static NAME2UUID: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
-
-pub fn remember_player(name: &str, uuid: &str) {
-    NAME2UUID
-        .lock()
-        .unwrap()
-        .get_or_insert_with(HashMap::new)
-        .insert(name.to_string(), uuid.to_string());
+/// `HexEvalSounds`, in priority order (a cast keeps the loudest).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
+pub enum Sound {
+    #[default]
+    Nothing,
+    Normal,
+    Spell,
+    Hermes,
+    Thoth,
+    /// A spell without a casting sound (Beep, Flay Mind).
+    Mute,
+    Mishap,
 }
 
-fn uuid_of(player: &str) -> Option<String> {
-    NAME2UUID.lock().unwrap().as_ref()?.get(player).cloned()
-}
-
-/// The angle signature of a pattern, e.g. `"qaq"` for Mind's Reflection.
-pub fn angle_signature(p: &HexPattern) -> String {
-    let mut sig = String::new();
-    let mut prev = p.start;
-    for &step in &p.steps {
-        sig.push(match step.angle_from(prev) {
-            HexAngle::Zero => 'w',
-            HexAngle::Sixty => 'e',
-            HexAngle::OneTwenty => 'd',
-            HexAngle::OneEighty => 's',
-            HexAngle::TwoForty => 'a',
-            HexAngle::ThreeHundred => 'q',
-        });
-        prev = step;
+impl Sound {
+    pub fn id(self) -> Option<&'static str> {
+        Some(match self {
+            Sound::Nothing | Sound::Mute => return None,
+            Sound::Normal => "hexcasting:casting.cast.normal",
+            Sound::Spell => "hexcasting:casting.cast.spell",
+            Sound::Hermes => "hexcasting:casting.cast.hermes",
+            Sound::Thoth => "hexcasting:casting.cast.thoth",
+            Sound::Mishap => "hexcasting:casting.cast.fail",
+        })
     }
-    sig
 }
 
-/// Execute one drawn pattern for `player`.
-fn execute(sig: &str, player: &str, srv: &dyn Server, stack: &mut Vec<Iota>) -> Outcome {
-    match sig {
-        // Mind's Reflection — push a reference to the caster.
-        "qaq" => match uuid_of(player).and_then(|u| uuid::Uuid::parse_str(&u).ok()) {
-            Some(u) => {
-                stack.push(Iota::Entity(u));
-                Outcome::Ok(Action::MindsReflection)
-            }
-            None => Outcome::Mishap(Mishap::NoCaster),
-        },
+/// What a spell does when it goes off (`RenderedSpell.cast`).
+pub type SpellFn = Box<dyn FnOnce(&mut CastEnv<'_>, &mut Image)>;
 
-        // Compass' Purification — entity → its position.
-        "aa" => match stack.pop() {
-            Some(Iota::Entity(u)) => match Entity::new(srv, u.to_string()).position() {
-                Some((x, y, z)) => {
-                    stack.push(Iota::Vec3(x, y, z));
-                    Outcome::Ok(Action::CompassPurification)
+/// `OperatorSideEffect`: what happens after an action, in order.
+pub enum SideEffect {
+    Mishap(Mishap, Context),
+    ConsumeMedia(i64),
+    AttemptSpell(SpellFn),
+    Particles(Spray),
+}
+
+/// `SpellAction.Result`.
+pub struct Spell {
+    pub cost: i64,
+    pub particles: Vec<Spray>,
+    pub effect: SpellFn,
+    pub ops: i64,
+    /// `hasCastingSound`.
+    pub sound: bool,
+}
+
+impl Spell {
+    pub fn new(cost: i64, particles: Vec<Spray>, effect: impl FnOnce(&mut CastEnv<'_>, &mut Image) + 'static) -> Self {
+        Spell { cost, particles, effect: Box::new(effect), ops: 1, sound: true }
+    }
+
+    pub fn mute(mut self) -> Self {
+        self.sound = false;
+        self
+    }
+}
+
+/// `OperationResult`.
+pub struct OpResult {
+    pub image: Image,
+    pub effects: Vec<SideEffect>,
+    pub cont: Cont,
+    pub sound: Sound,
+}
+
+impl OpResult {
+    /// No side effects, the normal sound.
+    pub fn new(image: Image, cont: &Cont) -> Self {
+        OpResult { image, effects: Vec::new(), cont: cont.clone(), sound: Sound::Normal }
+    }
+
+    pub fn with_sound(mut self, sound: Sound) -> Self {
+        self.sound = sound;
+        self
+    }
+
+    pub fn with_cont(mut self, cont: Cont) -> Self {
+        self.cont = cont;
+        self
+    }
+}
+
+/// `CastResult`.
+pub struct CastResult {
+    pub cont: Cont,
+    pub image: Option<Image>,
+    pub effects: Vec<SideEffect>,
+    pub kind: ResolvedType,
+    pub sound: Sound,
+}
+
+impl CastResult {
+    fn mishap(cont: Cont, image: Option<Image>, mishap: Mishap, ctx: Context) -> Self {
+        let kind = mishap.resolution_type();
+        CastResult { cont, image, effects: vec![SideEffect::Mishap(mishap, ctx)], kind, sound: Sound::Mishap }
+    }
+}
+
+/// `ExecutionClientView`: what the caster's client is told.
+#[derive(Debug, Clone)]
+pub struct ClientView {
+    pub stack_clear: bool,
+    pub kind: ResolvedType,
+    pub stack: Vec<Iota>,
+    pub ravenmind: Option<Iota>,
+}
+
+pub struct Vm<'a> {
+    pub image: Image,
+    pub env: CastEnv<'a>,
+}
+
+impl<'a> Vm<'a> {
+    pub fn new(image: Image, env: CastEnv<'a>) -> Self {
+        Vm { image, env }
+    }
+
+    /// `queueExecuteAndWrapIotas`: runs `iotas` to the end (or the first
+    /// failure).
+    pub fn queue_execute(&mut self, iotas: Vec<Iota>) -> ClientView {
+        let mut cont =
+            Cont::done().push(Frame::Evaluate { list: Arc::new(iotas), idx: 0, metacasting: false });
+        let mut last = ResolvedType::Unresolved;
+        let mut early_exit = false;
+        while !early_exit {
+            let Some(frame) = cont.frame() else { break };
+            let mut result = self.evaluate(frame, cont.next());
+            if let Some(img) = &result.image {
+                let over = if Iota::too_large(&img.stack) {
+                    Some(Mishap::StackSize)
+                } else if img.ops_consumed > MAX_OP_COUNT {
+                    Some(Mishap::EvalTooMuch)
+                } else {
+                    None
+                };
+                if let Some(m) = over {
+                    result.image = None;
+                    result.effects = vec![SideEffect::Mishap(m, Context::default())];
+                    result.kind = ResolvedType::Errored;
+                    result.sound = Sound::Mishap;
                 }
-                None => Outcome::Mishap(Mishap::EntityGone),
-            },
-            Some(other) => {
-                stack.push(other);
-                Outcome::Mishap(Mishap::ExpectedEntity)
             }
-            None => Outcome::Mishap(Mishap::StackEmpty),
-        },
+            if let Some(img) = result.image.take() {
+                self.image = img;
+            }
+            self.post_execution(&result);
+            cont = result.cont;
+            last = result.kind;
+            self.perform(result.effects);
+            early_exit = !last.success();
+        }
+        if !cont.is_done() {
+            last = if last.success() { ResolvedType::Evaluated } else { ResolvedType::Errored };
+        }
+        let img = &self.image;
+        ClientView {
+            stack_clear: img.stack.is_empty()
+                && img.paren_count == 0
+                && !img.escape_next
+                && img.ravenmind.is_none(),
+            kind: last,
+            stack: img.stack.clone(),
+            ravenmind: img.ravenmind.clone(),
+        }
+    }
 
-        // Alidade's Purification — entity → its look vector.
-        "wa" => match stack.pop() {
-            Some(Iota::Entity(u)) => match Entity::new(srv, u.to_string()).look_vector() {
-                Some((x, y, z)) => {
-                    stack.push(Iota::Vec3(x, y, z));
-                    Outcome::Ok(Action::AlidadePurification)
+    /// `postExecution`: the sound, and the mishap messages.
+    fn post_execution(&mut self, result: &CastResult) {
+        self.env.post_execution(result.sound);
+        for e in &result.effects {
+            if let SideEffect::Mishap(m, ctx) = e {
+                if let Some(msg) = m.message_with_name(&self.env, ctx) {
+                    self.env.print_message(&msg);
                 }
-                None => Outcome::Mishap(Mishap::EntityGone),
-            },
-            Some(other) => {
-                stack.push(other);
-                Outcome::Mishap(Mishap::ExpectedEntity)
             }
-            None => Outcome::Mishap(Mishap::StackEmpty),
-        },
+        }
+    }
 
-        // Reveal — show the top iota (the caster's grid displays it).
-        "de" => match stack.last() {
-            Some(_) => Outcome::Ok(Action::Reveal),
-            None => Outcome::Mishap(Mishap::NothingToReveal),
-        },
+    fn perform(&mut self, effects: Vec<SideEffect>) {
+        for e in effects {
+            match e {
+                SideEffect::Mishap(m, ctx) => {
+                    let spray = m.particle_spray(&self.env);
+                    self.env.mishap_spray(&spray, m.accent_color());
+                    m.execute(&mut self.env, &ctx, &mut self.image.stack);
+                }
+                SideEffect::ConsumeMedia(n) => {
+                    self.env.extract_media(n, false);
+                }
+                SideEffect::AttemptSpell(f) => f(&mut self.env, &mut self.image),
+                SideEffect::Particles(s) => self.env.spray(&s),
+            }
+        }
+    }
 
-        // Jester's Gambit — swap the top two iotas.
-        "aawdd" => {
-            let n = stack.len();
-            if n >= 2 {
-                stack.swap(n - 1, n - 2);
-                Outcome::Ok(Action::JestersGambit)
+    /// `ContinuationFrame.evaluate`; `cont` is what's under `frame`.
+    fn evaluate(&mut self, frame: &Frame, cont: Cont) -> CastResult {
+        match frame {
+            Frame::Evaluate { list, idx, metacasting } => {
+                let Some(iota) = list.get(*idx) else {
+                    return CastResult {
+                        cont,
+                        image: None,
+                        effects: Vec::new(),
+                        kind: ResolvedType::Evaluated,
+                        sound: Sound::Hermes,
+                    };
+                };
+                let new_cont = if idx + 1 < list.len() {
+                    cont.push(Frame::Evaluate { list: list.clone(), idx: idx + 1, metacasting: *metacasting })
+                } else {
+                    cont
+                };
+                let mut update = self.execute_inner(iota, new_cont);
+                if *metacasting && update.sound != Sound::Mishap {
+                    update.sound = Sound::Hermes;
+                }
+                update
+            }
+            Frame::ForEach { data, data_idx, code, base, acc } => {
+                let (mut stack, new_acc) = match base {
+                    None => (self.image.stack.clone(), acc.clone()),
+                    Some(b) => {
+                        let mut a = acc.clone();
+                        a.extend(self.image.stack.iter().cloned());
+                        (b.clone(), a)
+                    }
+                };
+                let (top, image, cont) = match data.get(*data_idx) {
+                    Some(item) => {
+                        let cont = cont
+                            .push(Frame::ForEach {
+                                data: data.clone(),
+                                data_idx: data_idx + 1,
+                                code: code.clone(),
+                                base: Some(stack.clone()),
+                                acc: new_acc,
+                            })
+                            .push(Frame::Evaluate { list: code.clone(), idx: 0, metacasting: true });
+                        (item.clone(), self.image.clone().with_used_op(), cont)
+                    }
+                    None => (Iota::List(new_acc), self.image.clone(), cont),
+                };
+                stack.push(top);
+                let mut image = image.with_reset_escape();
+                image.stack = stack;
+                CastResult {
+                    cont,
+                    image: Some(image),
+                    effects: Vec::new(),
+                    kind: ResolvedType::Evaluated,
+                    sound: Sound::Thoth,
+                }
+            }
+            Frame::FinishEval => CastResult {
+                cont,
+                image: None,
+                effects: Vec::new(),
+                kind: ResolvedType::Evaluated,
+                sound: Sound::Nothing,
+            },
+        }
+    }
+
+    /// `executeInner`.
+    fn execute_inner(&mut self, iota: &Iota, cont: Cont) -> CastResult {
+        if self.image.escape_next {
+            let mut img = self.image.clone();
+            img.escape_next = false;
+            if img.paren_count > 0 {
+                img = img.with_new_parenthesized(iota.clone(), true);
             } else {
-                Outcome::Mishap(Mishap::NeedTwo)
+                img.stack.push(iota.clone());
+            }
+            return CastResult {
+                cont,
+                image: Some(img),
+                effects: Vec::new(),
+                kind: ResolvedType::Escaped,
+                sound: Sound::Normal,
+            };
+        }
+        let in_parens = self.image.paren_count > 0;
+        match iota {
+            Iota::Pattern(p) => self.lookup_and_operate(p, cont, in_parens),
+            _ if in_parens => CastResult {
+                cont,
+                image: Some(self.image.clone().with_new_parenthesized(iota.clone(), false)),
+                effects: Vec::new(),
+                kind: ResolvedType::Escaped,
+                sound: Sound::Normal,
+            },
+            Iota::Continuation(c) => CastResult {
+                cont: c.clone(),
+                image: Some(self.image.clone()),
+                effects: Vec::new(),
+                kind: ResolvedType::Evaluated,
+                sound: Sound::Hermes,
+            },
+            other => CastResult {
+                cont,
+                image: None,
+                effects: vec![SideEffect::Mishap(
+                    Mishap::Unescaped(other.clone()),
+                    Context { pattern: Some(HexPattern::new(HexDir::West, Vec::new())), name: None },
+                )],
+                kind: ResolvedType::Invalid,
+                sound: Sound::Mishap,
+            },
+        }
+    }
+
+    /// `PatternIota.lookupAndOperate`.
+    fn lookup_and_operate(&mut self, pattern: &HexPattern, cont: Cont, in_parens: bool) -> CastResult {
+        let mut ctx = Context { pattern: Some(pattern.clone()), name: None };
+        match self.operate(pattern, &cont, in_parens, &mut ctx) {
+            Ok(r) => r,
+            Err(mishap) => {
+                let wipe = matches!(cont.frame(), Some(Frame::Evaluate { metacasting: true, .. }));
+                let image = wipe.then(|| self.image.clone().with_reset_escape());
+                CastResult::mishap(cont, image, mishap, ctx)
             }
         }
-
-        // Charon's Gambit-ish: clear the stack (practical while developing).
-        "dsw" => {
-            stack.clear();
-            Outcome::Ok(Action::ClearStack)
-        }
-
-        _ => Outcome::Mishap(Mishap::UnknownPattern(sig.to_string())),
     }
-}
 
-/// Clear a player's stack (sneak + use staff) and tell their grid.
-pub fn reset(player: &str, srv: &dyn Server) {
-    if let Some(map) = STACKS.lock().unwrap().as_mut() {
-        map.remove(player);
+    fn operate(
+        &mut self,
+        pattern: &HexPattern,
+        cont: &Cont,
+        in_parens: bool,
+        ctx: &mut Context,
+    ) -> MResult<CastResult> {
+        let image = self.image.clone();
+        let (result, kind) = match actions::lookup(pattern, &self.env) {
+            Lookup::Action(action) => {
+                ctx.name = Some(action.name());
+                // REQUIRES_ENLIGHTENMENT_IN_PARENS is empty.
+                if !in_parens && action.great() && !self.env.is_enlightened() {
+                    return Err(Mishap::Unenlightened);
+                }
+                if in_parens {
+                    action.operate_in_parens(&mut self.env, image, cont, &Iota::Pattern(pattern.clone()))?
+                } else {
+                    ((action.op)(&mut self.env, image, cont)?, ResolvedType::Evaluated)
+                }
+            }
+            Lookup::Special(special) => {
+                ctx.name = Some(special.name());
+                if in_parens {
+                    (OpResult::new(image.with_new_parenthesized(Iota::Pattern(pattern.clone()), false), cont), ResolvedType::Escaped)
+                } else {
+                    (special.operate(&mut self.env, image, cont)?, ResolvedType::Evaluated)
+                }
+            }
+            Lookup::Nothing if in_parens => (
+                OpResult::new(image.with_new_parenthesized(Iota::Pattern(pattern.clone()), false), cont),
+                ResolvedType::Escaped,
+            ),
+            Lookup::Nothing => return Err(Mishap::InvalidPattern(Some(pattern.clone()))),
+        };
+        Ok(CastResult {
+            cont: result.cont,
+            image: Some(result.image),
+            effects: result.effects,
+            kind,
+            sound: result.sound,
+        })
     }
-    let report = Report { outcome: Outcome::Reset, stack: Vec::new() };
-    srv.send_to_player(player, CH_STACK, &report.encode());
-}
-
-/// Entry point for the `hexcasting:cast` packet: runs the pattern and sends
-/// the caster a [`Report`].
-pub fn handle_cast(player: &str, payload: &[u8], srv: &dyn Server) {
-    let mut guard = STACKS.lock().unwrap();
-    let stack = guard
-        .get_or_insert_with(HashMap::new)
-        .entry(player.to_string())
-        .or_default();
-    let outcome = match HexPattern::from_serialized(&String::from_utf8_lossy(payload)) {
-        Some(pattern) => execute(&angle_signature(&pattern), player, srv, stack),
-        None => Outcome::Mishap(Mishap::BadStrokes),
-    };
-    let report = Report { outcome, stack: stack.iter().rev().cloned().collect() };
-    srv.send_to_player(player, CH_STACK, &report.encode());
 }

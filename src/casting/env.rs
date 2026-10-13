@@ -413,7 +413,8 @@ impl<'a> CastEnv<'a> {
     /// `isEntityInRange` (players are always in range: `trueNameHasAmbit`).
     pub fn is_entity_in_range(&self, info: &EntityInfo) -> bool {
         let p = Vec3::from_tuple(info.pos);
-        info.has(entity_flags::PLAYER) || (self.is_vec_in_world(p) && self.is_vec_in_range(p))
+        info.has(entity_flags::PLAYER)
+            || (info.dimension == self.dim && self.is_vec_in_world(p) && self.is_vec_in_range(p))
     }
 
     pub fn assert_vec_in_world(&self, v: Vec3) -> MResult<()> {
@@ -464,7 +465,7 @@ impl<'a> CastEnv<'a> {
             return Ok(());
         }
         let p = Vec3::from_tuple(info.pos);
-        if self.is_vec_in_world(p) && self.is_vec_in_range(p) {
+        if info.dimension == self.dim && self.is_vec_in_world(p) && self.is_vec_in_range(p) {
             Ok(())
         } else {
             Err(Mishap::EntityTooFar { entity: e.clone(), pos: p })
