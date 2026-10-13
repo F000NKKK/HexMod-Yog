@@ -52,5 +52,7 @@
   "directrix.empty": "Пустой Направитель",
   "directrix.empty.desc": "Направляет поток круга заклинаний.",
   "directrix.redstone": "Направитель Каменщика",
-  "directrix.boolean": "Направитель Пастуха"
+  "directrix.boolean": "Направитель Пастуха",
+  "conjured_block": "Магический блок",
+  "conjured_light": "Магический свет"
 }

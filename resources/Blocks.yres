@@ -52,5 +52,7 @@
   "directrix.empty": "Empty Directrix",
   "directrix.empty.desc": "Steers a spell circle's flow.",
   "directrix.redstone": "Mason Directrix",
-  "directrix.boolean": "Shepherd Directrix"
+  "directrix.boolean": "Shepherd Directrix",
+  "conjured_block": "Conjured Block",
+  "conjured_light": "Conjured Light"
 }

@@ -9,7 +9,7 @@ use yog_api::{EventPhase, Registry};
 
 use crate::akashic;
 use crate::casting::env::from_ypos;
-use crate::casting::ops::query;
+use crate::casting::ops::{great, query, spells};
 use crate::item::holder::ABACUS;
 use crate::item::media;
 use crate::protocol::{OpenGui, PatternResult, CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT};
@@ -17,8 +17,12 @@ use crate::ui::spellcasting::{self, CH_SCROLL};
 
 pub fn register(registry: &mut Registry) {
     // The Hexbook and a staff on first join.
-    registry.register_startup_grant(StartupGrant::new("hexcasting:give_hexbook").item("hexcasting:thehexbook"));
-    registry.register_startup_grant(StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff/oak"));
+    registry.register_startup_grant(
+        StartupGrant::new("hexcasting:give_hexbook").item("hexcasting:thehexbook"),
+    );
+    registry.register_startup_grant(
+        StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff/oak"),
+    );
 
     registry.on_use_item(|ev, phase, srv| {
         if phase == EventPhase::Post {
@@ -34,8 +38,12 @@ pub fn register(registry: &mut Registry) {
         true
     });
 
-    registry.on_packet(CH_NEW_PATTERN, |ev, srv| staff::new_pattern(srv, &ev.player, &ev.payload));
-    registry.on_packet(CH_SCROLL, |ev, srv| items::shift_scroll(srv, &ev.player, &ev.payload));
+    registry.on_packet(CH_NEW_PATTERN, |ev, srv| {
+        staff::new_pattern(srv, &ev.player, &ev.payload)
+    });
+    registry.on_packet(CH_SCROLL, |ev, srv| {
+        items::shift_scroll(srv, &ev.player, &ev.payload)
+    });
 
     registry.on_client_packet(CH_OPEN_GUI, |ev, _| {
         if let Some(gui) = OpenGui::decode(&ev.payload) {
@@ -49,6 +57,8 @@ pub fn register(registry: &mut Registry) {
     });
 
     registry.on_tick(query::record_players);
+    registry.on_tick(spells::tick_flight);
+    registry.on_tick(great::tick_altiora);
 
     // A bookshelf forgets what it held when it's broken or replaced.
     registry.on_block_break(|ev, phase, srv| {

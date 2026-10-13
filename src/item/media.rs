@@ -34,7 +34,10 @@ const BATTERY_PRIORITY: i32 = 4000;
 pub fn is_packaged(id: &str) -> bool {
     matches!(
         id,
-        "hexcasting:cypher" | "hexcasting:ancient_cypher" | "hexcasting:trinket" | "hexcasting:artifact"
+        "hexcasting:cypher"
+            | "hexcasting:ancient_cypher"
+            | "hexcasting:trinket"
+            | "hexcasting:artifact"
     )
 }
 
@@ -51,6 +54,25 @@ pub fn breaks_after_depletion(id: &str) -> bool {
 /// Items holding media in NBT.
 pub fn holds_media(id: &str) -> bool {
     id == BATTERY || is_packaged(id)
+}
+
+/// `isMediaItem`: something media can be drawn out of (phials and amethyst).
+pub fn is_media_item(stack: &Stack) -> bool {
+    !stack.is_empty() && (stack.id == BATTERY || static_worth(&stack.id).is_some())
+}
+
+/// `canRecharge`: phials, trinkets and artifacts (not cyphers).
+pub fn can_recharge(id: &str) -> bool {
+    id == BATTERY || (is_packaged(id) && !breaks_after_depletion(id))
+}
+
+/// `extractMedia(stack, drainForBatteries = true)`: all the media in raw
+/// amethyst (`canConstructBattery`); nothing from anything else.
+pub fn extract_for_battery(stack: &mut Stack, simulate: bool) -> i64 {
+    if static_worth(&stack.id).is_none() {
+        return 0;
+    }
+    withdraw(stack, -1, simulate)
 }
 
 /// What one item of `id` is worth, for items spent whole.
@@ -77,7 +99,9 @@ pub fn max_media(stack: &Stack) -> i64 {
 /// `ItemMediaHolder.setMedia`: clamped to `[0, max]`.
 pub fn set_media(stack: &mut Stack, media: i64) {
     let max = max_media(stack);
-    stack.nbt.set(TAG_MEDIA, Nbt::long(media.clamp(0, max.max(0))));
+    stack
+        .nbt
+        .set(TAG_MEDIA, Nbt::long(media.clamp(0, max.max(0))));
 }
 
 /// `ItemMediaHolder.withdrawMedia` (a negative `cost` takes everything).
@@ -108,7 +132,10 @@ fn priority(stack: &Stack) -> Option<i32> {
     if stack.id == BATTERY {
         return Some(BATTERY_PRIORITY);
     }
-    STATIC.iter().find(|(i, ..)| *i == stack.id).map(|(.., p)| *p)
+    STATIC
+        .iter()
+        .find(|(i, ..)| *i == stack.id)
+        .map(|(.., p)| *p)
 }
 
 /// Takes up to `cost` media from a media-providing stack (whole items for
@@ -117,11 +144,17 @@ pub fn withdraw(stack: &mut Stack, cost: i64, simulate: bool) -> i64 {
     if stack.id == BATTERY {
         return withdraw_battery(stack, cost, simulate);
     }
-    let Some(worth) = static_worth(&stack.id) else { return 0 };
+    let Some(worth) = static_worth(&stack.id) else {
+        return 0;
+    };
     if stack.is_empty() {
         return 0;
     }
-    let cost = if cost < 0 { worth * stack.count as i64 } else { cost };
+    let cost = if cost < 0 {
+        worth * stack.count as i64
+    } else {
+        cost
+    };
     let needed = ((cost + worth - 1) / worth).min(stack.count as i64);
     if !simulate {
         stack.count -= needed as u32;
@@ -138,7 +171,7 @@ pub fn scan_player(srv: &dyn Server, player: &str) -> Vec<Stack> {
         .filter_map(|s| Some((priority(&s)?, media(&s), s)))
         .collect();
     // compareMediaItem, then reversed.
-    found.sort_by(|a, b| (a.0, a.1).cmp(&(b.0, b.1)));
+    found.sort_by_key(|a| (a.0, a.1));
     found.reverse();
     found.into_iter().map(|(.., s)| s).collect()
 }
@@ -148,7 +181,12 @@ mod tests {
     use super::*;
 
     fn stack(id: &str, count: u32) -> Stack {
-        Stack { slot: 0, id: id.into(), count, nbt: Nbt::default() }
+        Stack {
+            slot: 0,
+            id: id.into(),
+            count,
+            nbt: Nbt::default(),
+        }
     }
 
     #[test]

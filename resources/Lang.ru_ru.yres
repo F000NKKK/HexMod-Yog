@@ -399,6 +399,7 @@
   "mishap.bad_entity": "нуждается в {0}, но получил {1}",
   "mishap.bad_brainsweep": "{0} отверг разум существа",
   "mishap.already_brainswept": "Разум уже был использован",
+  "mishap.no_spell_circle": "требует круг заклинаний",
   "mishap.others_name": "Пытался вторгнуться в частную жизнь - {0}",
   "hexcasting.mishap.others_name.self": "Слишком опрометчиво пытался разгласить мое имя",
   "mishap.divide_by_zero.divide": "Попытался разделить {0} на {1}",
