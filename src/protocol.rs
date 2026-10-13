@@ -1,165 +1,241 @@
-//! The casting packets between the client's grid and the server's VM.
+//! The staff-casting packets, after Hex Casting's messages:
 //!
-//! * `hexcasting:cast` (client → server): a drawn pattern, in
-//!   [`HexPattern::serialized_form`].
-//! * `hexcasting:reset` (client → server): the screen's Clear button —
-//!   wipe the caster's stack.
-//! * `hexcasting:open_grid` (server → client): open the casting screen.
-//! * `hexcasting:stack` (server → client): a [`Report`] — what the last
-//!   pattern did and the stack after it.
+//! * `hexcasting:pat_cs` (client → server, `MsgNewSpellPatternC2S`): a
+//!   [`NewPattern`] — the hand the staff is in, the drawn pattern and every
+//!   pattern on the grid so far (the last one is the new one).
+//! * `hexcasting:pat_sc` (server → client, `MsgNewSpellPatternS2C`): a
+//!   [`PatternResult`] — how the pattern resolved and the stack after it.
+//! * `hexcasting:cgui` (server → client, `MsgOpenSpellGuiS2C`): an
+//!   [`OpenGui`] — open the grid with the saved patterns and stack.
 //!
-//! Nothing here is display text: the server sends keys ([`Action`],
-//! [`Mishap`]) and serialized iotas; the client words them in its own
-//! language.
+//! Iotas travel whole ([`crate::wire`]); the client words them in its own
+//! language, as the original sends iota tags and lets the client render.
 
-use crate::iota::Iota;
+use crate::iota::{read_stack, write_stack, Iota};
+use crate::math::{HexCoord, HexPattern};
+use crate::wire::{Reader, Writer};
 
-pub const CH_CAST: &str = "hexcasting:cast";
-pub const CH_STACK: &str = "hexcasting:stack";
-pub const CH_OPEN: &str = "hexcasting:open_grid";
-pub const CH_RESET: &str = "hexcasting:reset";
+pub const CH_NEW_PATTERN: &str = "hexcasting:pat_cs";
+pub const CH_PATTERN_RESULT: &str = "hexcasting:pat_sc";
+pub const CH_OPEN_GUI: &str = "hexcasting:cgui";
 
-/// A pattern that ran.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Action {
-    MindsReflection,
-    CompassPurification,
-    AlidadePurification,
-    Reveal,
-    JestersGambit,
-    ClearStack,
+pub enum Hand {
+    Main,
+    Off,
 }
 
-/// Why a pattern failed.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Mishap {
-    /// The server doesn't know the caster's uuid yet.
-    NoCaster,
-    /// The entity on the stack isn't loaded.
-    EntityGone,
-    ExpectedEntity,
-    StackEmpty,
-    NothingToReveal,
-    NeedTwo,
-    /// No pattern has this angle signature.
-    UnknownPattern(String),
-    /// The strokes don't form a pattern.
-    BadStrokes,
+/// Hex Casting's `ResolvedPatternType`: how a drawn pattern went, and the
+/// colours the grid draws it in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResolvedType {
+    Unresolved,
+    Evaluated,
+    Escaped,
+    Undone,
+    Errored,
+    Invalid,
 }
 
-/// What the last cast did.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Outcome {
-    Ok(Action),
-    Mishap(Mishap),
-    /// The stack was wiped (sneak + staff).
-    Reset,
-}
-
-/// A `hexcasting:stack` packet.
-#[derive(Debug, Clone, PartialEq)]
-pub struct Report {
-    pub outcome: Outcome,
-    /// Top first.
-    pub stack: Vec<Iota>,
-}
-
-impl Action {
-    const ALL: [(Action, &'static str); 6] = [
-        (Action::MindsReflection, "minds_reflection"),
-        (Action::CompassPurification, "compass_purification"),
-        (Action::AlidadePurification, "alidade_purification"),
-        (Action::Reveal, "reveal"),
-        (Action::JestersGambit, "jesters_gambit"),
-        (Action::ClearStack, "clear_stack"),
+impl ResolvedType {
+    const ALL: [ResolvedType; 6] = [
+        ResolvedType::Unresolved,
+        ResolvedType::Evaluated,
+        ResolvedType::Escaped,
+        ResolvedType::Undone,
+        ResolvedType::Errored,
+        ResolvedType::Invalid,
     ];
 
-    pub fn key(self) -> &'static str {
-        Self::ALL.iter().find(|(a, _)| *a == self).map(|(_, k)| *k).unwrap_or_default()
-    }
-
-    pub fn from_key(key: &str) -> Option<Self> {
-        Self::ALL.iter().find(|(_, k)| *k == key).map(|(a, _)| *a)
-    }
-}
-
-impl Mishap {
-    fn encode(&self) -> String {
+    /// `(color, fade_color)`, RGB.
+    pub fn colors(self) -> (u32, u32) {
         match self {
-            Mishap::NoCaster => "no_caster".into(),
-            Mishap::EntityGone => "entity_gone".into(),
-            Mishap::ExpectedEntity => "expected_entity".into(),
-            Mishap::StackEmpty => "stack_empty".into(),
-            Mishap::NothingToReveal => "nothing_to_reveal".into(),
-            Mishap::NeedTwo => "need_two".into(),
-            Mishap::UnknownPattern(sig) => format!("unknown_pattern\t{sig}"),
-            Mishap::BadStrokes => "bad_strokes".into(),
+            ResolvedType::Unresolved => (0x7f7f7f, 0xcccccc),
+            ResolvedType::Evaluated => (0x7385de, 0xfecbe6),
+            ResolvedType::Escaped => (0xddcc73, 0xfffae5),
+            ResolvedType::Undone => (0xb26b6b, 0xcca88e),
+            ResolvedType::Errored => (0xde6262, 0xffc7a0),
+            ResolvedType::Invalid => (0xb26b6b, 0xcca88e),
         }
     }
 
-    fn decode(s: &str) -> Option<Self> {
-        let (head, arg) = s.split_once('\t').unwrap_or((s, ""));
-        Some(match head {
-            "no_caster" => Mishap::NoCaster,
-            "entity_gone" => Mishap::EntityGone,
-            "expected_entity" => Mishap::ExpectedEntity,
-            "stack_empty" => Mishap::StackEmpty,
-            "nothing_to_reveal" => Mishap::NothingToReveal,
-            "need_two" => Mishap::NeedTwo,
-            "unknown_pattern" => Mishap::UnknownPattern(arg.to_string()),
-            "bad_strokes" => Mishap::BadStrokes,
-            _ => return None,
-        })
+    pub fn success(self) -> bool {
+        matches!(self, ResolvedType::Evaluated | ResolvedType::Escaped | ResolvedType::Undone)
+    }
+
+    pub fn index(self) -> i64 {
+        self as i64
+    }
+
+    pub fn from_index(i: i64) -> Self {
+        // Like the original's `getSafe`: unknown → the first.
+        usize::try_from(i).ok().and_then(|i| Self::ALL.get(i).copied()).unwrap_or(ResolvedType::Unresolved)
     }
 }
 
-impl Report {
-    /// First line: `ok\t<action>`, `mishap\t<mishap>[\t<arg>]` or `reset`;
-    /// then one serialized iota per line, top first.
-    pub fn encode(&self) -> Vec<u8> {
-        let mut lines = vec![match &self.outcome {
-            Outcome::Ok(a) => format!("ok\t{}", a.key()),
-            Outcome::Mishap(m) => format!("mishap\t{}", m.encode()),
-            Outcome::Reset => "reset".into(),
-        }];
-        lines.extend(self.stack.iter().map(|i| i.serialize().replace('\n', " ")));
-        lines.join("\n").into_bytes()
+/// A pattern on the grid where it was drawn (`ResolvedPattern`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResolvedPattern {
+    pub pattern: HexPattern,
+    pub origin: HexCoord,
+    pub kind: ResolvedType,
+}
+
+impl ResolvedPattern {
+    pub fn write(&self, w: &mut Writer) {
+        w.str(&self.pattern.serialized_form())
+            .int(self.origin.0 as i64)
+            .int(self.origin.1 as i64)
+            .int(self.kind.index());
     }
 
-    pub fn decode(payload: &[u8]) -> Option<Self> {
-        let text = String::from_utf8_lossy(payload);
-        let mut lines = text.lines();
-        let head = lines.next()?;
-        let outcome = if head == "reset" {
-            Outcome::Reset
-        } else if let Some(a) = head.strip_prefix("ok\t") {
-            Outcome::Ok(Action::from_key(a)?)
-        } else {
-            Outcome::Mishap(Mishap::decode(head.strip_prefix("mishap\t")?)?)
-        };
-        let stack = lines.filter_map(Iota::deserialize).collect();
-        Some(Report { outcome, stack })
+    pub fn read(r: &mut Reader) -> Option<Self> {
+        let pattern = HexPattern::from_serialized(r.str()?)?;
+        let origin = HexCoord(r.int()? as i32, r.int()? as i32);
+        Some(Self { pattern, origin, kind: ResolvedType::from_index(r.int()?) })
+    }
+}
+
+pub fn write_patterns(w: &mut Writer, pats: &[ResolvedPattern]) {
+    w.int(pats.len() as i64);
+    for p in pats {
+        p.write(w);
+    }
+}
+
+pub fn read_patterns(r: &mut Reader) -> Option<Vec<ResolvedPattern>> {
+    let n = r.int()?;
+    (0..n).map(|_| ResolvedPattern::read(r)).collect()
+}
+
+fn write_opt(w: &mut Writer, i: &Option<Iota>) {
+    match i {
+        Some(i) => {
+            w.int(1);
+            i.write(w);
+        }
+        None => {
+            w.int(0);
+        }
+    }
+}
+
+fn read_opt(r: &mut Reader) -> Option<Option<Iota>> {
+    Some(if r.int()? != 0 { Some(Iota::read(r)?) } else { None })
+}
+
+/// `MsgNewSpellPatternC2S`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewPattern {
+    pub hand: Hand,
+    pub pattern: HexPattern,
+    pub resolved: Vec<ResolvedPattern>,
+}
+
+impl NewPattern {
+    pub fn encode(&self) -> Vec<u8> {
+        let mut w = Writer::new();
+        w.int(matches!(self.hand, Hand::Off) as i64).str(&self.pattern.serialized_form());
+        write_patterns(&mut w, &self.resolved);
+        w.finish().into_bytes()
+    }
+
+    pub fn decode(b: &[u8]) -> Option<Self> {
+        let s = std::str::from_utf8(b).ok()?;
+        let mut r = Reader::new(s);
+        let hand = if r.int()? != 0 { Hand::Off } else { Hand::Main };
+        let pattern = HexPattern::from_serialized(r.str()?)?;
+        Some(Self { hand, pattern, resolved: read_patterns(&mut r)? })
+    }
+}
+
+/// `ExecutionClientView` + the index of the pattern it answers
+/// (`MsgNewSpellPatternS2C`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct PatternResult {
+    pub stack_clear: bool,
+    pub kind: ResolvedType,
+    /// Bottom first, as the VM keeps it.
+    pub stack: Vec<Iota>,
+    pub ravenmind: Option<Iota>,
+    pub index: i64,
+}
+
+impl PatternResult {
+    pub fn encode(&self) -> Vec<u8> {
+        let mut w = Writer::new();
+        w.int(self.stack_clear as i64).int(self.kind.index()).int(self.index);
+        write_stack(&mut w, &self.stack);
+        write_opt(&mut w, &self.ravenmind);
+        w.finish().into_bytes()
+    }
+
+    pub fn decode(b: &[u8]) -> Option<Self> {
+        let s = std::str::from_utf8(b).ok()?;
+        let mut r = Reader::new(s);
+        let stack_clear = r.int()? != 0;
+        let kind = ResolvedType::from_index(r.int()?);
+        let index = r.int()?;
+        let stack = read_stack(&mut r)?;
+        let ravenmind = read_opt(&mut r)?;
+        Some(Self { stack_clear, kind, stack, ravenmind, index })
+    }
+}
+
+/// `MsgOpenSpellGuiS2C`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct OpenGui {
+    pub hand: Hand,
+    pub patterns: Vec<ResolvedPattern>,
+    /// Bottom first.
+    pub stack: Vec<Iota>,
+    pub ravenmind: Option<Iota>,
+    pub paren_count: i64,
+}
+
+impl OpenGui {
+    pub fn encode(&self) -> Vec<u8> {
+        let mut w = Writer::new();
+        w.int(matches!(self.hand, Hand::Off) as i64);
+        write_patterns(&mut w, &self.patterns);
+        write_stack(&mut w, &self.stack);
+        write_opt(&mut w, &self.ravenmind);
+        w.int(self.paren_count);
+        w.finish().into_bytes()
+    }
+
+    pub fn decode(b: &[u8]) -> Option<Self> {
+        let s = std::str::from_utf8(b).ok()?;
+        let mut r = Reader::new(s);
+        let hand = if r.int()? != 0 { Hand::Off } else { Hand::Main };
+        let patterns = read_patterns(&mut r)?;
+        let stack = read_stack(&mut r)?;
+        let ravenmind = read_opt(&mut r)?;
+        Some(Self { hand, patterns, stack, ravenmind, paren_count: r.int()? })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::math::HexDir;
 
     #[test]
-    fn reports_round_trip() {
-        for outcome in [
-            Outcome::Ok(Action::Reveal),
-            Outcome::Mishap(Mishap::UnknownPattern("qqq".into())),
-            Outcome::Mishap(Mishap::StackEmpty),
-            Outcome::Reset,
-        ] {
-            let r = Report {
-                outcome,
-                stack: vec![Iota::Vec3(1.0, 2.5, -3.0), Iota::Boolean(true), Iota::Null],
-            };
-            assert_eq!(Report::decode(&r.encode()), Some(r));
-        }
-        assert_eq!(Report::decode(b"what"), None);
+    fn packets_round_trip() {
+        let p = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
+        let rp = ResolvedPattern { pattern: p.clone(), origin: HexCoord(-2, 3), kind: ResolvedType::Escaped };
+        let n = NewPattern { hand: Hand::Off, pattern: p, resolved: vec![rp.clone()] };
+        assert_eq!(NewPattern::decode(&n.encode()), Some(n));
+        let r = PatternResult {
+            stack_clear: false,
+            kind: ResolvedType::Errored,
+            stack: vec![Iota::Double(2.0), Iota::Null],
+            ravenmind: Some(Iota::Bool(true)),
+            index: 4,
+        };
+        assert_eq!(PatternResult::decode(&r.encode()), Some(r));
+        let o = OpenGui { hand: Hand::Main, patterns: vec![rp], stack: vec![], ravenmind: None, paren_count: 1 };
+        assert_eq!(OpenGui::decode(&o.encode()), Some(o));
+        assert_eq!(ResolvedType::from_index(99), ResolvedType::Unresolved);
     }
 }
