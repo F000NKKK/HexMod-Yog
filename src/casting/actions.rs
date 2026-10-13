@@ -7,7 +7,7 @@
 //! same whatever way they're drawn — they're looked up by signature.
 
 use std::collections::HashMap;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use yog_api::Storage;
 
@@ -272,6 +272,8 @@ struct Registry {
     all: Vec<Action>,
     /// Signature → index, for everything but the great spells.
     normal: HashMap<&'static str, usize>,
+    /// Id → index.
+    by_id: HashMap<&'static str, usize>,
 }
 
 fn registry() -> &'static Registry {
@@ -293,7 +295,8 @@ fn registry() -> &'static Registry {
                 normal.insert(a.sig, i);
             }
         }
-        Registry { all, normal }
+        let by_id = all.iter().enumerate().map(|(i, a)| (a.id, i)).collect();
+        Registry { all, normal, by_id }
     })
 }
 
@@ -303,7 +306,8 @@ pub fn all() -> &'static [Action] {
 }
 
 pub fn by_id(id: &str) -> Option<&'static Action> {
-    all().iter().find(|a| a.id == id)
+    let reg = registry();
+    reg.by_id.get(id).map(|&i| &reg.all[i])
 }
 
 /// `PatternShapeMatch`.
@@ -321,7 +325,7 @@ pub fn lookup(pattern: &HexPattern, env: &CastEnv) -> Lookup {
     if let Some(&i) = reg.normal.get(sig.as_str()) {
         return Lookup::Action(&reg.all[i]);
     }
-    if let Some(a) = per_world(env.srv).get(&sig).and_then(|id| by_id(id)) {
+    if let Some(a) = per_world(env.srv).get(&sig) {
         return Lookup::Action(a);
     }
     match Special::number(pattern).or_else(|| Special::mask(pattern)) {
@@ -333,45 +337,52 @@ pub fn lookup(pattern: &HexPattern, env: &CastEnv) -> Lookup {
 // ── great spells: drawn differently in every world ────────────────────────
 
 const SEED_KEY: &str = "scrungled_patterns.seed";
+const SEED_DIMENSION: &str = "minecraft:overworld";
 
 /// This world's great spells, by the signature they're drawn with here.
-pub fn per_world(srv: &dyn yog_api::Server) -> HashMap<String, &'static str> {
-    static CACHE: Mutex<Option<(i64, HashMap<String, &'static str>)>> = Mutex::new(None);
-    let mut store = Storage::open_world(&srv.game_dir(), MOD_ID, "minecraft:overworld");
-    let seed = match store.get_int(SEED_KEY) {
-        Some(s) => s,
-        None => {
-            let s =
-                (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
-            store.set(SEED_KEY, s);
-            s
-        }
-    };
-    let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
-    if let Some((s, map)) = cache.as_ref()
-        && *s == seed
-    {
-        return map.clone();
+pub struct PerWorld {
+    game_dir: String,
+    pub seed: i64,
+    by_sig: HashMap<String, &'static Action>,
+}
+
+impl PerWorld {
+    pub fn get(&self, sig: &str) -> Option<&'static Action> {
+        self.by_sig.get(sig).copied()
     }
-    let map: HashMap<String, &'static str> = all()
+}
+
+/// This world's great spells. The seed is read (or made) once per world;
+/// lookups after that never touch the disk.
+pub fn per_world(srv: &dyn yog_api::Server) -> Arc<PerWorld> {
+    static CACHE: Mutex<Option<Arc<PerWorld>>> = Mutex::new(None);
+    let game_dir = srv.game_dir();
+    let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some(pw) = cache.as_ref()
+        && pw.game_dir == game_dir
+    {
+        return pw.clone();
+    }
+    let mut store = Storage::open_world(&game_dir, MOD_ID, SEED_DIMENSION);
+    let seed = store.get_int(SEED_KEY).unwrap_or_else(|| {
+        let s = (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
+        store.set(SEED_KEY, s);
+        s
+    });
+    let by_sig = all()
         .iter()
         .filter(|a| a.great())
-        .map(|a| (alt_drawing(&a.pattern(), seed).signature(), a.id))
+        .map(|a| (alt_drawing(&a.pattern(), seed).signature(), a))
         .collect();
-    *cache = Some((seed, map.clone()));
-    map
+    let pw = Arc::new(PerWorld { game_dir, seed, by_sig });
+    *cache = Some(pw.clone());
+    pw
 }
 
 /// How a great spell is drawn in this world (`getCanonicalStrokesPerWorld`).
 pub fn per_world_pattern(srv: &dyn yog_api::Server, id: &str) -> Option<HexPattern> {
     let a = by_id(id)?;
-    let sig = per_world(srv).into_iter().find(|(_, i)| *i == id)?.0;
-    let drawn = alt_drawing(&a.pattern(), seed_of(srv)?);
-    (drawn.signature() == sig).then_some(drawn)
-}
-
-fn seed_of(srv: &dyn yog_api::Server) -> Option<i64> {
-    Storage::open_world(&srv.game_dir(), MOD_ID, "minecraft:overworld").get_int(SEED_KEY)
+    a.great().then(|| alt_drawing(&a.pattern(), per_world(srv).seed))
 }
 
 /// `EulerPathFinder.findAltDrawing`: another way to draw the same shape,
