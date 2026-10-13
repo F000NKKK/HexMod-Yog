@@ -1,0 +1,4 @@
+{
+  "mod_name": "Hex Casting (Yog)",
+  "mod_description": "Неофициальный порт Hex Casting (авторы gamma-delta / FallingColors) на Rust для загрузчика модов Yog."
+}

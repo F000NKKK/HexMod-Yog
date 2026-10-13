@@ -1,0 +1,4 @@
+{
+  "mod_name": { "value": "Hex Casting (Yog)", "comment": "The mod's name (yog.toml name), shown in mod lists" },
+  "mod_description": { "value": "Unofficial Rust port of Hex Casting (by gamma-delta / FallingColors) for the Yog Mod Loader.", "comment": "yog.toml description" }
+}

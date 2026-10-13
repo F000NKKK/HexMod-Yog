@@ -11,7 +11,7 @@ pub fn register(registry: &mut Registry) {
         StartupGrant::new("hexcasting:give_hexbook").item("hexcasting:thehexbook"),
     );
     registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff"),
+        StartupGrant::new("hexcasting:give_staff").item("hexcasting:staff/oak"),
     );
 
     // Packets carry player names; the VM needs uuids for entity iotas.
@@ -26,7 +26,7 @@ pub fn register(registry: &mut Registry) {
     // grid. Sneak + right-click resets the caster's stack first — the stack
     // itself always lives on the server and survives reopening the grid.
     registry.on_use_item(|ev, phase, srv| {
-        if phase == EventPhase::Post && ev.item_id == "hexcasting:staff" {
+        if phase == EventPhase::Post && ev.item_id.starts_with("hexcasting:staff/") {
             if ev.sneaking {
                 vm::reset(&ev.player_name, srv);
                 srv.send_to_player(&ev.player_name, grid::CH_OPEN, b"reset");
