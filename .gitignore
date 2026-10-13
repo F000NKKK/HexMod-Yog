@@ -1,5 +1,4 @@
 .yog-build/
 target/
 artifacts/
-*.designer.rs
 benches/Cargo.lock
