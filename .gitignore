@@ -2,3 +2,4 @@
 target/
 artifacts/
 *.designer.rs
+benches/Cargo.lock
