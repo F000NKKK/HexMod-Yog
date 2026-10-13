@@ -33,7 +33,10 @@ const BATTERY_PRIORITY: i32 = 4000;
 
 /// Cyphers, trinkets and artifacts (`ItemPackagedHex`).
 pub fn is_packaged(id: &str) -> bool {
-    matches!(id, Items::CYPHER | Items::ANCIENT_CYPHER | Items::TRINKET | Items::ARTIFACT)
+    matches!(
+        id,
+        Items::CYPHER | Items::ANCIENT_CYPHER | Items::TRINKET | Items::ARTIFACT
+    )
 }
 
 /// `canDrawMediaFromInventory`: only the artifact.
@@ -94,7 +97,9 @@ pub fn max_media(stack: &Stack) -> i64 {
 /// `ItemMediaHolder.setMedia`: clamped to `[0, max]`.
 pub fn set_media(stack: &mut Stack, media: i64) {
     let max = max_media(stack);
-    stack.nbt.set(TAG_MEDIA, Nbt::long(media.clamp(0, max.max(0))));
+    stack
+        .nbt
+        .set(TAG_MEDIA, Nbt::long(media.clamp(0, max.max(0))));
 }
 
 /// `ItemMediaHolder.withdrawMedia` (a negative `cost` takes everything).
@@ -125,7 +130,10 @@ fn priority(stack: &Stack) -> Option<i32> {
     if stack.id == BATTERY {
         return Some(BATTERY_PRIORITY);
     }
-    STATIC.iter().find(|(i, ..)| *i == stack.id).map(|(.., p)| *p)
+    STATIC
+        .iter()
+        .find(|(i, ..)| *i == stack.id)
+        .map(|(.., p)| *p)
 }
 
 /// Takes up to `cost` media from a media-providing stack (whole items for
@@ -140,7 +148,11 @@ pub fn withdraw(stack: &mut Stack, cost: i64, simulate: bool) -> i64 {
     if stack.is_empty() {
         return 0;
     }
-    let cost = if cost < 0 { worth * stack.count as i64 } else { cost };
+    let cost = if cost < 0 {
+        worth * stack.count as i64
+    } else {
+        cost
+    };
     let needed = ((cost + worth - 1) / worth).min(stack.count as i64);
     if !simulate {
         stack.count -= needed as u32;
@@ -167,7 +179,12 @@ mod tests {
     use super::*;
 
     fn stack(id: &str, count: u32) -> Stack {
-        Stack { slot: 0, id: id.into(), count, nbt: Nbt::default() }
+        Stack {
+            slot: 0,
+            id: id.into(),
+            count,
+            nbt: Nbt::default(),
+        }
     }
 
     #[test]

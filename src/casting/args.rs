@@ -115,28 +115,44 @@ impl Arg for PosDouble {
 
 /// `getIntBetween(min, max)` for an iota already taken off the stack.
 pub fn int_between(iota: &Iota, rev: usize, min: i64, max: i64) -> MResult<i64> {
-    rounded(iota).filter(|n| (min..=max).contains(n)).ok_or_else(|| {
-        Mishap::invalid(
-            iota,
-            rev,
-            "int.between",
-            vec![crate::text::Text::int(min), crate::text::Text::int(max)],
-        )
-    })
+    rounded(iota)
+        .filter(|n| (min..=max).contains(n))
+        .ok_or_else(|| {
+            Mishap::invalid(
+                iota,
+                rev,
+                "int.between",
+                vec![crate::text::Text::int(min), crate::text::Text::int(max)],
+            )
+        })
 }
 
 /// `getPositiveIntUnder(max)` (`max` excluded).
 pub fn pos_int_under(iota: &Iota, rev: usize, max: i64) -> MResult<i64> {
-    rounded(iota).filter(|n| (0..max).contains(n)).ok_or_else(|| {
-        Mishap::invalid(iota, rev, "int.positive.less", vec![crate::text::Text::int(max)])
-    })
+    rounded(iota)
+        .filter(|n| (0..max).contains(n))
+        .ok_or_else(|| {
+            Mishap::invalid(
+                iota,
+                rev,
+                "int.positive.less",
+                vec![crate::text::Text::int(max)],
+            )
+        })
 }
 
 /// `getPositiveIntUnderInclusive(max)`.
 pub fn pos_int_under_incl(iota: &Iota, rev: usize, max: i64) -> MResult<i64> {
-    rounded(iota).filter(|n| (0..=max).contains(n)).ok_or_else(|| {
-        Mishap::invalid(iota, rev, "int.positive.less.equal", vec![crate::text::Text::int(max)])
-    })
+    rounded(iota)
+        .filter(|n| (0..=max).contains(n))
+        .ok_or_else(|| {
+            Mishap::invalid(
+                iota,
+                rev,
+                "int.positive.less.equal",
+                vec![crate::text::Text::int(max)],
+            )
+        })
 }
 
 /// `getDoubleBetween(min, max)`.
@@ -227,7 +243,10 @@ fn entity(
         && info.flags & deny == 0
     {
         // The name it's shown with is whatever it's called now.
-        let r = EntityRef { uuid: r.uuid.clone(), name: info.name.clone() };
+        let r = EntityRef {
+            uuid: r.uuid.clone(),
+            name: info.name.clone(),
+        };
         return Ok(Ent { r, info });
     }
     Err(Mishap::of_type(iota, rev, name))

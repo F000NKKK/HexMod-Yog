@@ -120,12 +120,17 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
                     Text::int(idx).to_json_colored("white"),
                     Text::int(len).to_json_colored("white"),
                 ];
-                let name =
-                    stack.nbt.get("display").and_then(|d| d.get_str("Name")).map(str::to_owned);
+                let name = stack
+                    .nbt
+                    .get("display")
+                    .and_then(|d| d.get_str("Name"))
+                    .map(str::to_owned);
                 let mut key = Lang::TOOLTIP_SPELLBOOK_PAGE_KEY.to_owned();
                 if let Some(json) = name.filter(|_| hand == Hand::Off) {
                     key = Lang::TOOLTIP_SPELLBOOK_PAGE_WITH_NAME_KEY.to_owned();
-                    args.push(format!("{{\"text\":\"\",\"italic\":true,\"extra\":[{json}]}}"));
+                    args.push(format!(
+                        "{{\"text\":\"\",\"italic\":true,\"extra\":[{json}]}}"
+                    ));
                 }
                 if holder::page_sealed(&stack.nbt) {
                     key.push_str(".sealed");
@@ -160,7 +165,11 @@ pub fn reset_abacus(srv: &dyn Server, player: &str) {
     else {
         return;
     };
-    let old = stack.nbt.remove("value").and_then(|v| v.as_f64()).unwrap_or(0.0);
+    let old = stack
+        .nbt
+        .remove("value")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
     env.save(&stack);
     srv.play_sound_to_player(player, SOUND_ABACUS_SHAKE, 1.0, 1.0);
     let key = if old == 69.0 {

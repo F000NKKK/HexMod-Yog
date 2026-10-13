@@ -123,8 +123,11 @@ impl Simplex {
         };
         let g = 1.0 / 6.0;
         let (x1, y1, z1) = (x0 - i1 as f64 + g, y0 - j1 as f64 + g, z0 - k1 as f64 + g);
-        let (x2, y2, z2) =
-            (x0 - i2 as f64 + 2.0 * g, y0 - j2 as f64 + 2.0 * g, z0 - k2 as f64 + 2.0 * g);
+        let (x2, y2, z2) = (
+            x0 - i2 as f64 + 2.0 * g,
+            y0 - j2 as f64 + 2.0 * g,
+            z0 - k2 as f64 + 2.0 * g,
+        );
         let (x3, y3, z3) = (x0 - 0.5, y0 - 0.5, z0 - 0.5);
         let (ii, jj, kk) = (i & 255, j & 255, k & 255);
         let g0 = self.p(ii + self.p(jj + self.p(kk))) % 12;

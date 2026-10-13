@@ -40,7 +40,10 @@ fn stack_len(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpRe
 fn fisherman(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     if stack.len() < 2 {
-        return Err(Mishap::NotEnoughArgs { expected: 2, got: stack.len() });
+        return Err(Mishap::NotEnoughArgs {
+            expected: 2,
+            got: stack.len(),
+        });
     }
     let x = stack.pop().unwrap();
     let max = stack.len() as i64 - 1;
@@ -60,7 +63,10 @@ fn fisherman(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpRe
 fn fisherman_copy(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     if stack.len() < 2 {
-        return Err(Mishap::NotEnoughArgs { expected: 2, got: stack.len() });
+        return Err(Mishap::NotEnoughArgs {
+            expected: 2,
+            got: stack.len(),
+        });
     }
     let max = stack.len() as i64 - 2;
     let depth = int_between(stack.last().unwrap(), 0, -max, max)?;
@@ -81,7 +87,10 @@ fn fisherman_copy(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult
 fn swizzle(env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     let Some(top) = stack.last() else {
-        return Err(Mishap::NotEnoughArgs { expected: 1, got: 0 });
+        return Err(Mishap::NotEnoughArgs {
+            expected: 1,
+            got: 0,
+        });
     };
     let code = PosInt::get(top, 0, env)?.0;
     stack.pop();
@@ -102,7 +111,10 @@ fn permute(stack: &mut [Iota], code: i64) -> MResult<()> {
         n += 1;
     }
     if strides.len() > stack.len() {
-        return Err(Mishap::NotEnoughArgs { expected: strides.len() + 1, got: stack.len() + 1 });
+        return Err(Mishap::NotEnoughArgs {
+            expected: strides.len() + 1,
+            got: stack.len() + 1,
+        });
     }
     let base = stack.len() - strides.len();
     let mut swap: Vec<Iota> = stack[base..].to_vec();

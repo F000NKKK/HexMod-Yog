@@ -74,7 +74,13 @@ impl Action {
         op: OpFn,
         parens: Option<ParenFn>,
     ) -> Self {
-        Action { id, dir, sig, op, parens }
+        Action {
+            id,
+            dir,
+            sig,
+            op,
+            parens,
+        }
     }
 
     pub fn great(&self) -> bool {
@@ -126,7 +132,10 @@ pub fn const_op<'a>(
 ) -> MResult<OpResult> {
     let len = image.stack.len();
     if argc > len {
-        return Err(Mishap::NotEnoughArgs { expected: argc, got: len });
+        return Err(Mishap::NotEnoughArgs {
+            expected: argc,
+            got: len,
+        });
     }
     let args = image.stack.split_off(len - argc);
     let out = f(args, env)?;
@@ -150,7 +159,10 @@ pub fn spell_op<'a>(
 ) -> MResult<OpResult> {
     let len = image.stack.len();
     if argc > len {
-        return Err(Mishap::NotEnoughArgs { expected: argc, got: len });
+        return Err(Mishap::NotEnoughArgs {
+            expected: argc,
+            got: len,
+        });
     }
     let args = image.stack.split_off(len - argc);
     let spell = f(args, env, &mut image)?;
@@ -164,8 +176,17 @@ pub fn spell_op<'a>(
     effects.push(SideEffect::AttemptSpell(spell.effect));
     effects.extend(spell.particles.into_iter().map(SideEffect::Particles));
     image.ops_consumed += spell.ops;
-    let sound = if spell.sound { Sound::Spell } else { Sound::Mute };
-    Ok(OpResult { image, effects, cont: cont.clone(), sound })
+    let sound = if spell.sound {
+        Sound::Spell
+    } else {
+        Sound::Mute
+    };
+    Ok(OpResult {
+        image,
+        effects,
+        cont: cont.clone(),
+        sound,
+    })
 }
 
 /// A table of actions:
@@ -374,7 +395,11 @@ pub fn per_world(srv: &dyn yog_api::Server) -> Arc<PerWorld> {
         .filter(|a| a.great())
         .map(|a| (alt_drawing(&a.pattern(), seed).signature(), a))
         .collect();
-    let pw = Arc::new(PerWorld { game_dir, seed, by_sig });
+    let pw = Arc::new(PerWorld {
+        game_dir,
+        seed,
+        by_sig,
+    });
     *cache = Some(pw.clone());
     pw
 }
@@ -382,7 +407,8 @@ pub fn per_world(srv: &dyn yog_api::Server) -> Arc<PerWorld> {
 /// How a great spell is drawn in this world (`getCanonicalStrokesPerWorld`).
 pub fn per_world_pattern(srv: &dyn yog_api::Server, id: &str) -> Option<HexPattern> {
     let a = by_id(id)?;
-    a.great().then(|| alt_drawing(&a.pattern(), per_world(srv).seed))
+    a.great()
+        .then(|| alt_drawing(&a.pattern(), per_world(srv).seed))
 }
 
 /// `EulerPathFinder.findAltDrawing`: another way to draw the same shape,
@@ -415,11 +441,18 @@ fn walk_path(original: &HexPattern, rand: &mut JavaRandom) -> Option<HexPattern>
     let mut cursor = HexCoord::default();
     for d in original.directions() {
         add(&mut graph, cursor, d);
-        add(&mut graph, cursor + d.as_delta(), d.rotated_by(HexAngle::OneEighty));
+        add(
+            &mut graph,
+            cursor + d.as_delta(),
+            d.rotated_by(HexAngle::OneEighty),
+        );
         cursor = cursor + d.as_delta();
     }
-    let odd: Vec<HexCoord> =
-        graph.iter().filter(|(_, e)| e.len() % 2 == 1).map(|(c, _)| *c).collect();
+    let odd: Vec<HexCoord> = graph
+        .iter()
+        .filter(|(_, e)| e.len() % 2 == 1)
+        .map(|(c, _)| *c)
+        .collect();
     let mut current = match odd.len() {
         0 => graph[rand.next_int(graph.len() as i32) as usize].0,
         2 => odd[rand.next_int(2) as usize],
@@ -447,7 +480,11 @@ fn walk_path(original: &HexPattern, rand: &mut JavaRandom) -> Option<HexPattern>
     out.push(current);
     let dirs: Option<Vec<HexDir>> = out
         .windows(2)
-        .map(|w| HexDir::ALL.into_iter().find(|d| w[0] + d.as_delta() == w[1]))
+        .map(|w| {
+            HexDir::ALL
+                .into_iter()
+                .find(|d| w[0] + d.as_delta() == w[1])
+        })
         .collect();
     let dirs = dirs?;
     (!dirs.is_empty()).then(|| HexPattern::from_list(dirs))
@@ -525,7 +562,10 @@ impl Special {
             ),
             Special::Mask(m) => {
                 let fp: String = m.iter().map(|&k| if k { '-' } else { 'v' }).collect();
-                Text::key_args(format!("hexcasting.special.{MOD_ID}:mask"), vec![Text::lit(fp)])
+                Text::key_args(
+                    format!("hexcasting.special.{MOD_ID}:mask"),
+                    vec![Text::lit(fp)],
+                )
             }
         }
     }
@@ -536,7 +576,12 @@ impl Special {
                 const_op(env, image, cont, 0, 0, |_, _| Ok(vec![Iota::Double(*x)]))
             }
             Special::Mask(m) => const_op(env, image, cont, m.len(), 0, |args, _| {
-                Ok(args.into_iter().zip(m).filter(|(_, k)| **k).map(|(a, _)| a).collect())
+                Ok(args
+                    .into_iter()
+                    .zip(m)
+                    .filter(|(_, k)| **k)
+                    .map(|(a, _)| a)
+                    .collect())
             }),
         }
     }
@@ -552,9 +597,18 @@ mod tests {
 
     #[test]
     fn numbers() {
-        assert_eq!(Special::number(&pat("aqaaw", dir::E)), Some(Special::Number(1.0)));
-        assert_eq!(Special::number(&pat("deddqa", dir::E)), Some(Special::Number(-10.0)));
-        assert_eq!(Special::number(&pat("aqaaeda", dir::E)), Some(Special::Number(10.0)));
+        assert_eq!(
+            Special::number(&pat("aqaaw", dir::E)),
+            Some(Special::Number(1.0))
+        );
+        assert_eq!(
+            Special::number(&pat("deddqa", dir::E)),
+            Some(Special::Number(-10.0))
+        );
+        assert_eq!(
+            Special::number(&pat("aqaaeda", dir::E)),
+            Some(Special::Number(10.0))
+        );
         assert_eq!(Special::number(&pat("qaq", dir::E)), None);
     }
 
@@ -565,8 +619,14 @@ mod tests {
             Special::mask(&HexPattern::from_list(vec![dir::E])),
             Some(Special::Mask(vec![true]))
         );
-        assert_eq!(Special::mask(&pat("ea", dir::E)), Some(Special::Mask(vec![true, false])));
-        assert_eq!(Special::mask(&pat("ada", dir::SE)), Some(Special::Mask(vec![false, false])));
+        assert_eq!(
+            Special::mask(&pat("ea", dir::E)),
+            Some(Special::Mask(vec![true, false]))
+        );
+        assert_eq!(
+            Special::mask(&pat("ada", dir::SE)),
+            Some(Special::Mask(vec![false, false]))
+        );
     }
 
     #[test]
@@ -587,17 +647,17 @@ mod tests {
         let b = alt_drawing(&a, 12345);
         let edges = |p: &HexPattern| {
             let pts = p.positions();
-            let mut e: Vec<_> =
-                pts.windows(2)
-                    .map(|w| {
-                        if (w[0].0, w[0].1) < (w[1].0, w[1].1) {
-                            (w[0], w[1])
-                        } else {
-                            (w[1], w[0])
-                        }
-                    })
-                    .map(|(x, y)| (x - pts[0], y - pts[0]))
-                    .collect();
+            let mut e: Vec<_> = pts
+                .windows(2)
+                .map(|w| {
+                    if (w[0].0, w[0].1) < (w[1].0, w[1].1) {
+                        (w[0], w[1])
+                    } else {
+                        (w[1], w[0])
+                    }
+                })
+                .map(|(x, y)| (x - pts[0], y - pts[0]))
+                .collect();
             e.sort_by_key(|(x, y)| (x.0, x.1, y.0, y.1));
             e
         };
@@ -611,6 +671,9 @@ mod tests {
         };
         let min = |e: &[(HexCoord, HexCoord)]| e.iter().map(|(x, _)| (x.0, x.1)).min().unwrap();
         let (ma, mb) = (min(&ea), min(&eb));
-        assert_eq!(shift(&ea, HexCoord(ma.0, ma.1)), shift(&eb, HexCoord(mb.0, mb.1)));
+        assert_eq!(
+            shift(&ea, HexCoord(ma.0, ma.1)),
+            shift(&eb, HexCoord(mb.0, mb.1))
+        );
     }
 }

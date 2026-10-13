@@ -154,7 +154,10 @@ impl Mishap {
 
     /// `MishapBadBlock.of`.
     pub fn bad_block(pos: BlockPos, stub: &str) -> Self {
-        Mishap::BadBlock { pos, expected: Text::key(format!("hexcasting.mishap.bad_block.{stub}")) }
+        Mishap::BadBlock {
+            pos,
+            expected: Text::key(format!("hexcasting.mishap.bad_block.{stub}")),
+        }
     }
 
     /// `MishapBadOffhandItem.of`.
@@ -174,17 +177,36 @@ impl Mishap {
     pub fn bad_entity(env: &CastEnv, entity: &EntityRef, stub: &str) -> Self {
         let wanted = Text::key(format!("hexcasting.mishap.bad_item.{stub}"));
         if let Some((id, count, _)) = env.srv.item_entity_stack(&entity.uuid) {
-            let item = (count > 0).then(|| ShownItem { count, name: item_name(&id) });
-            return Mishap::BadItem { entity: entity.clone(), item, wanted };
+            let item = (count > 0).then(|| ShownItem {
+                count,
+                name: item_name(&id),
+            });
+            return Mishap::BadItem {
+                entity: entity.clone(),
+                item,
+                wanted,
+            };
         }
         let pos = env.entity_pos(entity).unwrap_or_default();
-        Mishap::BadEntity { entity: entity.clone(), pos, wanted }
+        Mishap::BadEntity {
+            entity: entity.clone(),
+            pos,
+            wanted,
+        }
     }
 
     /// `MishapDivideByZero.of(Iota, Iota, suffix)`.
     pub fn divide_by_zero(a: &Iota, b: &Iota, suffix: &'static str) -> Self {
-        let b = if suffix == "exponent" { power_of(b) } else { translate_operand(b) };
-        Mishap::DivideByZero { a: translate_operand(a), b, suffix }
+        let b = if suffix == "exponent" {
+            power_of(b)
+        } else {
+            translate_operand(b)
+        };
+        Mishap::DivideByZero {
+            a: translate_operand(a),
+            b,
+            suffix,
+        }
     }
 
     /// `MishapDivideByZero.tan`.
@@ -254,7 +276,8 @@ impl Mishap {
             Mishap::AlreadyBrainswept { mob, .. } => {
                 let health = env.srv.entity_health(&mob.uuid).unwrap_or(0.0);
                 let caster = env.caster_uuid().unwrap_or_default();
-                env.srv.entity_damage(&mob.uuid, health, "hexcasting:overcast", &caster);
+                env.srv
+                    .entity_damage(&mob.uuid, health, "hexcasting:overcast", &caster);
             }
             Mishap::BadBlock { pos, .. } => {
                 let p = Vec3::center_of(*pos);
@@ -341,9 +364,10 @@ impl Mishap {
     fn error_message(&self, env: &CastEnv) -> Option<Text> {
         Some(match self {
             Mishap::AlreadyBrainswept { .. } => error("already_brainswept", vec![]),
-            Mishap::BadBlock { pos, expected } => {
-                error("bad_block", vec![expected.clone(), pos_text(*pos), env.block_name(*pos)])
-            }
+            Mishap::BadBlock { pos, expected } => error(
+                "bad_block",
+                vec![expected.clone(), pos_text(*pos), env.block_name(*pos)],
+            ),
             Mishap::BadBrainsweep { pos, .. } => {
                 error("bad_brainsweep", vec![env.block_name(*pos)])
             }
@@ -351,23 +375,34 @@ impl Mishap {
             Mishap::BadEntity { entity, wanted, .. } => {
                 error("bad_entity", vec![wanted.clone(), entity_name(entity)])
             }
-            Mishap::BadItem { item: None, wanted, .. } => error("no_item", vec![wanted.clone()]),
-            Mishap::BadItem { item: Some(i), wanted, .. } => {
-                error("bad_item", vec![wanted.clone(), Text::int(i.count as i64), i.name.clone()])
-            }
+            Mishap::BadItem {
+                item: None, wanted, ..
+            } => error("no_item", vec![wanted.clone()]),
+            Mishap::BadItem {
+                item: Some(i),
+                wanted,
+                ..
+            } => error(
+                "bad_item",
+                vec![wanted.clone(), Text::int(i.count as i64), i.name.clone()],
+            ),
             Mishap::BadLocation { pos, kind } => {
                 error(&format!("location_{kind}"), vec![vec_text(*pos)])
             }
-            Mishap::BadOffhandItem { item: Some(i), wanted } => error(
+            Mishap::BadOffhandItem {
+                item: Some(i),
+                wanted,
+            } => error(
                 "bad_item.offhand",
                 vec![wanted.clone(), Text::int(i.count as i64), i.name.clone()],
             ),
             Mishap::BadOffhandItem { item: None, wanted } => {
                 error("no_item.offhand", vec![wanted.clone()])
             }
-            Mishap::DivideByZero { a, b, suffix } => {
-                error(&format!("divide_by_zero.{suffix}"), vec![a.clone(), b.clone()])
-            }
+            Mishap::DivideByZero { a, b, suffix } => error(
+                &format!("divide_by_zero.{suffix}"),
+                vec![a.clone(), b.clone()],
+            ),
             Mishap::EntityTooFar { entity, .. } => {
                 error("entity_too_far", vec![entity_name(entity)])
             }
@@ -375,7 +410,11 @@ impl Mishap {
             Mishap::ImmuneEntity { entity, .. } => {
                 error("immune_entity", vec![entity_name(entity)])
             }
-            Mishap::InvalidIota { perp, rev_idx, expected } => error(
+            Mishap::InvalidIota {
+                perp,
+                rev_idx,
+                expected,
+            } => error(
                 "invalid_value",
                 vec![
                     expected.clone(),
@@ -384,9 +423,10 @@ impl Mishap {
                     perp.display(),
                 ],
             ),
-            Mishap::InvalidOperatorArgs(perps) if perps.len() == 1 => {
-                error("invalid_operator_args.one", vec![Text::int(0), perps[0].display()])
-            }
+            Mishap::InvalidOperatorArgs(perps) if perps.len() == 1 => error(
+                "invalid_operator_args.one",
+                vec![Text::int(0), perps[0].display()],
+            ),
             Mishap::InvalidOperatorArgs(perps) => error(
                 "invalid_operator_args.many",
                 vec![
@@ -411,9 +451,10 @@ impl Mishap {
             Mishap::NotEnoughArgs { expected, got: 0 } => {
                 error("no_args", vec![Text::int(*expected as i64)])
             }
-            Mishap::NotEnoughArgs { expected, got } => {
-                error("not_enough_args", vec![Text::int(*expected as i64), Text::int(*got as i64)])
-            }
+            Mishap::NotEnoughArgs { expected, got } => error(
+                "not_enough_args",
+                vec![Text::int(*expected as i64), Text::int(*got as i64)],
+            ),
             Mishap::NotEnoughMedia(_) => Text::key(Lang::MESSAGE_CANT_OVERCAST_KEY),
             Mishap::OthersName { is_self: true, .. } => error("others_name.self", vec![]),
             Mishap::OthersName { name, .. } => error("others_name", vec![Text::lit(name.clone())]),

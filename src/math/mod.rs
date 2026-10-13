@@ -156,8 +156,14 @@ impl HexPattern {
     /// A pattern from its strokes' directions (the first is the start).
     pub fn from_list(dirs: Vec<HexDir>) -> Self {
         match dirs.split_first() {
-            Some((start, rest)) => HexPattern { start: *start, steps: rest.to_vec() },
-            None => HexPattern { start: HexDir::NorthEast, steps: Vec::new() },
+            Some((start, rest)) => HexPattern {
+                start: *start,
+                steps: rest.to_vec(),
+            },
+            None => HexPattern {
+                start: HexDir::NorthEast,
+                steps: Vec::new(),
+            },
         }
     }
 
@@ -235,7 +241,11 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    pub const ZERO: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 };
+    pub const ZERO: Vec3 = Vec3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Vec3 { x, y, z }
@@ -276,7 +286,11 @@ impl Vec3 {
     /// Unit vector; the zero vector stays zero (like Minecraft's).
     pub fn normalize(self) -> Vec3 {
         let len = self.length();
-        if len < 1.0e-4 { Vec3::ZERO } else { self * (1.0 / len) }
+        if len < 1.0e-4 {
+            Vec3::ZERO
+        } else {
+            self * (1.0 / len)
+        }
     }
 
     pub fn distance_sqr(self, o: Vec3) -> f64 {
@@ -289,7 +303,11 @@ impl Vec3 {
 
     /// The block containing this point.
     pub fn block(self) -> (i32, i32, i32) {
-        (self.x.floor() as i32, self.y.floor() as i32, self.z.floor() as i32)
+        (
+            self.x.floor() as i32,
+            self.y.floor() as i32,
+            self.z.floor() as i32,
+        )
     }
 
     /// The centre of block `(x, y, z)`.
@@ -368,6 +386,9 @@ mod tests {
         let a = Vec3::new(1.0, 0.0, 0.0);
         let b = Vec3::new(0.0, 1.0, 0.0);
         assert_eq!(a.cross(b), Vec3::new(0.0, 0.0, 1.0));
-        assert_eq!(Vec3::new(0.2, -3.0, 1.0).nearest_axis(), Vec3::new(0.0, -1.0, 0.0));
+        assert_eq!(
+            Vec3::new(0.2, -3.0, 1.0).nearest_axis(),
+            Vec3::new(0.0, -1.0, 0.0)
+        );
     }
 }

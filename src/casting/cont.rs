@@ -10,7 +10,11 @@ use crate::wire::{Reader, Writer};
 #[derive(Debug, Clone, PartialEq)]
 pub enum Frame {
     /// Run `list[idx..]` (Hermes' Gambit, a drawn pattern, a hex).
-    Evaluate { list: Arc<Vec<Iota>>, idx: usize, metacasting: bool },
+    Evaluate {
+        list: Arc<Vec<Iota>>,
+        idx: usize,
+        metacasting: bool,
+    },
     /// Thoth's Gambit: run `code` once per remaining `data` item.
     ForEach {
         data: Arc<Vec<Iota>>,
@@ -44,7 +48,13 @@ impl Frame {
     fn size(&self) -> usize {
         match self {
             Frame::Evaluate { list, idx, .. } => list.len().saturating_sub(*idx),
-            Frame::ForEach { data, data_idx, code, base, acc } => {
+            Frame::ForEach {
+                data,
+                data_idx,
+                code,
+                base,
+                acc,
+            } => {
                 data.len().saturating_sub(*data_idx)
                     + code.len()
                     + acc.len()
@@ -56,11 +66,21 @@ impl Frame {
 
     fn write(&self, w: &mut Writer) {
         match self {
-            Frame::Evaluate { list, idx, metacasting } => {
+            Frame::Evaluate {
+                list,
+                idx,
+                metacasting,
+            } => {
                 w.tag('E').int(*metacasting as i64);
                 write_stack(w, &list[(*idx).min(list.len())..]);
             }
-            Frame::ForEach { data, data_idx, code, base, acc } => {
+            Frame::ForEach {
+                data,
+                data_idx,
+                code,
+                base,
+                acc,
+            } => {
                 w.tag('F');
                 write_stack(w, &data[(*data_idx).min(data.len())..]);
                 write_stack(w, code);
@@ -85,14 +105,28 @@ impl Frame {
         Some(match r.tag()? {
             'E' => {
                 let metacasting = r.int()? != 0;
-                Frame::Evaluate { list: Arc::new(read_stack(r)?), idx: 0, metacasting }
+                Frame::Evaluate {
+                    list: Arc::new(read_stack(r)?),
+                    idx: 0,
+                    metacasting,
+                }
             }
             'F' => {
                 let data = Arc::new(read_stack(r)?);
                 let code = Arc::new(read_stack(r)?);
-                let base = if r.int()? != 0 { Some(read_stack(r)?) } else { None };
+                let base = if r.int()? != 0 {
+                    Some(read_stack(r)?)
+                } else {
+                    None
+                };
                 let acc = read_stack(r)?;
-                Frame::ForEach { data, data_idx: 0, code, base, acc }
+                Frame::ForEach {
+                    data,
+                    data_idx: 0,
+                    code,
+                    base,
+                    acc,
+                }
             }
             'X' => Frame::FinishEval,
             _ => return None,
@@ -120,7 +154,10 @@ impl Cont {
     }
 
     pub fn push(&self, frame: Frame) -> Cont {
-        Cont(Some(Arc::new(Node { frame, next: self.clone() })))
+        Cont(Some(Arc::new(Node {
+            frame,
+            next: self.clone(),
+        })))
     }
 
     /// The top frame.
@@ -194,7 +231,9 @@ mod tests {
         let i = Iota::Continuation(c.clone());
         let back = Iota::deserialize(&i.serialize());
         // ForEach's consumed data is dropped on the way out.
-        let Iota::Continuation(b) = back else { panic!() };
+        let Iota::Continuation(b) = back else {
+            panic!()
+        };
         assert_eq!(b.size(), c.size());
         assert!(matches!(b.next().frame(), Some(Frame::ForEach { data, .. }) if data.len() == 1));
     }

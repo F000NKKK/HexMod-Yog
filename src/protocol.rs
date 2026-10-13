@@ -60,7 +60,10 @@ impl ResolvedType {
     }
 
     pub fn success(self) -> bool {
-        matches!(self, ResolvedType::Evaluated | ResolvedType::Escaped | ResolvedType::Undone)
+        matches!(
+            self,
+            ResolvedType::Evaluated | ResolvedType::Escaped | ResolvedType::Undone
+        )
     }
 
     pub fn index(self) -> i64 {
@@ -95,7 +98,11 @@ impl ResolvedPattern {
     pub fn read(r: &mut Reader) -> Option<Self> {
         let pattern = HexPattern::from_serialized(r.str()?)?;
         let origin = HexCoord(r.int()? as i32, r.int()? as i32);
-        Some(Self { pattern, origin, kind: ResolvedType::from_index(r.int()?) })
+        Some(Self {
+            pattern,
+            origin,
+            kind: ResolvedType::from_index(r.int()?),
+        })
     }
 }
 
@@ -124,7 +131,11 @@ fn write_opt(w: &mut Writer, i: &Option<Iota>) {
 }
 
 fn read_opt(r: &mut Reader) -> Option<Option<Iota>> {
-    Some(if r.int()? != 0 { Some(Iota::read(r)?) } else { None })
+    Some(if r.int()? != 0 {
+        Some(Iota::read(r)?)
+    } else {
+        None
+    })
 }
 
 /// `MsgNewSpellPatternC2S`.
@@ -138,7 +149,8 @@ pub struct NewPattern {
 impl NewPattern {
     pub fn encode(&self) -> Vec<u8> {
         let mut w = Writer::new();
-        w.int(matches!(self.hand, Hand::Off) as i64).str(&self.pattern.serialized_form());
+        w.int(matches!(self.hand, Hand::Off) as i64)
+            .str(&self.pattern.serialized_form());
         write_patterns(&mut w, &self.resolved);
         w.finish().into_bytes()
     }
@@ -148,7 +160,11 @@ impl NewPattern {
         let mut r = Reader::new(s);
         let hand = if r.int()? != 0 { Hand::Off } else { Hand::Main };
         let pattern = HexPattern::from_serialized(r.str()?)?;
-        Some(Self { hand, pattern, resolved: read_patterns(&mut r)? })
+        Some(Self {
+            hand,
+            pattern,
+            resolved: read_patterns(&mut r)?,
+        })
     }
 }
 
@@ -167,7 +183,9 @@ pub struct PatternResult {
 impl PatternResult {
     pub fn encode(&self) -> Vec<u8> {
         let mut w = Writer::new();
-        w.int(self.stack_clear as i64).int(self.kind.index()).int(self.index);
+        w.int(self.stack_clear as i64)
+            .int(self.kind.index())
+            .int(self.index);
         write_stack(&mut w, &self.stack);
         write_opt(&mut w, &self.ravenmind);
         w.finish().into_bytes()
@@ -181,7 +199,13 @@ impl PatternResult {
         let index = r.int()?;
         let stack = read_stack(&mut r)?;
         let ravenmind = read_opt(&mut r)?;
-        Some(Self { stack_clear, kind, stack, ravenmind, index })
+        Some(Self {
+            stack_clear,
+            kind,
+            stack,
+            ravenmind,
+            index,
+        })
     }
 }
 
@@ -214,7 +238,13 @@ impl OpenGui {
         let patterns = read_patterns(&mut r)?;
         let stack = read_stack(&mut r)?;
         let ravenmind = read_opt(&mut r)?;
-        Some(Self { hand, patterns, stack, ravenmind, paren_count: r.int()? })
+        Some(Self {
+            hand,
+            patterns,
+            stack,
+            ravenmind,
+            paren_count: r.int()?,
+        })
     }
 }
 
@@ -231,7 +261,11 @@ mod tests {
             origin: HexCoord(-2, 3),
             kind: ResolvedType::Escaped,
         };
-        let n = NewPattern { hand: Hand::Off, pattern: p, resolved: vec![rp.clone()] };
+        let n = NewPattern {
+            hand: Hand::Off,
+            pattern: p,
+            resolved: vec![rp.clone()],
+        };
         assert_eq!(NewPattern::decode(&n.encode()), Some(n));
         let r = PatternResult {
             stack_clear: false,

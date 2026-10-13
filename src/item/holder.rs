@@ -20,14 +20,19 @@ pub const SLATE: &str = Blocks::SLATE;
 pub const MAX_PAGES: i64 = 64;
 
 pub fn is_scroll(id: &str) -> bool {
-    matches!(id, Items::SCROLL | Items::SCROLL_SMALL | Items::SCROLL_MEDIUM)
+    matches!(
+        id,
+        Items::SCROLL | Items::SCROLL_SMALL | Items::SCROLL_MEDIUM
+    )
 }
 
 /// `findDataHolder(stack) != null`.
 pub fn is_holder(stack: &Stack) -> bool {
     !stack.is_empty()
-        && (matches!(stack.id.as_str(), FOCUS | SPELLBOOK | THOUGHT_KNOT | ABACUS | SLATE)
-            || is_scroll(&stack.id)
+        && (matches!(
+            stack.id.as_str(),
+            FOCUS | SPELLBOOK | THOUGHT_KNOT | ABACUS | SLATE
+        ) || is_scroll(&stack.id)
             || stack.id == "minecraft:pumpkin_pie")
 }
 
@@ -133,9 +138,9 @@ fn write_datum(stack: &mut Stack, iota: Option<&Iota>) {
             }
         }
         SLATE => match iota {
-            Some(Iota::Pattern(p)) => {
-                nbt.compound_mut("BlockEntityTag").set("pattern", Nbt::str(p.serialized_form()))
-            }
+            Some(Iota::Pattern(p)) => nbt
+                .compound_mut("BlockEntityTag")
+                .set("pattern", Nbt::str(p.serialized_form())),
             None => {
                 let bet = nbt.compound_mut("BlockEntityTag");
                 bet.remove("pattern");
@@ -178,20 +183,36 @@ pub fn entity_stack(
     match type_id {
         "minecraft:item" => {
             let (id, count, snbt) = srv.item_entity_stack(uuid)?;
-            Some((Stack { slot: 0, id, count, nbt: Nbt::parse(&snbt) }, EntityHolder::Item))
+            Some((
+                Stack {
+                    slot: 0,
+                    id,
+                    count,
+                    nbt: Nbt::parse(&snbt),
+                },
+                EntityHolder::Item,
+            ))
         }
         "minecraft:item_frame" | "minecraft:glow_item_frame" => {
             let nbt = Nbt::parse(&srv.entity_get_nbt(uuid)?);
             let item = nbt.get("Item")?;
             let id = item.get_str("id")?.to_owned();
             let modern = item.contains("count") || item.contains("components");
-            let count = item.get_i64("Count").or_else(|| item.get_i64("count")).unwrap_or(1) as u32;
+            let count = item
+                .get_i64("Count")
+                .or_else(|| item.get_i64("count"))
+                .unwrap_or(1) as u32;
             let tag = if modern {
                 item.get("components").and_then(|c| c.get(CUSTOM_DATA))
             } else {
                 item.get("tag")
             };
-            let stack = Stack { slot: 0, id, count, nbt: tag.cloned().unwrap_or_default() };
+            let stack = Stack {
+                slot: 0,
+                id,
+                count,
+                nbt: tag.cloned().unwrap_or_default(),
+            };
             Some((stack, EntityHolder::Frame { modern }))
         }
         _ => None,
@@ -211,7 +232,8 @@ pub fn save_entity_stack(srv: &dyn yog_api::Server, uuid: &str, stack: &Stack, h
             item.set("id", Nbt::str(stack.id.clone()));
             if modern {
                 item.set("count", Nbt::int(stack.count as i32));
-                item.compound_mut("components").set(CUSTOM_DATA, stack.nbt.clone());
+                item.compound_mut("components")
+                    .set(CUSTOM_DATA, stack.nbt.clone());
             } else {
                 item.set("Count", Nbt::Num(format!("{}b", stack.count)));
                 item.set("tag", stack.nbt.clone());
@@ -250,7 +272,11 @@ pub fn page_sealed(nbt: &Nbt) -> bool {
 /// `ItemSpellbook.highestPage`.
 pub fn highest_page(nbt: &Nbt) -> i64 {
     match nbt.get("pages") {
-        Some(Nbt::Compound(e)) => e.iter().filter_map(|(k, _)| k.parse().ok()).max().unwrap_or(0),
+        Some(Nbt::Compound(e)) => e
+            .iter()
+            .filter_map(|(k, _)| k.parse().ok())
+            .max()
+            .unwrap_or(0),
         _ => 0,
     }
 }
@@ -266,7 +292,10 @@ pub fn rotate_page(nbt: &mut Nbt, increase: bool) -> i64 {
     idx = idx.clamp(0, MAX_PAGES);
     nbt.set("page_idx", Nbt::int(idx as i32));
     let key = idx.max(1).to_string();
-    let name = nbt.get("page_names").and_then(|n| n.get_str(&key)).map(str::to_owned);
+    let name = nbt
+        .get("page_names")
+        .and_then(|n| n.get_str(&key))
+        .map(str::to_owned);
     match name {
         Some(json) => nbt.compound_mut("display").set("Name", Nbt::str(json)),
         None => {
@@ -320,7 +349,10 @@ pub fn sync_page_name(nbt: &mut Nbt) {
     let idx = page(nbt, 0);
     nbt.set("page_idx", Nbt::int(idx as i32));
     let key = idx.max(1).to_string();
-    let name = nbt.get("display").and_then(|d| d.get_str("Name")).map(str::to_owned);
+    let name = nbt
+        .get("display")
+        .and_then(|d| d.get_str("Name"))
+        .map(str::to_owned);
     let names = nbt.compound_mut("page_names");
     match name {
         Some(n) => names.set(&key, Nbt::str(n)),
@@ -336,7 +368,12 @@ mod tests {
     use crate::math::HexDir;
 
     fn stack(id: &str) -> Stack {
-        Stack { slot: 0, id: id.into(), count: 1, nbt: Nbt::default() }
+        Stack {
+            slot: 0,
+            id: id.into(),
+            count: 1,
+            nbt: Nbt::default(),
+        }
     }
 
     #[test]

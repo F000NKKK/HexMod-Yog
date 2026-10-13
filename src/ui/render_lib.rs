@@ -50,7 +50,11 @@ impl Vec2 {
     /// `ZERO` when (almost) zero-length, like Minecraft's.
     pub fn normalized(self) -> Vec2 {
         let l = self.length();
-        if l < 1.0e-4 { Vec2::ZERO } else { Vec2::new(self.x / l, self.y / l) }
+        if l < 1.0e-4 {
+            Vec2::ZERO
+        } else {
+            Vec2::new(self.x / l, self.y / l)
+        }
     }
 }
 
@@ -89,7 +93,10 @@ pub fn round_to_int(v: f32) -> i32 {
 
 /// The pixel centre of grid point `coord`.
 pub fn coord_to_px(coord: HexCoord, size: f32, offset: Vec2) -> Vec2 {
-    Vec2::new(SQRT_3 * coord.0 as f32 + SQRT_3 / 2.0 * coord.1 as f32, 1.5 * coord.1 as f32) * size
+    Vec2::new(
+        SQRT_3 * coord.0 as f32 + SQRT_3 / 2.0 * coord.1 as f32,
+        1.5 * coord.1 as f32,
+    ) * size
         + offset
 }
 
@@ -129,7 +136,10 @@ pub fn positions_from(pat: &HexPattern, origin: HexCoord) -> Vec<HexCoord> {
 
 /// `HexPattern.toLines`: the pattern's points in pixels.
 pub fn to_lines(pat: &HexPattern, size: f32, origin: Vec2) -> Vec<Vec2> {
-    pat.positions().into_iter().map(|p| coord_to_px(p, size, origin)).collect()
+    pat.positions()
+        .into_iter()
+        .map(|p| coord_to_px(p, size, origin))
+        .collect()
 }
 
 /// The indices of every item that occurs more than once.
@@ -177,7 +187,12 @@ pub fn argb(a: i32, r: i32, g: i32, b: i32) -> u32 {
 
 /// A colour from 0..1 components (`drawSpot`'s float overload).
 pub fn argb_f(a: f32, r: f32, g: f32, b: f32) -> u32 {
-    argb((a * 255.0) as i32, (r * 255.0) as i32, (g * 255.0) as i32, (b * 255.0) as i32)
+    argb(
+        (a * 255.0) as i32,
+        (r * 255.0) as i32,
+        (g * 255.0) as i32,
+        (b * 255.0) as i32,
+    )
 }
 
 fn screen(n: i32) -> i32 {
@@ -262,8 +277,12 @@ impl Mesh {
 
     /// A filled axis-aligned rectangle (`renderQuad`).
     pub fn quad(&mut self, x: f32, y: f32, w: f32, h: f32, color: u32) {
-        let (a, b, c, d) =
-            (Vec2::new(x, y), Vec2::new(x, y + h), Vec2::new(x + w, y + h), Vec2::new(x + w, y));
+        let (a, b, c, d) = (
+            Vec2::new(x, y),
+            Vec2::new(x, y + h),
+            Vec2::new(x + w, y + h),
+            Vec2::new(x + w, y),
+        );
         self.tri((color, a), (color, b), (color, c));
         self.tri((color, a), (color, c), (color, d));
     }
@@ -284,7 +303,13 @@ impl Mesh {
         unsafe { gl.vbo.upload(gfx, &self.verts, true) };
         let (sw, sh) = gfx.screen_size();
         gl.prog.uniform_2f(gfx, "uScreen", sw as f32, sh as f32);
-        gfx.draw_arrays(&gl.vao, &gl.prog, DrawMode::Triangles, 0, self.vertex_count() as u32);
+        gfx.draw_arrays(
+            &gl.vao,
+            &gl.prog,
+            DrawMode::Triangles,
+            0,
+            self.vertex_count() as u32,
+        );
     }
 }
 
@@ -342,8 +367,12 @@ pub fn draw_line_seq(
     if points.len() <= 1 {
         return;
     }
-    let (r1, g1, b1, a1) =
-        (red(tail) as f32, green(tail) as f32, blue(tail) as f32, alpha(tail) as f32);
+    let (r1, g1, b1, a1) = (
+        red(tail) as f32,
+        green(tail) as f32,
+        blue(tail) as f32,
+        alpha(tail) as f32,
+    );
     let head_source = if gradient { head } else { tail };
     let (r2, g2, b2, a2) = (
         red(head_source) as f32,
@@ -431,8 +460,16 @@ pub fn draw_line_seq(
             .collect();
         mesh.fan(color, point, &rim);
     };
-    cap(argb(a1 as i32, r1 as i32, g1 as i32, b1 as i32), points[0], points[1]);
-    cap(argb(a2 as i32, r2 as i32, g2 as i32, b2 as i32), points[n - 1], points[n - 2]);
+    cap(
+        argb(a1 as i32, r1 as i32, g1 as i32, b1 as i32),
+        points[0],
+        points[1],
+    );
+    cap(
+        argb(a2 as i32, r2 as i32, g2 as i32, b2 as i32),
+        points[n - 1],
+        points[n - 2],
+    );
 }
 
 /// `drawSpot`: a little hexagon (Hex Casting's "circle").
@@ -441,7 +478,10 @@ pub fn draw_spot(mesh: &mut Mesh, point: Vec2, radius: f32, color: u32) {
     let rim: Vec<Vec2> = (0..=FRAC)
         .map(|i| {
             let theta = i as f32 / FRAC as f32 * TAU as f32;
-            Vec2::new(theta.cos() * radius + point.x, theta.sin() * radius + point.y)
+            Vec2::new(
+                theta.cos() * radius + point.x,
+                theta.sin() * radius + point.y,
+            )
         })
         .collect();
     mesh.fan(color, point, &rim);
@@ -482,7 +522,11 @@ pub fn draw_pattern_from_points(
         style.seed,
         ticks(),
     );
-    let nodes = if draw_last { points } else { &points[..points.len().saturating_sub(1)] };
+    let nodes = if draw_last {
+        points
+    } else {
+        &points[..points.len().saturating_sub(1)]
+    };
     draw_line_seq(mesh, &zappy, 5.0, style.tail, style.head, style.gradient);
     draw_line_seq(
         mesh,
@@ -586,8 +630,12 @@ pub fn make_zappy(
 
 /// `findCenter`: the middle of the points' bounding box.
 pub fn find_center(points: &[Vec2]) -> Vec2 {
-    let (mut min_x, mut min_y, mut max_x, mut max_y) =
-        (f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY);
+    let (mut min_x, mut min_y, mut max_x, mut max_y) = (
+        f32::INFINITY,
+        f32::INFINITY,
+        f32::NEG_INFINITY,
+        f32::NEG_INFINITY,
+    );
     for p in points {
         min_x = min_x.min(p.x);
         min_y = min_y.min(p.y);
@@ -651,7 +699,11 @@ mod tests {
 
     #[test]
     fn zappy_keeps_the_ends() {
-        let pts = [Vec2::new(0.0, 0.0), Vec2::new(30.0, 0.0), Vec2::new(45.0, 26.0)];
+        let pts = [
+            Vec2::new(0.0, 0.0),
+            Vec2::new(30.0, 0.0),
+            Vec2::new(45.0, 26.0),
+        ];
         let z = make_zappy(&pts, None, 10, 2.5, 0.1, 0.2, 0.2, 1.0, 0.0, 12.5);
         assert_eq!(z[0], pts[0]);
         assert_eq!(*z.last().unwrap(), pts[2]);

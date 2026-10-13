@@ -16,7 +16,10 @@ const CATEGORY_BASICS: &str = "hexcasting:basics";
 const CATEGORY_PATTERNS: &str = "hexcasting:patterns";
 
 fn page(key: &str) -> BookPage {
-    BookPage::Text { text: key.into(), title: None }
+    BookPage::Text {
+        text: key.into(),
+        title: None,
+    }
 }
 
 pub fn register_book() -> YogBook {

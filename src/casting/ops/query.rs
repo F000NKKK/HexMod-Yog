@@ -137,9 +137,12 @@ type BlockPos = (i32, i32, i32);
 
 /// The block hit (and its face's normal), if it's in range.
 fn block_hit(env: &CastEnv, origin: Vec3, look: Vec3) -> Option<(BlockPos, BlockPos)> {
-    let hit = env.srv.raycast_block(&env.dim, origin.tuple(), raycast_end(origin, look).tuple())?;
+    let hit = env
+        .srv
+        .raycast_block(&env.dim, origin.tuple(), raycast_end(origin, look).tuple())?;
     let pos = (hit.pos.x, hit.pos.y, hit.pos.z);
-    env.is_vec_in_range(Vec3::center_of(pos)).then(|| (pos, hit.face.normal()))
+    env.is_vec_in_range(Vec3::center_of(pos))
+        .then(|| (pos, hit.face.normal()))
 }
 
 fn circle(env: &CastEnv) -> MResult<crate::casting::env::CircleRun> {
@@ -200,7 +203,13 @@ fn around(env: &CastEnv, pos: Vec3, r: f64, ok: impl Fn(&EntityInfo) -> bool) ->
             let info = env.srv.entity_info(&uuid)?;
             (selectable(env, &info) && ok(&info)).then(|| {
                 let dist = Vec3::from_tuple(info.pos).distance_sqr(pos);
-                (dist, Iota::Entity(EntityRef { uuid, name: info.name }))
+                (
+                    dist,
+                    Iota::Entity(EntityRef {
+                        uuid,
+                        name: info.name,
+                    }),
+                )
             })
         })
         .collect();
@@ -224,7 +233,12 @@ fn zone(
 ) -> MResult<Iota> {
     env.assert_vec_in_range(pos)?;
     let got = around(env, pos, r, |i| ok(i) != negate);
-    Ok(Iota::List(got.into_iter().filter(|(d, _)| *d <= r * r).map(|(_, i)| i).collect()))
+    Ok(Iota::List(
+        got.into_iter()
+            .filter(|(d, _)| *d <= r * r)
+            .map(|(_, i)| i)
+            .collect(),
+    ))
 }
 
 /// `HexItemHolderHandlers.applyHandlerFor`: the item an entity shows.
@@ -261,8 +275,12 @@ pub fn record_players(srv: &dyn Server) {
     let map = map.get_or_insert_with(HashMap::new);
     let mut seen = HashMap::new();
     for name in srv.online_players() {
-        let Some(p) = srv.player_info(&name) else { continue };
-        let Some(pos) = srv.entity_position(&p.uuid) else { continue };
+        let Some(p) = srv.player_info(&name) else {
+            continue;
+        };
+        let Some(pos) = srv.entity_position(&p.uuid) else {
+            continue;
+        };
         let prev = map.get(&p.uuid).map(|(last, _)| *last);
         seen.insert(p.uuid, (Vec3::from_tuple(pos), prev));
     }
@@ -278,8 +296,15 @@ fn velocity(srv: &dyn Server, info: &EntityInfo, uuid: &str) -> Vec3 {
             Some((last, Some(prev))) => *last - *prev,
         };
     }
-    let v = srv.entity_velocity(uuid).map(Vec3::from_tuple).unwrap_or_default();
-    let nbt = || srv.entity_get_nbt(uuid).map(|s| crate::snbt::Nbt::parse(&s)).unwrap_or_default();
+    let v = srv
+        .entity_velocity(uuid)
+        .map(Vec3::from_tuple)
+        .unwrap_or_default();
+    let nbt = || {
+        srv.entity_get_nbt(uuid)
+            .map(|s| crate::snbt::Nbt::parse(&s))
+            .unwrap_or_default()
+    };
     match info.type_id.as_str() {
         // Resting items still get gravity added every tick.
         "minecraft:item" if v.x * v.x + v.z * v.z <= 1.0e-5 && nbt().get_bool("OnGround") => {

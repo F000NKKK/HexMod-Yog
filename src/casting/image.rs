@@ -96,11 +96,18 @@ impl Image {
         let mut parenthesized = Vec::new();
         for _ in 0..n {
             let escaped = r.int()? != 0;
-            parenthesized.push(ParenIota { iota: Iota::read(r)?, escaped });
+            parenthesized.push(ParenIota {
+                iota: Iota::read(r)?,
+                escaped,
+            });
         }
         let escape_next = r.int()? != 0;
         let ops_consumed = r.int()?;
-        let ravenmind = if r.int()? != 0 { Some(Iota::read(r)?) } else { None };
+        let ravenmind = if r.int()? != 0 {
+            Some(Iota::read(r)?)
+        } else {
+            None
+        };
         let m = r.int()?;
         let mut marked_moved = Vec::new();
         for _ in 0..m {

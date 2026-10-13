@@ -100,7 +100,10 @@ impl Iota {
     }
 
     pub fn entity(uuid: impl Into<String>, name: impl Into<String>) -> Self {
-        Iota::Entity(EntityRef { uuid: uuid.into(), name: name.into() })
+        Iota::Entity(EntityRef {
+            uuid: uuid.into(),
+            name: name.into(),
+        })
     }
 
     pub fn kind(&self) -> IotaType {
@@ -197,11 +200,15 @@ impl Iota {
             Iota::Entity(e) => Text::Lit(e.name.clone()),
             Iota::List(l) => Text::key_args(
                 Lang::TOOLTIP_LIST_CONTENTS_KEY,
-                vec![Text::Join(l.iter().map(Iota::display).collect(), ", ".into())],
+                vec![Text::Join(
+                    l.iter().map(Iota::display).collect(),
+                    ", ".into(),
+                )],
             ),
-            Iota::Pattern(p) => {
-                Text::key_args(Lang::TOOLTIP_PATTERN_IOTA_KEY, vec![Text::Lit(pattern_text(p))])
-            }
+            Iota::Pattern(p) => Text::key_args(
+                Lang::TOOLTIP_PATTERN_IOTA_KEY,
+                vec![Text::Lit(pattern_text(p))],
+            ),
             Iota::Continuation(_) => Text::key(Lang::TOOLTIP_JUMP_IOTA_KEY),
         }
     }
@@ -266,19 +273,30 @@ impl Iota {
     /// Unreadable data comes back as garbage, like Hex Casting's.
     pub fn deserialize(s: &str) -> Self {
         let mut r = Reader::new(s);
-        Iota::read(&mut r).filter(|_| r.is_done()).unwrap_or(Iota::Garbage)
+        Iota::read(&mut r)
+            .filter(|_| r.is_done())
+            .unwrap_or(Iota::Garbage)
     }
 }
 
 /// `(x, y, z)` with Hex Casting's number format.
 pub fn fmt_vec(v: Vec3) -> String {
-    format!("({}, {}, {})", fmt_double(v.x), fmt_double(v.y), fmt_double(v.z))
+    format!(
+        "({}, {}, {})",
+        fmt_double(v.x),
+        fmt_double(v.y),
+        fmt_double(v.z)
+    )
 }
 
 /// `EAST qaq` — a pattern as Hex Casting's `displayNonInline` writes it.
 pub fn pattern_text(p: &HexPattern) -> String {
     let sig = p.signature();
-    if sig.is_empty() { p.start.name().to_owned() } else { format!("{} {}", p.start.name(), sig) }
+    if sig.is_empty() {
+        p.start.name().to_owned()
+    } else {
+        format!("{} {}", p.start.name(), sig)
+    }
 }
 
 /// A stack written as one string (top last, like the VM keeps it).
@@ -308,7 +326,10 @@ mod tests {
         let i = Iota::List(vec![
             Iota::Double(1.25),
             Iota::vec(1.0, -2.0, 3.5),
-            Iota::entity("069a79f4-44e9-4726-a5be-fca90e38aaf5", "Notch, the \"first\""),
+            Iota::entity(
+                "069a79f4-44e9-4726-a5be-fca90e38aaf5",
+                "Notch, the \"first\"",
+            ),
             Iota::List(vec![Iota::Null, Iota::Garbage, Iota::Bool(true)]),
             Iota::Pattern(HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap()),
         ]);

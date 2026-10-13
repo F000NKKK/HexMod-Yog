@@ -67,7 +67,13 @@ impl Spell {
         particles: Vec<Spray>,
         effect: impl FnOnce(&mut CastEnv<'_>, &mut Image) + 'static,
     ) -> Self {
-        Spell { cost, particles, effect: Box::new(effect), ops: 1, sound: true }
+        Spell {
+            cost,
+            particles,
+            effect: Box::new(effect),
+            ops: 1,
+            sound: true,
+        }
     }
 
     pub fn mute(mut self) -> Self {
@@ -87,7 +93,12 @@ pub struct OpResult {
 impl OpResult {
     /// No side effects, the normal sound.
     pub fn new(image: Image, cont: &Cont) -> Self {
-        OpResult { image, effects: Vec::new(), cont: cont.clone(), sound: Sound::Normal }
+        OpResult {
+            image,
+            effects: Vec::new(),
+            cont: cont.clone(),
+            sound: Sound::Normal,
+        }
     }
 
     pub fn with_sound(mut self, sound: Sound) -> Self {
@@ -175,7 +186,11 @@ impl<'a> Vm<'a> {
             early_exit = !last.success();
         }
         if !cont.is_done() {
-            last = if last.success() { ResolvedType::Evaluated } else { ResolvedType::Errored };
+            last = if last.success() {
+                ResolvedType::Evaluated
+            } else {
+                ResolvedType::Errored
+            };
         }
         let img = &self.image;
         ClientView {
@@ -221,7 +236,11 @@ impl<'a> Vm<'a> {
     /// `ContinuationFrame.evaluate`; `cont` is what's under `frame`.
     fn evaluate(&mut self, frame: &Frame, cont: Cont) -> CastResult {
         match frame {
-            Frame::Evaluate { list, idx, metacasting } => {
+            Frame::Evaluate {
+                list,
+                idx,
+                metacasting,
+            } => {
                 let Some(iota) = list.get(*idx) else {
                     return CastResult {
                         cont,
@@ -246,7 +265,13 @@ impl<'a> Vm<'a> {
                 }
                 update
             }
-            Frame::ForEach { data, data_idx, code, base, acc } => {
+            Frame::ForEach {
+                data,
+                data_idx,
+                code,
+                base,
+                acc,
+            } => {
                 let (mut stack, new_acc) = match base {
                     None => (self.image.stack.clone(), acc.clone()),
                     Some(b) => {
@@ -318,7 +343,11 @@ impl<'a> Vm<'a> {
             Iota::Pattern(p) => self.lookup_and_operate(p, cont, in_parens),
             _ if in_parens => CastResult {
                 cont,
-                image: Some(self.image.clone().with_new_parenthesized(iota.clone(), false)),
+                image: Some(
+                    self.image
+                        .clone()
+                        .with_new_parenthesized(iota.clone(), false),
+                ),
                 effects: Vec::new(),
                 kind: ResolvedType::Escaped,
                 sound: Sound::Normal,
@@ -356,9 +385,18 @@ impl<'a> Vm<'a> {
         match self.operate(pattern, &cont, in_parens) {
             Ok(r) => r,
             Err((mishap, name)) => {
-                let wipe = matches!(cont.frame(), Some(Frame::Evaluate { metacasting: true, .. }));
+                let wipe = matches!(
+                    cont.frame(),
+                    Some(Frame::Evaluate {
+                        metacasting: true,
+                        ..
+                    })
+                );
                 let image = wipe.then(|| self.image.clone().with_reset_escape());
-                let ctx = Context { pattern: Some(pattern.clone()), name };
+                let ctx = Context {
+                    pattern: Some(pattern.clone()),
+                    name,
+                };
                 CastResult::mishap(cont, image, mishap, ctx)
             }
         }

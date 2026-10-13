@@ -69,7 +69,11 @@ enum DrawState {
     /// The button is down on `start`; no stroke yet.
     JustStarted(HexCoord),
     /// Drawing `wip` from `start`; the stroke is at `current`.
-    Drawing { start: HexCoord, current: HexCoord, wip: HexPattern },
+    Drawing {
+        start: HexCoord,
+        current: HexCoord,
+        wip: HexPattern,
+    },
 }
 
 /// What the grid wants done outside it.
@@ -111,8 +115,11 @@ struct Grid {
 
 impl Grid {
     fn new(gui: OpenGui) -> Self {
-        let used_spots =
-            gui.patterns.iter().flat_map(|p| positions_from(&p.pattern, p.origin)).collect();
+        let used_spots = gui
+            .patterns
+            .iter()
+            .flat_map(|p| positions_from(&p.pattern, p.origin))
+            .collect();
         Grid {
             hand: gui.hand,
             patterns: gui.patterns,
@@ -261,8 +268,12 @@ impl Grid {
             // The last pattern that can be undone (not the Evanition just
             // drawn) shows as undone; the Evanition itself as evaluated.
             let n = self.patterns.len();
-            if let Some(p) =
-                self.patterns.iter_mut().take(n.saturating_sub(1)).rev().find(|p| can_be_undone(p))
+            if let Some(p) = self
+                .patterns
+                .iter_mut()
+                .take(n.saturating_sub(1))
+                .rev()
+                .find(|p| can_be_undone(p))
             {
                 p.kind = ResolvedType::Undone;
             }
@@ -345,7 +356,10 @@ impl Grid {
             DrawState::BetweenPatterns => return mesh,
             DrawState::JustStarted(start) => (vec![self.coord_to_px(*start)], None),
             DrawState::Drawing { start, wip, .. } => (
-                positions_from(wip, *start).into_iter().map(|c| self.coord_to_px(c)).collect(),
+                positions_from(wip, *start)
+                    .into_iter()
+                    .map(|c| self.coord_to_px(c))
+                    .collect(),
                 Some(find_dup_indices(wip.positions())),
             ),
         };
@@ -374,7 +388,12 @@ impl Grid {
     fn stack_descs(&mut self, width_of: &dyn Fn(&str) -> f32) -> &[Desc] {
         let max = (self.size.0 * LHS_IOTAS_ALLOCATION).trunc();
         if self.stack_descs.as_ref().is_none_or(|(w, _)| *w != max) {
-            let descs = self.stack.iter().rev().map(|i| describe(i, max, width_of)).collect();
+            let descs = self
+                .stack
+                .iter()
+                .rev()
+                .map(|i| describe(i, max, width_of))
+                .collect();
             self.stack_descs = Some((max, descs));
         }
         &self.stack_descs.as_ref().unwrap().1
@@ -421,7 +440,10 @@ impl Grid {
 const RAVENMIND_SCALE: f32 = 1.5;
 
 fn ravenmind_origin(w: f32) -> (f32, f32) {
-    (w * (1.0 - RHS_IOTAS_ALLOCATION * RAVENMIND_SCALE) - 10.0, 10.0)
+    (
+        w * (1.0 - RHS_IOTAS_ALLOCATION * RAVENMIND_SCALE) - 10.0,
+        10.0,
+    )
 }
 
 fn lerp(t: f32, a: f32, b: f32) -> f32 {
@@ -432,7 +454,13 @@ fn lerp(t: f32, a: f32, b: f32) -> f32 {
 fn draw_box(mesh: &mut Mesh, x: f32, y: f32, w: f32, h: f32) {
     let left_margin = 2.5;
     mesh.quad(x, y, w, h, BOX_COLOR);
-    mesh.quad(x + left_margin, y + 2.5, w - left_margin - 2.5, h - 5.0, BOX_COLOR);
+    mesh.quad(
+        x + left_margin,
+        y + 2.5,
+        w - left_margin - 2.5,
+        h - 5.0,
+        BOX_COLOR,
+    );
 }
 
 /// `HexPattern.tryAppendDir`: no edge twice, no doubling back.
@@ -440,7 +468,10 @@ fn try_append_dir(p: &mut HexPattern, new_dir: HexDir) -> bool {
     let pts = p.positions();
     let end = *pts.last().unwrap_or(&HexCoord(0, 0));
     let next = end + new_dir.as_delta();
-    if pts.windows(2).any(|w| (w[0] == end && w[1] == next) || (w[0] == next && w[1] == end)) {
+    if pts
+        .windows(2)
+        .any(|w| (w[0] == end && w[1] == next) || (w[0] == next && w[1] == end))
+    {
         return false;
     }
     let last = *p.steps.last().unwrap_or(&p.start);
@@ -465,7 +496,11 @@ fn can_be_undone(p: &ResolvedPattern) -> bool {
 /// followed by a grey "...". Coloured by the iota's type.
 fn describe(iota: &Iota, max_width: f32, width_of: &dyn Fn(&str) -> f32) -> Desc {
     let (text, cut) = fit(&iota.display().render(), max_width, width_of);
-    Desc { text, cut, color: iota.kind().color() }
+    Desc {
+        text,
+        cut,
+        color: iota.kind().color(),
+    }
 }
 
 fn fit(text: &str, max_width: f32, width_of: &dyn Fn(&str) -> f32) -> (String, bool) {
@@ -500,8 +535,11 @@ struct Session {
     closing: bool,
 }
 
-static SESSION: Mutex<Session> =
-    Mutex::new(Session { grid: None, ambiance: SoundHandle(0), closing: false });
+static SESSION: Mutex<Session> = Mutex::new(Session {
+    grid: None,
+    ambiance: SoundHandle(0),
+    closing: false,
+});
 
 fn session() -> MutexGuard<'static, Session> {
     SESSION.lock().unwrap_or_else(|e| e.into_inner())
@@ -569,7 +607,9 @@ impl Surface for GridSurface {
     fn pointer(&self, ev: Pointer, size: (f32, f32)) -> bool {
         let effect = {
             let mut s = session();
-            let Some(grid) = s.grid.as_mut() else { return false };
+            let Some(grid) = s.grid.as_mut() else {
+                return false;
+            };
             grid.size = size;
             match ev {
                 Pointer::Down { x, y } => {
@@ -632,7 +672,13 @@ fn draw_desc(
     d2.text(&desc.text, x, y, color, true);
     if desc.cut {
         let alpha = color & 0xFF00_0000;
-        d2.text("...", x + width_of(&desc.text), y, (ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha, true);
+        d2.text(
+            "...",
+            x + width_of(&desc.text),
+            y,
+            (ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha,
+            true,
+        );
     }
 }
 
@@ -753,7 +799,15 @@ mod tests {
     #[test]
     fn drawing_sends_the_pattern_with_the_grid() {
         let mut g = grid();
-        let fx = draw(&mut g, &[HexCoord(0, 0), HexCoord(1, 0), HexCoord(1, 1), HexCoord(0, 1)]);
+        let fx = draw(
+            &mut g,
+            &[
+                HexCoord(0, 0),
+                HexCoord(1, 0),
+                HexCoord(1, 1),
+                HexCoord(0, 1),
+            ],
+        );
         assert_eq!(fx[0], Effect::StartSound);
         assert_eq!(fx.iter().filter(|e| **e == Effect::SegmentSound).count(), 3);
         let msg = sent(&fx).unwrap();
@@ -778,7 +832,15 @@ mod tests {
     #[test]
     fn going_straight_back_undoes_a_stroke() {
         let mut g = grid();
-        let fx = draw(&mut g, &[HexCoord(0, 0), HexCoord(1, 0), HexCoord(2, 0), HexCoord(1, 0)]);
+        let fx = draw(
+            &mut g,
+            &[
+                HexCoord(0, 0),
+                HexCoord(1, 0),
+                HexCoord(2, 0),
+                HexCoord(1, 0),
+            ],
+        );
         let msg = sent(&fx).unwrap();
         assert_eq!(msg.pattern.directions(), [HexDir::East]);
         // All the way back: nothing drawn.
@@ -793,7 +855,13 @@ mod tests {
         // Around a triangle and on along its first edge: refused.
         let fx = draw(
             &mut g,
-            &[HexCoord(0, 0), HexCoord(1, 0), HexCoord(0, 1), HexCoord(0, 0), HexCoord(1, 0)],
+            &[
+                HexCoord(0, 0),
+                HexCoord(1, 0),
+                HexCoord(0, 1),
+                HexCoord(0, 0),
+                HexCoord(1, 0),
+            ],
         );
         assert_eq!(sent(&fx).unwrap().pattern.directions().len(), 3);
     }

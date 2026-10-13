@@ -28,7 +28,10 @@ impl Default for Nbt {
 impl Nbt {
     /// Parses SNBT; anything unreadable gives an empty compound.
     pub fn parse(s: &str) -> Nbt {
-        let mut p = Parser { s: s.as_bytes(), i: 0 };
+        let mut p = Parser {
+            s: s.as_bytes(),
+            i: 0,
+        };
         p.value()
             .filter(|_| {
                 p.ws();
@@ -151,7 +154,9 @@ impl Nbt {
     }
 
     pub fn get_bool(&self, key: &str) -> bool {
-        self.get(key).and_then(Nbt::as_f64).is_some_and(|v| v != 0.0)
+        self.get(key)
+            .and_then(Nbt::as_f64)
+            .is_some_and(|v| v != 0.0)
     }
 
     pub fn to_snbt(&self) -> String {
@@ -349,7 +354,10 @@ mod tests {
         t.set("hexcasting:media", Nbt::long(5));
         t.compound_mut("pages").set("1", Nbt::str("x"));
         assert_eq!(t.to_snbt(), r#"{"hexcasting:media":5L,pages:{1:"x"}}"#);
-        assert_eq!(Nbt::parse(&t.to_snbt()).get_i64("hexcasting:media"), Some(5));
+        assert_eq!(
+            Nbt::parse(&t.to_snbt()).get_i64("hexcasting:media"),
+            Some(5)
+        );
         assert_eq!(Nbt::parse("garbage{"), Nbt::default());
     }
 }

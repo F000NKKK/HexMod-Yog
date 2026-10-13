@@ -94,7 +94,10 @@ impl Text {
 
     /// [`to_json`](Self::to_json) in a colour (`"gray"`, `"#RRGGBB"`, …).
     pub fn to_json_colored(&self, color: &str) -> String {
-        format!("{{\"text\":\"\",\"color\":\"{color}\",\"extra\":[{}]}}", self.to_json())
+        format!(
+            "{{\"text\":\"\",\"color\":\"{color}\",\"extra\":[{}]}}",
+            self.to_json()
+        )
     }
 }
 

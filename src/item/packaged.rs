@@ -33,7 +33,10 @@ pub fn write_hex(
     pigment: Option<&Pigment>,
     media_amount: i64,
 ) {
-    stack.nbt.set(TAG_PROGRAM, Nbt::str(Iota::List(program.to_vec()).serialize()));
+    stack.nbt.set(
+        TAG_PROGRAM,
+        Nbt::str(Iota::List(program.to_vec()).serialize()),
+    );
     match pigment {
         Some(p) => {
             let mut c = Nbt::default();
@@ -51,7 +54,12 @@ pub fn write_hex(
 
 /// `clearHex`.
 pub fn clear_hex(stack: &mut Stack) {
-    for k in [TAG_PROGRAM, TAG_PIGMENT, media::TAG_MEDIA, media::TAG_MAX_MEDIA] {
+    for k in [
+        TAG_PROGRAM,
+        TAG_PIGMENT,
+        media::TAG_MEDIA,
+        media::TAG_MAX_MEDIA,
+    ] {
         stack.nbt.remove(k);
     }
 }

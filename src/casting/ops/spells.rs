@@ -150,7 +150,10 @@ pub fn non_zero(x: f64) -> i64 {
 /// `OpPrint`: shows the top iota to the caster, leaving it there.
 fn print(_: &mut CastEnv<'_>, image: Image, cont: &Cont) -> MResult<OpResult> {
     let Some(datum) = image.stack.last().cloned() else {
-        return Err(Mishap::NotEnoughArgs { expected: 1, got: 0 });
+        return Err(Mishap::NotEnoughArgs {
+            expected: 1,
+            got: 0,
+        });
     };
     let effect =
         Box::new(move |env: &mut CastEnv<'_>, _: &mut Image| env.print_message(&datum.display()));
@@ -167,7 +170,12 @@ fn print(_: &mut CastEnv<'_>, image: Image, cont: &Cont) -> MResult<OpResult> {
 /// The stack in a dropped item entity.
 fn item_entity_stack(srv: &dyn Server, uuid: &str) -> Option<Stack> {
     let (id, count, snbt) = srv.item_entity_stack(uuid)?;
-    Some(Stack { slot: 0, id, count, nbt: Nbt::parse(&snbt) })
+    Some(Stack {
+        slot: 0,
+        id,
+        count,
+        nbt: Nbt::parse(&snbt),
+    })
 }
 
 /// Puts the stack back (an empty stack removes the entity).
@@ -182,15 +190,25 @@ fn assert_battery_media(env: &CastEnv, e: &Ent) -> MResult<()> {
     let ok = item_entity_stack(env.srv, e.uuid()).is_some_and(|mut s| {
         media::is_media_item(&s) && media::extract_for_battery(&mut s, true) > 0
     });
-    if ok { Ok(()) } else { Err(Mishap::bad_entity(env, &e.r, "media_for_battery")) }
+    if ok {
+        Ok(())
+    } else {
+        Err(Mishap::bad_entity(env, &e.r, "media_for_battery"))
+    }
 }
 
 // ── teleports ──────────────────────────────────────────────────────────────
 
 /// `HexTags.Entities.CANNOT_TELEPORT`.
 pub fn assert_teleportable(env: &CastEnv, e: &Ent) -> MResult<()> {
-    if env.srv.has_entity_tag(&e.info.type_id, "hexcasting:cannot_teleport") {
-        Err(Mishap::ImmuneEntity { entity: e.r.clone(), pos: e.pos() })
+    if env
+        .srv
+        .has_entity_tag(&e.info.type_id, "hexcasting:cannot_teleport")
+    {
+        Err(Mishap::ImmuneEntity {
+            entity: e.r.clone(),
+            pos: e.pos(),
+        })
     } else {
         Ok(())
     }
@@ -205,13 +223,19 @@ fn blink(env: &mut CastEnv<'_>, e: Ent, delta: f64) -> MResult<Spell> {
     env.assert_vec_in_range(e.pos())?;
     env.assert_vec_in_range(end)?;
     if !env.is_vec_in_world(end - Vec3::new(0.0, 1.0, 0.0)) {
-        return Err(Mishap::BadLocation { pos: end, kind: "too_close_to_out" });
+        return Err(Mishap::BadLocation {
+            pos: end,
+            kind: "too_close_to_out",
+        });
     }
     let mid = e.pos() + Vec3::new(0.0, e.info.eye_height / 2.0, 0.0);
     let uuid = e.uuid().to_owned();
     Ok(Spell::new(
         non_zero(SHARD as f64 * delta.abs() * 0.5),
-        vec![Spray::cloud_n(mid, 2.0, 50), Spray::burst_n(mid + dvec, 2.0, 100)],
+        vec![
+            Spray::cloud_n(mid, 2.0, 50),
+            Spray::burst_n(mid + dvec, 2.0, 100),
+        ],
         move |env, _| teleport_by(env.srv, &uuid, dvec),
     ))
 }
@@ -253,12 +277,24 @@ fn explode(env: &mut CastEnv<'_>, mut pos: Vec3, strength: &Iota, fire: bool) ->
         pos = pos + Vec3::new(0.0, 0.000001, 0.0);
     }
     let cost = DUST as f64 * (3.0 * strength + if fire { 1.0 } else { 0.125 });
-    Ok(Spell::new(non_zero(cost), vec![Spray::burst_n(pos, strength, 50)], move |env, _| {
-        if env.can_edit_block_at(pos.block()) {
-            let source = env.caster_uuid().unwrap_or_default();
-            env.srv.explode(&env.dim, pos.x, pos.y, pos.z, strength as f32, fire, &source);
-        }
-    }))
+    Ok(Spell::new(
+        non_zero(cost),
+        vec![Spray::burst_n(pos, strength, 50)],
+        move |env, _| {
+            if env.can_edit_block_at(pos.block()) {
+                let source = env.caster_uuid().unwrap_or_default();
+                env.srv.explode(
+                    &env.dim,
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                    strength as f32,
+                    fire,
+                    &source,
+                );
+            }
+        },
+    ))
 }
 
 // ── blocks ─────────────────────────────────────────────────────────────────
@@ -267,25 +303,32 @@ fn explode(env: &mut CastEnv<'_>, mut pos: Vec3, strength: &Iota, fire: bool) ->
 fn break_block(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     let id = env.block_id(pos);
-    let cost = if env.srv.has_block_tag(&id, "hexcasting:cheap_to_break_block") {
+    let cost = if env
+        .srv
+        .has_block_tag(&id, "hexcasting:cheap_to_break_block")
+    {
         DUST / 100
     } else {
         DUST / 8
     };
-    Ok(Spell::new(cost, vec![Spray::burst(Vec3::center_of(pos), 1.0)], move |env, _| {
-        let Some(info) = env.srv.block_info(&env.dim, to_ypos(pos)) else {
-            return;
-        };
-        if info.air || info.hardness < 0.0 {
-            return;
-        }
-        let breaker = env.caster_name().unwrap_or_default().to_owned();
-        if env.srv.break_block(&env.dim, to_ypos(pos), true, &breaker)
-            && info.block_id() == akashic::BOOKSHELF
-        {
-            akashic::set_shelf(env.srv, &env.dim, pos, None);
-        }
-    }))
+    Ok(Spell::new(
+        cost,
+        vec![Spray::burst(Vec3::center_of(pos), 1.0)],
+        move |env, _| {
+            let Some(info) = env.srv.block_info(&env.dim, to_ypos(pos)) else {
+                return;
+            };
+            if info.air || info.hardness < 0.0 {
+                return;
+            }
+            let breaker = env.caster_name().unwrap_or_default().to_owned();
+            if env.srv.break_block(&env.dim, to_ypos(pos), true, &breaker)
+                && info.block_id() == akashic::BOOKSHELF
+            {
+                akashic::set_shelf(env.srv, &env.dim, pos, None);
+            }
+        },
+    ))
 }
 
 fn is_block_item(env: &CastEnv, s: &Stack) -> bool {
@@ -293,49 +336,76 @@ fn is_block_item(env: &CastEnv, s: &Stack) -> bool {
 }
 
 fn replaceable(env: &CastEnv, pos: BlockPos) -> bool {
-    env.srv.block_info(&env.dim, to_ypos(pos)).is_some_and(|b| b.replaceable)
+    env.srv
+        .block_info(&env.dim, to_ypos(pos))
+        .is_some_and(|b| b.replaceable)
 }
 
 /// `OpPlaceBlock`.
 fn place_block(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
-    if env.query_for_matching_stack(|s| is_block_item(env, s)).is_none() {
+    if env
+        .query_for_matching_stack(|s| is_block_item(env, s))
+        .is_none()
+    {
         return Err(Mishap::lacking_hotbar("placeable"));
     }
     if !replaceable(env, pos) {
         return Err(Mishap::bad_block(pos, "replaceable"));
     }
-    Ok(Spell::new(DUST / 8, vec![Spray::cloud(Vec3::center_of(pos), 1.0)], move |env, _| {
-        let Some(name) = env.caster_name().map(str::to_owned) else {
-            return;
-        };
-        let Some(stack) = env.query_for_matching_stack(|s| is_block_item(env, s)) else {
-            return;
-        };
-        if replaceable(env, pos) {
-            env.srv.place_block_from_slot(&name, stack.slot, &env.dim, to_ypos(pos));
-        }
-    }))
+    Ok(Spell::new(
+        DUST / 8,
+        vec![Spray::cloud(Vec3::center_of(pos), 1.0)],
+        move |env, _| {
+            let Some(name) = env.caster_name().map(str::to_owned) else {
+                return;
+            };
+            let Some(stack) = env.query_for_matching_stack(|s| is_block_item(env, s)) else {
+                return;
+            };
+            if replaceable(env, pos) {
+                env.srv
+                    .place_block_from_slot(&name, stack.slot, &env.dim, to_ypos(pos));
+            }
+        },
+    ))
 }
 
 /// `OpCreateFluid` (water, or lava for the great spell).
 pub fn create_fluid(env: &mut CastEnv<'_>, pos: BlockPos, lava: bool) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     let cost = if lava { CRYSTAL } else { DUST };
-    Ok(Spell::new(cost, vec![Spray::burst(Vec3::center_of(pos), 1.0)], move |env, _| {
-        if env.block_id(pos) == "minecraft:cauldron" {
-            let full =
-                if lava { "minecraft:lava_cauldron" } else { "minecraft:water_cauldron[level=3]" };
-            env.srv.set_block(&env.dim, to_ypos(pos), full);
-        } else {
-            let bucket = if lava { "minecraft:lava_bucket" } else { "minecraft:water_bucket" };
-            env.srv.pour_fluid(&env.dim, to_ypos(pos), bucket);
-        }
-    }))
+    Ok(Spell::new(
+        cost,
+        vec![Spray::burst(Vec3::center_of(pos), 1.0)],
+        move |env, _| {
+            if env.block_id(pos) == "minecraft:cauldron" {
+                let full = if lava {
+                    "minecraft:lava_cauldron"
+                } else {
+                    "minecraft:water_cauldron[level=3]"
+                };
+                env.srv.set_block(&env.dim, to_ypos(pos), full);
+            } else {
+                let bucket = if lava {
+                    "minecraft:lava_bucket"
+                } else {
+                    "minecraft:water_bucket"
+                };
+                env.srv.pour_fluid(&env.dim, to_ypos(pos), bucket);
+            }
+        },
+    ))
 }
 
-const NEIGHBOURS: [(i32, i32, i32); 6] =
-    [(0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1), (-1, 0, 0), (1, 0, 0)];
+const NEIGHBOURS: [(i32, i32, i32); 6] = [
+    (0, -1, 0),
+    (0, 1, 0),
+    (0, 0, -1),
+    (0, 0, 1),
+    (-1, 0, 0),
+    (1, 0, 0),
+];
 const MAX_DESTROY_COUNT: u32 = 1024;
 
 fn offset(p: BlockPos, d: (i32, i32, i32)) -> BlockPos {
@@ -362,7 +432,8 @@ fn smoke(env: &CastEnv, here: BlockPos) {
 fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
     let id = env.block_id(base);
     if id != "minecraft:cauldron" && id.starts_with("minecraft:") && id.ends_with("cauldron") {
-        env.srv.set_block(&env.dim, to_ypos(base), "minecraft:cauldron");
+        env.srv
+            .set_block(&env.dim, to_ypos(base), "minecraft:cauldron");
         return;
     }
     let mut todo = VecDeque::new();
@@ -398,7 +469,10 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
             || info.block_id() == info.fluid.as_deref().unwrap_or_default()
         {
             env.srv.set_block(&env.dim, at, "minecraft:air")
-        } else if env.srv.has_block_tag(info.block_id(), "hexcasting:water_plants") {
+        } else if env
+            .srv
+            .has_block_tag(info.block_id(), "hexcasting:water_plants")
+        {
             env.srv.break_block(&env.dim, at, true, "");
             env.srv.set_block(&env.dim, at, "minecraft:air");
             true
@@ -413,7 +487,15 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
     }
     if successes > 0 {
         let c = Vec3::center_of(base);
-        env.srv.play_sound(&env.dim, c.x, c.y, c.z, "minecraft:block.fire.extinguish", 1.0, 0.95);
+        env.srv.play_sound(
+            &env.dim,
+            c.x,
+            c.y,
+            c.z,
+            "minecraft:block.fire.extinguish",
+            1.0,
+            0.95,
+        );
     }
 }
 
@@ -430,7 +512,11 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
             continue;
         }
         let at = to_ypos(here);
-        let state = env.srv.block_info(&env.dim, at).map(|b| b.state).unwrap_or_default();
+        let state = env
+            .srv
+            .block_info(&env.dim, at)
+            .map(|b| b.state)
+            .unwrap_or_default();
         let id = state.split('[').next().unwrap_or_default();
         let lit = state.contains("lit=true");
         let success = match id {
@@ -438,10 +524,13 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
                 env.srv.set_block(&env.dim, at, "minecraft:air")
             }
             "minecraft:campfire" | "minecraft:soul_campfire" if lit => {
-                env.srv.use_item_on_block(&env.dim, at, Face::Up, "minecraft:wooden_shovel", "")
+                env.srv
+                    .use_item_on_block(&env.dim, at, Face::Up, "minecraft:wooden_shovel", "")
             }
             _ if lit && (id.ends_with("candle") || id.ends_with("candle_cake")) => {
-                let ok = env.srv.set_block(&env.dim, at, &state.replace("lit=true", "lit=false"));
+                let ok = env
+                    .srv
+                    .set_block(&env.dim, at, &state.replace("lit=true", "lit=false"));
                 if ok {
                     let c = Vec3::center_of(here);
                     env.srv.play_sound(
@@ -484,25 +573,39 @@ fn ignite(env: &mut CastEnv<'_>, target: &Iota) -> MResult<Spell> {
             let e = Ent::get(target, 0, env)?;
             e.in_range(env)?;
             let uuid = e.uuid().to_owned();
-            Ok(Spell::new(DUST, vec![Spray::burst(e.pos(), 1.0)], move |env, _| {
-                env.srv.entity_set_fire_ticks(&uuid, 8 * 20);
-            }))
+            Ok(Spell::new(
+                DUST,
+                vec![Spray::burst(e.pos(), 1.0)],
+                move |env, _| {
+                    env.srv.entity_set_fire_ticks(&uuid, 8 * 20);
+                },
+            ))
         }
         Iota::Vec3(v) => {
             let pos = v.block();
             env.assert_pos_in_range_for_editing(pos)?;
-            Ok(Spell::new(DUST, vec![Spray::burst(Vec3::center_of(pos), 1.0)], move |env, _| {
-                let at = to_ypos(pos);
-                if !env.srv.use_item_on_block(&env.dim, at, Face::Up, "minecraft:fire_charge", "") {
-                    env.srv.use_item_on_block(
+            Ok(Spell::new(
+                DUST,
+                vec![Spray::burst(Vec3::center_of(pos), 1.0)],
+                move |env, _| {
+                    let at = to_ypos(pos);
+                    if !env.srv.use_item_on_block(
                         &env.dim,
                         at,
                         Face::Up,
-                        "minecraft:flint_and_steel",
+                        "minecraft:fire_charge",
                         "",
-                    );
-                }
-            }))
+                    ) {
+                        env.srv.use_item_on_block(
+                            &env.dim,
+                            at,
+                            Face::Up,
+                            "minecraft:flint_and_steel",
+                            "",
+                        );
+                    }
+                },
+            ))
         }
         other => Err(Mishap::of_type(other, 0, "entity_or_vector")),
     }
@@ -515,12 +618,20 @@ fn conjure(env: &mut CastEnv<'_>, pos: BlockPos, light: bool) -> MResult<Spell> 
     if !replaceable(env, pos) {
         return Err(Mishap::bad_block(pos, "replaceable"));
     }
-    Ok(Spell::new(DUST, vec![Spray::cloud(Vec3::center_of(pos), 1.0)], move |env, _| {
-        if env.can_edit_block_at(pos) && replaceable(env, pos) {
-            let block = if light { Blocks::CONJURED_LIGHT } else { Blocks::CONJURED_BLOCK };
-            env.srv.set_block(&env.dim, to_ypos(pos), block);
-        }
-    }))
+    Ok(Spell::new(
+        DUST,
+        vec![Spray::cloud(Vec3::center_of(pos), 1.0)],
+        move |env, _| {
+            if env.can_edit_block_at(pos) && replaceable(env, pos) {
+                let block = if light {
+                    Blocks::CONJURED_LIGHT
+                } else {
+                    Blocks::CONJURED_BLOCK
+                };
+                env.srv.set_block(&env.dim, to_ypos(pos), block);
+            }
+        },
+    ))
 }
 
 /// `AkashicTreeGrower`'s trees.
@@ -597,7 +708,8 @@ const INSTRUMENTS: [&str; 23] = [
 fn beep(env: &mut CastEnv<'_>, at: Vec3, instrument: usize, note: i64) {
     let pitch = 2f64.powf((note - 12) as f64 / 12.0) as f32;
     let sound = format!("minecraft:{}", INSTRUMENTS[instrument]);
-    env.srv.play_sound(&env.dim, at.x, at.y, at.z, &sound, 3.0, pitch);
+    env.srv
+        .play_sound(&env.dim, at.x, at.y, at.z, &sound, 3.0, pitch);
     env.srv.spawn_particles(
         &env.dim,
         at.x,
@@ -622,9 +734,18 @@ fn colorize(env: &mut CastEnv<'_>) -> MResult<Spell> {
     Ok(Spell::new(DUST, vec![], move |env, _| {
         let same = |s: &Stack| s.id == stack.id && s.nbt == stack.nbt;
         if env.withdraw_item(same, 1, true) {
-            let owner = env.caster_uuid().unwrap_or_else(|| Pigment::default().owner);
+            let owner = env
+                .caster_uuid()
+                .unwrap_or_else(|| Pigment::default().owner);
             if let Some(uuid) = env.caster_uuid() {
-                set_pigment(env.srv, &uuid, &Pigment { item: stack.id.clone(), owner });
+                set_pigment(
+                    env.srv,
+                    &uuid,
+                    &Pigment {
+                        item: stack.id.clone(),
+                        owner,
+                    },
+                );
             }
         }
     }))
@@ -673,20 +794,24 @@ fn recharge(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
         return Err(Mishap::bad_entity(env, &e.r, "media"));
     }
     let uuid = e.uuid().to_owned();
-    Ok(Spell::new(SHARD, vec![Spray::burst(e.pos(), 0.5)], move |env, _| {
-        let mut target = env.stack_at(held.slot);
-        let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
-            return;
-        };
-        if target.id != held.id || source.is_empty() {
-            return;
-        }
-        let room = media::insert_media(&mut target, -1, true);
-        let amount = media::withdraw(&mut source, room, false);
-        media::insert_media(&mut target, amount, false);
-        env.save(&target);
-        set_item_entity_stack(env.srv, &uuid, &source);
-    }))
+    Ok(Spell::new(
+        SHARD,
+        vec![Spray::burst(e.pos(), 0.5)],
+        move |env, _| {
+            let mut target = env.stack_at(held.slot);
+            let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
+                return;
+            };
+            if target.id != held.id || source.is_empty() {
+                return;
+            }
+            let room = media::insert_media(&mut target, -1, true);
+            let amount = media::withdraw(&mut source, room, false);
+            media::insert_media(&mut target, amount, false);
+            env.save(&target);
+            set_item_entity_stack(env.srv, &uuid, &source);
+        },
+    ))
 }
 
 /// `OpErase`.
@@ -695,19 +820,23 @@ fn erase(env: &mut CastEnv<'_>) -> MResult<Spell> {
     let (stack, _) = env
         .held_item_to_operate_on(erasable)
         .ok_or_else(|| Mishap::bad_offhand(None, "eraseable", vec![]))?;
-    Ok(Spell::new(DUST * stack.count as i64, vec![], move |env, _| {
-        let mut s = env.stack_at(stack.slot);
-        if s.id != stack.id {
-            return;
-        }
-        if packaged::has_hex(&s) {
-            packaged::clear_hex(&mut s);
-        }
-        if holder::write(&mut s.clone(), None, true) {
-            holder::write(&mut s, None, false);
-        }
-        env.save(&s);
-    }))
+    Ok(Spell::new(
+        DUST * stack.count as i64,
+        vec![],
+        move |env, _| {
+            let mut s = env.stack_at(stack.slot);
+            if s.id != stack.id {
+                return;
+            }
+            if packaged::has_hex(&s) {
+                packaged::clear_hex(&mut s);
+            }
+            if holder::write(&mut s.clone(), None, true) {
+                holder::write(&mut s, None, false);
+            }
+            env.save(&s);
+        },
+    ))
 }
 
 /// `OpMakePackagedSpell`.
@@ -718,28 +847,36 @@ fn craft_packaged(
     item: &'static str,
     cost: i64,
 ) -> MResult<Spell> {
-    let wanted = || Mishap::BadOffhandItem { item: None, wanted: item_name(item) };
-    let (held, _) =
-        env.held_item_to_operate_on(|s| s.is(item) && !packaged::has_hex(s)).ok_or_else(wanted)?;
+    let wanted = || Mishap::BadOffhandItem {
+        item: None,
+        wanted: item_name(item),
+    };
+    let (held, _) = env
+        .held_item_to_operate_on(|s| s.is(item) && !packaged::has_hex(s))
+        .ok_or_else(wanted)?;
     e.in_range(env)?;
     assert_battery_media(env, &e)?;
     others_name(env, &Iota::List(hex.clone()), env.caster_uuid().as_deref())?;
     let uuid = e.uuid().to_owned();
-    Ok(Spell::new(cost, vec![Spray::burst(e.pos(), 0.5)], move |env, _| {
-        let mut target = env.stack_at(held.slot);
-        let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
-            return;
-        };
-        if !target.is(item) || packaged::has_hex(&target) {
-            return;
-        }
-        let amount = media::extract_for_battery(&mut source, false);
-        if amount > 0 {
-            packaged::write_hex(&mut target, &hex, Some(&env.pigment()), amount);
-            env.save(&target);
-        }
-        set_item_entity_stack(env.srv, &uuid, &source);
-    }))
+    Ok(Spell::new(
+        cost,
+        vec![Spray::burst(e.pos(), 0.5)],
+        move |env, _| {
+            let mut target = env.stack_at(held.slot);
+            let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
+                return;
+            };
+            if !target.is(item) || packaged::has_hex(&target) {
+                return;
+            }
+            let amount = media::extract_for_battery(&mut source, false);
+            if amount > 0 {
+                packaged::write_hex(&mut target, &hex, Some(&env.pigment()), amount);
+                env.save(&target);
+            }
+            set_item_entity_stack(env.srv, &uuid, &source);
+        },
+    ))
 }
 
 /// `OpMakeBattery`.
@@ -756,22 +893,31 @@ pub fn craft_battery(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
     e.in_range(env)?;
     assert_battery_media(env, &e)?;
     let uuid = e.uuid().to_owned();
-    Ok(Spell::new(CRYSTAL, vec![Spray::burst(e.pos(), 0.5)], move |env, _| {
-        let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
-            return;
-        };
-        let amount = media::extract_for_battery(&mut source, false);
-        if amount > 0 {
-            let mut nbt = Nbt::default();
-            nbt.set(media::TAG_MEDIA, Nbt::long(amount));
-            nbt.set(media::TAG_MAX_MEDIA, Nbt::long(amount));
-            let phial = Stack { slot: held.slot, id: media::BATTERY.into(), count: 1, nbt };
-            if !env.replace_item(|s| *s == held, &phial, Some(hand)) {
+    Ok(Spell::new(
+        CRYSTAL,
+        vec![Spray::burst(e.pos(), 0.5)],
+        move |env, _| {
+            let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
                 return;
+            };
+            let amount = media::extract_for_battery(&mut source, false);
+            if amount > 0 {
+                let mut nbt = Nbt::default();
+                nbt.set(media::TAG_MEDIA, Nbt::long(amount));
+                nbt.set(media::TAG_MAX_MEDIA, Nbt::long(amount));
+                let phial = Stack {
+                    slot: held.slot,
+                    id: media::BATTERY.into(),
+                    count: 1,
+                    nbt,
+                };
+                if !env.replace_item(|s| *s == held, &phial, Some(hand)) {
+                    return;
+                }
             }
-        }
-        set_item_entity_stack(env.srv, &uuid, &source);
-    }))
+            set_item_entity_stack(env.srv, &uuid, &source);
+        },
+    ))
 }
 
 // ── entities ───────────────────────────────────────────────────────────────
@@ -791,14 +937,19 @@ pub fn potion(
         None => 1.0,
     };
     e.in_range(env)?;
-    let scale = if cubic { potency * potency * potency } else { potency * potency };
+    let scale = if cubic {
+        potency * potency * potency
+    } else {
+        potency * potency
+    };
     let cost = base as f64 * duration * scale;
     let spray = Spray::cloud(e.pos() + Vec3::new(0.0, e.info.eye_height / 2.0, 0.0), 1.0);
     let uuid = e.uuid().to_owned();
     Ok(Spell::new(non_zero(cost), vec![spray], move |env, _| {
         if duration >= 1.0 / 20.0 {
             let amplifier = (potency as i64 - 1).clamp(0, 255) as u8;
-            env.srv.entity_add_effect(&uuid, effect, (duration * 20.0) as i32, amplifier, true);
+            env.srv
+                .entity_add_effect(&uuid, effect, (duration * 20.0) as i32, amplifier, true);
         }
     }))
 }
@@ -808,10 +959,18 @@ pub fn create_sentinel(env: &mut CastEnv<'_>, target: Vec3, great: bool) -> MRes
     let uuid = env.caster_uuid().ok_or(Mishap::BadCaster)?;
     env.assert_vec_in_range(target)?;
     let cost = if great { 2 * DUST } else { DUST };
-    Ok(Spell::new(cost, vec![Spray::burst(target, 2.0)], move |env, _| {
-        let s = Sentinel { great, pos: target, dim: env.dim.clone() };
-        set_sentinel(env.srv, &uuid, Some(&s));
-    }))
+    Ok(Spell::new(
+        cost,
+        vec![Spray::burst(target, 2.0)],
+        move |env, _| {
+            let s = Sentinel {
+                great,
+                pos: target,
+                dim: env.dim.clone(),
+            };
+            set_sentinel(env.srv, &uuid, Some(&s));
+        },
+    ))
 }
 
 // ── flight ─────────────────────────────────────────────────────────────────
@@ -856,9 +1015,14 @@ fn store_flight(srv: &dyn Server, uuid: &str, f: Option<&FlightAbility>) {
             s.set("flight.radius", f.radius);
         }
         None => {
-            for k in
-                ["flight.time", "flight.dim", "flight.x", "flight.y", "flight.z", "flight.radius"]
-            {
+            for k in [
+                "flight.time",
+                "flight.dim",
+                "flight.x",
+                "flight.y",
+                "flight.z",
+                "flight.radius",
+            ] {
                 s.remove(k);
             }
         }
@@ -869,7 +1033,9 @@ fn store_flight(srv: &dyn Server, uuid: &str, f: Option<&FlightAbility>) {
 pub fn flight_of(srv: &dyn Server, uuid: &str) -> Option<FlightAbility> {
     let mut map = FLIGHTS.lock().unwrap_or_else(|e| e.into_inner());
     let map = map.get_or_insert_with(HashMap::new);
-    map.entry(uuid.to_owned()).or_insert_with(|| load_flight(srv, uuid)).clone()
+    map.entry(uuid.to_owned())
+        .or_insert_with(|| load_flight(srv, uuid))
+        .clone()
 }
 
 /// `setFlight`; `persist` also writes it to disk.
@@ -878,7 +1044,8 @@ fn set_flight(srv: &dyn Server, uuid: &str, f: Option<FlightAbility>, persist: b
         store_flight(srv, uuid, f.as_ref());
     }
     let mut map = FLIGHTS.lock().unwrap_or_else(|e| e.into_inner());
-    map.get_or_insert_with(HashMap::new).insert(uuid.to_owned(), f);
+    map.get_or_insert_with(HashMap::new)
+        .insert(uuid.to_owned(), f);
 }
 
 /// `OpFlight`.
@@ -906,7 +1073,12 @@ fn flight(env: &mut CastEnv<'_>, p: Player, arg: f64, range: bool) -> MResult<Sp
         };
         let origin = Vec3::from_tuple(info.pos);
         let f = if range {
-            FlightAbility { time_left: -1, dim: info.dimension, origin, radius: arg }
+            FlightAbility {
+                time_left: -1,
+                dim: info.dimension,
+                origin,
+                radius: arg,
+            }
         } else {
             FlightAbility {
                 time_left: (arg * 20.0).round() as i64,
@@ -977,9 +1149,22 @@ pub fn tick_flight(srv: &dyn Server) {
             if p.gamemode != "creative" && p.gamemode != "spectator" {
                 srv.player_set_may_fly(&name, false);
             }
-            srv.play_sound(dim, pos.x, pos.y, pos.z, "hexcasting:flight.finish", 2.0, 1.0);
-            let spray =
-                Spray { pos, vel: Vec3::new(0.0, 1.0, 0.0), fuzziness: PI, spread: 0.4, count: 20 };
+            srv.play_sound(
+                dim,
+                pos.x,
+                pos.y,
+                pos.z,
+                "hexcasting:flight.finish",
+                2.0,
+                1.0,
+            );
+            let spray = Spray {
+                pos,
+                vel: Vec3::new(0.0, 1.0, 0.0),
+                fuzziness: PI,
+                spread: 0.4,
+                count: 20,
+            };
             spray.spawn(srv, dim, &dye_pigment(dye::RED));
             spray.spawn(srv, dim, &dye_pigment(dye::BLACK));
             continue;
@@ -987,10 +1172,22 @@ pub fn tick_flight(srv: &dyn Server) {
         if !p.may_fly {
             srv.player_set_may_fly(&name, true);
         }
-        let time_left = if f.time_left >= 0 { f.time_left - 1 } else { f.time_left };
+        let time_left = if f.time_left >= 0 {
+            f.time_left - 1
+        } else {
+            f.time_left
+        };
         // Kept on disk once a second, not every tick.
         let persist = time_left >= 0 && time_left % 20 == 0;
-        set_flight(srv, &p.uuid, Some(FlightAbility { time_left, ..f.clone() }), persist);
+        set_flight(
+            srv,
+            &p.uuid,
+            Some(FlightAbility {
+                time_left,
+                ..f.clone()
+            }),
+            persist,
+        );
 
         let count = 5;
         let danger_count = (count as f64 * d).round() as u32;
@@ -1014,7 +1211,15 @@ pub fn tick_flight(srv: &dyn Server) {
         danger_spray.spawn(srv, dim, &dye_pigment(dye::BLACK));
         danger_spray.spawn(srv, dim, &dye_pigment(dye::RED));
         if random() < 0.02 {
-            srv.play_sound(dim, pos.x, pos.y, pos.z, "hexcasting:flight.ambience", 0.2, 1.0);
+            srv.play_sound(
+                dim,
+                pos.x,
+                pos.y,
+                pos.z,
+                "hexcasting:flight.ambience",
+                0.2,
+                1.0,
+            );
         }
         if f.radius >= 0.0 {
             let origin = f.origin + Vec3::new(0.0, 1.0, 0.0);
@@ -1053,12 +1258,21 @@ mod tests {
 
     #[test]
     fn flight_danger() {
-        let f = FlightAbility { time_left: -1, dim: "d".into(), origin: Vec3::ZERO, radius: 10.0 };
+        let f = FlightAbility {
+            time_left: -1,
+            dim: "d".into(),
+            origin: Vec3::ZERO,
+            radius: 10.0,
+        };
         assert_eq!(danger("d", Vec3::new(1.0, 50.0, 0.0), &f), 0.0);
         assert_eq!(danger("d", Vec3::new(8.0, 0.0, 0.0), &f), 0.5);
         assert_eq!(danger("d", Vec3::new(11.0, 0.0, 0.0), &f), 1.0);
         assert_eq!(danger("other", Vec3::ZERO, &f), 1.0);
-        let t = FlightAbility { time_left: 70, radius: -1.0, ..f };
+        let t = FlightAbility {
+            time_left: 70,
+            radius: -1.0,
+            ..f
+        };
         assert_eq!(danger("d", Vec3::ZERO, &t), 0.5);
     }
 }

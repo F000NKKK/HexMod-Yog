@@ -32,7 +32,10 @@ pub fn actions() -> Vec<Action> {
 fn last_n_list(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     let Some(top) = stack.last() else {
-        return Err(Mishap::NotEnoughArgs { expected: 1, got: 0 });
+        return Err(Mishap::NotEnoughArgs {
+            expected: 1,
+            got: 0,
+        });
     };
     let n = pos_int_under_incl(top, 0, stack.len() as i64 - 1)? as usize;
     stack.pop();

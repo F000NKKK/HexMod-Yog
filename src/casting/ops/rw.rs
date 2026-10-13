@@ -64,7 +64,10 @@ pub fn others_name(env: &CastEnv, datum: &Iota, caster: Option<&str>) -> MResult
     match true_name_in(env, datum, caster) {
         Some(e) => {
             let is_self = env.caster_uuid().as_deref() == Some(e.uuid.as_str());
-            Err(Mishap::OthersName { name: e.name, is_self })
+            Err(Mishap::OthersName {
+                name: e.name,
+                is_self,
+            })
         }
         None => Ok(()),
     }
@@ -91,7 +94,11 @@ fn write_held(env: &mut CastEnv, datum: Iota) -> MResult<Spell> {
         .or_else(|| env.held_item_to_operate_on(holder::is_holder))
         .ok_or_else(|| Mishap::bad_offhand(None, "iota.write", vec![]))?;
     if !can_write(&stack, &datum) {
-        return Err(Mishap::bad_offhand(stack.shown(), "iota.readonly", vec![datum.display()]));
+        return Err(Mishap::bad_offhand(
+            stack.shown(),
+            "iota.readonly",
+            vec![datum.display()],
+        ));
     }
     others_name(env, &datum, env.caster_uuid().as_deref())?;
     let slot = stack.slot;

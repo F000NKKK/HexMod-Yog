@@ -18,14 +18,23 @@ const NIL_UUID: &str = "00000000-0000-0000-0000-000000000000";
 
 impl Default for Pigment {
     fn default() -> Self {
-        Pigment { item: DEFAULT_ITEM.into(), owner: NIL_UUID.into() }
+        Pigment {
+            item: DEFAULT_ITEM.into(),
+            owner: NIL_UUID.into(),
+        }
     }
 }
 
 /// A pigment made from one dye colour (the mishap sprays).
 pub fn dye_pigment(color: u32) -> Pigment {
-    let name = DYES.iter().find(|(_, c)| *c == color).map_or("red", |(n, _)| n);
-    Pigment { item: format!("hexcasting:dye_colorizer_{name}"), owner: NIL_UUID.into() }
+    let name = DYES
+        .iter()
+        .find(|(_, c)| *c == color)
+        .map_or("red", |(n, _)| n);
+    Pigment {
+        item: format!("hexcasting:dye_colorizer_{name}"),
+        owner: NIL_UUID.into(),
+    }
 }
 
 const DYES: [(&str, u32); 16] = [
@@ -49,17 +58,29 @@ const DYES: [(&str, u32); 16] = [
 
 const PRIDE: [(&str, &[u32]); 16] = [
     ("agender", &[0x16a10c, 0xffffff, 0x7a8081, 0x302f30]),
-    ("aroace", &[0x7210bc, 0xebf367, 0xffffff, 0x82dceb, 0x2f4dd8]),
-    ("aromantic", &[0x16a10c, 0x82eb8b, 0xffffff, 0x7a8081, 0x302f30]),
+    (
+        "aroace",
+        &[0x7210bc, 0xebf367, 0xffffff, 0x82dceb, 0x2f4dd8],
+    ),
+    (
+        "aromantic",
+        &[0x16a10c, 0x82eb8b, 0xffffff, 0x7a8081, 0x302f30],
+    ),
     ("asexual", &[0x333233, 0x9a9fa1, 0xffffff, 0x7210bc]),
     ("bisexual", &[0xdb45ff, 0x9c2bd0, 0x6894d4]),
     ("demiboy", &[0x9a9fa1, 0xa9ffff, 0xffffff]),
     ("demigirl", &[0x9a9fa1, 0xfcb1ff, 0xffffff]),
     ("gay", &[0xd82f3a, 0xe0883f, 0xebf367, 0x2db418, 0x2f4dd8]),
-    ("genderfluid", &[0xfbacf9, 0xffffff, 0x9c2bd0, 0x333233, 0x2f4dd8]),
+    (
+        "genderfluid",
+        &[0xfbacf9, 0xffffff, 0x9c2bd0, 0x333233, 0x2f4dd8],
+    ),
     ("genderqueer", &[0xca78ef, 0xffffff, 0x2db418]),
     ("intersex", &[0xebf367, 0x7210bc]),
-    ("lesbian", &[0xd82f3a, 0xefb87d, 0xffffff, 0xfbacf9, 0xa30262]),
+    (
+        "lesbian",
+        &[0xd82f3a, 0xefb87d, 0xffffff, 0xfbacf9, 0xa30262],
+    ),
     ("nonbinary", &[0xebf367, 0xffffff, 0x7210bc, 0x333233]),
     ("pansexual", &[0xe278ef, 0xebf367, 0x6ac2e4]),
     ("plural", &[0x30c69f, 0x347ddf, 0x6b3fbe, 0x000000]),
@@ -185,7 +206,11 @@ impl JavaRandom {
     /// `RandomGenerator.nextFloat(origin, bound)`.
     pub fn next_float_in(&mut self, origin: f32, bound: f32) -> f32 {
         let r = self.next_float() * (bound - origin) + origin;
-        if r >= bound { f32::from_bits(bound.to_bits() - 1) } else { r }
+        if r >= bound {
+            f32::from_bits(bound.to_bits() - 1)
+        } else {
+            r
+        }
     }
 
     /// `Random.nextInt(bound)`.

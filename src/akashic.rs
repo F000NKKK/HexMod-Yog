@@ -24,7 +24,9 @@ pub const LIGATURE: &str = Blocks::AKASHIC_CONNECTOR;
 const MAX_RANGE: i64 = 128;
 
 fn block_id(srv: &dyn Server, dim: &str, pos: BlockPos) -> String {
-    srv.block_info(dim, to_ypos(pos)).map(|b| b.block_id().to_owned()).unwrap_or_default()
+    srv.block_info(dim, to_ypos(pos))
+        .map(|b| b.block_id().to_owned())
+        .unwrap_or_default()
 }
 
 /// Whether the library floods through this block.
@@ -46,7 +48,10 @@ fn key(pos: BlockPos, what: &str) -> String {
 
 /// The shelf a `pattern` key belongs to.
 fn pos_of_key(key: &str) -> Option<BlockPos> {
-    let rest = key.strip_prefix(KEY_PREFIX)?.strip_suffix(PATTERN)?.strip_suffix('.')?;
+    let rest = key
+        .strip_prefix(KEY_PREFIX)?
+        .strip_suffix(PATTERN)?
+        .strip_suffix('.')?;
     let mut it = rest.split('.').map(str::parse);
     let pos = (it.next()?.ok()?, it.next()?.ok()?, it.next()?.ok()?);
     it.next().is_none().then_some(pos)
@@ -88,7 +93,10 @@ fn forget_lost_shelves(srv: &dyn Server, dim: &str, s: &mut Storage) {
     let lost: Vec<BlockPos> = s
         .iter()
         .filter_map(|(k, _)| pos_of_key(k))
-        .filter(|&pos| srv.block_info(dim, to_ypos(pos)).is_some_and(|b| b.block_id() != BOOKSHELF))
+        .filter(|&pos| {
+            srv.block_info(dim, to_ypos(pos))
+                .is_some_and(|b| b.block_id() != BOOKSHELF)
+        })
         .collect();
     for pos in lost {
         s.remove(&key(pos, PATTERN));
@@ -106,16 +114,25 @@ fn flood_fill(
     skip_chance: f64,
     mut is_target: impl FnMut(BlockPos, &str) -> bool,
 ) -> Option<BlockPos> {
-    const DIRS: [(i32, i32, i32); 6] =
-        [(0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1), (-1, 0, 0), (1, 0, 0)];
+    const DIRS: [(i32, i32, i32); 6] = [
+        (0, -1, 0),
+        (0, 1, 0),
+        (0, 0, -1),
+        (0, 0, 1),
+        (-1, 0, 0),
+        (1, 0, 0),
+    ];
     let mut seen = HashSet::new();
     let mut todo = VecDeque::from([start]);
     let mut skipped = None;
     while let Some(here) = todo.pop_front() {
         for d in DIRS {
             let n = (here.0 + d.0, here.1 + d.1, here.2 + d.2);
-            let (dx, dy, dz) =
-                ((n.0 - start.0) as i64, (n.1 - start.1) as i64, (n.2 - start.2) as i64);
+            let (dx, dy, dz) = (
+                (n.0 - start.0) as i64,
+                (n.1 - start.1) as i64,
+                (n.2 - start.2) as i64,
+            );
             if dx * dx + dy * dy + dz * dz > MAX_RANGE * MAX_RANGE || !seen.insert(n) {
                 continue;
             }
@@ -140,7 +157,9 @@ fn holds(srv: &dyn Server, dim: &str, pos: BlockPos, id: &str, key: &HexPattern)
 
 /// `BlockAkashicRecord.lookupPattern`.
 pub fn lookup(srv: &dyn Server, dim: &str, record: BlockPos, key: &HexPattern) -> Option<Iota> {
-    let at = flood_fill(srv, dim, record, 0.0, |pos, id| holds(srv, dim, pos, id, key))?;
+    let at = flood_fill(srv, dim, record, 0.0, |pos, id| {
+        holds(srv, dim, pos, id, key)
+    })?;
     shelf(srv, dim, at).map(|(_, i)| i)
 }
 
@@ -153,7 +172,11 @@ pub fn add_new_datum(
     key: &HexPattern,
     datum: &Iota,
 ) -> Option<BlockPos> {
-    if flood_fill(srv, dim, record, 0.0, |pos, id| holds(srv, dim, pos, id, key)).is_some() {
+    if flood_fill(srv, dim, record, 0.0, |pos, id| {
+        holds(srv, dim, pos, id, key)
+    })
+    .is_some()
+    {
         return None;
     }
     let open = flood_fill(srv, dim, record, 0.9, |pos, id| {

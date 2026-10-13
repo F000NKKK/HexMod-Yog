@@ -91,7 +91,10 @@ fn teleport(env: &mut CastEnv<'_>, e: Ent, delta: Vec3) -> MResult<Spell> {
     let target = e.pos() + delta;
     env.assert_vec_in_world(target)?;
     if !env.is_vec_in_world(target - Vec3::new(0.0, 1.0, 0.0)) {
-        return Err(Mishap::BadLocation { pos: target, kind: "too_close_to_out" });
+        return Err(Mishap::BadLocation {
+            pos: target,
+            kind: "too_close_to_out",
+        });
     }
     let mid = e.pos() + Vec3::new(0.0, e.info.eye_height / 2.0, 0.0);
     let uuid = e.uuid().to_owned();
@@ -222,7 +225,10 @@ fn sweepee_matches(srv: &dyn Server, mob: &Ent, want: &Sweepee) -> bool {
             if mob.info.type_id != "minecraft:villager" {
                 return false;
             }
-            let nbt = srv.entity_get_nbt(mob.uuid()).map(|s| Nbt::parse(&s)).unwrap_or_default();
+            let nbt = srv
+                .entity_get_nbt(mob.uuid())
+                .map(|s| Nbt::parse(&s))
+                .unwrap_or_default();
             let Some(data) = nbt.get("VillagerData") else {
                 return false;
             };
@@ -235,7 +241,9 @@ fn sweepee_matches(srv: &dyn Server, mob: &Ent, want: &Sweepee) -> bool {
 
 /// `IXplatAbstractions.isBrainswept`.
 pub fn is_brainswept(srv: &dyn Server, uuid: &str) -> bool {
-    Storage::open_entity(&srv.game_dir(), MOD_ID, uuid).get_bool("brainswept").unwrap_or(false)
+    Storage::open_entity(&srv.game_dir(), MOD_ID, uuid)
+        .get_bool("brainswept")
+        .unwrap_or(false)
 }
 
 /// `HexAPI.brainsweep`: the mob stays, but its mind is gone.
@@ -260,25 +268,46 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
     env.assert_vec_in_range(v)?;
     mob.in_range(env)?;
     if !env.can_edit_block_at(pos) {
-        return Err(Mishap::BadLocation { pos: v, kind: "forbidden" });
+        return Err(Mishap::BadLocation {
+            pos: v,
+            kind: "forbidden",
+        });
     }
-    if env.srv.has_entity_tag(&mob.info.type_id, "hexcasting:cannot_brainsweep") {
-        return Err(Mishap::BadBrainsweep { mob: mob.r.clone(), pos });
+    if env
+        .srv
+        .has_entity_tag(&mob.info.type_id, "hexcasting:cannot_brainsweep")
+    {
+        return Err(Mishap::BadBrainsweep {
+            mob: mob.r.clone(),
+            pos,
+        });
     }
     if is_brainswept(env.srv, mob.uuid()) {
-        return Err(Mishap::AlreadyBrainswept { mob: mob.r.clone(), eye: mob.eye() });
+        return Err(Mishap::AlreadyBrainswept {
+            mob: mob.r.clone(),
+            eye: mob.eye(),
+        });
     }
-    let state = env.srv.block_info(&env.dim, to_ypos(pos)).map(|b| b.state).unwrap_or_default();
+    let state = env
+        .srv
+        .block_info(&env.dim, to_ypos(pos))
+        .map(|b| b.state)
+        .unwrap_or_default();
     let block = state.split('[').next().unwrap_or_default();
     let (_, _, result, cost) = RECIPES
         .iter()
         .find(|(b, want, ..)| *b == block && sweepee_matches(env.srv, &mob, want))
-        .ok_or_else(|| Mishap::BadBrainsweep { mob: mob.r.clone(), pos })?;
+        .ok_or_else(|| Mishap::BadBrainsweep {
+            mob: mob.r.clone(),
+            pos,
+        })?;
     let (uuid, type_id, at) = (mob.uuid().to_owned(), mob.info.type_id.clone(), mob.pos());
     let target = with_properties(&state, result);
     let plain = result.to_string();
-    let particles =
-        vec![Spray::cloud(mob.pos(), 1.0), Spray::burst_n(Vec3::center_of(pos), 0.3, 100)];
+    let particles = vec![
+        Spray::cloud(mob.pos(), 1.0),
+        Spray::burst_n(Vec3::center_of(pos), 0.3, 100),
+    ];
     Ok(Spell::new(*cost, particles, move |env, _| {
         if !env.srv.set_block(&env.dim, to_ypos(pos), &target) {
             env.srv.set_block(&env.dim, to_ypos(pos), &plain);
@@ -286,8 +315,17 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
         mark_brainswept(env.srv, &uuid);
         let path = type_id.split_once(':').map_or(type_id.as_str(), |(_, p)| p);
         let death = format!("minecraft:entity.{path}.death");
-        env.srv.play_sound(&env.dim, at.x, at.y, at.z, &death, 0.8, 1.0);
-        env.srv.play_sound(&env.dim, at.x, at.y, at.z, "minecraft:entity.player.levelup", 0.5, 0.8);
+        env.srv
+            .play_sound(&env.dim, at.x, at.y, at.z, &death, 0.8, 1.0);
+        env.srv.play_sound(
+            &env.dim,
+            at.x,
+            at.y,
+            at.z,
+            "minecraft:entity.player.levelup",
+            0.5,
+            0.8,
+        );
     })
     .mute())
 }
@@ -318,7 +356,8 @@ fn altiora(env: &mut CastEnv<'_>, p: Player) -> MResult<Spell> {
     Ok(Spell::new(CRYSTAL, particles, move |env, _| {
         env.srv.entity_add_velocity(&uuid, 0.0, 1.5, 0.0);
         let mut map = ALTIORA.lock().unwrap_or_else(|e| e.into_inner());
-        map.get_or_insert_with(HashMap::new).insert(uuid, GRACE_PERIOD);
+        map.get_or_insert_with(HashMap::new)
+            .insert(uuid, GRACE_PERIOD);
     }))
 }
 
@@ -332,15 +371,33 @@ pub fn tick_altiora(srv: &dyn Server) {
         };
         let pos = Vec3::from_tuple(info.pos);
         let dim = info.dimension.as_str();
-        let on_ground =
-            || srv.entity_get_nbt(uuid).is_some_and(|s| Nbt::parse(&s).get_bool("OnGround"));
+        let on_ground = || {
+            srv.entity_get_nbt(uuid)
+                .is_some_and(|s| Nbt::parse(&s).get_bool("OnGround"))
+        };
         if *grace == 0 && on_ground() {
-            srv.play_sound(dim, pos.x, pos.y, pos.z, "hexcasting:flight.finish", 2.0, 1.0);
+            srv.play_sound(
+                dim,
+                pos.x,
+                pos.y,
+                pos.z,
+                "hexcasting:flight.finish",
+                2.0,
+                1.0,
+            );
             return false;
         }
         *grace = (*grace - 1).max(0);
         if random() < 0.02 {
-            srv.play_sound(dim, pos.x, pos.y, pos.z, "hexcasting:flight.ambience", 0.2, 1.0);
+            srv.play_sound(
+                dim,
+                pos.x,
+                pos.y,
+                pos.z,
+                "hexcasting:flight.ambience",
+                0.2,
+                1.0,
+            );
         }
         Spray {
             pos,
@@ -361,7 +418,10 @@ mod tests {
     #[test]
     fn brainswept_blocks_keep_their_state() {
         assert_eq!(
-            with_properties("hexcasting:impetus/empty[facing=north]", Blocks::IMPETUS_LOOK),
+            with_properties(
+                "hexcasting:impetus/empty[facing=north]",
+                Blocks::IMPETUS_LOOK
+            ),
             "hexcasting:impetus/look[facing=north]"
         );
         assert_eq!(

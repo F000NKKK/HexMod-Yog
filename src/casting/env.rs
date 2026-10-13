@@ -68,7 +68,10 @@ pub struct Caster {
 impl Caster {
     pub fn by_name(srv: &dyn Server, name: &str) -> Option<Self> {
         let info = srv.player_info(name)?;
-        Some(Caster { name: name.to_owned(), uuid: info.uuid })
+        Some(Caster {
+            name: name.to_owned(),
+            uuid: info.uuid,
+        })
     }
 }
 
@@ -84,8 +87,16 @@ pub struct Stack {
 impl Stack {
     pub fn read(srv: &dyn Server, player: &str, slot: u32) -> Stack {
         match srv.get_slot_item(player, slot) {
-            Some((id, count, snbt)) => Stack { slot, id, count, nbt: Nbt::parse(&snbt) },
-            None => Stack { slot, ..Stack::default() },
+            Some((id, count, snbt)) => Stack {
+                slot,
+                id,
+                count,
+                nbt: Nbt::parse(&snbt),
+            },
+            None => Stack {
+                slot,
+                ..Stack::default()
+            },
         }
     }
 
@@ -98,7 +109,10 @@ impl Stack {
     }
 
     pub fn shown(&self) -> Option<ShownItem> {
-        (!self.is_empty()).then(|| ShownItem { count: self.count, name: item_name(&self.id) })
+        (!self.is_empty()).then(|| ShownItem {
+            count: self.count,
+            name: item_name(&self.id),
+        })
     }
 
     /// Writes the stack back to its slot.
@@ -140,7 +154,13 @@ impl Spray {
     }
 
     pub fn cloud_n(pos: Vec3, size: f64, count: u32) -> Self {
-        Spray { pos, vel: Vec3::new(0.0, 0.001, 0.0), fuzziness: size, spread: 0.0, count }
+        Spray {
+            pos,
+            vel: Vec3::new(0.0, 0.001, 0.0),
+            fuzziness: size,
+            spread: 0.0,
+            count,
+        }
     }
 
     /// `MsgCastParticleS2C.handle`, done on the server with coloured dust
@@ -306,9 +326,9 @@ impl<'a> CastEnv<'a> {
 
     pub fn has_flag(&self, flag: &str) -> bool {
         match &self.caster {
-            Some(c) => {
-                player_storage(self.srv, &c.uuid).get_bool(&format!("flag.{flag}")).unwrap_or(false)
-            }
+            Some(c) => player_storage(self.srv, &c.uuid)
+                .get_bool(&format!("flag.{flag}"))
+                .unwrap_or(false),
             None => false,
         }
     }
@@ -335,7 +355,9 @@ impl<'a> CastEnv<'a> {
     /// The caster's pigment; a packaged hex uses the one it was made with.
     pub fn pigment(&self) -> Pigment {
         if self.source == Source::Packaged
-            && let Some(p) = self.held(self.hand).and_then(|s| crate::item::packaged::pigment(&s))
+            && let Some(p) = self
+                .held(self.hand)
+                .and_then(|s| crate::item::packaged::pigment(&s))
         {
             return p;
         }
@@ -352,7 +374,11 @@ impl<'a> CastEnv<'a> {
     /// The mishap's two sprays: its accent dye, then red.
     pub fn mishap_spray(&self, spray: &Spray, accent: u32) {
         spray.spawn(self.srv, &self.dim, &dye_pigment(accent));
-        spray.spawn(self.srv, &self.dim, &dye_pigment(crate::casting::mishap::dye::RED));
+        spray.spawn(
+            self.srv,
+            &self.dim,
+            &dye_pigment(crate::casting::mishap::dye::RED),
+        );
     }
 
     /// `postExecution`: a staff plays each pattern's sound; packaged items
@@ -363,7 +389,8 @@ impl<'a> CastEnv<'a> {
                 if let (Some(id), Some(pos)) = (sound.id(), self.caster_pos())
                     && self.sounds_played < 100
                 {
-                    self.srv.play_sound(&self.dim, pos.x, pos.y, pos.z, id, 1.0, 1.0);
+                    self.srv
+                        .play_sound(&self.dim, pos.x, pos.y, pos.z, id, 1.0, 1.0);
                     self.sounds_played += 1;
                 }
             }
@@ -375,7 +402,9 @@ impl<'a> CastEnv<'a> {
 
     /// The entity, if it's loaded in this dimension.
     pub fn entity(&self, e: &EntityRef) -> Option<EntityInfo> {
-        self.srv.entity_info(&e.uuid).filter(|i| i.dimension == self.dim)
+        self.srv
+            .entity_info(&e.uuid)
+            .filter(|i| i.dimension == self.dim)
     }
 
     pub fn entity_pos(&self, e: &EntityRef) -> Option<Vec3> {
@@ -383,7 +412,9 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn is_player(&self, uuid: &str) -> bool {
-        self.srv.entity_info(uuid).is_some_and(|i| i.has(entity_flags::PLAYER))
+        self.srv
+            .entity_info(uuid)
+            .is_some_and(|i| i.has(entity_flags::PLAYER))
     }
 
     pub fn block_id(&self, pos: BlockPos) -> String {
@@ -446,7 +477,9 @@ impl<'a> CastEnv<'a> {
 
     /// `isVecInWorld`: inside the build height (and the loaded world).
     pub fn is_vec_in_world(&self, v: Vec3) -> bool {
-        self.srv.block_info(&self.dim, to_ypos(v.block())).is_some_and(|b| b.in_world)
+        self.srv
+            .block_info(&self.dim, to_ypos(v.block()))
+            .is_some_and(|b| b.in_world)
     }
 
     /// `isEntityInRange` (players are always in range: `trueNameHasAmbit`).
@@ -460,7 +493,10 @@ impl<'a> CastEnv<'a> {
         if self.is_vec_in_world(v) {
             Ok(())
         } else {
-            Err(Mishap::BadLocation { pos: v, kind: "out_of_world" })
+            Err(Mishap::BadLocation {
+                pos: v,
+                kind: "out_of_world",
+            })
         }
     }
 
@@ -469,7 +505,10 @@ impl<'a> CastEnv<'a> {
         if self.is_vec_in_range(v) {
             Ok(())
         } else {
-            Err(Mishap::BadLocation { pos: v, kind: "too_far" })
+            Err(Mishap::BadLocation {
+                pos: v,
+                kind: "too_far",
+            })
         }
     }
 
@@ -495,7 +534,10 @@ impl<'a> CastEnv<'a> {
         if self.can_edit_block_at(pos) {
             Ok(())
         } else {
-            Err(Mishap::BadLocation { pos: c, kind: "forbidden" })
+            Err(Mishap::BadLocation {
+                pos: c,
+                kind: "forbidden",
+            })
         }
     }
 
@@ -507,7 +549,10 @@ impl<'a> CastEnv<'a> {
         if info.dimension == self.dim && self.is_vec_in_world(p) && self.is_vec_in_range(p) {
             Ok(())
         } else {
-            Err(Mishap::EntityTooFar { entity: e.clone(), pos: p })
+            Err(Mishap::EntityTooFar {
+                entity: e.clone(),
+                pos: p,
+            })
         }
     }
 
@@ -524,7 +569,10 @@ impl<'a> CastEnv<'a> {
     pub fn stack_at(&self, slot: u32) -> Stack {
         match self.caster_name() {
             Some(n) => Stack::read(self.srv, n, slot),
-            None => Stack { slot, ..Stack::default() },
+            None => Stack {
+                slot,
+                ..Stack::default()
+            },
         }
     }
 
@@ -544,7 +592,10 @@ impl<'a> CastEnv<'a> {
             return Vec::new();
         }
         let other = other_hand(self.hand);
-        [other, self.hand].into_iter().filter_map(|h| Some((self.held(h)?, h))).collect()
+        [other, self.hand]
+            .into_iter()
+            .filter_map(|h| Some((self.held(h)?, h)))
+            .collect()
     }
 
     /// `getHeldItemToOperateOn`.
@@ -554,7 +605,9 @@ impl<'a> CastEnv<'a> {
 
     /// `getUsableStacks`.
     pub fn usable_stacks(&self, mode: Discovery) -> Vec<Stack> {
-        let Some(name) = self.caster_name() else { return Vec::new() };
+        let Some(name) = self.caster_name() else {
+            return Vec::new();
+        };
         if matches!(self.source, Source::Circle(_)) {
             return Vec::new();
         }
@@ -566,7 +619,11 @@ impl<'a> CastEnv<'a> {
                     Hand::Main => selected,
                     Hand::Off => SLOT_OFFHAND,
                 });
-                let anchor = if self.hand != Hand::Off { (selected + 1) % 9 } else { 0 };
+                let anchor = if self.hand != Hand::Off {
+                    (selected + 1) % 9
+                } else {
+                    0
+                };
                 slots.extend((0..9).map(|d| (anchor + d) % 9));
             }
             Discovery::Extraction => {
@@ -583,7 +640,9 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn query_for_matching_stack(&self, ok: impl Fn(&Stack) -> bool) -> Option<Stack> {
-        self.usable_stacks(Discovery::Query).into_iter().find(|s| ok(s))
+        self.usable_stacks(Discovery::Query)
+            .into_iter()
+            .find(|s| ok(s))
     }
 
     /// `withdrawItem`: takes `count` matching items (creative casters don't
@@ -628,9 +687,14 @@ impl<'a> CastEnv<'a> {
         with: &Stack,
         hand: Option<Hand>,
     ) -> bool {
-        let Some(name) = self.caster_name() else { return false };
+        let Some(name) = self.caster_name() else {
+            return false;
+        };
         let put = |slot: u32| {
-            let s = Stack { slot, ..with.clone() };
+            let s = Stack {
+                slot,
+                ..with.clone()
+            };
             s.save(self.srv, name);
         };
         if let Some(h) = hand
@@ -678,7 +742,9 @@ impl<'a> CastEnv<'a> {
                 if self.is_creative() {
                     return 0;
                 }
-                let Some(mut stack) = self.held(self.hand) else { return cost };
+                let Some(mut stack) = self.held(self.hand) else {
+                    return cost;
+                };
                 if !media::is_packaged(&stack.id) {
                     return cost;
                 }
@@ -706,7 +772,9 @@ impl<'a> CastEnv<'a> {
 
     /// `extractMediaFromInventory`.
     fn extract_from_inventory(&mut self, mut left: i64, overcast: bool, simulate: bool) -> i64 {
-        let Some(name) = self.caster_name().map(str::to_owned) else { return left };
+        let Some(name) = self.caster_name().map(str::to_owned) else {
+            return left;
+        };
         for mut source in media::scan_player(self.srv, &name) {
             let found = media::withdraw(&mut source, left, simulate);
             if !simulate {
@@ -718,7 +786,9 @@ impl<'a> CastEnv<'a> {
             }
         }
         if left > 0 && overcast {
-            let Some(uuid) = self.caster_uuid() else { return left };
+            let Some(uuid) = self.caster_uuid() else {
+                return left;
+            };
             let health = self.srv.entity_health(&uuid).unwrap_or(0.0) as f64;
             let to_remove = (left as f64 / MEDIA_TO_HEALTH).max(0.5);
             if simulate {
@@ -739,7 +809,8 @@ impl<'a> CastEnv<'a> {
     pub fn truly_hurt(&self, uuid: &str, amount: f32) {
         let before = self.srv.entity_health(uuid).unwrap_or(0.0);
         let attacker = self.caster_uuid().unwrap_or_default();
-        self.srv.entity_damage(uuid, amount, "hexcasting:overcast", &attacker);
+        self.srv
+            .entity_damage(uuid, amount, "hexcasting:overcast", &attacker);
         let after = self.srv.entity_health(uuid).unwrap_or(0.0);
         if before > 0.0 && after >= before {
             let target = before - amount;
@@ -759,7 +830,10 @@ impl<'a> CastEnv<'a> {
             if stack.is_empty() {
                 continue;
             }
-            self.save(&Stack { slot: stack.slot, ..Stack::default() });
+            self.save(&Stack {
+                slot: stack.slot,
+                ..Stack::default()
+            });
             self.yeet_item(&stack, pos, delta);
         }
     }
@@ -782,14 +856,19 @@ impl<'a> CastEnv<'a> {
 
     pub fn drop_held_items(&self) {
         let Some(c) = self.caster_info() else { return };
-        let look = self.caster_uuid().map(|u| look_vec(self.srv, &u)).unwrap_or_default();
+        let look = self
+            .caster_uuid()
+            .map(|u| look_vec(self.srv, &u))
+            .unwrap_or_default();
         self.yeet_held_items_towards(Vec3::from_tuple(c.pos) + look);
     }
 
     /// `MishapNoSpellCircle`: the whole inventory (but armour with Curse of
     /// Binding) is thrown about.
     pub fn drop_everything(&self) {
-        let (Some(name), Some(pos)) = (self.caster_name(), self.caster_pos()) else { return };
+        let (Some(name), Some(pos)) = (self.caster_name(), self.caster_pos()) else {
+            return;
+        };
         for slot in 0..=SLOT_OFFHAND {
             let stack = self.stack_at(slot);
             if stack.is_empty()
@@ -797,7 +876,11 @@ impl<'a> CastEnv<'a> {
             {
                 continue;
             }
-            Stack { slot, ..Stack::default() }.save(self.srv, name);
+            Stack {
+                slot,
+                ..Stack::default()
+            }
+            .save(self.srv, name);
             // `Player.drop(stack, dropAround = true)`.
             let (f, a) = (random() * 0.5, random() * std::f64::consts::TAU);
             let delta = Vec3::new(-a.sin() * f, 0.2, a.cos() * f);
@@ -821,7 +904,9 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn drown(&self) {
-        let (Some(uuid), Some(name)) = (self.caster_uuid(), self.caster_name()) else { return };
+        let (Some(uuid), Some(name)) = (self.caster_uuid(), self.caster_name()) else {
+            return;
+        };
         let air = self.srv.player_info(name).map_or(300, |p| p.air);
         if air < 200 {
             self.srv.entity_damage(&uuid, 2.0, "minecraft:drown", "");
@@ -837,7 +922,8 @@ impl<'a> CastEnv<'a> {
 
     pub fn blind(&self, ticks: i32) {
         if let Some(uuid) = self.caster_uuid() {
-            self.srv.entity_add_effect(&uuid, "minecraft:blindness", ticks, 0, true);
+            self.srv
+                .entity_add_effect(&uuid, "minecraft:blindness", ticks, 0, true);
         }
     }
 }
@@ -850,7 +936,11 @@ pub fn other_hand(h: Hand) -> Hand {
 }
 
 pub fn to_ypos(p: BlockPos) -> yog_api::BlockPos {
-    yog_api::BlockPos { x: p.0, y: p.1, z: p.2 }
+    yog_api::BlockPos {
+        x: p.0,
+        y: p.1,
+        z: p.2,
+    }
 }
 
 pub fn from_ypos(p: yog_api::BlockPos) -> BlockPos {
@@ -859,9 +949,15 @@ pub fn from_ypos(p: yog_api::BlockPos) -> BlockPos {
 
 /// `Entity.getLookAngle`.
 pub fn look_vec(srv: &dyn Server, uuid: &str) -> Vec3 {
-    let Some((yaw, pitch)) = srv.entity_rotation(uuid) else { return Vec3::ZERO };
+    let Some((yaw, pitch)) = srv.entity_rotation(uuid) else {
+        return Vec3::ZERO;
+    };
     let (yaw, pitch) = ((yaw as f64).to_radians(), (pitch as f64).to_radians());
-    Vec3::new(-yaw.sin() * pitch.cos(), -pitch.sin(), yaw.cos() * pitch.cos())
+    Vec3::new(
+        -yaw.sin() * pitch.cos(),
+        -pitch.sin(),
+        yaw.cos() * pitch.cos(),
+    )
 }
 
 // ── per-player state ──────────────────────────────────────────────────────
@@ -916,7 +1012,13 @@ pub fn set_sentinel(srv: &dyn Server, uuid: &str, sentinel: Option<&Sentinel>) {
             s.set("sentinel.dim", t.dim.as_str());
         }
         None => {
-            for k in ["sentinel.great", "sentinel.x", "sentinel.y", "sentinel.z", "sentinel.dim"] {
+            for k in [
+                "sentinel.great",
+                "sentinel.x",
+                "sentinel.y",
+                "sentinel.z",
+                "sentinel.dim",
+            ] {
                 s.remove(k);
             }
         }

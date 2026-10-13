@@ -23,13 +23,18 @@ pub fn is_staff(id: &str) -> bool {
 
 /// `getStaffcastVM`'s image.
 pub fn image(srv: &dyn Server, uuid: &str) -> Image {
-    player_storage(srv, uuid).get_str(KEY_IMAGE).map(Image::decode).unwrap_or_default()
+    player_storage(srv, uuid)
+        .get_str(KEY_IMAGE)
+        .map(Image::decode)
+        .unwrap_or_default()
 }
 
 /// `getPatternsSavedInUi`.
 pub fn patterns(srv: &dyn Server, uuid: &str) -> Vec<ResolvedPattern> {
     let s = player_storage(srv, uuid);
-    s.get_str(KEY_PATTERNS).and_then(|p| read_patterns(&mut Reader::new(p))).unwrap_or_default()
+    s.get_str(KEY_PATTERNS)
+        .and_then(|p| read_patterns(&mut Reader::new(p)))
+        .unwrap_or_default()
 }
 
 fn save(srv: &dyn Server, uuid: &str, image: Option<&Image>, pats: &[ResolvedPattern]) {
@@ -58,14 +63,20 @@ pub fn clear(srv: &dyn Server, uuid: &str) {
 fn staff_hand(srv: &dyn Server, player: &str) -> Option<Hand> {
     let caster = Caster::by_name(srv, player)?;
     let env = CastEnv::for_player(srv, caster, Hand::Main, Source::Staff)?;
-    [Hand::Main, Hand::Off].into_iter().find(|&h| env.held(h).is_some_and(|s| is_staff(&s.id)))
+    [Hand::Main, Hand::Off]
+        .into_iter()
+        .find(|&h| env.held(h).is_some_and(|s| is_staff(&s.id)))
 }
 
 /// `ItemStaff.use`: sneaking clears the grid; then the grid opens with
 /// what's saved.
 pub fn use_staff(srv: &dyn Server, player: &str, sneaking: bool) {
-    let Some(info) = srv.player_info(player) else { return };
-    let Some(hand) = staff_hand(srv, player) else { return };
+    let Some(info) = srv.player_info(player) else {
+        return;
+    };
+    let Some(hand) = staff_hand(srv, player) else {
+        return;
+    };
     if sneaking {
         clear(srv, &info.uuid);
         srv.play_sound_to_player(player, "hexcasting:staff.reset", 1.0, 1.0);
@@ -83,10 +94,16 @@ pub fn use_staff(srv: &dyn Server, player: &str, sneaking: bool) {
 
 /// `handleNewPatternOnServer`.
 pub fn new_pattern(srv: &dyn Server, player: &str, payload: &[u8]) {
-    let Some(msg) = NewPattern::decode(payload) else { return };
-    let Some(caster) = Caster::by_name(srv, player) else { return };
+    let Some(msg) = NewPattern::decode(payload) else {
+        return;
+    };
+    let Some(caster) = Caster::by_name(srv, player) else {
+        return;
+    };
     let uuid = caster.uuid.clone();
-    let Some(env) = CastEnv::for_player(srv, caster, msg.hand, Source::Staff) else { return };
+    let Some(env) = CastEnv::for_player(srv, caster, msg.hand, Source::Staff) else {
+        return;
+    };
     if !env.held(msg.hand).is_some_and(|s| is_staff(&s.id)) {
         return;
     }
