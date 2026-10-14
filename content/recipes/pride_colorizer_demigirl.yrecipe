@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_demigirl",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:raw_copper",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_demigirl",
+  "category": "misc"
+}

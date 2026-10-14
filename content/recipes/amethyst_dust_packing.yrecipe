@@ -1,0 +1,13 @@
+{
+  "id": "hexcasting:amethyst_dust_packing",
+  "type": "shaped",
+  "pattern": [
+    "XX",
+    "XX"
+  ],
+  "key": {
+    "X": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:amethyst_dust_block",
+  "category": "building"
+}

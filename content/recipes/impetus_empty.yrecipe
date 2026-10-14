@@ -1,0 +1,17 @@
+{
+  "id": "hexcasting:impetus/empty",
+  "type": "shaped",
+  "pattern": [
+    "PSS",
+    "BAB",
+    "SSP"
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "B": "minecraft:iron_bars",
+    "P": "minecraft:purpur_block",
+    "S": "hexcasting:slate_block"
+  },
+  "result": "hexcasting:impetus/empty",
+  "category": "redstone"
+}

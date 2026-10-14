@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:quenched_allay_bricks",
+  "type": "shaped",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": "hexcasting:quenched_allay"
+  },
+  "result": "hexcasting:quenched_allay_bricks",
+  "count": 4,
+  "category": "building"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:slate_tiles",
+  "type": "shaped",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": "hexcasting:slate_bricks"
+  },
+  "result": "hexcasting:slate_tiles",
+  "count": 4,
+  "category": "building"
+}

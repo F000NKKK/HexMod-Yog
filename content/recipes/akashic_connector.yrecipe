@@ -1,0 +1,19 @@
+{
+  "id": "hexcasting:akashic_connector",
+  "type": "shaped",
+  "pattern": [
+    "LPL",
+    "123",
+    "LPL"
+  ],
+  "key": {
+    "1": "hexcasting:amethyst_dust",
+    "2": "minecraft:amethyst_shard",
+    "3": "hexcasting:charged_amethyst",
+    "L": "#hexcasting:edified_logs",
+    "P": "#hexcasting:edified_planks"
+  },
+  "result": "hexcasting:akashic_connector",
+  "count": 4,
+  "category": "redstone"
+}

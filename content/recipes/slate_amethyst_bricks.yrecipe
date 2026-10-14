@@ -1,0 +1,11 @@
+{
+  "id": "hexcasting:slate_amethyst_bricks",
+  "type": "shapeless",
+  "ingredients": [
+    "hexcasting:slate_bricks",
+    "hexcasting:amethyst_bricks"
+  ],
+  "result": "hexcasting:slate_amethyst_bricks",
+  "count": 2,
+  "category": "building"
+}

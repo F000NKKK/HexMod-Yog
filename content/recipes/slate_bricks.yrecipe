@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:slate_bricks",
+  "type": "shaped",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": "hexcasting:slate_block"
+  },
+  "result": "hexcasting:slate_bricks",
+  "count": 4,
+  "category": "building"
+}

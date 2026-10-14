@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/acacia",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:acacia_planks"
+  },
+  "result": "hexcasting:staff/acacia",
+  "category": "equipment"
+}

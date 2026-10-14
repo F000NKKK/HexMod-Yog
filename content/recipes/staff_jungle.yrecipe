@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/jungle",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:jungle_planks"
+  },
+  "result": "hexcasting:staff/jungle",
+  "category": "equipment"
+}

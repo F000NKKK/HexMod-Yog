@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:ancient_colorizer",
+  "type": "shaped",
+  "pattern": [
+    " C ",
+    "CIC",
+    " C "
+  ],
+  "key": {
+    "C": "hexcasting:amethyst_dust",
+    "I": "minecraft:copper_ingot"
+  },
+  "result": "hexcasting:ancient_colorizer",
+  "category": "misc"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_aromantic",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:arrow",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_aromantic",
+  "category": "misc"
+}

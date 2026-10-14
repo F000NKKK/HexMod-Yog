@@ -1,0 +1,17 @@
+{
+  "id": "hexcasting:scroll_paper",
+  "type": "shaped",
+  "pattern": [
+    "DCD",
+    "CIC",
+    "DCD"
+  ],
+  "key": {
+    "C": "minecraft:paper",
+    "D": "minecraft:paper",
+    "I": "minecraft:amethyst_shard"
+  },
+  "result": "hexcasting:scroll_paper",
+  "count": 8,
+  "category": "building"
+}

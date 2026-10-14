@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:scroll_small",
+  "type": "shaped",
+  "pattern": [
+    " A",
+    "P "
+  ],
+  "key": {
+    "A": "hexcasting:amethyst_dust",
+    "P": "minecraft:paper"
+  },
+  "result": "hexcasting:scroll_small",
+  "category": "misc"
+}

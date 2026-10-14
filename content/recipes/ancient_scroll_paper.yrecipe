@@ -1,0 +1,22 @@
+{
+  "id": "hexcasting:ancient_scroll_paper",
+  "type": "shapeless",
+  "ingredients": [
+    [
+      "minecraft:brown_dye",
+      "#c:brown_dye",
+      "#c:brown_dyes"
+    ],
+    "hexcasting:scroll_paper",
+    "hexcasting:scroll_paper",
+    "hexcasting:scroll_paper",
+    "hexcasting:scroll_paper",
+    "hexcasting:scroll_paper",
+    "hexcasting:scroll_paper",
+    "hexcasting:scroll_paper",
+    "hexcasting:scroll_paper"
+  ],
+  "result": "hexcasting:ancient_scroll_paper",
+  "count": 8,
+  "category": "building"
+}

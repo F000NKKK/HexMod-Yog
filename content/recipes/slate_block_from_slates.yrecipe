@@ -1,0 +1,13 @@
+{
+  "id": "hexcasting:slate_block_from_slates",
+  "type": "shaped",
+  "pattern": [
+    "S",
+    "S"
+  ],
+  "key": {
+    "S": "hexcasting:slate"
+  },
+  "result": "hexcasting:slate_block",
+  "category": "building"
+}

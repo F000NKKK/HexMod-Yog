@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:slate",
+  "type": "shaped",
+  "pattern": [
+    " A ",
+    "SSS"
+  ],
+  "key": {
+    "A": "hexcasting:amethyst_dust",
+    "S": "minecraft:deepslate"
+  },
+  "result": "hexcasting:slate",
+  "count": 6,
+  "category": "misc"
+}

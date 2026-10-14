@@ -1,0 +1,6 @@
+{
+  "id": "hexcasting:stonecutting/slate_pillar",
+  "type": "stonecutting",
+  "ingredient": "#hexcasting:slate_blocks",
+  "result": "hexcasting:slate_pillar"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/oak",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:oak_planks"
+  },
+  "result": "hexcasting:staff/oak",
+  "category": "equipment"
+}

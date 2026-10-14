@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_orange",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:orange_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_orange",
+  "category": "misc"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "hexcasting:focus_rotated",
+  "type": "shaped",
+  "pattern": [
+    "GPG",
+    "LAL",
+    "GPG"
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "G": [
+      "minecraft:glowstone_dust",
+      "#c:glowstone_dusts"
+    ],
+    "L": "minecraft:leather",
+    "P": "minecraft:paper"
+  },
+  "result": "hexcasting:focus",
+  "category": "equipment"
+}

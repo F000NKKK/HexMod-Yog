@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/mangrove",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:mangrove_planks"
+  },
+  "result": "hexcasting:staff/mangrove",
+  "category": "equipment"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/warped",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:warped_planks"
+  },
+  "result": "hexcasting:staff/warped",
+  "category": "equipment"
+}

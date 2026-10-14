@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_asexual",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:bread",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_asexual",
+  "category": "misc"
+}

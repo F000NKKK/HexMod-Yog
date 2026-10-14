@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/bamboo",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:bamboo_planks"
+  },
+  "result": "hexcasting:staff/bamboo",
+  "category": "equipment"
+}

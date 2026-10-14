@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_pink",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:pink_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_pink",
+  "category": "misc"
+}

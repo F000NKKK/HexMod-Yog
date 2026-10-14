@@ -1,0 +1,18 @@
+{
+  "id": "hexcasting:cypher",
+  "type": "shaped",
+  "pattern": [
+    " C ",
+    "CIC",
+    " C "
+  ],
+  "key": {
+    "C": [
+      "minecraft:copper_ingot",
+      "#c:copper_ingots"
+    ],
+    "I": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:cypher",
+  "category": "equipment"
+}

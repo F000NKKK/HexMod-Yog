@@ -1,0 +1,9 @@
+{
+  "id": "hexcasting:amethyst_bricks_from_amethyst_bricks_small",
+  "type": "shapeless",
+  "ingredients": [
+    "hexcasting:amethyst_bricks_small"
+  ],
+  "result": "hexcasting:amethyst_bricks",
+  "category": "building"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "hexcasting:directrix/empty",
+  "type": "shaped",
+  "pattern": [
+    "CSS",
+    "OAO",
+    "SSC"
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "C": "minecraft:comparator",
+    "O": "minecraft:observer",
+    "S": "hexcasting:slate_block"
+  },
+  "result": "hexcasting:directrix/empty",
+  "category": "redstone"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_demiboy",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:raw_iron",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_demiboy",
+  "category": "misc"
+}

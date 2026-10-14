@@ -1,0 +1,9 @@
+{
+  "id": "hexcasting:slate_bricks_small_from_slate_bricks",
+  "type": "shapeless",
+  "ingredients": [
+    "hexcasting:slate_bricks"
+  ],
+  "result": "hexcasting:slate_bricks_small",
+  "category": "building"
+}

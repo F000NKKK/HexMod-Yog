@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:edified_panel",
+  "type": "shaped",
+  "pattern": [
+    "WWW",
+    "WWW",
+    "WWW"
+  ],
+  "key": {
+    "W": "#hexcasting:edified_planks"
+  },
+  "result": "hexcasting:edified_panel",
+  "count": 9,
+  "category": "building"
+}

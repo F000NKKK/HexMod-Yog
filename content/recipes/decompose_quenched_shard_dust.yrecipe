@@ -1,0 +1,11 @@
+{
+  "id": "hexcasting:decompose_quenched_shard/dust",
+  "type": "shapeless",
+  "ingredients": [
+    "hexcasting:quenched_allay_shard",
+    "hexcasting:amethyst_dust"
+  ],
+  "result": "hexcasting:amethyst_dust",
+  "count": 31,
+  "category": "misc"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_blue",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:blue_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_blue",
+  "category": "misc"
+}

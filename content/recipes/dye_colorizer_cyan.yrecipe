@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_cyan",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:cyan_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_cyan",
+  "category": "misc"
+}

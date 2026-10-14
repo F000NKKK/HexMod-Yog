@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:scroll",
+  "type": "shaped",
+  "pattern": [
+    "PPA",
+    "PPP",
+    "PPP"
+  ],
+  "key": {
+    "A": "hexcasting:amethyst_dust",
+    "P": "minecraft:paper"
+  },
+  "result": "hexcasting:scroll",
+  "category": "misc"
+}

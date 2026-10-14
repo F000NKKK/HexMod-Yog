@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_purple",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:purple_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_purple",
+  "category": "misc"
+}

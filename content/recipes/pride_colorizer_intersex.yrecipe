@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_intersex",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:azalea",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_intersex",
+  "category": "misc"
+}

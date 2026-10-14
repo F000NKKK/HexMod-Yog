@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_nonbinary",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:moss_block",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_nonbinary",
+  "category": "misc"
+}

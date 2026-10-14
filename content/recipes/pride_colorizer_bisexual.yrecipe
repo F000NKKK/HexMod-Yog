@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_bisexual",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:wheat",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_bisexual",
+  "category": "misc"
+}

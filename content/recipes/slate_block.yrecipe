@@ -1,0 +1,17 @@
+{
+  "id": "hexcasting:slate_block",
+  "type": "shaped",
+  "pattern": [
+    "DCD",
+    "CIC",
+    "DCD"
+  ],
+  "key": {
+    "C": "minecraft:deepslate",
+    "D": "minecraft:deepslate",
+    "I": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:slate_block",
+  "count": 8,
+  "category": "building"
+}

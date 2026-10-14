@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/crimson",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:crimson_planks"
+  },
+  "result": "hexcasting:staff/crimson",
+  "category": "equipment"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_aroace",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:wheat_seeds",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_aroace",
+  "category": "misc"
+}

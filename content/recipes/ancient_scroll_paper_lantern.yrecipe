@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:ancient_scroll_paper_lantern",
+  "type": "shaped",
+  "pattern": [
+    "T",
+    "B"
+  ],
+  "key": {
+    "B": "minecraft:torch",
+    "T": "hexcasting:ancient_scroll_paper"
+  },
+  "result": "hexcasting:ancient_scroll_paper_lantern",
+  "category": "misc"
+}

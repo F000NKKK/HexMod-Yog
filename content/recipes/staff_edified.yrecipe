@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/edified",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "hexcasting:edified_planks"
+  },
+  "result": "hexcasting:staff/edified",
+  "category": "equipment"
+}

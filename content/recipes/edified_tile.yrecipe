@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:edified_tile",
+  "type": "shaped",
+  "pattern": [
+    "WW ",
+    "W W",
+    " WW"
+  ],
+  "key": {
+    "W": "#hexcasting:edified_planks"
+  },
+  "result": "hexcasting:edified_tile",
+  "count": 6,
+  "category": "building"
+}

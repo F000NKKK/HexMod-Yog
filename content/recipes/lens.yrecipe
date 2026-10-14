@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:lens",
+  "type": "shaped",
+  "pattern": [
+    " C ",
+    "CIC",
+    " C "
+  ],
+  "key": {
+    "C": "minecraft:glass",
+    "I": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:lens",
+  "category": "equipment"
+}

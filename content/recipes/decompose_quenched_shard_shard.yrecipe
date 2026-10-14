@@ -1,0 +1,11 @@
+{
+  "id": "hexcasting:decompose_quenched_shard/shard",
+  "type": "shapeless",
+  "ingredients": [
+    "hexcasting:quenched_allay_shard",
+    "minecraft:amethyst_shard"
+  ],
+  "result": "minecraft:amethyst_shard",
+  "count": 7,
+  "category": "misc"
+}

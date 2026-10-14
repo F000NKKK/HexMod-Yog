@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:abacus",
+  "type": "shaped",
+  "pattern": [
+    "WAW",
+    "SAS",
+    "WAW"
+  ],
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "S": "minecraft:stick",
+    "W": "#minecraft:planks"
+  },
+  "result": "hexcasting:abacus",
+  "category": "equipment"
+}

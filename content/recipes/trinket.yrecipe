@@ -1,0 +1,18 @@
+{
+  "id": "hexcasting:trinket",
+  "type": "shaped",
+  "pattern": [
+    " C ",
+    "CIC",
+    " C "
+  ],
+  "key": {
+    "C": [
+      "minecraft:iron_ingot",
+      "#c:iron_ingots"
+    ],
+    "I": "minecraft:amethyst_shard"
+  },
+  "result": "hexcasting:trinket",
+  "category": "equipment"
+}

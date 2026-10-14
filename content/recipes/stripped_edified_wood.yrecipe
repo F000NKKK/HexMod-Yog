@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:stripped_edified_wood",
+  "type": "shaped",
+  "pattern": [
+    "WW",
+    "WW"
+  ],
+  "key": {
+    "W": "hexcasting:stripped_edified_log"
+  },
+  "result": "hexcasting:stripped_edified_wood",
+  "count": 3,
+  "category": "building"
+}

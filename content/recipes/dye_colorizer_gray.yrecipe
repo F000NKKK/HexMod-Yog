@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_gray",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:gray_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_gray",
+  "category": "misc"
+}

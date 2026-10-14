@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_genderqueer",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:glass_bottle",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_genderqueer",
+  "category": "misc"
+}

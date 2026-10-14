@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_lesbian",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:honeycomb",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_lesbian",
+  "category": "misc"
+}

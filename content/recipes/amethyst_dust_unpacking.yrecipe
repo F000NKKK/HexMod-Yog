@@ -1,0 +1,10 @@
+{
+  "id": "hexcasting:amethyst_dust_unpacking",
+  "type": "shapeless",
+  "ingredients": [
+    "hexcasting:amethyst_dust_block"
+  ],
+  "result": "hexcasting:amethyst_dust",
+  "count": 4,
+  "category": "building"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "hexcasting:ageing_scroll_paper_lantern",
+  "type": "shapeless",
+  "ingredients": [
+    [
+      "minecraft:brown_dye",
+      "#c:brown_dye",
+      "#c:brown_dyes"
+    ],
+    "hexcasting:scroll_paper_lantern",
+    "hexcasting:scroll_paper_lantern",
+    "hexcasting:scroll_paper_lantern",
+    "hexcasting:scroll_paper_lantern",
+    "hexcasting:scroll_paper_lantern",
+    "hexcasting:scroll_paper_lantern",
+    "hexcasting:scroll_paper_lantern",
+    "hexcasting:scroll_paper_lantern"
+  ],
+  "result": "hexcasting:ancient_scroll_paper_lantern",
+  "count": 8,
+  "category": "misc"
+}

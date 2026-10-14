@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/cherry",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "minecraft:cherry_planks"
+  },
+  "result": "hexcasting:staff/cherry",
+  "category": "equipment"
+}

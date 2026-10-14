@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_transgender",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:egg",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_transgender",
+  "category": "misc"
+}

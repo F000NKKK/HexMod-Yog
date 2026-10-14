@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:amethyst_pillar",
+  "type": "shaped",
+  "pattern": [
+    "#",
+    "#"
+  ],
+  "key": {
+    "#": "minecraft:amethyst_block"
+  },
+  "result": "hexcasting:amethyst_pillar",
+  "count": 2,
+  "category": "building"
+}

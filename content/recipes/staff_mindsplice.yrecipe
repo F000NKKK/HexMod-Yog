@@ -1,0 +1,16 @@
+{
+  "id": "hexcasting:staff/mindsplice",
+  "type": "shaped",
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "#hexcasting:brainswept_circle_components"
+  },
+  "result": "hexcasting:staff/mindsplice",
+  "category": "equipment"
+}

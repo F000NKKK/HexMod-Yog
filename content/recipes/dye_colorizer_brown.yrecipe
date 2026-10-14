@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_brown",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:brown_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_brown",
+  "category": "misc"
+}

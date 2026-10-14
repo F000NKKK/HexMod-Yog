@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:dye_colorizer_yellow",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:yellow_dye",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:dye_colorizer_yellow",
+  "category": "misc"
+}

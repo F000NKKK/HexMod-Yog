@@ -1,0 +1,15 @@
+{
+  "id": "hexcasting:pride_colorizer_gay",
+  "type": "shaped",
+  "pattern": [
+    " D ",
+    "DCD",
+    " D "
+  ],
+  "key": {
+    "C": "minecraft:stone_brick_wall",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": "hexcasting:pride_colorizer_gay",
+  "category": "misc"
+}
