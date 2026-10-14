@@ -9,7 +9,6 @@
 use yog_api::{Mod, Registry, info};
 
 pub mod akashic;
-pub mod book;
 pub mod casting;
 pub mod events;
 pub mod iota;
@@ -31,8 +30,6 @@ impl Mod for HexMod {
         info!("[hexcasting-yog] initializing the gate between worlds...");
 
 
-        // thehexbook: right-click opens the book UI.
-        registry.register_book(&book::register_book());
 
         // The staff's casting grid.
         ui::spellcasting::register(registry);

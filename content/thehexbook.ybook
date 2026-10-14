@@ -1,0 +1,196 @@
+{
+  "id": "thehexbook",
+  "name": "@Book.book.name",
+  "author": "F000NK, Yog Team",
+  "categories": [
+    {
+      "id": "hexcasting:basics",
+      "name": "@Book.book.category.basics",
+      "description": "@Book.book.category.basics.desc",
+      "sortnum": 0,
+      "icon": "hexcasting:staff/oak"
+    },
+    {
+      "id": "hexcasting:patterns",
+      "name": "@Book.book.category.patterns",
+      "description": "@Book.book.category.patterns.desc",
+      "sortnum": 1,
+      "icon": "hexcasting:tome"
+    }
+  ],
+  "entries": [
+    {
+      "id": "hexcasting:media",
+      "name": "@Book.book.entry.media",
+      "category": "hexcasting:basics",
+      "icon": "hexcasting:amethyst_dust",
+      "priority": 0,
+      "read_by_default": true,
+      "pages": [
+        {
+          "type": "text",
+          "text": "@Book.book.entry.media.page1"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.media.page2"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.media.page3"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.media.page4"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.media.page5"
+        }
+      ]
+    },
+    {
+      "id": "hexcasting:geodes",
+      "name": "@Book.book.entry.geodes",
+      "category": "hexcasting:basics",
+      "icon": "minecraft:amethyst_block",
+      "priority": 1,
+      "read_by_default": true,
+      "pages": [
+        {
+          "type": "text",
+          "text": "@Book.book.entry.geodes.page1"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.geodes.page2"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.geodes.page3"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.geodes.page4"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.geodes.page5"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.geodes.page6"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.geodes.page7"
+        }
+      ]
+    },
+    {
+      "id": "hexcasting:couldnt_cast",
+      "name": "@Book.book.entry.couldnt_cast",
+      "category": "hexcasting:basics",
+      "icon": "minecraft:textures/mob_effect/nausea.png",
+      "priority": 2,
+      "read_by_default": true,
+      "pages": [
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page1"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page2"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page3"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page4"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page5"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page6"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page7"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page8"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page9"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.couldnt_cast.page10"
+        }
+      ]
+    },
+    {
+      "id": "hexcasting:start_to_see",
+      "name": "@Book.book.entry.start_to_see",
+      "category": "hexcasting:basics",
+      "icon": "minecraft:textures/mob_effect/blindness.png",
+      "priority": 3,
+      "read_by_default": true,
+      "pages": [
+        {
+          "type": "text",
+          "text": "@Book.book.entry.start_to_see.page1"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.start_to_see.page2"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.start_to_see.page3"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.start_to_see.page4"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.start_to_see.page5"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.start_to_see.page6"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.start_to_see.page7"
+        }
+      ]
+    },
+    {
+      "id": "hexcasting:patterns_intro",
+      "name": "@Book.book.entry.patterns_intro",
+      "category": "hexcasting:patterns",
+      "priority": 0,
+      "read_by_default": true,
+      "pages": [
+        {
+          "type": "text",
+          "text": "@Book.book.entry.patterns_intro.page1"
+        },
+        {
+          "type": "text",
+          "text": "@Book.book.entry.patterns_intro.page2"
+        }
+      ]
+    }
+  ]
+}
