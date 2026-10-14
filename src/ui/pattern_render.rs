@@ -1,11 +1,14 @@
 //! A pattern drawn centred in a box — what Hex Casting shows in a scroll's
 //! or slate's tooltip (`PatternTooltipComponent`, 128×128 over the scroll
-//! texture) and on paper in the world. Built on [`render_lib`]; nothing
-//! calls it yet (Yog has no item-tooltip hook to draw it in).
+//! texture, [`register`]) and on paper in the world. Built on [`render_lib`].
 //!
 //! [`render_lib`]: super::render_lib
 
-use yog_api::GfxContext;
+use yog_api::{GfxContext, Registry};
+
+use crate::content::Items;
+use crate::item::holder;
+use crate::snbt::Nbt;
 
 use super::render_lib::{Mesh, Vec2, draw_line_seq, draw_spot, get_centered_pattern};
 use crate::math::HexPattern;
@@ -19,6 +22,42 @@ pub const STARTING_DOT: u32 = 0xff_5b7bd7;
 pub const GRID_DOTS: u32 = 0x80_d2c8c8;
 /// The tooltip's size (`RENDER_SIZE`).
 pub const TOOLTIP_SIZE: f32 = 128.0;
+
+/// `PatternTooltipComponent`'s papers: a scroll's (ancient if it came
+/// with its action's id), a slate's.
+const PRISTINE_BG: &str = "hexcasting:gui/scroll";
+const ANCIENT_BG: &str = "hexcasting:gui/scroll_ancient";
+const SLATE_BG: &str = "hexcasting:gui/slate";
+
+/// Scrolls and slates that bear a pattern show it under their tooltip, on
+/// their paper, as Hex Casting's `getTooltipImage` does.
+pub fn register(registry: &mut Registry) {
+    for item in [Items::SCROLL, Items::SCROLL_SMALL, Items::SCROLL_MEDIUM, holder::SLATE] {
+        registry.on_item_tooltip(
+            item,
+            |item, snbt| tooltip(item, snbt).map(|_| (TOOLTIP_SIZE, TOOLTIP_SIZE)),
+            |gfx, item, snbt, [x, y, w, h]| {
+                if let Some((pattern, paper)) = tooltip(item, snbt) {
+                    gfx.draw2d().image(paper, x, y, w, h);
+                    draw_pattern(gfx, &pattern, x, y, w, h);
+                }
+            },
+        );
+    }
+}
+
+/// The pattern a stack bears and the paper it's shown on.
+fn tooltip(item: &str, snbt: &str) -> Option<(HexPattern, &'static str)> {
+    let nbt = Nbt::parse(snbt);
+    let paper = if item == holder::SLATE {
+        SLATE_BG
+    } else if nbt.contains("op_id") {
+        ANCIENT_BG
+    } else {
+        PRISTINE_BG
+    };
+    Some((holder::written_pattern(item, &nbt)?, paper))
+}
 
 /// Adds `pattern`, centred in the `w`×`h` box at `x, y`, to `mesh`: a pale
 /// outline under a dark stroke (`stroke` thick), a dot on every point it
@@ -58,6 +97,18 @@ pub fn draw_pattern(gfx: &GfxContext, pattern: &HexPattern, x: f32, y: f32, w: f
 mod tests {
     use super::*;
     use crate::math::HexDir;
+
+    #[test]
+    fn written_scrolls_and_slates_get_a_picture() {
+        let p = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
+        let written = format!("{{pattern:\"{}\"}}", p.serialized_form());
+        assert_eq!(tooltip(Items::SCROLL, &written).map(|(_, bg)| bg), Some(PRISTINE_BG));
+        let ancient = format!("{{op_id:\"hexcasting:get_caster\",pattern:\"{}\"}}", p.serialized_form());
+        assert_eq!(tooltip(Items::SCROLL_SMALL, &ancient).map(|(_, bg)| bg), Some(ANCIENT_BG));
+        let slate = format!("{{BlockEntityTag:{{pattern:\"{}\"}}}}", p.serialized_form());
+        assert_eq!(tooltip(holder::SLATE, &slate).map(|(_, bg)| bg), Some(SLATE_BG));
+        assert!(tooltip(Items::SCROLL, "{}").is_none(), "a blank scroll: no picture");
+    }
 
     #[test]
     fn a_pattern_fills_its_box() {

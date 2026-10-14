@@ -45,6 +45,16 @@ fn pattern_of(nbt: &Nbt, key: &str) -> Option<Iota> {
     HexPattern::from_serialized(s).map(Iota::Pattern)
 }
 
+/// The pattern a scroll or a slate (its item) of `id` with data `nbt` bears.
+pub fn written_pattern(id: &str, nbt: &Nbt) -> Option<HexPattern> {
+    let s = match id {
+        SLATE => nbt.get("BlockEntityTag")?.get_str("pattern")?,
+        id if is_scroll(id) => nbt.get_str("pattern")?,
+        _ => return None,
+    };
+    HexPattern::from_serialized(s)
+}
+
 /// `readIota`: what the item holds, if anything.
 pub fn read(stack: &Stack) -> Option<Iota> {
     let nbt = &stack.nbt;
