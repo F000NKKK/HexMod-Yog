@@ -72,64 +72,6 @@
   ],
   "entries": [
     {
-      "id": "hexcasting:demo",
-      "name": "@Book.demo.name",
-      "category": "hexcasting:basics",
-      "icon": "minecraft:amethyst_cluster",
-      "priority": -1,
-      "read_by_default": true,
-      "pages": [
-        {
-          "type": "multiblock",
-          "name": "@Book.demo.name",
-          "text": "@Book.demo.geode",
-          "pattern": [
-            [
-              "     ",
-              " BBB ",
-              " BBB ",
-              " BBB ",
-              "     "
-            ],
-            [
-              " CCC ",
-              "CAAAC",
-              "CAXAC",
-              "CAAAC",
-              " CCC "
-            ],
-            [
-              "SSSSS",
-              "SCCCS",
-              "SCCCS",
-              "SCCCS",
-              "SSSSS"
-            ]
-          ],
-          "mapping": {
-            "A": "minecraft:amethyst_block",
-            "X": "minecraft:budding_amethyst",
-            "C": "minecraft:calcite",
-            "S": "minecraft:smooth_basalt",
-            "B": "minecraft:amethyst_block"
-          }
-        },
-        {
-          "type": "entity",
-          "entity": "minecraft:allay",
-          "text": "@Book.demo.allay"
-        },
-        {
-          "type": "entity",
-          "entity": "minecraft:zombie"
-        },
-        {
-          "type": "entity",
-          "entity": "minecraft:villager"
-        }
-      ]
-    },
-    {
       "id": "hexcasting:basics/couldnt_cast",
       "name": "@Book.entry.couldnt_cast",
       "category": "hexcasting:basics",
@@ -258,8 +200,7 @@
             },
             {
               "startdir": "EAST",
-              "signature": "qaq",
-              "q": 2
+              "signature": "qaq"
             }
           ]
         },
@@ -2369,14 +2310,11 @@
           "patterns": [
             {
               "startdir": "NORTH_WEST",
-              "signature": "qqqqqea",
-              "q": -1,
-              "r": -1
+              "signature": "qqqqqea"
             },
             {
               "startdir": "NORTH_EAST",
-              "signature": "eeeeeqa",
-              "r": 1
+              "signature": "eeeeeqa"
             }
           ]
         },
@@ -2389,14 +2327,11 @@
           "patterns": [
             {
               "startdir": "NORTH_WEST",
-              "signature": "qqqqqew",
-              "q": -1,
-              "r": -1
+              "signature": "qqqqqew"
             },
             {
               "startdir": "NORTH_EAST",
-              "signature": "eeeeeqw",
-              "r": 1
+              "signature": "eeeeeqw"
             }
           ]
         },
@@ -2409,14 +2344,11 @@
           "patterns": [
             {
               "startdir": "NORTH_WEST",
-              "signature": "qqqqqed",
-              "q": -1,
-              "r": -1
+              "signature": "qqqqqed"
             },
             {
               "startdir": "NORTH_EAST",
-              "signature": "eeeeeqd",
-              "r": 1
+              "signature": "eeeeeqd"
             }
           ]
         },
@@ -3834,8 +3766,7 @@
             },
             {
               "startdir": "NORTH_EAST",
-              "signature": "dedd",
-              "q": 3
+              "signature": "dedd"
             }
           ]
         },
@@ -4953,9 +4884,7 @@
           "patterns": [
             {
               "startdir": "EAST",
-              "signature": "a",
-              "q": 0,
-              "r": 0
+              "signature": "a"
             }
           ]
         },
@@ -5127,15 +5056,11 @@
             },
             {
               "startdir": "EAST",
-              "signature": "eada",
-              "q": 1,
-              "r": 2
+              "signature": "eada"
             },
             {
               "startdir": "SOUTH_EAST",
-              "signature": "ae",
-              "q": 2,
-              "r": 4
+              "signature": "ae"
             }
           ]
         },

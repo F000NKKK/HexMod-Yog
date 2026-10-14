@@ -766,8 +766,5 @@
   "action.hexcasting.swizzle": "Swindler's Gambit",
   "page.stackmanip.swizzle.n2": "Although I can't pretend to know the mathematics behind calculating this permutation code, I have managed to dig up an extensive chart of them, enumerating all permutations of up to six elements.\n\nIf I wish to do further study, the key word is \"Lehmer Code.\"",
   "entry.stackmanip": "Stack Manipulation",
-  "demo.name": "Demo (temporary)",
-  "demo.geode": "A {accent|geode} in miniature: budding amethyst in amethyst, calcite and smooth basalt.",
-  "demo.allay": "An {accent|allay}, turning slowly.",
   "landing": "I seem to have discovered a new method of magical arts, in which one draws patterns strange and wild onto a hexagonal grid. It fascinates me. I've decided to start a journal of my thoughts and findings.\n\n{link=https://forum.petra-k.at/index.php|Forum Link}"
 }
