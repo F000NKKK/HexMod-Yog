@@ -1,0 +1,16 @@
+<!-- Hex Casting's pattern page (`hexcasting:pattern`): the action's name,
+     its patterns (drawn by `book_page.rs`), what it takes and gives, and
+     its description. -->
+<Component name="PatternPage" book_page="hexcasting:pattern"
+           description="A pattern: its name, the pattern itself, what it takes and gives, and what it does.">
+    <Property name="op_id" type="text"/>
+    <Property name="name" type="book_text"/>
+    <Property name="input" type="text" default=""/>
+    <Property name="output" type="text" default=""/>
+    <Property name="text" type="book_text" default=""/>
+    <Property name="patterns" type="data" default="[]"/>
+    <BookHeader text="{x:Bind name}"/>
+    <Drawn drawer="hexcasting:pattern" h="64" data="{x:Bind patterns}" visible="{x:Bind patterns}"/>
+    <BookText text="{u|{x:Bind input}} → {u|{x:Bind output}}" visible="{x:Bind input}{x:Bind output}"/>
+    <BookText text="{x:Bind text}" visible="{x:Bind text}"/>
+</Component>

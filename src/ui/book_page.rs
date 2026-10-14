@@ -2,9 +2,9 @@
 //! `AbstractPatternComponent`): the page's patterns in a grid of cells the
 //! size of its picture, each fitted into its cell, in the book's colours
 //! (`READABLE_GRID_SCROLL_COLORS`) and strokes (`fromStroke(4)`), still —
-//! the book's patterns don't move. The loader lays the page out (a `drawn`
-//! page: title, picture, `input → output`, text) and calls [`draw`] for
-//! the picture.
+//! the book's patterns don't move. The book lays the page out by
+//! `pattern_page.yui` (title, picture, `input → output`, text) and calls
+//! [`draw`] for the picture.
 
 use yog_api::yog_data::Value;
 use yog_api::{GfxContext, Registry};
@@ -25,9 +25,10 @@ pub fn register(registry: &mut Registry) {
     registry.on_book_page(DRAWER, |gfx, data, [x, y, w, h]| draw(gfx, &patterns(data), x, y, w, h));
 }
 
-/// The page's `patterns`: `{ startdir: "EAST", signature: "qaq" }` each.
+/// The page's patterns — the list itself (`PatternPage`'s `patterns`) or
+/// an object's `patterns`: `{ startdir: "EAST", signature: "qaq" }` each.
 pub fn patterns(data: &Value) -> Vec<HexPattern> {
-    let Some(list) = data.get("patterns").and_then(Value::as_list) else {
+    let Some(list) = data.as_list().or_else(|| data.get("patterns").and_then(Value::as_list)) else {
         return Vec::new();
     };
     list.iter()
@@ -103,6 +104,7 @@ mod tests {
         assert_eq!(p.len(), 2, "an unknown direction is skipped");
         assert_eq!(p[0].positions().len(), 5);
         assert!(patterns(&data("{ op_id: \"hexcasting:manual\" }")).is_empty());
+        assert_eq!(patterns(&data(r#"[ { startdir: "EAST", signature: "aa" } ]"#)).len(), 1, "the list itself");
     }
 
     #[test]
