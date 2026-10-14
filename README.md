@@ -19,7 +19,7 @@
 
 🇺🇸 **English** | 🇷🇺 [Русский](README.ru.md)
 
-[Overview](#-overview) • [Features](#-key-features) • [Patterns](#-patterns) • [Examples](#-examples) • [Installation](#-installation) • [Building](#-building) • [Status](#-status) • [Credits](#-credits)
+[Overview](#-overview) • [Features](#-key-features) • [The Hex Notebook](#-the-hex-notebook) • [Patterns](#-patterns) • [Examples](#-examples) • [Installation](#-installation) • [Building](#-building) • [Status](#-status) • [Credits](#-credits)
 
 </div>
 
@@ -100,6 +100,28 @@ media costs, mishaps and pattern signatures.
   game was added to Yog as general-purpose API (action bar text, fluids,
   feature placement, entity tags…). Hex Casting–specific logic stays in the
   mod.
+
+## 📕 The Hex Notebook
+
+The original's guide book, whole: every category, entry and page of Hex
+Casting's Patchouli book, in English and Russian. It is a Yog guide book
+(`content/thehexbook.ybook`, texts in `resources/Book*.yres`) drawn by
+Yog's own book renderer, with Patchouli's look: the original's book
+texture, crafting grids with 3D blocks, spotlights, entities, and every
+pattern drawn as Hex Casting draws it.
+
+<div align="center">
+
+| | |
+|:---:|:---:|
+| ![The Hex Notebook](docs/images/book-landing.png) | ![Хекс-Учебник](docs/images/book-landing-ru.png) |
+| The landing page | …and in Russian |
+| ![A pattern page](docs/images/book-pattern.png) | ![A crafting page](docs/images/book-crafting.png) |
+| A pattern, its stack effect and description | A recipe with the original's crafting grid |
+| ![Hand-drawn patterns](docs/images/book-patterns.png) | ![A text page in Russian](docs/images/book-text-ru.png) |
+| Several patterns on one page | Coloured terms and links |
+
+</div>
 
 ## 🌀 Patterns
 
