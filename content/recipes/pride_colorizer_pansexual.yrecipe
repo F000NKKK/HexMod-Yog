@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:carrot",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:carrot",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:pride_colorizer_pansexual",
+  "result": "@item:hexcasting:pride_colorizer_pansexual",
   "category": "misc"
 }

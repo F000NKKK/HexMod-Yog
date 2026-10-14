@@ -1,6 +1,6 @@
 {
   "id": "hexcasting:stonecutting/quenched_allay_tiles",
   "type": "stonecutting",
-  "ingredient": "#hexcasting:quenched_allay_blocks",
-  "result": "hexcasting:quenched_allay_tiles"
+  "ingredient": "@tag:item:hexcasting:quenched_allay_blocks",
+  "result": "@item:hexcasting:quenched_allay_tiles"
 }

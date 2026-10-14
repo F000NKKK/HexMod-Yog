@@ -6,9 +6,9 @@
     "##"
   ],
   "key": {
-    "#": "hexcasting:quenched_allay_bricks"
+    "#": "@item:hexcasting:quenched_allay_bricks"
   },
-  "result": "hexcasting:quenched_allay_tiles",
+  "result": "@item:hexcasting:quenched_allay_tiles",
   "count": 4,
   "category": "building"
 }

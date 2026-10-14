@@ -1,6 +1,6 @@
 {
   "id": "hexcasting:stonecutting/amethyst_bricks_small",
   "type": "stonecutting",
-  "ingredient": "#hexcasting:amethyst_blocks",
-  "result": "hexcasting:amethyst_bricks_small"
+  "ingredient": "@tag:item:hexcasting:amethyst_blocks",
+  "result": "@item:hexcasting:amethyst_bricks_small"
 }

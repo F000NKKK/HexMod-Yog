@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:arrow",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:arrow",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:pride_colorizer_aromantic",
+  "result": "@item:hexcasting:pride_colorizer_aromantic",
   "category": "misc"
 }

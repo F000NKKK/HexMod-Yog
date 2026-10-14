@@ -7,10 +7,10 @@
     "S  "
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "S": "minecraft:stick",
-    "W": "minecraft:bamboo_planks"
+    "A": "@item:hexcasting:charged_amethyst",
+    "S": "@item:minecraft:stick",
+    "W": "@item:minecraft:bamboo_planks"
   },
-  "result": "hexcasting:staff/bamboo",
+  "result": "@item:hexcasting:staff/bamboo",
   "category": "equipment"
 }

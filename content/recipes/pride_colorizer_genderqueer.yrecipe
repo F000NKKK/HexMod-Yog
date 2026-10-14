@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:glass_bottle",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:glass_bottle",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:pride_colorizer_genderqueer",
+  "result": "@item:hexcasting:pride_colorizer_genderqueer",
   "category": "misc"
 }

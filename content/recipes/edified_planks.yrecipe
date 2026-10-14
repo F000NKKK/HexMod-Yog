@@ -2,9 +2,9 @@
   "id": "hexcasting:edified_planks",
   "type": "shapeless",
   "ingredients": [
-    "#hexcasting:edified_logs"
+    "@tag:item:hexcasting:edified_logs"
   ],
-  "result": "hexcasting:edified_planks",
+  "result": "@item:hexcasting:edified_planks",
   "count": 4,
   "category": "building"
 }

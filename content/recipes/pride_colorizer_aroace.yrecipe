@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:wheat_seeds",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:wheat_seeds",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:pride_colorizer_aroace",
+  "result": "@item:hexcasting:pride_colorizer_aroace",
   "category": "misc"
 }

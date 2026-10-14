@@ -7,10 +7,10 @@
     "S  "
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "S": "minecraft:stick",
-    "W": "minecraft:spruce_planks"
+    "A": "@item:hexcasting:charged_amethyst",
+    "S": "@item:minecraft:stick",
+    "W": "@item:minecraft:spruce_planks"
   },
-  "result": "hexcasting:staff/spruce",
+  "result": "@item:hexcasting:staff/spruce",
   "category": "equipment"
 }

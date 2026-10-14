@@ -7,9 +7,9 @@
     " C "
   ],
   "key": {
-    "C": "minecraft:glass",
-    "I": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:glass",
+    "I": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:lens",
+  "result": "@item:hexcasting:lens",
   "category": "equipment"
 }

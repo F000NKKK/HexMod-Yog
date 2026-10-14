@@ -7,11 +7,11 @@
     "SSP"
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "B": "minecraft:iron_bars",
-    "P": "minecraft:purpur_block",
-    "S": "hexcasting:slate_block"
+    "A": "@item:hexcasting:charged_amethyst",
+    "B": "@item:minecraft:iron_bars",
+    "P": "@item:minecraft:purpur_block",
+    "S": "@item:hexcasting:slate_block"
   },
-  "result": "hexcasting:impetus/empty",
+  "result": "@item:hexcasting:impetus/empty",
   "category": "redstone"
 }

@@ -2,10 +2,10 @@
   "id": "hexcasting:slate_amethyst_pillar",
   "type": "shapeless",
   "ingredients": [
-    "hexcasting:slate_pillar",
-    "hexcasting:amethyst_pillar"
+    "@item:hexcasting:slate_pillar",
+    "@item:hexcasting:amethyst_pillar"
   ],
-  "result": "hexcasting:slate_amethyst_pillar",
+  "result": "@item:hexcasting:slate_amethyst_pillar",
   "count": 2,
   "category": "building"
 }

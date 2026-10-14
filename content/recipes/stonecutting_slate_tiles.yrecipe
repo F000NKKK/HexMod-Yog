@@ -1,6 +1,6 @@
 {
   "id": "hexcasting:stonecutting/slate_tiles",
   "type": "stonecutting",
-  "ingredient": "#hexcasting:slate_blocks",
-  "result": "hexcasting:slate_tiles"
+  "ingredient": "@tag:item:hexcasting:slate_blocks",
+  "result": "@item:hexcasting:slate_tiles"
 }

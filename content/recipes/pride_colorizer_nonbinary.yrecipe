@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:moss_block",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:moss_block",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:pride_colorizer_nonbinary",
+  "result": "@item:hexcasting:pride_colorizer_nonbinary",
   "category": "misc"
 }

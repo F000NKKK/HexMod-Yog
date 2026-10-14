@@ -7,10 +7,10 @@
     "S  "
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "S": "minecraft:stick",
-    "W": "minecraft:warped_planks"
+    "A": "@item:hexcasting:charged_amethyst",
+    "S": "@item:minecraft:stick",
+    "W": "@item:minecraft:warped_planks"
   },
-  "result": "hexcasting:staff/warped",
+  "result": "@item:hexcasting:staff/warped",
   "category": "equipment"
 }

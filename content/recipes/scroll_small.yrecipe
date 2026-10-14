@@ -6,9 +6,9 @@
     "P "
   ],
   "key": {
-    "A": "hexcasting:amethyst_dust",
-    "P": "minecraft:paper"
+    "A": "@item:hexcasting:amethyst_dust",
+    "P": "@item:minecraft:paper"
   },
-  "result": "hexcasting:scroll_small",
+  "result": "@item:hexcasting:scroll_small",
   "category": "misc"
 }

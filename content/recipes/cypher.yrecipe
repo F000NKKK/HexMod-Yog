@@ -8,11 +8,11 @@
   ],
   "key": {
     "C": [
-      "minecraft:copper_ingot",
-      "#c:copper_ingots"
+      "@item:minecraft:copper_ingot",
+      "@tag:item:c:copper_ingots"
     ],
-    "I": "hexcasting:amethyst_dust"
+    "I": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:cypher",
+  "result": "@item:hexcasting:cypher",
   "category": "equipment"
 }

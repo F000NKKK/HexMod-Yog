@@ -7,14 +7,14 @@
     "NBA"
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "B": "minecraft:writable_book",
-    "F": "minecraft:chorus_fruit",
+    "A": "@item:hexcasting:charged_amethyst",
+    "B": "@item:minecraft:writable_book",
+    "F": "@item:minecraft:chorus_fruit",
     "N": [
-      "minecraft:gold_nugget",
-      "#c:gold_nuggets"
+      "@item:minecraft:gold_nugget",
+      "@tag:item:c:gold_nuggets"
     ]
   },
-  "result": "hexcasting:spellbook",
+  "result": "@item:hexcasting:spellbook",
   "category": "equipment"
 }

@@ -6,8 +6,8 @@
     "S"
   ],
   "key": {
-    "S": "hexcasting:slate"
+    "S": "@item:hexcasting:slate"
   },
-  "result": "hexcasting:slate_block",
+  "result": "@item:hexcasting:slate_block",
   "category": "building"
 }

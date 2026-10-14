@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:honeycomb",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:honeycomb",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:pride_colorizer_lesbian",
+  "result": "@item:hexcasting:pride_colorizer_lesbian",
   "category": "misc"
 }

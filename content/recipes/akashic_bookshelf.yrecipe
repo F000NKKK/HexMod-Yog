@@ -7,10 +7,10 @@
     "LPL"
   ],
   "key": {
-    "C": "minecraft:book",
-    "L": "#hexcasting:edified_logs",
-    "P": "#hexcasting:edified_planks"
+    "C": "@item:minecraft:book",
+    "L": "@tag:item:hexcasting:edified_logs",
+    "P": "@tag:item:hexcasting:edified_planks"
   },
-  "result": "hexcasting:akashic_bookshelf",
+  "result": "@item:hexcasting:akashic_bookshelf",
   "category": "redstone"
 }

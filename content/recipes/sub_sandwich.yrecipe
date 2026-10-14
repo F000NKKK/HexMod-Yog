@@ -7,11 +7,11 @@
     " B "
   ],
   "key": {
-    "A": "minecraft:amethyst_shard",
-    "B": "minecraft:bread",
-    "C": "minecraft:cooked_beef",
-    "S": "minecraft:stick"
+    "A": "@item:minecraft:amethyst_shard",
+    "B": "@item:minecraft:bread",
+    "C": "@item:minecraft:cooked_beef",
+    "S": "@item:minecraft:stick"
   },
-  "result": "hexcasting:sub_sandwich",
+  "result": "@item:hexcasting:sub_sandwich",
   "category": "misc"
 }

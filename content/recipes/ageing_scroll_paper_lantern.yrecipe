@@ -3,20 +3,20 @@
   "type": "shapeless",
   "ingredients": [
     [
-      "minecraft:brown_dye",
-      "#c:brown_dye",
-      "#c:brown_dyes"
+      "@item:minecraft:brown_dye",
+      "@tag:item:c:brown_dye",
+      "@tag:item:c:brown_dyes"
     ],
-    "hexcasting:scroll_paper_lantern",
-    "hexcasting:scroll_paper_lantern",
-    "hexcasting:scroll_paper_lantern",
-    "hexcasting:scroll_paper_lantern",
-    "hexcasting:scroll_paper_lantern",
-    "hexcasting:scroll_paper_lantern",
-    "hexcasting:scroll_paper_lantern",
-    "hexcasting:scroll_paper_lantern"
+    "@item:hexcasting:scroll_paper_lantern",
+    "@item:hexcasting:scroll_paper_lantern",
+    "@item:hexcasting:scroll_paper_lantern",
+    "@item:hexcasting:scroll_paper_lantern",
+    "@item:hexcasting:scroll_paper_lantern",
+    "@item:hexcasting:scroll_paper_lantern",
+    "@item:hexcasting:scroll_paper_lantern",
+    "@item:hexcasting:scroll_paper_lantern"
   ],
-  "result": "hexcasting:ancient_scroll_paper_lantern",
+  "result": "@item:hexcasting:ancient_scroll_paper_lantern",
   "count": 8,
   "category": "misc"
 }

@@ -2,10 +2,10 @@
   "id": "hexcasting:slate_amethyst_tiles",
   "type": "shapeless",
   "ingredients": [
-    "hexcasting:slate_tiles",
-    "hexcasting:amethyst_tiles"
+    "@item:hexcasting:slate_tiles",
+    "@item:hexcasting:amethyst_tiles"
   ],
-  "result": "hexcasting:slate_amethyst_tiles",
+  "result": "@item:hexcasting:slate_amethyst_tiles",
   "count": 2,
   "category": "building"
 }

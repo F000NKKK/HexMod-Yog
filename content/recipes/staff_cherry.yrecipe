@@ -7,10 +7,10 @@
     "S  "
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "S": "minecraft:stick",
-    "W": "minecraft:cherry_planks"
+    "A": "@item:hexcasting:charged_amethyst",
+    "S": "@item:minecraft:stick",
+    "W": "@item:minecraft:cherry_planks"
   },
-  "result": "hexcasting:staff/cherry",
+  "result": "@item:hexcasting:staff/cherry",
   "category": "equipment"
 }

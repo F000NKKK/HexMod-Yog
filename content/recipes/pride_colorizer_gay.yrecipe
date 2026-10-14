@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:stone_brick_wall",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:stone_brick_wall",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:pride_colorizer_gay",
+  "result": "@item:hexcasting:pride_colorizer_gay",
   "category": "misc"
 }

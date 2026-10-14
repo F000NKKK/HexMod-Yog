@@ -7,9 +7,9 @@
     "PPP"
   ],
   "key": {
-    "A": "hexcasting:amethyst_dust",
-    "P": "minecraft:paper"
+    "A": "@item:hexcasting:amethyst_dust",
+    "P": "@item:minecraft:paper"
   },
-  "result": "hexcasting:scroll",
+  "result": "@item:hexcasting:scroll",
   "category": "misc"
 }

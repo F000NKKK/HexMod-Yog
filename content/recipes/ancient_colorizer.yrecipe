@@ -7,9 +7,9 @@
     " C "
   ],
   "key": {
-    "C": "hexcasting:amethyst_dust",
-    "I": "minecraft:copper_ingot"
+    "C": "@item:hexcasting:amethyst_dust",
+    "I": "@item:minecraft:copper_ingot"
   },
-  "result": "hexcasting:ancient_colorizer",
+  "result": "@item:hexcasting:ancient_colorizer",
   "category": "misc"
 }

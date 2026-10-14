@@ -6,10 +6,10 @@
     "SSS"
   ],
   "key": {
-    "A": "hexcasting:amethyst_dust",
-    "S": "minecraft:deepslate"
+    "A": "@item:hexcasting:amethyst_dust",
+    "S": "@item:minecraft:deepslate"
   },
-  "result": "hexcasting:slate",
+  "result": "@item:hexcasting:slate",
   "count": 6,
   "category": "misc"
 }

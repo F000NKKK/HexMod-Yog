@@ -1,6 +1,6 @@
 {
   "id": "hexcasting:stonecutting/amethyst_tiles",
   "type": "stonecutting",
-  "ingredient": "#hexcasting:amethyst_blocks",
-  "result": "hexcasting:amethyst_tiles"
+  "ingredient": "@tag:item:hexcasting:amethyst_blocks",
+  "result": "@item:hexcasting:amethyst_tiles"
 }

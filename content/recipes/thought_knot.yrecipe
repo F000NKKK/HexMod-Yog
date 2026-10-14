@@ -2,9 +2,9 @@
   "id": "hexcasting:thought_knot",
   "type": "shapeless",
   "ingredients": [
-    "hexcasting:amethyst_dust",
-    "minecraft:string"
+    "@item:hexcasting:amethyst_dust",
+    "@item:minecraft:string"
   ],
-  "result": "hexcasting:thought_knot",
+  "result": "@item:hexcasting:thought_knot",
   "category": "equipment"
 }

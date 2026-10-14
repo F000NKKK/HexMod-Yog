@@ -6,9 +6,9 @@
     "B"
   ],
   "key": {
-    "B": "minecraft:torch",
-    "T": "hexcasting:scroll_paper"
+    "B": "@item:minecraft:torch",
+    "T": "@item:hexcasting:scroll_paper"
   },
-  "result": "hexcasting:scroll_paper_lantern",
+  "result": "@item:hexcasting:scroll_paper_lantern",
   "category": "misc"
 }

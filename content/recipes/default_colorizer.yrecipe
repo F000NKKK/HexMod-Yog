@@ -7,9 +7,9 @@
     " C "
   ],
   "key": {
-    "C": "hexcasting:amethyst_dust",
-    "I": "minecraft:amethyst_shard"
+    "C": "@item:hexcasting:amethyst_dust",
+    "I": "@item:minecraft:amethyst_shard"
   },
-  "result": "hexcasting:default_colorizer",
+  "result": "@item:hexcasting:default_colorizer",
   "category": "misc"
 }

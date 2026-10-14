@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:purple_dye",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:purple_dye",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:dye_colorizer_purple",
+  "result": "@item:hexcasting:dye_colorizer_purple",
   "category": "misc"
 }

@@ -7,12 +7,12 @@
   ],
   "key": {
     "B": [
-      "minecraft:copper_ingot",
-      "#c:copper_ingots"
+      "@item:minecraft:copper_ingot",
+      "@tag:item:c:copper_ingots"
     ],
-    "T": "hexcasting:charged_amethyst"
+    "T": "@item:hexcasting:charged_amethyst"
   },
-  "result": "hexcasting:amethyst_sconce",
+  "result": "@item:hexcasting:amethyst_sconce",
   "count": 4,
   "category": "misc"
 }

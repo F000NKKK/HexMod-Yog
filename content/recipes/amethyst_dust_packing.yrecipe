@@ -6,8 +6,8 @@
     "XX"
   ],
   "key": {
-    "X": "hexcasting:amethyst_dust"
+    "X": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:amethyst_dust_block",
+  "result": "@item:hexcasting:amethyst_dust_block",
   "category": "building"
 }

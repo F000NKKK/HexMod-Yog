@@ -2,8 +2,8 @@
   "id": "hexcasting:quenched_allay_bricks_small_from_quenched_allay_bricks",
   "type": "shapeless",
   "ingredients": [
-    "hexcasting:quenched_allay_bricks"
+    "@item:hexcasting:quenched_allay_bricks"
   ],
-  "result": "hexcasting:quenched_allay_bricks_small",
+  "result": "@item:hexcasting:quenched_allay_bricks_small",
   "category": "building"
 }

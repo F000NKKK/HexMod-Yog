@@ -7,9 +7,9 @@
     " WW"
   ],
   "key": {
-    "W": "#hexcasting:edified_planks"
+    "W": "@tag:item:hexcasting:edified_planks"
   },
-  "result": "hexcasting:edified_tile",
+  "result": "@item:hexcasting:edified_tile",
   "count": 6,
   "category": "building"
 }

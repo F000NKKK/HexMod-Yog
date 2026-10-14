@@ -6,9 +6,9 @@
     "WW"
   ],
   "key": {
-    "W": "hexcasting:stripped_edified_log"
+    "W": "@item:hexcasting:stripped_edified_log"
   },
-  "result": "hexcasting:stripped_edified_wood",
+  "result": "@item:hexcasting:stripped_edified_wood",
   "count": 3,
   "category": "building"
 }

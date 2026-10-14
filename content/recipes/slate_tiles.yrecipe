@@ -6,9 +6,9 @@
     "##"
   ],
   "key": {
-    "#": "hexcasting:slate_bricks"
+    "#": "@item:hexcasting:slate_bricks"
   },
-  "result": "hexcasting:slate_tiles",
+  "result": "@item:hexcasting:slate_tiles",
   "count": 4,
   "category": "building"
 }

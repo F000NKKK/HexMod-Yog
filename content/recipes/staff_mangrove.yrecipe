@@ -7,10 +7,10 @@
     "S  "
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "S": "minecraft:stick",
-    "W": "minecraft:mangrove_planks"
+    "A": "@item:hexcasting:charged_amethyst",
+    "S": "@item:minecraft:stick",
+    "W": "@item:minecraft:mangrove_planks"
   },
-  "result": "hexcasting:staff/mangrove",
+  "result": "@item:hexcasting:staff/mangrove",
   "category": "equipment"
 }

@@ -8,11 +8,11 @@
   ],
   "key": {
     "C": [
-      "minecraft:iron_ingot",
-      "#c:iron_ingots"
+      "@item:minecraft:iron_ingot",
+      "@tag:item:c:iron_ingots"
     ],
-    "I": "minecraft:amethyst_shard"
+    "I": "@item:minecraft:amethyst_shard"
   },
-  "result": "hexcasting:trinket",
+  "result": "@item:hexcasting:trinket",
   "category": "equipment"
 }

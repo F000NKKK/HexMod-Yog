@@ -6,9 +6,9 @@
     "##"
   ],
   "key": {
-    "#": "minecraft:amethyst_block"
+    "#": "@item:minecraft:amethyst_block"
   },
-  "result": "hexcasting:amethyst_bricks",
+  "result": "@item:hexcasting:amethyst_bricks",
   "count": 4,
   "category": "building"
 }

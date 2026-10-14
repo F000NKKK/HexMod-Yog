@@ -7,9 +7,9 @@
     " D "
   ],
   "key": {
-    "C": "minecraft:cyan_dye",
-    "D": "hexcasting:amethyst_dust"
+    "C": "@item:minecraft:cyan_dye",
+    "D": "@item:hexcasting:amethyst_dust"
   },
-  "result": "hexcasting:dye_colorizer_cyan",
+  "result": "@item:hexcasting:dye_colorizer_cyan",
   "category": "misc"
 }

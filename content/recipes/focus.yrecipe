@@ -7,14 +7,14 @@
     "GLG"
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
+    "A": "@item:hexcasting:charged_amethyst",
     "G": [
-      "minecraft:glowstone_dust",
-      "#c:glowstone_dusts"
+      "@item:minecraft:glowstone_dust",
+      "@tag:item:c:glowstone_dusts"
     ],
-    "L": "minecraft:leather",
-    "P": "minecraft:paper"
+    "L": "@item:minecraft:leather",
+    "P": "@item:minecraft:paper"
   },
-  "result": "hexcasting:focus",
+  "result": "@item:hexcasting:focus",
   "category": "equipment"
 }

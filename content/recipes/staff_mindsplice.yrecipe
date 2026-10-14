@@ -7,10 +7,10 @@
     "S  "
   ],
   "key": {
-    "A": "hexcasting:charged_amethyst",
-    "S": "minecraft:stick",
-    "W": "#hexcasting:brainswept_circle_components"
+    "A": "@item:hexcasting:charged_amethyst",
+    "S": "@item:minecraft:stick",
+    "W": "@tag:item:hexcasting:brainswept_circle_components"
   },
-  "result": "hexcasting:staff/mindsplice",
+  "result": "@item:hexcasting:staff/mindsplice",
   "category": "equipment"
 }

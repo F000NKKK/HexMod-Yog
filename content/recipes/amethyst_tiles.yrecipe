@@ -6,9 +6,9 @@
     "##"
   ],
   "key": {
-    "#": "hexcasting:amethyst_bricks"
+    "#": "@item:hexcasting:amethyst_bricks"
   },
-  "result": "hexcasting:amethyst_tiles",
+  "result": "@item:hexcasting:amethyst_tiles",
   "count": 4,
   "category": "building"
 }

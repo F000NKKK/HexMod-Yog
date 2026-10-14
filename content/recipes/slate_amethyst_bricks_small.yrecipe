@@ -2,10 +2,10 @@
   "id": "hexcasting:slate_amethyst_bricks_small",
   "type": "shapeless",
   "ingredients": [
-    "hexcasting:slate_bricks_small",
-    "hexcasting:amethyst_bricks_small"
+    "@item:hexcasting:slate_bricks_small",
+    "@item:hexcasting:amethyst_bricks_small"
   ],
-  "result": "hexcasting:slate_amethyst_bricks_small",
+  "result": "@item:hexcasting:slate_amethyst_bricks_small",
   "count": 2,
   "category": "building"
 }

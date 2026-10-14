@@ -2,10 +2,10 @@
   "id": "hexcasting:decompose_quenched_shard/charged",
   "type": "shapeless",
   "ingredients": [
-    "hexcasting:quenched_allay_shard",
-    "hexcasting:charged_amethyst"
+    "@item:hexcasting:quenched_allay_shard",
+    "@item:hexcasting:charged_amethyst"
   ],
-  "result": "hexcasting:charged_amethyst",
+  "result": "@item:hexcasting:charged_amethyst",
   "count": 4,
   "category": "misc"
 }

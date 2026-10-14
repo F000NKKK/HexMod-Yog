@@ -7,10 +7,10 @@
     "WAW"
   ],
   "key": {
-    "A": "minecraft:amethyst_shard",
-    "S": "minecraft:stick",
-    "W": "#minecraft:planks"
+    "A": "@item:minecraft:amethyst_shard",
+    "S": "@item:minecraft:stick",
+    "W": "@tag:item:minecraft:planks"
   },
-  "result": "hexcasting:abacus",
+  "result": "@item:hexcasting:abacus",
   "category": "equipment"
 }
