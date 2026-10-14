@@ -9,7 +9,7 @@
     "light": 4,
     "requires_tool": true,
     "drops": {
-      "item": "quenched_allay_shard",
+      "item": "@item:hexcasting:quenched_allay_shard",
       "count": [
         2,
         4
