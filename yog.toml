@@ -8,7 +8,7 @@ authors     = ["F000NK", "Yog Team", "gamma-delta (original Hex Casting)", "Fall
 license     = "MIT"
 
 [dependencies]
-yog-kit = "0.3"
+yog-kit = "0.4"
 uuid = "1.23.3"
 
 ## `yog run <name>` — build, drop the .yog into the loader's own Gradle dev-run
