@@ -235,6 +235,12 @@ impl Mesh {
         self.verts.len() / 6
     }
 
+    /// `x, y, r, g, b, a` per vertex, three a triangle.
+    #[cfg(test)]
+    pub fn vertices(&self) -> &[f32] {
+        &self.verts
+    }
+
     /// Adds `other`'s triangles after these.
     pub fn append(&mut self, other: Mesh) {
         self.verts.extend(other.verts);

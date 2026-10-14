@@ -31,8 +31,9 @@ impl Mod for HexMod {
 
 
 
-        // The staff's casting grid.
+        // The staff's casting grid; the book's pattern pages.
         ui::spellcasting::register(registry);
+        ui::book_page::register(registry);
 
         events::register(registry);
 

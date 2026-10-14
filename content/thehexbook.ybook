@@ -187,22 +187,24 @@
           "text": "@Book.page.n101.n3"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:manual",
-          "name": "@Book.page.n101.n4.header",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.page.n101.n4.header",
+          "height": 64,
           "text": "@Book.page.n101.n4",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qaq"
-            },
-            {
-              "startdir": "EAST",
-              "signature": "qaq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:manual",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qaq"
+              },
+              {
+                "startdir": "EAST",
+                "signature": "qaq"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -808,20 +810,24 @@
           "text": "@Book.page.interop.pehkui.n1"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:interop/pehkui/get",
-          "name": "@Book.action.hexcasting.interop.pehkui.get",
-          "input": "entity",
-          "output": "num",
-          "text": "@Book.page.interop.pehkui.get"
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.interop.pehkui.get",
+          "caption": "{u|entity} → {u|num}",
+          "text": "@Book.page.interop.pehkui.get",
+          "data": {
+            "op_id": "hexcasting:interop/pehkui/get"
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:interop/pehkui/set",
-          "name": "@Book.action.hexcasting.interop.pehkui.set",
-          "input": "entity, num",
-          "output": "",
-          "text": "@Book.page.interop.pehkui.set"
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.interop.pehkui.set",
+          "caption": "{u|entity, num} → {u|}",
+          "text": "@Book.page.interop.pehkui.set",
+          "data": {
+            "op_id": "hexcasting:interop/pehkui/set"
+          }
         }
       ]
     },
@@ -1866,46 +1872,54 @@
           "text": "@Book.page.advanced_escaping.n1"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:read_into_parens",
-          "name": "@Book.action.hexcasting.read_into_parens",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.read_into_parens",
+          "height": 64,
           "text": "@Book.page.advanced_escaping.read_into_parens",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aqqqqqwded"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:read_into_parens",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aqqqqqwded"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:open_n_parens",
-          "name": "@Book.action.hexcasting.open_n_parens",
-          "input": "num",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.open_n_parens",
+          "height": 64,
+          "caption": "{u|num} → {u|}",
           "text": "@Book.page.advanced_escaping.open_n_parens",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "qdaqadq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:open_n_parens",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "qdaqadq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:close_all_parens",
-          "name": "@Book.action.hexcasting.close_all_parens",
-          "input": "",
-          "output": "num, list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.close_all_parens",
+          "height": 64,
+          "caption": "{u|} → {u|num, list}",
           "text": "@Book.page.advanced_escaping.close_all_parens",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "eadedae"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:close_all_parens",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "eadedae"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1919,116 +1933,140 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:sin",
-          "name": "@Book.action.hexcasting.sin",
-          "input": "num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.sin",
+          "height": 64,
+          "caption": "{u|num} → {u|num}",
           "text": "@Book.page.advanced_math.sin",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:sin",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqaa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:cos",
-          "name": "@Book.action.hexcasting.cos",
-          "input": "num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.cos",
+          "height": 64,
+          "caption": "{u|num} → {u|num}",
           "text": "@Book.page.advanced_math.cos",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqad"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:cos",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqad"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:tan",
-          "name": "@Book.action.hexcasting.tan",
-          "input": "num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.tan",
+          "height": 64,
+          "caption": "{u|num} → {u|num}",
           "text": "@Book.page.advanced_math.tan",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "wqqqqqadq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:tan",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "wqqqqqadq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:arcsin",
-          "name": "@Book.action.hexcasting.arcsin",
-          "input": "num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.arcsin",
+          "height": 64,
+          "caption": "{u|num} → {u|num}",
           "text": "@Book.page.advanced_math.arcsin",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "ddeeeee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:arcsin",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "ddeeeee"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:arccos",
-          "name": "@Book.action.hexcasting.arccos",
-          "input": "num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.arccos",
+          "height": 64,
+          "caption": "{u|num} → {u|num}",
           "text": "@Book.page.advanced_math.arccos",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "adeeeee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:arccos",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "adeeeee"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:arctan",
-          "name": "@Book.action.hexcasting.arctan",
-          "input": "num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.arctan",
+          "height": 64,
+          "caption": "{u|num} → {u|num}",
           "text": "@Book.page.advanced_math.arctan",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eadeeeeew"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:arctan",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eadeeeeew"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:arctan2",
-          "name": "@Book.action.hexcasting.arctan2",
-          "input": "num, num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.arctan2",
+          "height": 64,
+          "caption": "{u|num, num} → {u|num}",
           "text": "@Book.page.advanced_math.arctan2",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "deadeeeeewd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:arctan2",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "deadeeeeewd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:logarithm",
-          "name": "@Book.action.hexcasting.logarithm",
-          "input": "num, num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.logarithm",
+          "height": 64,
+          "caption": "{u|num, num} → {u|num}",
           "text": "@Book.page.advanced_math.logarithm",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "eqaqe"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:logarithm",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "eqaqe"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2041,32 +2079,38 @@
       "advancement": "hexcasting:enlightenment",
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:akashic/read",
-          "name": "@Book.action.hexcasting.akashic.read",
-          "input": "vector, pattern",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.akashic.read",
+          "height": 64,
+          "caption": "{u|vector, pattern} → {u|any}",
           "text": "@Book.page.akashic_patterns.akashic.read",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "qqqwqqqqqaq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:akashic/read",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "qqqwqqqqqaq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:akashic/write",
-          "name": "@Book.action.hexcasting.akashic.write",
-          "input": "vector, pattern, any",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.akashic.write",
+          "height": 64,
+          "caption": "{u|vector, pattern, any} → {u|}",
           "text": "@Book.page.akashic_patterns.akashic.write",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "eeeweeeeede"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:akashic/write",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "eeeweeeeede"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2080,166 +2124,199 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_caster",
-          "name": "@Book.action.hexcasting.get_caster",
-          "input": "",
-          "output": "entity | null",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_caster",
+          "height": 64,
+          "caption": "{u|} → {u|entity | null}",
           "text": "@Book.page.basics_pattern.get_caster",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qaq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:get_caster",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qaq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:entity_pos/eye",
-          "name": "@Book.action.hexcasting.entity_pos.eye",
-          "input": "entity",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.entity_pos.eye",
+          "height": 64,
+          "caption": "{u|entity} → {u|vector}",
           "text": "@Book.page.basics_pattern.entity_pos.eye",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:entity_pos/eye",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:entity_pos/foot",
-          "name": "@Book.action.hexcasting.entity_pos.foot",
-          "input": "entity",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.entity_pos.foot",
+          "height": 64,
+          "caption": "{u|entity} → {u|vector}",
           "text": "@Book.page.basics_pattern.entity_pos.foot",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "dd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:entity_pos/foot",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "dd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity_look",
-          "name": "@Book.action.hexcasting.get_entity_look",
-          "input": "entity",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity_look",
+          "height": 64,
+          "caption": "{u|entity} → {u|vector}",
           "text": "@Book.page.basics_pattern.get_entity_look",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:get_entity_look",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:raycast",
-          "name": "@Book.action.hexcasting.raycast",
-          "input": "vector, vector",
-          "output": "vector | null",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.raycast",
+          "height": 64,
+          "caption": "{u|vector, vector} → {u|vector | null}",
           "text": "@Book.page.basics_pattern.raycast.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wqaawdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:raycast",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wqaawdd"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.basics_pattern.raycast.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:raycast/axis",
-          "name": "@Book.action.hexcasting.raycast.axis",
-          "input": "vector, vector",
-          "output": "vector | null",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.raycast.axis",
+          "height": 64,
+          "caption": "{u|vector, vector} → {u|vector | null}",
           "text": "@Book.page.basics_pattern.raycast.axis.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "weddwaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:raycast/axis",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "weddwaa"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.basics_pattern.raycast.axis.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:raycast/entity",
-          "name": "@Book.action.hexcasting.raycast.entity",
-          "input": "vector, vector",
-          "output": "entity | null",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.raycast.entity",
+          "height": 64,
+          "caption": "{u|vector, vector} → {u|entity | null}",
           "text": "@Book.page.basics_pattern.raycast.entity",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "weaqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:raycast/entity",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "weaqa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:print",
-          "name": "@Book.action.hexcasting.print",
-          "input": "any",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.print",
+          "height": 64,
+          "caption": "{u|any} → {u|any}",
           "text": "@Book.page.basics_pattern.print",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "de"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:print",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "de"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity_height",
-          "name": "@Book.action.hexcasting.get_entity_height",
-          "input": "entity",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity_height",
+          "height": 64,
+          "caption": "{u|entity} → {u|num}",
           "text": "@Book.page.basics_pattern.get_entity_height",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "awq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:get_entity_height",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "awq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity_velocity",
-          "name": "@Book.action.hexcasting.get_entity_velocity",
-          "input": "entity",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity_velocity",
+          "height": 64,
+          "caption": "{u|entity} → {u|vector}",
           "text": "@Book.page.basics_pattern.get_entity_velocity",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:get_entity_velocity",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_media",
-          "name": "@Book.action.hexcasting.get_media",
-          "input": "",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_media",
+          "height": 64,
+          "caption": "{u|} → {u|num}",
           "text": "@Book.page.basics_pattern.get_media",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "dde"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:get_media",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "dde"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2256,58 +2333,72 @@
           "text": "@Book.page.circle_patterns.disclaimer"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:circle/impetus_pos",
-          "name": "@Book.action.hexcasting.circle.impetus_pos",
-          "input": "",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.circle.impetus_pos",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
           "text": "@Book.page.circle_patterns.circle.impetus_pos",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "eaqwqae"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:circle/impetus_pos",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "eaqwqae"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:circle/impetus_dir",
-          "name": "@Book.action.hexcasting.circle.impetus_dir",
-          "input": "",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.circle.impetus_dir",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
           "text": "@Book.page.circle_patterns.circle.impetus_dir",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "eaqwqaewede"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:circle/impetus_dir",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "eaqwqaewede"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:circle/bounds/min",
-          "input": "",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "hexcasting:circle/bounds/min",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
           "text": "@Book.page.circle_patterns.circle.bounds.min",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "eaqwqaewdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:circle/bounds/min",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "eaqwqaewdd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:circle/bounds/max",
-          "input": "",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "hexcasting:circle/bounds/max",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
           "text": "@Book.page.circle_patterns.circle.bounds.max",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "aqwqawaaqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:circle/bounds/max",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "aqwqawaaqa"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2321,167 +2412,192 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/true",
-          "name": "@Book.action.hexcasting.const.true",
-          "input": "",
-          "output": "bool",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "aqae"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.true",
+          "height": 64,
+          "caption": "{u|} → {u|bool}",
+          "data": {
+            "op_id": "hexcasting:const/true",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "aqae"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/false",
-          "name": "@Book.action.hexcasting.const.false",
-          "input": "",
-          "output": "bool",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "dedq"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.false",
+          "height": 64,
+          "caption": "{u|} → {u|bool}",
+          "data": {
+            "op_id": "hexcasting:const/false",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "dedq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/null",
-          "name": "@Book.action.hexcasting.const.null",
-          "input": "",
-          "output": "null",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "d"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.null",
+          "height": 64,
+          "caption": "{u|} → {u|null}",
+          "data": {
+            "op_id": "hexcasting:const/null",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "d"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/vec/0",
-          "name": "@Book.action.hexcasting.const.vec.n0",
-          "input": "",
-          "output": "vector",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqq"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.vec.n0",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
+          "data": {
+            "op_id": "hexcasting:const/vec/0",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/vec/x",
-          "input": "",
-          "output": "vector",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqqea"
-            },
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeeqa"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "hexcasting:const/vec/x",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
+          "data": {
+            "op_id": "hexcasting:const/vec/x",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqqea"
+              },
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeeqa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/vec/y",
-          "input": "",
-          "output": "vector",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqqew"
-            },
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeeqw"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "hexcasting:const/vec/y",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
+          "data": {
+            "op_id": "hexcasting:const/vec/y",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqqew"
+              },
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeeqw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/vec/z",
-          "input": "",
-          "output": "vector",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqqed"
-            },
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeeqd"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "hexcasting:const/vec/z",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
+          "data": {
+            "op_id": "hexcasting:const/vec/z",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqqed"
+              },
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeeqd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/double/tau",
-          "name": "@Book.action.hexcasting.const.double.tau",
-          "input": "",
-          "output": "num",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "eawae"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.double.tau",
+          "height": 64,
+          "caption": "{u|} → {u|num}",
+          "data": {
+            "op_id": "hexcasting:const/double/tau",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "eawae"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/double/pi",
-          "name": "@Book.action.hexcasting.const.double.pi",
-          "input": "",
-          "output": "num",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qdwdq"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.double.pi",
+          "height": 64,
+          "caption": "{u|} → {u|num}",
+          "data": {
+            "op_id": "hexcasting:const/double/pi",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qdwdq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/double/e",
-          "name": "@Book.action.hexcasting.const.double.e",
-          "input": "",
-          "output": "num",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aaq"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.double.e",
+          "height": 64,
+          "caption": "{u|} → {u|num}",
+          "data": {
+            "op_id": "hexcasting:const/double/e",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aaq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:const/double/phi",
-          "name": "@Book.action.hexcasting.const.double.phi",
-          "input": "",
-          "output": "num",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wdded"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.const.double.phi",
+          "height": 64,
+          "caption": "{u|} → {u|num}",
+          "data": {
+            "op_id": "hexcasting:const/double/phi",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wdded"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2495,242 +2611,278 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity",
-          "name": "@Book.action.hexcasting.get_entity",
-          "input": "vector",
-          "output": "entity or null",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity",
+          "height": 64,
+          "caption": "{u|vector} → {u|entity or null}",
           "text": "@Book.page.entities.get_entity",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqdaqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:get_entity",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqdaqa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity/animal",
-          "name": "@Book.action.hexcasting.get_entity.animal",
-          "input": "vector",
-          "output": "entity or null",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqdaqaawa"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity.animal",
+          "height": 64,
+          "caption": "{u|vector} → {u|entity or null}",
+          "data": {
+            "op_id": "hexcasting:get_entity/animal",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqdaqaawa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity/monster",
-          "name": "@Book.action.hexcasting.get_entity.monster",
-          "input": "vector",
-          "output": "entity or null",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqdaqaawq"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity.monster",
+          "height": 64,
+          "caption": "{u|vector} → {u|entity or null}",
+          "data": {
+            "op_id": "hexcasting:get_entity/monster",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqdaqaawq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity/item",
-          "name": "@Book.action.hexcasting.get_entity.item",
-          "input": "vector",
-          "output": "entity or null",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqdaqaaww"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity.item",
+          "height": 64,
+          "caption": "{u|vector} → {u|entity or null}",
+          "data": {
+            "op_id": "hexcasting:get_entity/item",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqdaqaaww"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity/player",
-          "name": "@Book.action.hexcasting.get_entity.player",
-          "input": "vector",
-          "output": "entity or null",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqdaqaawe"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity.player",
+          "height": 64,
+          "caption": "{u|vector} → {u|entity or null}",
+          "data": {
+            "op_id": "hexcasting:get_entity/player",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqdaqaawe"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:get_entity/living",
-          "name": "@Book.action.hexcasting.get_entity.living",
-          "input": "vector",
-          "output": "entity or null",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqdaqaawd"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.get_entity.living",
+          "height": 64,
+          "caption": "{u|vector} → {u|entity or null}",
+          "data": {
+            "op_id": "hexcasting:get_entity/living",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqdaqaawd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/animal",
-          "name": "@Book.action.hexcasting.zone_entity.animal",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqwdeddwa"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.animal",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/animal",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqwdeddwa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/not_animal",
-          "name": "@Book.action.hexcasting.zone_entity.not_animal",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeewaqaawa"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.not_animal",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/not_animal",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeewaqaawa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/monster",
-          "name": "@Book.action.hexcasting.zone_entity.monster",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqwdeddwq"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.monster",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/monster",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqwdeddwq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/not_monster",
-          "name": "@Book.action.hexcasting.zone_entity.not_monster",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeewaqaawq"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.not_monster",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/not_monster",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeewaqaawq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/item",
-          "name": "@Book.action.hexcasting.zone_entity.item",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqwdeddww"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.item",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/item",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqwdeddww"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/not_item",
-          "name": "@Book.action.hexcasting.zone_entity.not_item",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeewaqaaww"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.not_item",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/not_item",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeewaqaaww"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/player",
-          "name": "@Book.action.hexcasting.zone_entity.player",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqwdeddwe"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.player",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/player",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqwdeddwe"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/not_player",
-          "name": "@Book.action.hexcasting.zone_entity.not_player",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeewaqaawe"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.not_player",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/not_player",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeewaqaawe"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/living",
-          "name": "@Book.action.hexcasting.zone_entity.living",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqwdeddwd"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.living",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/living",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqwdeddwd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity/not_living",
-          "name": "@Book.action.hexcasting.zone_entity.not_living",
-          "input": "vector, number",
-          "output": "list",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "eeeeewaqaawd"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity.not_living",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
+          "data": {
+            "op_id": "hexcasting:zone_entity/not_living",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "eeeeewaqaawd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:zone_entity",
-          "name": "@Book.action.hexcasting.zone_entity",
-          "input": "vector, number",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.zone_entity",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|list}",
           "text": "@Book.page.entities.zone_entity",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqwded"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:zone_entity",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqwded"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2744,18 +2896,21 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:flight",
-          "name": "@Book.action.hexcasting.flight",
-          "input": "player",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.flight",
+          "height": 64,
+          "caption": "{u|player} → {u|}",
           "text": "@Book.page.altiora.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "eawwaeawawaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:flight",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "eawwaeawawaa"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -2773,18 +2928,21 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:brainsweep",
-          "name": "@Book.action.hexcasting.brainsweep",
-          "input": "entity, vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.brainsweep",
+          "height": 64,
+          "caption": "{u|entity, vector} → {u|}",
           "text": "@Book.page.brainsweep_spell.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qeqwqwqwqwqeqaeqeaqeqaeqaqded"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:brainsweep",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qeqwqwqwqwqeqaeqeaqeqaeqaqded"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2798,18 +2956,21 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:create_lava",
-          "name": "@Book.action.hexcasting.create_lava",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.create_lava",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.create_lava.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "eaqawqadaqd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:create_lava",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "eaqawqadaqd"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -2827,17 +2988,21 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:sentinel/create/great",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "hexcasting:sentinel/create/great",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.greater_sentinel.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "waeawaeqqqwqwqqwq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:sentinel/create/great",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "waeawaeqqqwqwqqwq"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -2855,18 +3020,21 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:craft/battery",
-          "name": "@Book.action.hexcasting.craft.battery",
-          "input": "entity",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.craft.battery",
+          "height": 64,
+          "caption": "{u|entity} → {u|}",
           "text": "@Book.page.make_battery.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "aqqqaqwwaqqqqqeqaqqqawwqwqwqwqwqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:craft/battery",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "aqqqaqwwaqqqqqeqaqqqawwqwqwqwqwqw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -2884,18 +3052,21 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:teleport/great",
-          "name": "@Book.action.hexcasting.teleport.great",
-          "input": "entity, vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.teleport.great",
+          "height": 64,
+          "caption": "{u|entity, vector} → {u|}",
           "text": "@Book.page.teleport.great.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wwwqqqwwwqqeqqwwwqqwqqdqqqqqdqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:teleport/great",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wwwqqqwwwqqeqqwwwqqwqqdqqqqqdqq"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -2913,46 +3084,53 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:lightning",
-          "name": "@Book.action.hexcasting.lightning",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.lightning",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.weather_manip.lightning",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "waadwawdaaweewq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:lightning",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "waadwawdaaweewq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:summon_rain",
-          "name": "@Book.action.hexcasting.summon_rain",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.summon_rain",
+          "height": 64,
           "text": "@Book.page.weather_manip.summon_rain",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "wwweeewwweewdawdwad"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:summon_rain",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "wwweeewwweewdawdwad"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:dispel_rain",
-          "name": "@Book.action.hexcasting.dispel_rain",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.dispel_rain",
+          "height": 64,
           "text": "@Book.page.weather_manip.dispel_rain",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "eeewwweeewwaqqddqdqd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:dispel_rain",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "eeewwweeewwaqqddqdqd"
+              }
+            ]
+          }
         }
       ]
     },
@@ -2970,74 +3148,89 @@
           "text": "@Book.page.zeniths.n1"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/regeneration",
-          "name": "@Book.action.hexcasting.potion.regeneration",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.regeneration",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.zeniths.potion.regeneration",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqaawawaedd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/regeneration",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqaawawaedd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/night_vision",
-          "name": "@Book.action.hexcasting.potion.night_vision",
-          "input": "entity, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.night_vision",
+          "height": 64,
+          "caption": "{u|entity, number} → {u|}",
           "text": "@Book.page.zeniths.potion.night_vision",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "qqqaawawaeqdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/night_vision",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "qqqaawawaeqdd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/absorption",
-          "name": "@Book.action.hexcasting.potion.absorption",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.absorption",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.zeniths.potion.absorption",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "qqaawawaeqqdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/absorption",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "qqaawawaeqqdd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/haste",
-          "name": "@Book.action.hexcasting.potion.haste",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.haste",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.zeniths.potion.haste",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qaawawaeqqqdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/haste",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qaawawaeqqqdd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/strength",
-          "name": "@Book.action.hexcasting.potion.strength",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.strength",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.zeniths.potion.strength",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aawawaeqqqqdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/strength",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aawawaeqqqqdd"
+              }
+            ]
+          }
         }
       ]
     },
@@ -3051,228 +3244,276 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:index",
-          "name": "@Book.action.hexcasting.index",
-          "input": "list, number",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.index",
+          "height": 64,
+          "caption": "{u|list, number} → {u|any}",
           "text": "@Book.page.lists.index",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "deeed"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:index",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "deeed"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:slice",
-          "name": "@Book.action.hexcasting.slice",
-          "input": "list, num, num",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.slice",
+          "height": 64,
+          "caption": "{u|list, num, num} → {u|list}",
           "text": "@Book.page.lists.slice",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qaeaqwded"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:slice",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qaeaqwded"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:append",
-          "name": "@Book.action.hexcasting.append",
-          "input": "list, any",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.append",
+          "height": 64,
+          "caption": "{u|list, any} → {u|list}",
           "text": "@Book.page.lists.append",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "edqde"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:append",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "edqde"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:unappend",
-          "name": "@Book.action.hexcasting.unappend",
-          "input": "list",
-          "output": "list, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.unappend",
+          "height": 64,
+          "caption": "{u|list} → {u|list, any}",
           "text": "@Book.page.lists.unappend",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qaeaq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:unappend",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qaeaq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:add",
-          "name": "@Book.action.hexcasting.add",
-          "input": "list, list",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.add",
+          "height": 64,
+          "caption": "{u|list, list} → {u|list}",
           "text": "@Book.page.lists.add",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "waaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:add",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "waaw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:empty_list",
-          "name": "@Book.action.hexcasting.empty_list",
-          "input": "",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.empty_list",
+          "height": 64,
+          "caption": "{u|} → {u|list}",
           "text": "@Book.page.lists.empty_list",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qqaeaae"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:empty_list",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qqaeaae"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:singleton",
-          "name": "@Book.action.hexcasting.singleton",
-          "input": "any",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.singleton",
+          "height": 64,
+          "caption": "{u|any} → {u|list}",
           "text": "@Book.page.lists.singleton",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "adeeed"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:singleton",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "adeeed"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:abs",
-          "name": "@Book.action.hexcasting.abs",
-          "input": "list",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.abs",
+          "height": 64,
+          "caption": "{u|list} → {u|num}",
           "text": "@Book.page.lists.abs",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wqaqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:abs",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wqaqw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:reverse",
-          "name": "@Book.action.hexcasting.reverse",
-          "input": "list",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.reverse",
+          "height": 64,
+          "caption": "{u|list} → {u|list}",
           "text": "@Book.page.lists.reverse",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "qqqaede"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:reverse",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "qqqaede"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:index_of",
-          "name": "@Book.action.hexcasting.index_of",
-          "input": "list, any",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.index_of",
+          "height": 64,
+          "caption": "{u|list, any} → {u|num}",
           "text": "@Book.page.lists.index_of",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "dedqde"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:index_of",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "dedqde"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:remove_from",
-          "name": "@Book.action.hexcasting.remove_from",
-          "input": "list, num",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.remove_from",
+          "height": 64,
+          "caption": "{u|list, num} → {u|list}",
           "text": "@Book.page.lists.remove_from",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "edqdewaqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:remove_from",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "edqdewaqa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:replace",
-          "name": "@Book.action.hexcasting.replace",
-          "input": "list, num, any",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.replace",
+          "height": 64,
+          "caption": "{u|list, num, any} → {u|list}",
           "text": "@Book.page.lists.replace",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "wqaeaqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:replace",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "wqaeaqw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:last_n_list",
-          "name": "@Book.action.hexcasting.last_n_list",
-          "input": "many, num",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.last_n_list",
+          "height": 64,
+          "caption": "{u|many, num} → {u|list}",
           "text": "@Book.page.lists.last_n_list",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "ewdqdwe"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:last_n_list",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "ewdqdwe"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:splat",
-          "name": "@Book.action.hexcasting.splat",
-          "input": "list",
-          "output": "many",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.splat",
+          "height": 64,
+          "caption": "{u|list} → {u|many}",
           "text": "@Book.page.lists.splat",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qwaeawq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:splat",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qwaeawq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:construct",
-          "name": "@Book.action.hexcasting.construct",
-          "input": "list, any",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.construct",
+          "height": 64,
+          "caption": "{u|list, any} → {u|list}",
           "text": "@Book.page.lists.construct",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "ddewedd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:construct",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "ddewedd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:deconstruct",
-          "name": "@Book.action.hexcasting.deconstruct",
-          "input": "list",
-          "output": "list, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.deconstruct",
+          "height": 64,
+          "caption": "{u|list} → {u|list, any}",
           "text": "@Book.page.lists.deconstruct",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "aaqwqaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:deconstruct",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "aaqwqaa"
+              }
+            ]
+          }
         }
       ]
     },
@@ -3286,186 +3527,225 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:bool_coerce",
-          "name": "@Book.action.hexcasting.bool_coerce",
-          "input": "any",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.bool_coerce",
+          "height": 64,
+          "caption": "{u|any} → {u|bool}",
           "text": "@Book.page.logic.bool_coerce",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "aw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:bool_coerce",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "aw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:abs",
-          "name": "@Book.action.hexcasting.abs",
-          "input": "bool",
-          "output": "number",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.abs",
+          "height": 64,
+          "caption": "{u|bool} → {u|number}",
           "text": "@Book.page.logic.bool_to_number",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wqaqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:abs",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wqaqw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:not",
-          "name": "@Book.action.hexcasting.not",
-          "input": "bool",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.not",
+          "height": 64,
+          "caption": "{u|bool} → {u|bool}",
           "text": "@Book.page.logic.not",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "dw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:not",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "dw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:or",
-          "name": "@Book.action.hexcasting.or",
-          "input": "bool, bool",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.or",
+          "height": 64,
+          "caption": "{u|bool, bool} → {u|bool}",
           "text": "@Book.page.logic.or",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "waw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:or",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "waw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:and",
-          "name": "@Book.action.hexcasting.and",
-          "input": "bool, bool",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.and",
+          "height": 64,
+          "caption": "{u|bool, bool} → {u|bool}",
           "text": "@Book.page.logic.and",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wdw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:and",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wdw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:xor",
-          "name": "@Book.action.hexcasting.xor",
-          "input": "bool, bool",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.xor",
+          "height": 64,
+          "caption": "{u|bool, bool} → {u|bool}",
           "text": "@Book.page.logic.xor",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "dwa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:xor",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "dwa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:if",
-          "name": "@Book.action.hexcasting.if",
-          "input": "bool, any, any",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.if",
+          "height": 64,
+          "caption": "{u|bool, any, any} → {u|any}",
           "text": "@Book.page.logic.if",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "awdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:if",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "awdd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:equals",
-          "name": "@Book.action.hexcasting.equals",
-          "input": "any, any",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.equals",
+          "height": 64,
+          "caption": "{u|any, any} → {u|bool}",
           "text": "@Book.page.logic.equals",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "ad"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:equals",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "ad"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:not_equals",
-          "name": "@Book.action.hexcasting.not_equals",
-          "input": "any, any",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.not_equals",
+          "height": 64,
+          "caption": "{u|any, any} → {u|bool}",
           "text": "@Book.page.logic.not_equals",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "da"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:not_equals",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "da"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:greater",
-          "name": "@Book.action.hexcasting.greater",
-          "input": "number, number",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.greater",
+          "height": 64,
+          "caption": "{u|number, number} → {u|bool}",
           "text": "@Book.page.logic.greater",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "e"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:greater",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "e"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:less",
-          "name": "@Book.action.hexcasting.less",
-          "input": "number, number",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.less",
+          "height": 64,
+          "caption": "{u|number, number} → {u|bool}",
           "text": "@Book.page.logic.less",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "q"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:less",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "q"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:greater_eq",
-          "name": "@Book.action.hexcasting.greater_eq",
-          "input": "number, number",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.greater_eq",
+          "height": 64,
+          "caption": "{u|number, number} → {u|bool}",
           "text": "@Book.page.logic.greater_eq",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "ee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:greater_eq",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "ee"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:less_eq",
-          "name": "@Book.action.hexcasting.less_eq",
-          "input": "number, number",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.less_eq",
+          "height": 64,
+          "caption": "{u|number, number} → {u|bool}",
           "text": "@Book.page.logic.less_eq",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "qq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:less_eq",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "qq"
+              }
+            ]
+          }
         }
       ]
     },
@@ -3486,210 +3766,249 @@
           "type": "empty"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:add",
-          "name": "@Book.action.hexcasting.add",
-          "input": "num|vec, num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.add",
+          "height": 64,
+          "caption": "{u|num|vec, num|vec} → {u|num|vec}",
           "text": "@Book.page.math.add.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "waaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:add",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "waaw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.math.add.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:sub",
-          "name": "@Book.action.hexcasting.sub",
-          "input": "num|vec, num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.sub",
+          "height": 64,
+          "caption": "{u|num|vec, num|vec} → {u|num|vec}",
           "text": "@Book.page.math.sub.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "wddw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:sub",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "wddw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.math.sub.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:mul",
-          "name": "@Book.action.hexcasting.mul",
-          "input": "num|vec, num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.mul",
+          "height": 64,
+          "caption": "{u|num|vec, num|vec} → {u|num|vec}",
           "text": "@Book.page.math.mul.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "waqaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:mul",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "waqaw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.math.mul.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:div",
-          "name": "@Book.action.hexcasting.div",
-          "input": "num|vec, num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.div",
+          "height": 64,
+          "caption": "{u|num|vec, num|vec} → {u|num|vec}",
           "text": "@Book.page.math.div.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wdedw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:div",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wdedw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.math.div.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:abs",
-          "name": "@Book.action.hexcasting.abs",
-          "input": "num|vec",
-          "output": "number",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.abs",
+          "height": 64,
+          "caption": "{u|num|vec} → {u|number}",
           "text": "@Book.page.math.abs.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wqaqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:abs",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wqaqw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.math.abs.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:pow",
-          "name": "@Book.action.hexcasting.pow",
-          "input": "num|vec, num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.pow",
+          "height": 64,
+          "caption": "{u|num|vec, num|vec} → {u|num|vec}",
           "text": "@Book.page.math.pow.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "wedew"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:pow",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "wedew"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.math.pow.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:floor",
-          "name": "@Book.action.hexcasting.floor",
-          "input": "num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.floor",
+          "height": 64,
+          "caption": "{u|num|vec} → {u|num|vec}",
           "text": "@Book.page.math.floor",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "ewq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:floor",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "ewq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:ceil",
-          "name": "@Book.action.hexcasting.ceil",
-          "input": "num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.ceil",
+          "height": 64,
+          "caption": "{u|num|vec} → {u|num|vec}",
           "text": "@Book.page.math.ceil",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "qwe"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:ceil",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "qwe"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:construct_vec",
-          "name": "@Book.action.hexcasting.construct_vec",
-          "input": "num, num, num",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.construct_vec",
+          "height": 64,
+          "caption": "{u|num, num, num} → {u|vector}",
           "text": "@Book.page.math.construct_vec",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "eqqqqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:construct_vec",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "eqqqqq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:deconstruct_vec",
-          "name": "@Book.action.hexcasting.deconstruct_vec",
-          "input": "vector",
-          "output": "num, num, num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.deconstruct_vec",
+          "height": 64,
+          "caption": "{u|vector} → {u|num, num, num}",
           "text": "@Book.page.math.deconstruct_vec",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "qeeeee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:deconstruct_vec",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "qeeeee"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:modulo",
-          "name": "@Book.action.hexcasting.modulo",
-          "input": "num|vec, num|vec",
-          "output": "num|vec",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.modulo",
+          "height": 64,
+          "caption": "{u|num|vec, num|vec} → {u|num|vec}",
           "text": "@Book.page.math.modulo",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "addwaad"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:modulo",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "addwaad"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:coerce_axial",
-          "name": "@Book.action.hexcasting.coerce_axial",
-          "input": "vec|num",
-          "output": "vec|num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.coerce_axial",
+          "height": 64,
+          "caption": "{u|vec|num} → {u|vec|num}",
           "text": "@Book.page.math.coerce_axial",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqqaww"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:coerce_axial",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqqaww"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:random",
-          "name": "@Book.action.hexcasting.random",
-          "input": "",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.random",
+          "height": 64,
+          "caption": "{u|} → {u|num}",
           "text": "@Book.page.math.random",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "eqqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:random",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "eqqq"
+              }
+            ]
+          }
         }
       ]
     },
@@ -3703,90 +4022,104 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:eval",
-          "name": "@Book.action.hexcasting.eval",
-          "input": "evaluatable",
-          "output": "many",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.eval",
+          "height": 64,
+          "caption": "{u|evaluatable} → {u|many}",
           "text": "@Book.page.meta.eval.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "deaqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:eval",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "deaqq"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.meta.eval.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:eval/cc",
-          "name": "@Book.action.hexcasting.eval.cc",
-          "input": "evaluatable",
-          "output": "many",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.eval.cc",
+          "height": 64,
+          "caption": "{u|evaluatable} → {u|many}",
           "text": "@Book.page.meta.eval.cc.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qwaqde"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:eval/cc",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qwaqde"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.meta.eval.cc.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:for_each",
-          "name": "@Book.action.hexcasting.for_each",
-          "input": "evaluatable, list",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.for_each",
+          "height": 64,
+          "caption": "{u|evaluatable, list} → {u|list}",
           "text": "@Book.page.meta.for_each.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "dadad"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:for_each",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "dadad"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.meta.for_each.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:halt",
-          "name": "@Book.action.hexcasting.halt",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.halt",
+          "height": 64,
           "text": "@Book.page.meta.halt.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "aqdee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:halt",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "aqdee"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.meta.halt.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:thanatos",
-          "name": "@Book.action.hexcasting.thanatos",
-          "input": "",
-          "output": "number",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.thanatos",
+          "height": 64,
+          "caption": "{u|} → {u|number}",
           "text": "@Book.page.meta.thanatos.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqaed"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:thanatos",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqaed"
+              }
+            ]
+          }
         }
       ]
     },
@@ -3800,82 +4133,93 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:number",
-          "name": "@Book.action.book.hexcasting.number",
-          "input": "",
-          "output": "number",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.book.hexcasting.number",
+          "height": 64,
+          "caption": "{u|} → {u|number}",
           "text": "@Book.page.numbers.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "aqaa"
-            },
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "dedd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:number",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "aqaa"
+              },
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "dedd"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.numbers.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:manual",
-          "name": "@Book.page.numbers.example.n10.header",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.page.numbers.example.n10.header",
+          "height": 64,
           "text": "@Book.page.numbers.example.n10",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "aqaae"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:manual",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "aqaae"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:manual",
-          "name": "@Book.page.numbers.example.n7.header",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.page.numbers.example.n7.header",
+          "height": 64,
           "text": "@Book.page.numbers.example.n7",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "aqaaqww"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:manual",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "aqaaqww"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:manual",
-          "name": "@Book.page.numbers.example.n32.header",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.page.numbers.example.n32.header",
+          "height": 64,
           "text": "@Book.page.numbers.example.n32",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "deddwqea"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:manual",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "deddwqea"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:manual",
-          "name": "@Book.page.numbers.example.n4.n5.header",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.page.numbers.example.n4.n5.header",
+          "height": 64,
           "text": "@Book.page.numbers.example.n4.n5",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "aqaaqdww"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:manual",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "aqaaqdww"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -3901,78 +4245,88 @@
           "text": "@Book.page.patterns_as_iotas.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:runtime_escape",
-          "name": "@Book.action.hexcasting.runtime_escape",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.runtime_escape",
+          "height": 64,
           "text": "@Book.page.patterns_as_iotas.runtime_escape.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "wdeee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:runtime_escape",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "wdeee"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.patterns_as_iotas.runtime_escape.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:open_paren",
-          "name": "@Book.action.hexcasting.open_paren",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.open_paren",
+          "height": 64,
           "text": "@Book.page.patterns_as_iotas.parens.n1",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "qqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:open_paren",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "qqq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:close_paren",
-          "name": "@Book.action.hexcasting.close_paren",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.close_paren",
+          "height": 64,
           "text": "@Book.page.patterns_as_iotas.parens.n2",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "eee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:close_paren",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "eee"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:undo",
-          "name": "@Book.action.hexcasting.undo",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.undo",
+          "height": 64,
           "text": "@Book.page.patterns_as_iotas.undo",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "eeedw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:undo",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "eeedw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:escape",
-          "name": "@Book.action.hexcasting.escape",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.escape",
+          "height": 64,
           "text": "@Book.page.patterns_as_iotas.escape",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "qqqaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:escape",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "qqqaw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -4033,116 +4387,140 @@
           "text": "@Book.page.readwrite.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:read",
-          "name": "@Book.action.hexcasting.read",
-          "input": "",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.read",
+          "height": 64,
+          "caption": "{u|} → {u|any}",
           "text": "@Book.page.readwrite.read",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aqqqqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:read",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aqqqqq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:write",
-          "name": "@Book.action.hexcasting.write",
-          "input": "any",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.write",
+          "height": 64,
+          "caption": "{u|any} → {u|}",
           "text": "@Book.page.readwrite.write",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "deeeee"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:write",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "deeeee"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:read/entity",
-          "name": "@Book.action.hexcasting.read.entity",
-          "input": "entity",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.read.entity",
+          "height": 64,
+          "caption": "{u|entity} → {u|any}",
           "text": "@Book.page.readwrite.read.entity",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wawqwqwqwqwqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:read/entity",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wawqwqwqwqwqw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:write/entity",
-          "name": "@Book.action.hexcasting.write.entity",
-          "input": "entity, any",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.write.entity",
+          "height": 64,
+          "caption": "{u|entity, any} → {u|}",
           "text": "@Book.page.readwrite.write.entity",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wdwewewewewew"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:write/entity",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wdwewewewewew"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:readable",
-          "name": "@Book.action.hexcasting.readable",
-          "input": "",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.readable",
+          "height": 64,
+          "caption": "{u|} → {u|bool}",
           "text": "@Book.page.readwrite.readable",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aqqqqqe"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:readable",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aqqqqqe"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:readable/entity",
-          "name": "@Book.action.hexcasting.readable.entity",
-          "input": "entity",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.readable.entity",
+          "height": 64,
+          "caption": "{u|entity} → {u|bool}",
           "text": "@Book.page.readwrite.readable.entity",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wawqwqwqwqwqwew"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:readable/entity",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wawqwqwqwqwqwew"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:writable",
-          "name": "@Book.action.hexcasting.writable",
-          "input": "",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.writable",
+          "height": 64,
+          "caption": "{u|} → {u|bool}",
           "text": "@Book.page.readwrite.writable",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "deeeeeq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:writable",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "deeeeeq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:writable/entity",
-          "name": "@Book.action.hexcasting.writable.entity",
-          "input": "entity",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.writable.entity",
+          "height": 64,
+          "caption": "{u|entity} → {u|bool}",
           "text": "@Book.page.readwrite.writable.entity",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wdwewewewewewqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:writable/entity",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wdwewewewewewqw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -4150,32 +4528,38 @@
           "title": "@Book.page.readwrite.local.title"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:write/local",
-          "name": "@Book.action.hexcasting.write.local",
-          "input": "any",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.write.local",
+          "height": 64,
+          "caption": "{u|any} → {u|}",
           "text": "@Book.page.readwrite.write.local",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "eqqwawqaaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:write/local",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "eqqwawqaaw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:read/local",
-          "name": "@Book.action.hexcasting.read.local",
-          "input": "",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.read.local",
+          "height": 64,
+          "caption": "{u|} → {u|any}",
           "text": "@Book.page.readwrite.read.local",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qeewdweddw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:read/local",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qeewdweddw"
+              }
+            ]
+          }
         }
       ]
     },
@@ -4196,86 +4580,101 @@
           "type": "empty"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:or",
-          "name": "@Book.action.hexcasting.or",
-          "input": "(num, num)|(list, list)",
-          "output": "num|list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.or",
+          "height": 64,
+          "caption": "{u|(num, num)|(list, list)} → {u|num|list}",
           "text": "@Book.page.sets.or.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "waw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:or",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "waw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.sets.or.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:and",
-          "name": "@Book.action.hexcasting.and",
-          "input": "(num, num)|(list, list)",
-          "output": "num|list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.and",
+          "height": 64,
+          "caption": "{u|(num, num)|(list, list)} → {u|num|list}",
           "text": "@Book.page.sets.and.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wdw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:and",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wdw"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.sets.and.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:xor",
-          "name": "@Book.action.hexcasting.xor",
-          "input": "(num, num)|(list, list)",
-          "output": "num|list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.xor",
+          "height": 64,
+          "caption": "{u|(num, num)|(list, list)} → {u|num|list}",
           "text": "@Book.page.sets.xor.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "dwa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:xor",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "dwa"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.sets.xor.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:not",
-          "name": "@Book.action.hexcasting.not",
-          "input": "num",
-          "output": "num",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.not",
+          "height": 64,
+          "caption": "{u|num} → {u|num}",
           "text": "@Book.page.sets.not",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "dw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:not",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "dw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:unique",
-          "name": "@Book.action.hexcasting.unique",
-          "input": "list",
-          "output": "list",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.unique",
+          "height": 64,
+          "caption": "{u|list} → {u|list}",
           "text": "@Book.page.sets.to_set",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "aweaqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:unique",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "aweaqa"
+              }
+            ]
+          }
         }
       ]
     },
@@ -4289,82 +4688,97 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:explode",
-          "name": "@Book.action.hexcasting.explode",
-          "input": "vector, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.explode",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|}",
           "text": "@Book.page.basic_spell.explode.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aawaawaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:explode",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aawaawaa"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.basic_spell.explode.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:explode/fire",
-          "name": "@Book.action.hexcasting.explode.fire",
-          "input": "vector, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.explode.fire",
+          "height": 64,
+          "caption": "{u|vector, number} → {u|}",
           "text": "@Book.page.basic_spell.explode.fire.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "ddwddwdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:explode/fire",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "ddwddwdd"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.basic_spell.explode.fire.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:add_motion",
-          "name": "@Book.action.hexcasting.add_motion",
-          "input": "entity, vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.add_motion",
+          "height": 64,
+          "caption": "{u|entity, vector} → {u|}",
           "text": "@Book.page.basic_spell.add_motion",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "awqqqwaqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:add_motion",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "awqqqwaqw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:blink",
-          "name": "@Book.action.hexcasting.blink",
-          "input": "entity, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.blink",
+          "height": 64,
+          "caption": "{u|entity, number} → {u|}",
           "text": "@Book.page.basic_spell.blink",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "awqqqwaq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:blink",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "awqqqwaq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:beep",
-          "name": "@Book.action.hexcasting.beep",
-          "input": "vector, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.beep",
+          "height": 64,
+          "caption": "{u|vector, number, number} → {u|}",
           "text": "@Book.page.basic_spell.beep.n1",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "adaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:beep",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "adaa"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -4382,144 +4796,174 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:place_block",
-          "name": "@Book.action.hexcasting.place_block",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.place_block",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.place_block",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "eeeeede"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:place_block",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "eeeeede"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:break_block",
-          "name": "@Book.action.hexcasting.break_block",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.break_block",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.break_block",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "qaqqqqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:break_block",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "qaqqqqq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:create_water",
-          "name": "@Book.action.hexcasting.create_water",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.create_water",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.create_water",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "aqawqadaq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:create_water",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "aqawqadaq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:destroy_water",
-          "name": "@Book.action.hexcasting.destroy_water",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.destroy_water",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.destroy_water",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "dedwedade"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:destroy_water",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "dedwedade"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:conjure_block",
-          "name": "@Book.action.hexcasting.conjure_block",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.conjure_block",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.conjure_block",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:conjure_block",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qqa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:conjure_light",
-          "name": "@Book.action.hexcasting.conjure_light",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.conjure_light",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.conjure_light",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qqd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:conjure_light",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qqd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:bonemeal",
-          "name": "@Book.action.hexcasting.bonemeal",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.bonemeal",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.bonemeal",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wqaqwawqaqw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:bonemeal",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wqaqwawqaqw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:edify",
-          "name": "@Book.action.hexcasting.edify",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.edify",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.edify",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "wqaqwd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:edify",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "wqaqwd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:ignite",
-          "name": "@Book.action.hexcasting.ignite",
-          "input": "entity | vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.ignite",
+          "height": 64,
+          "caption": "{u|entity | vector} → {u|}",
           "text": "@Book.page.blockworks.ignite",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "aaqawawa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:ignite",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "aaqawawa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:extinguish",
-          "name": "@Book.action.hexcasting.extinguish",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.extinguish",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.blockworks.extinguish",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "ddedwdwd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:extinguish",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "ddedwdwd"
+              }
+            ]
+          }
         }
       ]
     },
@@ -4533,18 +4977,20 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:colorize",
-          "name": "@Book.action.hexcasting.colorize",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.colorize",
+          "height": 64,
           "text": "@Book.page.colorize",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "awddwqawqwawq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:colorize",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "awddwqawqwawq"
+              }
+            ]
+          }
         }
       ]
     },
@@ -4558,18 +5004,20 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:cycle_variant",
-          "name": "@Book.action.hexcasting.cycle_variant",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.cycle_variant",
+          "height": 64,
           "text": "@Book.page.cycle_variant",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "dwaawedwewdwe"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:cycle_variant",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "dwaawedwewdwe"
+              }
+            ]
+          }
         }
       ]
     },
@@ -4591,54 +5039,63 @@
           "text": "@Book.page.flights.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:flight/range",
-          "name": "@Book.action.hexcasting.flight.range",
-          "input": "entity, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.flight.range",
+          "height": 64,
+          "caption": "{u|entity, number} → {u|}",
           "text": "@Book.page.flights.range.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "awawaawq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:flight/range",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "awawaawq"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.flights.range.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:flight/time",
-          "name": "@Book.action.hexcasting.flight.time",
-          "input": "entity, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.flight.time",
+          "height": 64,
+          "caption": "{u|entity, number} → {u|}",
           "text": "@Book.page.flights.time.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "dwdwdewq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:flight/time",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "dwdwdewq"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.flights.time.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:flight/can_fly",
-          "name": "@Book.action.hexcasting.flight.can_fly",
-          "input": "entity",
-          "output": "boolean",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.flight.can_fly",
+          "height": 64,
+          "caption": "{u|entity} → {u|boolean}",
           "text": "@Book.page.flights.can_fly.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "dwdwdeweaqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:flight/can_fly",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "dwdwdeweaqa"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -4660,78 +5117,92 @@
           "text": "@Book.page.hexcasting_spell.basics"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:craft/cypher",
-          "name": "@Book.action.hexcasting.craft.cypher",
-          "input": "entity, list",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.craft.cypher",
+          "height": 64,
+          "caption": "{u|entity, list} → {u|}",
           "text": "@Book.page.hexcasting_spell.craft.cypher",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "waqqqqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:craft/cypher",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "waqqqqq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:craft/trinket",
-          "name": "@Book.action.hexcasting.craft.trinket",
-          "input": "entity, list",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.craft.trinket",
+          "height": 64,
+          "caption": "{u|entity, list} → {u|}",
           "text": "@Book.page.hexcasting_spell.craft.trinket",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wwaqqqqqeaqeaeqqqeaeq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:craft/trinket",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wwaqqqqqeaqeaeqqqeaeq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:craft/artifact",
-          "name": "@Book.action.hexcasting.craft.artifact",
-          "input": "entity, list",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.craft.artifact",
+          "height": 64,
+          "caption": "{u|entity, list} → {u|}",
           "text": "@Book.page.hexcasting_spell.craft.artifact",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wwaqqqqqeawqwqwqwqwqwwqqeadaeqqeqqeadaeqq"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:craft/artifact",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wwaqqqqqeawqwqwqwqwqwwqqeadaeqqeqqeadaeqq"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:recharge",
-          "name": "@Book.action.hexcasting.recharge",
-          "input": "entity",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.recharge",
+          "height": 64,
+          "caption": "{u|entity} → {u|}",
           "text": "@Book.page.hexcasting_spell.recharge.n1",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqqwaeaeaeaeaea"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:recharge",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqqwaeaeaeaeaea"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.hexcasting_spell.recharge.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:erase",
-          "name": "@Book.action.hexcasting.erase",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.erase",
+          "height": 64,
           "text": "@Book.page.hexcasting_spell.erase.n1",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "qdqawwaww"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:erase",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "qdqawwaww"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -4780,74 +5251,89 @@
           "text": "@Book.page.nadirs.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/weakness",
-          "name": "@Book.action.hexcasting.potion.weakness",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.weakness",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.nadirs.potion.weakness",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqqaqwawaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/weakness",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqqaqwawaw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/levitation",
-          "name": "@Book.action.hexcasting.potion.levitation",
-          "input": "entity, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.levitation",
+          "height": 64,
+          "caption": "{u|entity, number} → {u|}",
           "text": "@Book.page.nadirs.potion.levitation",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "qqqqqawwawawd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/levitation",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "qqqqqawwawawd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/wither",
-          "name": "@Book.action.hexcasting.potion.wither",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.wither",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.nadirs.potion.wither",
-          "patterns": [
-            {
-              "startdir": "SOUTH_WEST",
-              "signature": "qqqqqaewawawe"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/wither",
+            "patterns": [
+              {
+                "startdir": "SOUTH_WEST",
+                "signature": "qqqqqaewawawe"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/poison",
-          "name": "@Book.action.hexcasting.potion.poison",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.poison",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.nadirs.potion.poison",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqadwawaww"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/poison",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqadwawaww"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:potion/slowness",
-          "name": "@Book.action.hexcasting.potion.slowness",
-          "input": "entity, number, number",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.potion.slowness",
+          "height": 64,
+          "caption": "{u|entity, number, number} → {u|}",
           "text": "@Book.page.nadirs.potion.slowness",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qqqqqadwawaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:potion/slowness",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qqqqqadwawaw"
+              }
+            ]
+          }
         }
       ]
     },
@@ -4869,60 +5355,71 @@
           "text": "@Book.page.sentinels.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:sentinel/create",
-          "name": "@Book.action.hexcasting.sentinel.create",
-          "input": "vector",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.sentinel.create",
+          "height": 64,
+          "caption": "{u|vector} → {u|}",
           "text": "@Book.page.sentinels.sentinel.create",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "waeawae"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:sentinel/create",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "waeawae"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:sentinel/destroy",
-          "name": "@Book.action.hexcasting.sentinel.destroy",
-          "input": "",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.sentinel.destroy",
+          "height": 64,
           "text": "@Book.page.sentinels.sentinel.destroy",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "qdwdqdw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:sentinel/destroy",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "qdwdqdw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:sentinel/get_pos",
-          "name": "@Book.action.hexcasting.sentinel.get_pos",
-          "input": "",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.sentinel.get_pos",
+          "height": 64,
+          "caption": "{u|} → {u|vector}",
           "text": "@Book.page.sentinels.sentinel.get_pos",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "waeawaede"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:sentinel/get_pos",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "waeawaede"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:sentinel/wayfind",
-          "name": "@Book.action.hexcasting.sentinel.wayfind",
-          "input": "vector",
-          "output": "vector",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.sentinel.wayfind",
+          "height": 64,
+          "caption": "{u|vector} → {u|vector}",
           "text": "@Book.page.sentinels.sentinel.wayfind",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "waeawaedwa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:sentinel/wayfind",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "waeawaedwa"
+              }
+            ]
+          }
         }
       ]
     },
@@ -4936,212 +5433,254 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:pseudo-novice",
-          "name": "@Book.page.stackmanip.pseudo.novice.title",
-          "input": "any",
-          "output": "",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.page.stackmanip.pseudo.novice.title",
+          "height": 64,
+          "caption": "{u|any} → {u|}",
           "text": "@Book.page.stackmanip.pseudo.novice",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "a"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:pseudo-novice",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "a"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:swap",
-          "name": "@Book.action.hexcasting.swap",
-          "input": "any, any",
-          "output": "any, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.swap",
+          "height": 64,
+          "caption": "{u|any, any} → {u|any, any}",
           "text": "@Book.page.stackmanip.swap",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aawdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:swap",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aawdd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:rotate",
-          "name": "@Book.action.hexcasting.rotate",
-          "input": "any, any, any",
-          "output": "any, any, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.rotate",
+          "height": 64,
+          "caption": "{u|any, any, any} → {u|any, any, any}",
           "text": "@Book.page.stackmanip.rotate",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aaeaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:rotate",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aaeaa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:rotate_reverse",
-          "name": "@Book.action.hexcasting.rotate_reverse",
-          "input": "any, any, any",
-          "output": "any, any, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.rotate_reverse",
+          "height": 64,
+          "caption": "{u|any, any, any} → {u|any, any, any}",
           "text": "@Book.page.stackmanip.rotate_reverse",
-          "patterns": [
-            {
-              "startdir": "NORTH_EAST",
-              "signature": "ddqdd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:rotate_reverse",
+            "patterns": [
+              {
+                "startdir": "NORTH_EAST",
+                "signature": "ddqdd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:duplicate",
-          "name": "@Book.action.hexcasting.duplicate",
-          "input": "any",
-          "output": "any, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.duplicate",
+          "height": 64,
+          "caption": "{u|any} → {u|any, any}",
           "text": "@Book.page.stackmanip.duplicate",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aadaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:duplicate",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aadaa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:over",
-          "name": "@Book.action.hexcasting.over",
-          "input": "any, any",
-          "output": "any, any, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.over",
+          "height": 64,
+          "caption": "{u|any, any} → {u|any, any, any}",
           "text": "@Book.page.stackmanip.over",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aaedd"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:over",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aaedd"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:tuck",
-          "name": "@Book.action.hexcasting.tuck",
-          "input": "any, any",
-          "output": "any, any, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.tuck",
+          "height": 64,
+          "caption": "{u|any, any} → {u|any, any, any}",
           "text": "@Book.page.stackmanip.tuck",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "ddqaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:tuck",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "ddqaa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:duplicate_n",
-          "name": "@Book.action.hexcasting.duplicate_n",
-          "input": "any, number",
-          "output": "many",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.duplicate_n",
+          "height": 64,
+          "caption": "{u|any, number} → {u|many}",
           "text": "@Book.page.stackmanip.duplicate_n",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aadaadaa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:duplicate_n",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aadaadaa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:2dup",
-          "name": "@Book.action.hexcasting.n2dup",
-          "input": "any, any",
-          "output": "any, any, any, any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.n2dup",
+          "height": 64,
+          "caption": "{u|any, any} → {u|any, any, any, any}",
           "text": "@Book.page.stackmanip.n2dup",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aadadaaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:2dup",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aadadaaw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:stack_len",
-          "name": "@Book.action.hexcasting.stack_len",
-          "input": "",
-          "output": "number",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.stack_len",
+          "height": 64,
+          "caption": "{u|} → {u|number}",
           "text": "@Book.page.stackmanip.stack_len",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qwaeawqaeaqa"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:stack_len",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qwaeawqaeaqa"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:fisherman",
-          "name": "@Book.action.hexcasting.fisherman",
-          "input": "number",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.fisherman",
+          "height": 64,
+          "caption": "{u|number} → {u|any}",
           "text": "@Book.page.stackmanip.fisherman",
-          "patterns": [
-            {
-              "startdir": "WEST",
-              "signature": "ddad"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:fisherman",
+            "patterns": [
+              {
+                "startdir": "WEST",
+                "signature": "ddad"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:fisherman/copy",
-          "name": "@Book.action.hexcasting.fisherman.copy",
-          "input": "number",
-          "output": "any",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.fisherman.copy",
+          "height": 64,
+          "caption": "{u|number} → {u|any}",
           "text": "@Book.page.stackmanip.fisherman.copy",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "aada"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:fisherman/copy",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "aada"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:mask",
-          "name": "@Book.action.book.hexcasting.mask",
-          "input": "many",
-          "output": "many",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.book.hexcasting.mask",
+          "height": 64,
+          "caption": "{u|many} → {u|many}",
           "text": "@Book.page.stackmanip.mask.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "aeea"
-            },
-            {
-              "startdir": "EAST",
-              "signature": "eada"
-            },
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "ae"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:mask",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "aeea"
+              },
+              {
+                "startdir": "EAST",
+                "signature": "eada"
+              },
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "ae"
+              }
+            ]
+          }
         },
         {
           "type": "text",
           "text": "@Book.page.stackmanip.mask.n2"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:swizzle",
-          "name": "@Book.action.hexcasting.swizzle",
-          "input": "many, number",
-          "output": "many",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.swizzle",
+          "height": 64,
+          "caption": "{u|many, number} → {u|many}",
           "text": "@Book.page.stackmanip.swizzle.n1",
-          "patterns": [
-            {
-              "startdir": "SOUTH_EAST",
-              "signature": "qaawdde"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:swizzle",
+            "patterns": [
+              {
+                "startdir": "SOUTH_EAST",
+                "signature": "qaawdde"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -5159,60 +5698,70 @@
       "read_by_default": true,
       "pages": [
         {
-          "type": "pattern",
-          "op_id": "hexcasting:type_equals",
-          "name": "@Book.action.hexcasting.type_equals",
-          "input": "any, any",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.type_equals",
+          "height": 64,
+          "caption": "{u|any, any} → {u|bool}",
           "text": "@Book.page.types.type_equals",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wawdw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:type_equals",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wawdw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:type_not_equals",
-          "name": "@Book.action.hexcasting.type_not_equals",
-          "input": "any, any",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.type_not_equals",
+          "height": 64,
+          "caption": "{u|any, any} → {u|bool}",
           "text": "@Book.page.types.type_not_equals",
-          "patterns": [
-            {
-              "startdir": "EAST",
-              "signature": "wdwaw"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:type_not_equals",
+            "patterns": [
+              {
+                "startdir": "EAST",
+                "signature": "wdwaw"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:compare_item/lenient",
-          "name": "@Book.action.hexcasting.compare_item.lenient",
-          "input": "entity, entity",
-          "output": "bool",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qaeaqeqedqde"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.compare_item.lenient",
+          "height": 64,
+          "caption": "{u|entity, entity} → {u|bool}",
+          "data": {
+            "op_id": "hexcasting:compare_item/lenient",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qaeaqeqedqde"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:compare_item/strict",
-          "name": "@Book.action.hexcasting.compare_item.strict",
-          "input": "entity, entity",
-          "output": "bool",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qaeaqewqedqde"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.compare_item.strict",
+          "height": 64,
+          "caption": "{u|entity, entity} → {u|bool}",
+          "data": {
+            "op_id": "hexcasting:compare_item/strict",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qaeaqewqedqde"
+              }
+            ]
+          }
         },
         {
           "type": "text",
@@ -5220,46 +5769,53 @@
           "title": "Remarks"
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:compare_entity",
-          "name": "@Book.action.hexcasting.compare_entity",
-          "input": "entity, entity",
-          "output": "bool",
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.compare_entity",
+          "height": 64,
+          "caption": "{u|entity, entity} → {u|bool}",
           "text": "@Book.page.types.compare_entity",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "aqaeqded"
-            }
-          ]
+          "data": {
+            "op_id": "hexcasting:compare_entity",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "aqaeqded"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:compare_block/lenient",
-          "name": "@Book.action.hexcasting.compare_block.lenient",
-          "input": "vec, vec",
-          "output": "bool",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qqqqqeqeeeee"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.compare_block.lenient",
+          "height": 64,
+          "caption": "{u|vec, vec} → {u|bool}",
+          "data": {
+            "op_id": "hexcasting:compare_block/lenient",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qqqqqeqeeeee"
+              }
+            ]
+          }
         },
         {
-          "type": "pattern",
-          "op_id": "hexcasting:compare_block/strict",
-          "name": "@Book.action.hexcasting.compare_block.strict",
-          "input": "vec, vec",
-          "output": "bool",
-          "text": "",
-          "patterns": [
-            {
-              "startdir": "NORTH_WEST",
-              "signature": "qwawqwadadwewdwe"
-            }
-          ]
+          "type": "drawn",
+          "drawer": "hexcasting:pattern",
+          "title": "@Book.action.hexcasting.compare_block.strict",
+          "height": 64,
+          "caption": "{u|vec, vec} → {u|bool}",
+          "data": {
+            "op_id": "hexcasting:compare_block/strict",
+            "patterns": [
+              {
+                "startdir": "NORTH_WEST",
+                "signature": "qwawqwadadwewdwe"
+              }
+            ]
+          }
         },
         {
           "type": "text",
