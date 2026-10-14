@@ -1,7 +1,6 @@
 {
   "name": "@Items.thehexbook",
   "tooltip": "@Items.thehexbook.desc",
-  "register": "manual",
   "item": {
     "stack_size": 1
   },

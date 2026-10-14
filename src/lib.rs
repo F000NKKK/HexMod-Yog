@@ -30,7 +30,6 @@ impl Mod for HexMod {
     fn register(registry: &mut Registry) {
         info!("[hexcasting-yog] initializing the gate between worlds...");
 
-        item::register(registry);
 
         // thehexbook: right-click opens the book UI.
         registry.register_book(&book::register_book());
