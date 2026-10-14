@@ -797,6 +797,9 @@
       "id": "hexcasting:interop/pehkui",
       "name": "@Book.entry.interop.pehkui",
       "category": "@category:hexcasting:interop",
+      "requires": [
+        "pehkui"
+      ],
       "icon": "@item:minecraft:red_mushroom",
       "priority": 0,
       "advancement": "hexcasting:root",
@@ -811,14 +814,26 @@
           "name": "@Book.action.hexcasting.interop.pehkui.get",
           "input": "entity",
           "output": "num",
-          "text": "@Book.page.interop.pehkui.get"
+          "text": "@Book.page.interop.pehkui.get",
+          "patterns": [
+            {
+              "startdir": "NORTH_WEST",
+              "signature": "aawawwawwa"
+            }
+          ]
         },
         {
           "type": "hexcasting:pattern",
           "op_id": "hexcasting:interop/pehkui/set",
           "name": "@Book.action.hexcasting.interop.pehkui.set",
           "input": "entity, num",
-          "text": "@Book.page.interop.pehkui.set"
+          "text": "@Book.page.interop.pehkui.set",
+          "patterns": [
+            {
+              "startdir": "NORTH_EAST",
+              "signature": "ddwdwwdwwd"
+            }
+          ]
         }
       ]
     },

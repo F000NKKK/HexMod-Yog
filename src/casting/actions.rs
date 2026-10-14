@@ -310,6 +310,8 @@ fn registry() -> &'static Registry {
         all.extend(ops::meta::actions());
         all.extend(ops::rw::actions());
         all.extend(ops::lists::actions());
+        // Other mods' patterns, when they're loaded.
+        all.extend(ops::interop::actions());
         let mut normal = HashMap::new();
         for (i, a) in all.iter().enumerate() {
             if !a.great() {
@@ -627,6 +629,17 @@ mod tests {
             Special::mask(&pat("ada", dir::SE)),
             Some(Special::Mask(vec![false, false]))
         );
+    }
+
+    #[test]
+    fn pehkuis_patterns_fit_in() {
+        // Without Pehkui (no runtime here) they aren't registered; their signatures
+        // still mustn't clash with the rest.
+        let sigs: std::collections::HashSet<&str> = all().iter().map(|a| a.sig).collect();
+        for a in crate::casting::ops::interop::pehkui() {
+            assert!(HexPattern::from_angles(a.sig, a.dir).is_some(), "{}", a.id);
+            assert!(!sigs.contains(a.sig), "{} clashes", a.id);
+        }
     }
 
     #[test]
