@@ -1,7 +1,7 @@
 {
   "id": "thehexbook",
   "name": "@Book.book.name",
-  "author": "F000NK, Yog Team",
+  "version": 1,
   "nameplate_color": "00072b",
   "accent": "#8d6acc",
   "book_texture": "hexcasting:textures/gui/patchi_book.png",
