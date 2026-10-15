@@ -93,6 +93,56 @@ impl Text {
     }
 
     /// [`to_json`](Self::to_json) in a colour (`"gray"`, `"#RRGGBB"`, …).
+    /// Into the wire format (for packets and storage).
+    pub fn write(&self, w: &mut crate::wire::Writer) {
+        match self {
+            Text::Lit(v) => {
+                w.tag('L').str(v);
+            }
+            Text::Key(key, args) => {
+                w.tag('K').str(key).int(args.len() as i64);
+                for a in args {
+                    a.write(w);
+                }
+            }
+            Text::Join(parts, sep) => {
+                w.tag('J').str(sep).int(parts.len() as i64);
+                for p in parts {
+                    p.write(w);
+                }
+            }
+        }
+    }
+
+    pub fn read(r: &mut crate::wire::Reader) -> Option<Text> {
+        match r.tag()? {
+            'L' => Some(Text::Lit(r.str()?.to_owned())),
+            'K' => {
+                let key = r.str()?.to_owned();
+                let n = r.int()?;
+                let args = (0..n).map(|_| Text::read(r)).collect::<Option<Vec<_>>>()?;
+                Some(Text::Key(key, args))
+            }
+            'J' => {
+                let sep = r.str()?.to_owned();
+                let n = r.int()?;
+                let parts = (0..n).map(|_| Text::read(r)).collect::<Option<Vec<_>>>()?;
+                Some(Text::Join(parts, sep))
+            }
+            _ => None,
+        }
+    }
+
+    pub fn encode(&self) -> String {
+        let mut w = crate::wire::Writer::new();
+        self.write(&mut w);
+        w.finish()
+    }
+
+    pub fn decode(s: &str) -> Option<Text> {
+        Text::read(&mut crate::wire::Reader::new(s))
+    }
+
     pub fn to_json_colored(&self, color: &str) -> String {
         format!(
             "{{\"text\":\"\",\"color\":\"{color}\",\"extra\":[{}]}}",
@@ -128,5 +178,16 @@ mod tests {
         assert_eq!(fmt_double(-2.5), "-2.5");
         assert_eq!(fmt_double(std::f64::consts::PI), "3.1416");
         assert_eq!(fmt_double(-0.00001), "0");
+    }
+}
+
+#[cfg(test)]
+mod wire_tests {
+    use super::Text;
+
+    #[test]
+    fn a_text_survives_the_wire() {
+        let t = Text::key_args("a.b", vec![Text::lit("x:y;"), Text::Join(vec![Text::int(3), Text::key("c")], ", ".into())]);
+        assert_eq!(Text::decode(&t.encode()), Some(t));
     }
 }

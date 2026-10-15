@@ -314,8 +314,8 @@ impl Run {
 pub struct Impetus {
     /// `-1`: infinite (a creative unlocker).
     pub media: i64,
-    /// What it shows (`postDisplay`): a message as JSON, and the item beside it.
-    pub display: Option<(String, String)>,
+    /// What it shows (`postDisplay`): a message and the item beside it.
+    pub display: Option<(Text, String)>,
     pub pigment: Option<Pigment>,
     run: Option<Run>,
     /// The fletcher impetus' gaze count.
@@ -330,8 +330,8 @@ pub fn impetus(srv: &dyn Server, dim: &str, pos: BlockPos) -> Impetus {
     Impetus {
         media: s.get_int(&key("impetus.media", pos)).unwrap_or(0),
         display: get("impetus.display").and_then(|d| {
-            let (item, json) = d.split_once('\t')?;
-            Some((json.to_owned(), item.to_owned()))
+            let (item, text) = d.split_once('\t')?;
+            Some((Text::decode(text)?, item.to_owned()))
         }),
         pigment: get("impetus.pigment").and_then(|p| {
             let (item, owner) = p.split_once('\t')?;
@@ -355,7 +355,7 @@ fn save_impetus(srv: &dyn Server, dim: &str, pos: BlockPos, i: &Impetus) {
             s.remove(&key(what, pos));
         }
     };
-    put("impetus.display", i.display.as_ref().map(|(json, item)| format!("{item}\t{json}")));
+    put("impetus.display", i.display.as_ref().map(|(text, item)| format!("{item}\t{}", text.encode())));
     put("impetus.pigment", i.pigment.as_ref().map(|p| format!("{}\t{}", p.item, p.owner)));
     put("impetus.run", i.run.as_ref().map(Run::encode));
     put("impetus.player", i.player.as_ref().map(|(u, n)| format!("{u}\t{n}")));
@@ -380,7 +380,7 @@ impl Impetus {
 
     /// `postDisplay`.
     fn post(&mut self, msg: &Text, item: &str) {
-        self.display = Some((msg.to_json(), item.to_owned()));
+        self.display = Some((msg.clone(), item.to_owned()));
     }
 
     /// `postNoExits`.
