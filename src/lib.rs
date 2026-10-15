@@ -10,6 +10,7 @@ use yog_api::{Mod, Registry, info};
 
 pub mod akashic;
 pub mod casting;
+pub mod circle;
 pub mod events;
 pub mod iota;
 pub mod item;
@@ -38,6 +39,7 @@ impl Mod for HexMod {
         ui::pattern_render::register(registry);
 
         events::register(registry);
+        circle::register(registry);
 
         info!("[hexcasting-yog] gate opened. The book is ready.");
     }
