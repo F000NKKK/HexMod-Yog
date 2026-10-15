@@ -9,6 +9,7 @@
 use yog_api::{Mod, Registry, info};
 
 pub mod akashic;
+pub mod altiora;
 pub mod casting;
 pub mod circle;
 pub mod conjured;
@@ -20,6 +21,7 @@ pub mod math;
 pub mod protocol;
 pub mod render;
 pub mod snbt;
+pub mod sounds;
 pub mod text;
 pub mod ui;
 pub mod wire;

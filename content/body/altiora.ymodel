@@ -1,0 +1,20 @@
+// AltioraLayer: the elytra model (`ElytraModel.createLayer`), drawn with
+// Altiora's texture, 2 px behind the body (`translate(0, 0, 0.125)`).
+{
+  "texture": "misc/altiora.png",
+  "texture_size": [64, 32],
+  "bones": [
+    {
+      "name": "left_wing",
+      "pivot": [5, 0, 2],
+      "rotation": [15, 0, -15],
+      "cubes": [{ "origin": [-10, 0, 0], "size": [10, 20, 2], "uv": [22, 0], "inflate": 1 }]
+    },
+    {
+      "name": "right_wing",
+      "pivot": [-5, 0, 2],
+      "rotation": [15, 0, 15],
+      "cubes": [{ "origin": [0, 0, 0], "size": [10, 20, 2], "uv": [22, 0], "inflate": 1, "mirror": true }]
+    }
+  ]
+}
