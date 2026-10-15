@@ -43,6 +43,8 @@ struct Slate {
     facing: String,
     energized: bool,
     pattern: HexPattern,
+    /// A bookshelf's books are tinted with its iota's colour.
+    tint: Option<u32>,
 }
 
 /// Every slate with a pattern, by dimension and position (the server's).
@@ -94,29 +96,33 @@ pub fn slate_changed(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), pattern:
     save_slates(srv);
 }
 
-fn encode_slates(slates: &[Slate]) -> Vec<u8> {
+fn encode_slates(dim: &str, slates: &[Slate]) -> Vec<u8> {
     let mut w = Writer::new();
-    w.int(slates.len() as i64);
+    w.str(dim).int(slates.len() as i64);
     for s in slates {
         w.int(s.pos.0 as i64).int(s.pos.1 as i64).int(s.pos.2 as i64);
         w.str(&s.face).str(&s.facing).int(s.energized as i64).str(&s.pattern.serialized_form());
+        w.int(s.tint.map_or(-1, |c| c as i64));
     }
     w.finish().into_bytes()
 }
 
-fn decode_slates(b: &[u8]) -> Option<Vec<Slate>> {
+fn decode_slates(b: &[u8]) -> Option<(String, Vec<Slate>)> {
     let mut r = Reader::new(std::str::from_utf8(b).ok()?);
+    let dim = r.str()?.to_owned();
     let n = r.int()?;
-    (0..n)
+    let slates = (0..n)
         .map(|_| {
             let pos = (r.int()? as i32, r.int()? as i32, r.int()? as i32);
             let face = r.str()?.to_owned();
             let facing = r.str()?.to_owned();
             let energized = r.int()? != 0;
             let pattern = HexPattern::from_serialized(r.str()?)?;
-            Some(Slate { pos, face, facing, energized, pattern })
+            let tint = r.int()?;
+            Some(Slate { pos, face, facing, energized, pattern, tint: (tint >= 0).then_some(tint as u32) })
         })
-        .collect()
+        .collect::<Option<Vec<_>>>()?;
+    Some((dim, slates))
 }
 
 // ── the sentinel ────────────────────────────────────────────────────────────
@@ -181,13 +187,20 @@ fn tick(srv: &dyn Server) {
                 let state = srv.get_block_state(dim, to_ypos(*pos))?;
                 let (_, props) = split_state(&state);
                 let get = |k: &str| props.iter().find(|(n, _)| *n == k).map_or("", |(_, v)| *v).to_owned();
-                Some(Slate { pos: *pos, face: get("face"), facing: get("facing"), energized: get("energized") == "true", pattern: pattern.clone() })
+                let face = get("face");
+                // `IotaType.getColor`: what a bookshelf holds tints its books.
+                let tint = if face.is_empty() {
+                    crate::akashic::shelf(srv, dim, *pos).map(|(_, iota)| iota.kind().color() & 0xFF_FFFF)
+                } else {
+                    None
+                };
+                Some(Slate { pos: *pos, face, facing: get("facing"), energized: get("energized") == "true", pattern: pattern.clone(), tint })
             })
             .collect();
         let sentinel = get_sentinel(srv, &p.uuid)
             .filter(|s| s.dim == e.dimension)
             .map(|s| Shown { pos: s.pos, great: s.great, pigment: get_pigment(srv, &p.uuid) });
-        let (a, b) = (encode_slates(&near), encode_sentinel(sentinel.as_ref()));
+        let (a, b) = (encode_slates(&e.dimension, &near), encode_sentinel(sentinel.as_ref()));
         let last = sent.entry(name.clone()).or_default();
         if last.0 != a {
             srv.send_to_player(&name, CH_SLATES, &a);
@@ -204,12 +217,15 @@ fn tick(srv: &dyn Server) {
 
 struct Seen {
     slates: Vec<Slate>,
+    /// The blocks tinted, and the dimension they're in.
+    tinted: Vec<(String, (i32, i32, i32))>,
     /// The slates' triangles, `x, y, z, r, g, b, a` (world coordinates).
     slate_mesh: Vec<f32>,
     sentinel: Option<Shown>,
 }
 
-static SEEN: LazyLock<Mutex<Seen>> = LazyLock::new(|| Mutex::new(Seen { slates: Vec::new(), slate_mesh: Vec::new(), sentinel: None }));
+static SEEN: LazyLock<Mutex<Seen>> =
+    LazyLock::new(|| Mutex::new(Seen { slates: Vec::new(), tinted: Vec::new(), slate_mesh: Vec::new(), sentinel: None }));
 
 /// A horizontal direction's unit vector.
 fn dir(name: &str) -> Vec3 {
@@ -412,11 +428,20 @@ pub fn register(registry: &mut Registry) {
         true
     });
     registry.on_client_packet(CH_SLATES, |ev, _| {
-        if let Some(slates) = decode_slates(&ev.payload) {
+        if let Some((dim, slates)) = decode_slates(&ev.payload) {
             let mut seen = SEEN.lock().unwrap();
             let mut mesh = Vec::new();
             for s in &slates {
                 slate_triangles(s, &mut mesh);
+            }
+            // Books take their shelf's colour; shelves no longer sent lose it.
+            let at = |p: (i32, i32, i32)| yog_api::BlockPos { x: p.0, y: p.1, z: p.2 };
+            for (d, p) in seen.tinted.drain(..) {
+                yog_api::client::set_block_tint(&d, at(p), None);
+            }
+            for s in slates.iter().filter(|s| s.tint.is_some()) {
+                yog_api::client::set_block_tint(&dim, at(s.pos), s.tint);
+                seen.tinted.push((dim.clone(), s.pos));
             }
             seen.slates = slates;
             seen.slate_mesh = mesh;
@@ -438,8 +463,8 @@ mod tests {
     #[test]
     fn slates_and_sentinels_survive_the_wire() {
         let pattern = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
-        let s = vec![Slate { pos: (1, -2, 3), face: "wall".into(), facing: "north".into(), energized: true, pattern }];
-        assert_eq!(decode_slates(&encode_slates(&s)), Some(s));
+        let s = vec![Slate { pos: (1, -2, 3), face: "wall".into(), facing: "north".into(), energized: true, pattern, tint: Some(0x55FF55) }];
+        assert_eq!(decode_slates(&encode_slates("minecraft:overworld", &s)), Some(("minecraft:overworld".into(), s)));
         let sentinel = Shown { pos: Vec3::new(1.5, 2.0, -3.25), great: true, pigment: Pigment::default() };
         assert_eq!(decode_sentinel(&encode_sentinel(Some(&sentinel))), Some(Some(sentinel)));
         assert_eq!(decode_sentinel(&encode_sentinel(None)), Some(None));
@@ -448,7 +473,7 @@ mod tests {
     #[test]
     fn a_slate_pattern_lies_on_its_plate() {
         let pattern = HexPattern::from_angles("waqaw", HexDir::East).unwrap();
-        let s = Slate { pos: (0, 0, 0), face: "floor".into(), facing: "south".into(), energized: false, pattern };
+        let s = Slate { pos: (0, 0, 0), face: "floor".into(), facing: "south".into(), energized: false, pattern, tint: None };
         let mut out = Vec::new();
         slate_triangles(&s, &mut out);
         assert!(!out.is_empty());
