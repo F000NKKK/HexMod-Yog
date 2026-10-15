@@ -211,7 +211,7 @@ impl<'a> Vm<'a> {
             if let SideEffect::Mishap(m, ctx) = e
                 && let Some(msg) = m.message_with_name(&self.env, ctx)
             {
-                self.env.print_message(&msg);
+                self.env.report_mishap(&msg);
             }
         }
     }
