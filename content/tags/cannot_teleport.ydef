@@ -1,0 +1,25 @@
+// Entities teleport spells leave where they are: fixtures, markers, bosses
+// and Create's contraptions.
+{
+  kind: "tag",
+  of: "entity",
+  id: "cannot_teleport",
+  values: [
+    "@entity:minecraft:end_crystal",
+    "@entity:minecraft:item_frame",
+    "@entity:minecraft:painting",
+    "@entity:minecraft:leash_knot",
+    "@entity:minecraft:marker",
+    "@entity:minecraft:fishing_bobber"
+  ],
+  optional: [
+    "@entity:create:stationary_contraption",
+    "@entity:create:gantry_contraption",
+    "@entity:create:carriage_contraption",
+    "@entity:create:super_glue",
+    "@entity:create:crafting_blueprint",
+    "@entity:create:seat",
+    "@tag:entity:forge:bosses",
+    "@tag:entity:c:bosses"
+  ]
+}

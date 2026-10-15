@@ -1,0 +1,7 @@
+// Plants that grow under water (Create Water treats them as water).
+{
+  kind: "tag",
+  of: "block",
+  id: "water_plants",
+  values: ["@block:minecraft:kelp", "@block:minecraft:kelp_plant", "@block:minecraft:seagrass", "@block:minecraft:tall_seagrass"]
+}

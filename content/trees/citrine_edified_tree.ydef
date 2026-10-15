@@ -1,0 +1,21 @@
+// An edified tree, grown by Edify Sapling: edified logs, one in nine
+// citrine-veined, under citrine leaves.
+{
+  kind: "tree",
+  id: "citrine_edified_tree",
+  min_clipped_height: 6,
+  trunk: {
+    blocks: [{ block: "@block:hexcasting:edified_log", weight: 8 }, { block: "@block:hexcasting:edified_log_citrine", weight: 1 }],
+    shape: "fancy",
+    base_height: 5,
+    random_a: 5,
+    random_b: 3
+  },
+  leaves: {
+    blocks: [{ block: "@block:hexcasting:citrine_edified_leaves" }],
+    shape: "fancy",
+    radius: 1,
+    offset: 5,
+    height: 5
+  }
+}

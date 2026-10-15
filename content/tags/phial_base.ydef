@@ -1,0 +1,7 @@
+// What Craft Phial turns into a Phial of Media.
+{
+  kind: "tag",
+  of: "item",
+  id: "phial_base",
+  values: ["@item:minecraft:glass_bottle"]
+}

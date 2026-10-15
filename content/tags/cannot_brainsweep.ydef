@@ -1,0 +1,6 @@
+// Mobs Flay Mind refuses — none of the game's; other mods add theirs.
+{
+  kind: "tag",
+  of: "entity",
+  id: "cannot_brainsweep"
+}

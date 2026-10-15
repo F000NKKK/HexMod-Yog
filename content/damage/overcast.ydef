@@ -1,0 +1,10 @@
+// Casting with more media than the caster has: paid in health, past armor,
+// effects and shields.
+{
+  kind: "damage_type",
+  id: "overcast",
+  scaling: "when_caused_by_living_non_player",
+  exhaustion: 0,
+  message_id: "hexcasting.overcast",
+  tags: ["minecraft:bypasses_armor", "minecraft:bypasses_effects", "minecraft:bypasses_shield"]
+}

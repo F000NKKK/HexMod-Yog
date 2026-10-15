@@ -1,0 +1,7 @@
+// Blocks a spell breaks for next to no media.
+{
+  kind: "tag",
+  of: "block",
+  id: "cheap_to_break_block",
+  values: ["@block:hexcasting:conjured_block", "@block:hexcasting:conjured_light"]
+}
