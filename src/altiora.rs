@@ -4,14 +4,14 @@
 //!
 //! Built on the loader's bodies (`yog_api::body`): the wings are a rig
 //! drawn on the player, the glide is the player's travel step, the gliding
-//! pose a turn of the body and the camera lowered as for an elytra.
+//! pose a turn of the body, and the glider's hitbox and eyes an elytra
+//! flier's.
 
 use std::collections::HashMap;
 use std::f32::consts::PI;
 use std::sync::{LazyLock, Mutex};
-use std::time::Instant;
 
-use yog_api::body::{self, Anchor, BoneOp, CameraFrame, CameraOut, Frame, Mat4, Ops, Rig, TravelFrame};
+use yog_api::body::{self, Anchor, BoneOp, Frame, Mat4, Ops, Rig, TravelFrame};
 use yog_api::core::entity_flags;
 use yog_api::{EventPhase, Registry, Server};
 
@@ -48,9 +48,9 @@ const FIREWORK: &str = yog_api::vanilla::items::FIREWORK_ROCKET;
 /// `FireworkRocketEntity`: lifetime = 10 × (1 + flight) + 0–5 + 0–6 ticks.
 const ROCKET_TICKS_PER_FLIGHT: i32 = 10;
 
-/// Eye height standing and gliding (`Pose.STANDING`, `Pose.FALL_FLYING`).
-const STANDING_EYE: f32 = 1.62;
-const GLIDING_EYE: f32 = 0.4;
+/// A glider's hitbox and eye height (`Pose.FALL_FLYING`): width, height,
+/// eyes, in blocks.
+const GLIDING_SIZE: (f32, f32, f32) = (0.6, 0.6, 0.4);
 
 // ── Server ──────────────────────────────────────────────────────────────────
 
@@ -84,6 +84,7 @@ pub fn give(srv: &dyn Server, uuid: &str) {
 
 fn take(srv: &dyn Server, uuid: &str) {
     if SERVER.lock().unwrap_or_else(|e| e.into_inner()).remove(uuid).is_some() {
+        srv.entity_set_dimensions(uuid, None);
         broadcast(srv, NONE, uuid);
     }
 }
@@ -170,10 +171,6 @@ struct Seen {
     /// Ticks a rocket still pushes (the local player).
     boost: i32,
     was_jumping: bool,
-    /// The camera's lowering for the gliding eye height, 0–1, and when it
-    /// was last moved.
-    eye: f32,
-    eye_at: Option<Instant>,
 }
 
 impl Seen {
@@ -184,15 +181,16 @@ impl Seen {
             wing: body::Vec3::new(0.2617994, 0.0, -0.2617994),
             boost: 0,
             was_jumping: false,
-            eye: 0.0,
-            eye_at: None,
         }
     }
 
-    fn glide(&mut self, on: bool) {
+    /// Starts or ends the glide of `uuid` here: the pose's clock, the
+    /// glider's hitbox.
+    fn glide(&mut self, uuid: &str, on: bool) {
         if self.gliding != on {
             self.gliding = on;
             self.since = f32::NAN;
+            body::set_dimensions(uuid, on.then_some(GLIDING_SIZE));
         }
     }
 }
@@ -293,18 +291,6 @@ fn draw(f: &Frame, ops: &mut Ops) {
     }
 }
 
-/// The eyes drop to a glider's height, smoothly (`Camera.tick`).
-fn camera(f: &CameraFrame, out: &mut CameraOut) {
-    let mut map = CLIENT.lock().unwrap_or_else(|e| e.into_inner());
-    let Some(s) = map.get_mut(&f.uuid) else { return };
-    let now = Instant::now();
-    let dt = s.eye_at.map_or(0.0, |t| now.duration_since(t).as_secs_f32());
-    s.eye_at = Some(now);
-    let target = if s.gliding { 1.0 } else { 0.0 };
-    s.eye += (target - s.eye) * (1.0 - 0.5f32.powf(dt * 20.0));
-    out.world_offset.y -= (STANDING_EYE - GLIDING_EYE) * s.eye;
-}
-
 /// The local player's glide: deployed by a jump in the air, an elytra's
 /// flight (pushed by rockets), folded on the ground.
 fn travel(f: &TravelFrame) -> Option<body::Vec3> {
@@ -317,10 +303,10 @@ fn travel(f: &TravelFrame) -> Option<body::Vec3> {
         if !(jumped && !on_ground && f.flags & entity_flags::GLIDING == 0) {
             return None;
         }
-        s.glide(true);
+        s.glide(&f.uuid, true);
         tell_server(true);
     } else if on_ground {
-        s.glide(false);
+        s.glide(&f.uuid, false);
         s.boost = 0;
         tell_server(false);
         return None;
@@ -357,6 +343,7 @@ pub fn register(registry: &mut Registry) {
             changed
         };
         if changed {
+            srv.entity_set_dimensions(&info.uuid, on.then_some(GLIDING_SIZE));
             broadcast(srv, if on { GLIDING } else { WINGS }, &info.uuid);
         }
     });
@@ -366,11 +353,13 @@ pub fn register(registry: &mut Registry) {
         let Ok(uuid) = std::str::from_utf8(uuid) else { return };
         let mut map = CLIENT.lock().unwrap_or_else(|e| e.into_inner());
         if state == NONE {
-            map.remove(uuid);
+            if map.remove(uuid).is_some_and(|s| s.gliding) {
+                body::set_dimensions(uuid, None);
+            }
             body::track(uuid, false);
             return;
         }
-        map.entry(uuid.to_owned()).or_insert_with(Seen::new).glide(state == GLIDING);
+        map.entry(uuid.to_owned()).or_insert_with(Seen::new).glide(uuid, state == GLIDING);
         body::track(uuid, true);
     });
     registry.on_client_packet(CH_BOOST, |ev, _| {
@@ -381,6 +370,5 @@ pub fn register(registry: &mut Registry) {
         }
     });
     registry.on_body(draw);
-    registry.on_camera(camera);
     registry.on_travel(travel);
 }
