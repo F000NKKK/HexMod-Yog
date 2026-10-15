@@ -623,8 +623,8 @@ fn ignite(env: &mut CastEnv<'_>, target: &Iota) -> MResult<Spell> {
     }
 }
 
-/// `OpConjureBlock` (the block's pigment colour isn't kept: the conjured
-/// blocks render as plain amethyst sparkle).
+/// `OpConjureBlock`: the block sparkles in the caster's pigment
+/// (`BlockConjured.setColor`, [`crate::conjured`]).
 fn conjure(env: &mut CastEnv<'_>, pos: BlockPos, light: bool) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     if !replaceable(env, pos) {
@@ -641,6 +641,7 @@ fn conjure(env: &mut CastEnv<'_>, pos: BlockPos, light: bool) -> MResult<Spell> 
                     Blocks::CONJURED_BLOCK
                 };
                 env.srv.set_block(&env.dim, to_ypos(pos), block);
+                crate::conjured::conjured(env.srv, &env.dim, pos, light, env.pigment());
             }
         },
     ))

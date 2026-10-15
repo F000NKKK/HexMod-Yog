@@ -11,6 +11,7 @@ use yog_api::{Mod, Registry, info};
 pub mod akashic;
 pub mod casting;
 pub mod circle;
+pub mod conjured;
 pub mod events;
 pub mod iota;
 pub mod item;
@@ -44,6 +45,7 @@ impl Mod for HexMod {
         circle::register(registry);
         lens::register(registry);
         render::register(registry);
+        conjured::register(registry);
 
         info!("[hexcasting-yog] gate opened. The book is ready.");
     }
