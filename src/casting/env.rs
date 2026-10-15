@@ -29,6 +29,14 @@ pub const AMBIT_RADIUS: f64 = 32.0;
 pub const SENTINEL_RADIUS: f64 = 16.0;
 /// `HexConfig.common().mediaToHealthRate()`.
 pub const MEDIA_TO_HEALTH: f64 = 10_000.0;
+/// `HexConfig.common()`'s cooldowns, in ticks, after using a cypher,
+/// trinket or artifact.
+pub const CYPHER_COOLDOWN: u32 = 8;
+pub const TRINKET_COOLDOWN: u32 = 5;
+pub const ARTIFACT_COOLDOWN: u32 = 3;
+/// `HexConfig.server().canTeleportInThisDimension()`: the dimensions
+/// teleports don't work in (`DEFAULT_DIM_TP_DENYLIST`).
+pub const DIM_TP_DENYLIST: &[&str] = &["twilightforest:twilight_forest"];
 /// Inventory slot of the off hand (0–35 main, 36–39 armour).
 pub const SLOT_OFFHAND: u32 = 40;
 

@@ -15,7 +15,7 @@ use crate::casting::args::{
 };
 use crate::casting::cont::Cont;
 use crate::casting::env::{
-    CastEnv, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec, player_storage, random,
+    CastEnv, DIM_TP_DENYLIST, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec, player_storage, random,
     set_pigment, set_sentinel, to_ypos,
 };
 use crate::casting::image::Image;
@@ -236,17 +236,29 @@ fn blink(env: &mut CastEnv<'_>, e: Ent, delta: f64) -> MResult<Spell> {
             Spray::cloud_n(mid, 2.0, 50),
             Spray::burst_n(mid + dvec, 2.0, 100),
         ],
-        move |env, _| teleport_by(env.srv, &uuid, dvec),
+        move |env, _| teleport_by(env.srv, &env.dim, &uuid, dvec),
     ))
 }
 
-/// `teleportRespectSticky` (riders aren't taken along: the loader can't see
-/// them).
-pub fn teleport_by(srv: &dyn Server, uuid: &str, delta: Vec3) {
-    if let Some(p) = srv.entity_position(uuid) {
-        let to = Vec3::from_tuple(p) + delta;
-        srv.entity_teleport(uuid, to.x, to.y, to.z);
+/// `teleportRespectSticky`.
+pub fn teleport_by(srv: &dyn Server, dim: &str, uuid: &str, delta: Vec3) {
+    if DIM_TP_DENYLIST.contains(&dim) {
+        return;
     }
+    let Some(p) = srv.entity_position(uuid) else { return };
+    let to = Vec3::from_tuple(p) + delta;
+    // A "sticky" entity teleports itself and its riders. A teleport takes
+    // the riders along, so they get off one that isn't.
+    srv.entity_dismount(uuid);
+    let sticky = srv
+        .entity_info(uuid)
+        .is_some_and(|i| srv.has_entity_tag(&i.type_id, "hexcasting:sticky_teleporters"));
+    if !sticky {
+        for rider in srv.entity_passengers(uuid) {
+            srv.entity_dismount(&rider);
+        }
+    }
+    srv.entity_teleport(uuid, to.x, to.y, to.z);
 }
 
 // ── explosions ─────────────────────────────────────────────────────────────

@@ -44,6 +44,7 @@ pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
     let mut vm = Vm::new(Default::default(), env);
     let view = vm.queue_execute(instrs);
     let env = vm.env;
+    srv.set_item_cooldown(player, item_id, media::cooldown(item_id));
 
     let Some(pos) = env.caster_pos() else { return };
     if view.kind.success() {

@@ -44,6 +44,17 @@ pub fn draws_from_inventory(id: &str) -> bool {
     id == Items::ARTIFACT
 }
 
+/// `ItemPackagedHex.cooldown`: ticks before a cypher, trinket or artifact
+/// can be used again.
+pub fn cooldown(id: &str) -> u32 {
+    use crate::casting::env::{ARTIFACT_COOLDOWN, CYPHER_COOLDOWN, TRINKET_COOLDOWN};
+    match id {
+        Items::TRINKET => TRINKET_COOLDOWN,
+        Items::ARTIFACT => ARTIFACT_COOLDOWN,
+        _ => CYPHER_COOLDOWN,
+    }
+}
+
 /// `breakAfterDepletion`: cyphers.
 pub fn breaks_after_depletion(id: &str) -> bool {
     matches!(id, Items::CYPHER | Items::ANCIENT_CYPHER)

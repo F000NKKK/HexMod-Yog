@@ -102,7 +102,7 @@ fn teleport(env: &mut CastEnv<'_>, e: Ent, delta: Vec3) -> MResult<Spell> {
         10 * CRYSTAL,
         vec![Spray::cloud(mid, 2.0), Spray::burst(mid + delta, 2.0)],
         move |env, _| {
-            teleport_by(env.srv, &uuid, delta);
+            teleport_by(env.srv, &env.dim, &uuid, delta);
             if env.caster_uuid().as_deref() == Some(uuid.as_str()) {
                 splat_items(env, delta.length());
             }
