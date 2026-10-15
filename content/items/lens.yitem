@@ -2,7 +2,8 @@
   "name": "@Items.lens",
   "tooltip": "@Items.lens.desc",
   "item": {
-    "stack_size": 1
+    "stack_size": 1,
+    "wearable": "head"
   },
   "model": {
     "parent": "generated",
