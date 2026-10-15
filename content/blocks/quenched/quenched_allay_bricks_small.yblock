@@ -1,4 +1,5 @@
 {
+  "tags": ["quenched_allay_blocks"],
   "name": "@Blocks.quenched_allay_bricks_small",
   "block": {
     "hardness": 1.5,

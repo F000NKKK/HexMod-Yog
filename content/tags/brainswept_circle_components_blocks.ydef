@@ -1,0 +1,9 @@
+{
+  kind: "tag",
+  of: "block",
+  id: "brainswept_circle_components",
+  values: [
+    "@tag:block:hexcasting:directrices",
+    "@tag:block:hexcasting:impeti"
+  ]
+}

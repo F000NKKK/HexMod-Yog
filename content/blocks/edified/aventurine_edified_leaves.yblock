@@ -1,4 +1,5 @@
 {
+  "tags": ["minecraft:leaves"],
   "name": "@Blocks.aventurine_edified_leaves",
   "block": {
     "hardness": 0.2,

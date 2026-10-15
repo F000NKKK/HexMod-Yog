@@ -1,0 +1,8 @@
+{
+  kind: "tag",
+  of: "item",
+  id: "grants_root_advancement",
+  values: [
+    "@item:minecraft:amethyst_shard"
+  ]
+}

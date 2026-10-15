@@ -1,4 +1,5 @@
 {
+  "tags": ["staves"],
   "id": "staff/edified",
   "name": "@Items.staff.edified",
   "tooltip": "@Items.staff.edified.desc",

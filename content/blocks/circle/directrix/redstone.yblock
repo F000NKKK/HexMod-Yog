@@ -1,4 +1,5 @@
 {
+  "tags": ["directrices"],
   "id": "directrix/redstone",
   "name": "@Blocks.directrix.redstone",
   "block": {

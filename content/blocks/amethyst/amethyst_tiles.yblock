@@ -1,4 +1,5 @@
 {
+  "tags": ["amethyst_blocks"],
   "name": "@Blocks.amethyst_tiles",
   "block": {
     "hardness": 1.5,

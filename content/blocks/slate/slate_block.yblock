@@ -1,4 +1,5 @@
 {
+  "tags": ["slate_blocks"],
   "name": "@Blocks.slate_block",
   "block": {
     "hardness": 2,

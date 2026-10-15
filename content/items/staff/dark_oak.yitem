@@ -1,4 +1,5 @@
 {
+  "tags": ["staves"],
   "id": "staff/dark_oak",
   "name": "@Items.staff.dark_oak",
   "tooltip": "@Items.staff.dark_oak.desc",

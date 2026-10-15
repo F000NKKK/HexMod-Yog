@@ -1,0 +1,11 @@
+{
+  kind: "tag",
+  of: "block",
+  id: "minecraft:crystal_sound_blocks",
+  values: [
+    "@block:hexcasting:amethyst_sconce",
+    "@block:hexcasting:amethyst_tiles",
+    "@block:hexcasting:conjured_block",
+    "@block:hexcasting:conjured_light"
+  ]
+}

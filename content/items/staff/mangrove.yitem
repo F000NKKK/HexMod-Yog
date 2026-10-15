@@ -1,4 +1,5 @@
 {
+  "tags": ["staves"],
   "id": "staff/mangrove",
   "name": "@Items.staff.mangrove",
   "tooltip": "@Items.staff.mangrove.desc",

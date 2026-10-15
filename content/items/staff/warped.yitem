@@ -1,4 +1,5 @@
 {
+  "tags": ["staves"],
   "id": "staff/warped",
   "name": "@Items.staff.warped",
   "tooltip": "@Items.staff.warped.desc",

@@ -1,4 +1,5 @@
 {
+  "tags": ["grants_root_advancement"],
   "name": "@Items.charged_amethyst",
   "tooltip": "@Items.charged_amethyst.desc",
   "model": {

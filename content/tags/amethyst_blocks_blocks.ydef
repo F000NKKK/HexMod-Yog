@@ -1,0 +1,8 @@
+{
+  kind: "tag",
+  of: "block",
+  id: "amethyst_blocks",
+  values: [
+    "@block:minecraft:amethyst_block"
+  ]
+}
