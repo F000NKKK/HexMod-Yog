@@ -236,7 +236,6 @@ impl Mesh {
     }
 
     /// `x, y, r, g, b, a` per vertex, three a triangle.
-    #[cfg(test)]
     pub fn vertices(&self) -> &[f32] {
         &self.verts
     }
