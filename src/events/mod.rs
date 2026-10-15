@@ -58,7 +58,7 @@ pub fn register(registry: &mut Registry) {
 
     registry.on_tick(query::record_players);
     registry.on_tick(spells::tick_flight);
-    registry.on_tick(great::tick_altiora);
+    great::register_altiora(registry);
 
     // A bookshelf forgets what it held when it's broken or replaced.
     registry.on_block_break(|ev, phase, srv| {

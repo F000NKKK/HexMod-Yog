@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 use yog_api::{Server, Storage};
+use yog_core::query::entity_flags;
 
 use crate::casting::actions::{Action, actions};
 use crate::casting::args::{Ent, ItemEnt, Living, Mob, Player, PosDouble};
@@ -335,11 +336,16 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
 /// `OpAltiora.GRACE_PERIOD` (ticks before landing ends it).
 const GRACE_PERIOD: i32 = 20;
 
+/// Who glides under Altiora: tells the clients (`AltioraAbility`, synced).
+pub const CH_ALTIORA: &str = "hexcasting:altiora";
+/// `AltioraLayer.TEX_LOC`: the wings.
+const WINGS: &str = "hexcasting:textures/misc/altiora.png";
+
 /// Players under Altiora, by uuid, with the grace ticks left.
 static ALTIORA: Mutex<Option<HashMap<String, i32>>> = Mutex::new(None);
 
-/// `OpAltiora` (the elytra-like glide itself needs the loader: here the
-/// spell lifts the caster and keeps its effects until they land).
+/// `OpAltiora`: lifts the target and lets them glide as with an elytra
+/// till they land or bump into a wall.
 fn altiora(env: &mut CastEnv<'_>, p: Player) -> MResult<Spell> {
     p.in_range(env)?;
     let particles = vec![
@@ -355,49 +361,65 @@ fn altiora(env: &mut CastEnv<'_>, p: Player) -> MResult<Spell> {
     let uuid = p.uuid().to_owned();
     Ok(Spell::new(CRYSTAL, particles, move |env, _| {
         env.srv.entity_add_velocity(&uuid, 0.0, 1.5, 0.0);
-        let mut map = ALTIORA.lock().unwrap_or_else(|e| e.into_inner());
-        map.get_or_insert_with(HashMap::new)
-            .insert(uuid, GRACE_PERIOD);
+        set_altiora(env.srv, &uuid, Some(GRACE_PERIOD));
     }))
+}
+
+/// `setAltiora`: gives (`Some(grace)`) or takes away the glide, and tells
+/// every client.
+fn set_altiora(srv: &dyn Server, uuid: &str, grace: Option<i32>) {
+    let mut map = ALTIORA.lock().unwrap_or_else(|e| e.into_inner());
+    let map = map.get_or_insert_with(HashMap::new);
+    let was = map.contains_key(uuid);
+    match grace {
+        Some(g) => {
+            map.insert(uuid.to_owned(), g);
+        }
+        None => {
+            map.remove(uuid);
+        }
+    }
+    if was != grace.is_some() {
+        srv.entity_set_glider(uuid, grace.is_some());
+        let packet = altiora_packet(uuid, grace.is_some());
+        for name in srv.online_players() {
+            srv.send_to_player(&name, CH_ALTIORA, &packet);
+        }
+    }
+}
+
+/// `[on: u8][uuid]`.
+fn altiora_packet(uuid: &str, on: bool) -> Vec<u8> {
+    let mut b = vec![on as u8];
+    b.extend_from_slice(uuid.as_bytes());
+    b
 }
 
 /// `OpAltiora.checkPlayerCollision`, every tick.
 pub fn tick_altiora(srv: &dyn Server) {
-    let mut map = ALTIORA.lock().unwrap_or_else(|e| e.into_inner());
-    let Some(map) = map.as_mut() else { return };
-    map.retain(|uuid, grace| {
-        let Some(info) = srv.entity_info(uuid) else {
-            return false;
+    let players: Vec<(String, i32)> = {
+        let map = ALTIORA.lock().unwrap_or_else(|e| e.into_inner());
+        let Some(map) = map.as_ref() else { return };
+        map.iter().map(|(u, g)| (u.clone(), *g)).collect()
+    };
+    for (uuid, grace) in players {
+        let Some(info) = srv.entity_info(&uuid) else {
+            set_altiora(srv, &uuid, None);
+            continue;
         };
         let pos = Vec3::from_tuple(info.pos);
         let dim = info.dimension.as_str();
-        let on_ground = || {
-            srv.entity_get_nbt(uuid)
-                .is_some_and(|s| Nbt::parse(&s).get_bool("OnGround"))
-        };
-        if *grace == 0 && on_ground() {
-            srv.play_sound(
-                dim,
-                pos.x,
-                pos.y,
-                pos.z,
-                "hexcasting:flight.finish",
-                2.0,
-                1.0,
-            );
-            return false;
+        let landed = info.has(entity_flags::ON_GROUND) || info.has(entity_flags::HORIZONTAL_COLLISION);
+        if grace == 0 && landed {
+            set_altiora(srv, &uuid, None);
+            srv.play_sound(dim, pos.x, pos.y, pos.z, "hexcasting:flight.finish", 2.0, 1.0);
+            continue;
         }
-        *grace = (*grace - 1).max(0);
+        if let Some(g) = ALTIORA.lock().unwrap_or_else(|e| e.into_inner()).as_mut().and_then(|m| m.get_mut(&uuid)) {
+            *g = (grace - 1).max(0);
+        }
         if random() < 0.02 {
-            srv.play_sound(
-                dim,
-                pos.x,
-                pos.y,
-                pos.z,
-                "hexcasting:flight.ambience",
-                0.2,
-                1.0,
-            );
+            srv.play_sound(dim, pos.x, pos.y, pos.z, "hexcasting:flight.ambience", 0.2, 1.0);
         }
         Spray {
             pos,
@@ -406,8 +428,34 @@ pub fn tick_altiora(srv: &dyn Server) {
             spread: std::f64::consts::PI * 0.5,
             count: 3,
         }
-        .spawn(srv, dim, &get_pigment(srv, uuid));
+        .spawn(srv, dim, &get_pigment(srv, &uuid));
+    }
+}
+
+/// Altiora's server side (the tick, newcomers told who glides, the glide
+/// ends with the player leaving) and its client side (who glides here).
+pub fn register_altiora(registry: &mut yog_api::Registry) {
+    registry.on_tick(tick_altiora);
+    registry.on_player_join(|e, _, srv| {
+        let gliders: Vec<String> = ALTIORA
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .as_ref()
+            .map(|m| m.keys().cloned().collect())
+            .unwrap_or_default();
+        for uuid in gliders {
+            srv.send_to_player(&e.player_name, CH_ALTIORA, &altiora_packet(&uuid, true));
+        }
         true
+    });
+    registry.on_player_leave(|e, _, srv| {
+        set_altiora(srv, &e.uuid, None);
+        true
+    });
+    registry.on_client_packet(CH_ALTIORA, |ev, _| {
+        let Some((&on, uuid)) = ev.payload.split_first() else { return };
+        let Ok(uuid) = std::str::from_utf8(uuid) else { return };
+        yog_api::client::set_glider(uuid, (on != 0).then_some(WINGS));
     });
 }
 
