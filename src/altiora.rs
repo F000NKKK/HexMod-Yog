@@ -45,7 +45,7 @@ const FINISH_VOLUME: f32 = 2.0;
 /// doesn't count as falling.
 const SLOW_FALL: f64 = -0.5;
 
-const FIREWORK: &str = "minecraft:firework_rocket";
+const FIREWORK: &str = yog_api::vanilla::items::FIREWORK_ROCKET;
 /// `FireworkRocketEntity`: lifetime = 10 × (1 + flight) + 0–5 + 0–6 ticks.
 const ROCKET_TICKS_PER_FLIGHT: i32 = 10;
 
@@ -154,7 +154,7 @@ fn rocket(e: &yog_api::UseItemEvent, srv: &dyn Server) -> bool {
     boost.extend_from_slice(info.uuid.as_bytes());
     srv.send_to_player(&e.player_name, CH_BOOST, &boost);
     if let Some(p) = srv.entity_info(&info.uuid) {
-        srv.play_sound(&p.dimension, p.pos.0, p.pos.1, p.pos.2, sounds::vanilla::FIREWORK_LAUNCH, 3.0, 1.0);
+        srv.play_sound(&p.dimension, p.pos.0, p.pos.1, p.pos.2, yog_api::vanilla::sounds::ENTITY_FIREWORK_ROCKET_LAUNCH, 3.0, 1.0);
     }
     false
 }

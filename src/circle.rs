@@ -10,6 +10,7 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::{LazyLock, Mutex};
 
+use yog_api::vanilla;
 use yog_api::{EventPhase, Registry, Server, Storage, split_state};
 
 use crate::casting::env::{
@@ -35,11 +36,11 @@ const MAX_MEDIA: i64 = 9_000_000_000_000_000_000;
 const MAX_LOOK: i32 = 30;
 const LOOK_RANGE: f64 = 20.0;
 
-const SOUND_FIND_BLOCK: &str = "hexcasting:spellcircle.find_block";
-const SOUND_FAIL: &str = "hexcasting:spellcircle.fail";
-const SOUND_LOOK_TICK: &str = "hexcasting:impetus.fletcher.tick";
-const SOUND_REDSTONE_DING: &str = "hexcasting:impetus.redstone.register";
-const SOUND_REDSTONE_CLEAR: &str = "hexcasting:impetus.redstone.clear";
+const SOUND_FIND_BLOCK: &str = crate::sounds::SPELLCIRCLE_FIND_BLOCK;
+const SOUND_FAIL: &str = crate::sounds::SPELLCIRCLE_FAIL;
+const SOUND_LOOK_TICK: &str = crate::sounds::IMPETUS_FLETCHER_TICK;
+const SOUND_REDSTONE_DING: &str = crate::sounds::IMPETUS_REDSTONE_REGISTER;
+const SOUND_REDSTONE_CLEAR: &str = crate::sounds::IMPETUS_REDSTONE_CLEAR;
 
 // ── directions ──────────────────────────────────────────────────────────────
 
@@ -386,7 +387,7 @@ impl Impetus {
     /// `postNoExits`.
     fn post_no_exits(&mut self, pos: BlockPos) {
         let at = Text::lit(format!("{}, {}, {}", pos.0, pos.1, pos.2));
-        self.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_NO_EXIT_KEY, vec![at]), "minecraft:oak_sign");
+        self.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_NO_EXIT_KEY, vec![at]), vanilla::items::OAK_SIGN);
     }
 
     /// `remainingMediaCapacity`.
@@ -534,13 +535,13 @@ fn semitone_from_scale(srv: &dyn Server, dim: &str, impetus: BlockPos, note: i64
     let id = srv.block_info(dim, to_ypos(below)).map(|b| b.block_id().to_owned()).unwrap_or_default();
     let tagged = |tag: &str| srv.has_block_tag(&id, tag);
     let scale = match id.as_str() {
-        "minecraft:crying_obsidian" => MINOR,
-        _ if tagged("minecraft:doors") || tagged("minecraft:trapdoors") => DORIAN,
-        "minecraft:piston" | "minecraft:sticky_piston" => MIXOLYDIAN,
-        "minecraft:blue_wool" | "minecraft:blue_concrete" | "minecraft:blue_concrete_powder" | "minecraft:blue_terracotta"
-        | "minecraft:blue_glazed_terracotta" | "minecraft:blue_stained_glass" | "minecraft:blue_stained_glass_pane" => BLUES,
-        "minecraft:bone_block" => BAD_TIME,
-        "minecraft:composter" => SUSSY_BAKA,
+        vanilla::blocks::CRYING_OBSIDIAN => MINOR,
+        _ if tagged(vanilla::block_tags::DOORS) || tagged(vanilla::block_tags::TRAPDOORS) => DORIAN,
+        vanilla::blocks::PISTON | vanilla::blocks::STICKY_PISTON => MIXOLYDIAN,
+        vanilla::blocks::BLUE_WOOL | vanilla::blocks::BLUE_CONCRETE | vanilla::blocks::BLUE_CONCRETE_POWDER | vanilla::blocks::BLUE_TERRACOTTA
+        | vanilla::blocks::BLUE_GLAZED_TERRACOTTA | vanilla::blocks::BLUE_STAINED_GLASS | vanilla::blocks::BLUE_STAINED_GLASS_PANE => BLUES,
+        vanilla::blocks::BONE_BLOCK => BAD_TIME,
+        vanilla::blocks::COMPOSTER => SUSSY_BAKA,
         _ => MAJOR,
     };
     scale[note.clamp(0, scale.len() as i64 - 1) as usize]
@@ -561,7 +562,7 @@ pub fn start(srv: &dyn Server, dim: &str, pos: BlockPos, caster: Option<Caster>)
         Err(Some(at)) => {
             sfx(srv, dim, at, None, false);
             let shown = Text::lit(format!("{}, {}, {}", at.0, at.1, at.2));
-            imp.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_NO_CLOSURE_KEY, vec![shown]), "minecraft:lead");
+            imp.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_NO_CLOSURE_KEY, vec![shown]), vanilla::items::LEAD);
         }
         Ok(run) => {
             let speed = run.tick_speed();
@@ -629,7 +630,7 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
                 }
                 if found.is_some() {
                     let shown = Text::lit(format!("{}, {}, {}", run.current.0, run.current.1, run.current.2));
-                    imp.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_MANY_EXITS_KEY, vec![shown]), "minecraft:compass");
+                    imp.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_MANY_EXITS_KEY, vec![shown]), vanilla::items::COMPASS);
                     sfx(srv, dim, run.current, Some((imp, at)), false);
                     return false;
                 }
@@ -762,7 +763,7 @@ fn tick_look(srv: &dyn Server, dim: &str, pos: BlockPos) {
             continue;
         }
         // A carved pumpkin on the head hides the gaze.
-        if crate::casting::env::Stack::read(srv, &name, 39).id == "minecraft:carved_pumpkin" {
+        if crate::casting::env::Stack::read(srv, &name, 39).id == vanilla::items::CARVED_PUMPKIN {
             continue;
         }
         let end = eye + crate::casting::env::look_vec(srv, &uuid) * (LOOK_RANGE / 1.5);

@@ -16,7 +16,7 @@ use crate::wire::Reader;
 /// The abacus' click.
 const SOUND_ABACUS: &str = "hexcasting:abacus";
 /// Its reset.
-const SOUND_ABACUS_SHAKE: &str = "hexcasting:abacus.shake";
+const SOUND_ABACUS_SHAKE: &str = crate::sounds::ABACUS_SHAKE;
 
 /// `ItemPackagedHex.use`, for the hand holding `item_id`.
 pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
@@ -72,7 +72,7 @@ pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
             pos.x,
             pos.y,
             pos.z,
-            "minecraft:entity.item.break",
+            yog_api::vanilla::sounds::ENTITY_ITEM_BREAK,
             0.8,
             0.8 + random() as f32 * 0.4,
         );

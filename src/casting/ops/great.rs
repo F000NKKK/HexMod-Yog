@@ -1,6 +1,6 @@
 //! Great spells (`casting/actions/spells/great/*`).
 
-
+use yog_api::vanilla;
 use yog_api::{Server, Storage};
 
 use crate::casting::actions::{Action, actions};
@@ -32,7 +32,7 @@ pub fn actions() -> Vec<Action> {
                 count: 20,
             };
             Ok(Spell::new(3 * SHARD, vec![spray], move |env, _| {
-                env.srv.spawn_entity("minecraft:lightning_bolt", &env.dim, target.x, target.y, target.z);
+                env.srv.spawn_entity(vanilla::entities::LIGHTNING_BOLT, &env.dim, target.x, target.y, target.z);
             }))
         };
         "flight" NW "eawwaeawawaa" => spell [env, img; p: Player] { altiora(env, p) };
@@ -48,19 +48,19 @@ pub fn actions() -> Vec<Action> {
         "brainsweep" NE "qeqwqwqwqwqeqaeqeaqeqaeqaqded" => spell [env, img; mob: Mob, v: Vec3] { brainsweep(env, mob, v) };
         "craft/battery" SW "aqqqaqwwaqqqqqeqaqqqawwqwqwqwqwqw" => spell [env, img; e: ItemEnt] { craft_battery(env, e) };
         "potion/regeneration" NW "qqqqaawawaedd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:regeneration", DUST, true)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::REGENERATION, DUST, true)
         };
         "potion/night_vision" W "qqqaawawaeqdd" => spell [env, img; e: Living, dur: PosDouble] {
-            potion(env, e, dur.0, None, "minecraft:night_vision", DUST / 5, false)
+            potion(env, e, dur.0, None, vanilla::effects::NIGHT_VISION, DUST / 5, false)
         };
         "potion/absorption" SW "qqaawawaeqqdd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:absorption", DUST, true)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::ABSORPTION, DUST, true)
         };
         "potion/haste" SE "qaawawaeqqqdd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:haste", DUST / 3, true)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::HASTE, DUST / 3, true)
         };
         "potion/strength" E "aawawaeqqqqdd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:strength", DUST / 3, true)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::STRENGTH, DUST / 3, true)
         };
     }
 }
@@ -138,7 +138,7 @@ fn splat_items(env: &CastEnv, distance: f64) {
     };
     for slot in 36..40 {
         let s = env.stack_at(slot);
-        if s.is_empty() || s.nbt.to_snbt().contains("minecraft:binding_curse") {
+        if s.is_empty() || s.nbt.to_snbt().contains(vanilla::enchantments::BINDING_CURSE) {
             continue;
         }
         if random() < base * 0.25 {
@@ -173,9 +173,9 @@ const RECIPES: [(&str, Sweepee, &str, i64); 8] = [
         1_000_000,
     ),
     (
-        "minecraft:amethyst_block",
+        vanilla::blocks::AMETHYST_BLOCK,
         Sweepee::Villager(None, 3),
-        "minecraft:budding_amethyst",
+        vanilla::blocks::BUDDING_AMETHYST,
         1_000_000,
     ),
     (
@@ -209,8 +209,8 @@ const RECIPES: [(&str, Sweepee, &str, i64); 8] = [
         1_000_000,
     ),
     (
-        "minecraft:amethyst_block",
-        Sweepee::Entity("minecraft:allay"),
+        vanilla::blocks::AMETHYST_BLOCK,
+        Sweepee::Entity(vanilla::entities::ALLAY),
         Blocks::QUENCHED_ALLAY,
         100_000,
     ),
@@ -220,7 +220,7 @@ fn sweepee_matches(srv: &dyn Server, mob: &Ent, want: &Sweepee) -> bool {
     match want {
         Sweepee::Entity(t) => mob.info.type_id == *t,
         Sweepee::Villager(profession, level) => {
-            if mob.info.type_id != "minecraft:villager" {
+            if mob.info.type_id != vanilla::entities::VILLAGER {
                 return false;
             }
             let nbt = srv
@@ -273,7 +273,7 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
     }
     if env
         .srv
-        .has_entity_tag(&mob.info.type_id, "hexcasting:cannot_brainsweep")
+        .has_entity_tag(&mob.info.type_id, crate::ids::tags::CANNOT_BRAINSWEEP)
     {
         return Err(Mishap::BadBrainsweep {
             mob: mob.r.clone(),
@@ -320,7 +320,7 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
             at.x,
             at.y,
             at.z,
-            "minecraft:entity.player.levelup",
+            yog_api::vanilla::sounds::ENTITY_PLAYER_LEVELUP,
             0.5,
             0.8,
         );

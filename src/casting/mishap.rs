@@ -282,7 +282,7 @@ impl Mishap {
                 let health = env.srv.entity_health(&mob.uuid).unwrap_or(0.0);
                 let caster = env.caster_uuid().unwrap_or_default();
                 env.srv
-                    .entity_damage(&mob.uuid, health, "hexcasting:overcast", &caster);
+                    .entity_damage(&mob.uuid, health, crate::ids::damage::OVERCAST, &caster);
             }
             Mishap::BadBlock { pos, .. } => {
                 let p = Vec3::center_of(*pos);
@@ -358,7 +358,7 @@ impl Mishap {
                     p.x,
                     p.y,
                     p.z,
-                    "minecraft:block.glass.break",
+                    yog_api::vanilla::sounds::BLOCK_GLASS_BREAK,
                     0.5,
                     0.7,
                 );

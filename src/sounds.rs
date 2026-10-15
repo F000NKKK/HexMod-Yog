@@ -21,8 +21,3 @@ pub const IMPETUS_REDSTONE_CLEAR: &str = "hexcasting:impetus.redstone.clear";
 pub const LORE_FRAGMENT_READ: &str = "hexcasting:lore_fragment.read";
 pub const FLIGHT_AMBIENCE: &str = "hexcasting:flight.ambience";
 pub const FLIGHT_FINISH: &str = "hexcasting:flight.finish";
-
-/// The game's own, as Hex Casting plays them.
-pub mod vanilla {
-    pub const FIREWORK_LAUNCH: &str = "minecraft:entity.firework_rocket.launch";
-}

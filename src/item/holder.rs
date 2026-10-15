@@ -4,6 +4,7 @@
 //!
 //! Iotas are kept in the item's NBT as [`crate::wire`] strings.
 
+use yog_api::vanilla;
 use crate::casting::env::Stack;
 use crate::content::{Blocks, Items};
 use crate::iota::Iota;
@@ -33,7 +34,7 @@ pub fn is_holder(stack: &Stack) -> bool {
             stack.id.as_str(),
             FOCUS | SPELLBOOK | THOUGHT_KNOT | ABACUS | SLATE
         ) || is_scroll(&stack.id)
-            || stack.id == "minecraft:pumpkin_pie")
+            || stack.id == vanilla::items::PUMPKIN_PIE)
 }
 
 fn get_iota(nbt: &Nbt, key: &str) -> Option<Iota> {
@@ -67,7 +68,7 @@ pub fn read(stack: &Stack) -> Option<Iota> {
         ABACUS => Some(Iota::Double(nbt.get_f64("value").unwrap_or(0.0))),
         SLATE => pattern_of(nbt.get("BlockEntityTag")?, "pattern"),
         // Hex Casting's pie: as many π as there are pies.
-        "minecraft:pumpkin_pie" => Some(Iota::Double(std::f64::consts::PI * stack.count as f64)),
+        vanilla::items::PUMPKIN_PIE => Some(Iota::Double(std::f64::consts::PI * stack.count as f64)),
         id if is_scroll(id) => pattern_of(nbt, "pattern"),
         _ => None,
     }
@@ -79,7 +80,7 @@ pub fn writeable(stack: &Stack) -> bool {
         FOCUS => !stack.nbt.get_bool("sealed"),
         SPELLBOOK => !page_sealed(&stack.nbt),
         THOUGHT_KNOT => !stack.nbt.contains("data"),
-        ABACUS | "minecraft:pumpkin_pie" => false,
+        ABACUS | vanilla::items::PUMPKIN_PIE => false,
         SLATE => true,
         id => is_scroll(id),
     }
@@ -191,7 +192,7 @@ pub fn entity_stack(
     type_id: &str,
 ) -> Option<(Stack, EntityHolder)> {
     match type_id {
-        "minecraft:item" => {
+        vanilla::entities::ITEM => {
             let (id, count, snbt) = srv.item_entity_stack(uuid)?;
             Some((
                 Stack {
@@ -203,7 +204,7 @@ pub fn entity_stack(
                 EntityHolder::Item,
             ))
         }
-        "minecraft:item_frame" | "minecraft:glow_item_frame" => {
+        vanilla::entities::ITEM_FRAME | vanilla::entities::GLOW_ITEM_FRAME => {
             let nbt = Nbt::parse(&srv.entity_get_nbt(uuid)?);
             let item = nbt.get("Item")?;
             let id = item.get_str("id")?.to_owned();

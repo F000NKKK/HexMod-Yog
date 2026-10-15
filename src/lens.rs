@@ -8,6 +8,7 @@
 
 use std::sync::Mutex;
 
+use yog_api::vanilla;
 use yog_api::{GfxContext, Registry, Server, split_state};
 
 use crate::akashic;
@@ -197,7 +198,7 @@ fn rail_signal(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), shape: &str, p
 fn rail_power(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), positive: bool, depth: i32, shape: &str) -> i32 {
     let Some(state) = srv.get_block_state(dim, to_ypos(pos)) else { return 0 };
     let (id, props) = split_state(&state);
-    if id != "minecraft:powered_rail" {
+    if id != vanilla::blocks::POWERED_RAIL {
         return 0;
     }
     let get = |k: &str| props.iter().find(|(n, _)| *n == k).map_or("", |(_, v)| *v);
@@ -236,51 +237,51 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
             if id == Blocks::IMPETUS_REDSTONE {
                 match &imp.player {
                     Some((_, name)) => out.push(line(
-                        "minecraft:player_head",
+                        vanilla::items::PLAYER_HEAD,
                         Text::key_args("hexcasting.tooltip.lens.impetus.redstone.bound", vec![Text::lit(name.clone())]),
                     )),
-                    None => out.push(line("minecraft:barrier", Text::key("hexcasting.tooltip.lens.impetus.redstone.bound.none"))),
+                    None => out.push(line(vanilla::items::BARRIER, Text::key("hexcasting.tooltip.lens.impetus.redstone.bound.none"))),
                 }
             }
         }
-        "minecraft:note_block" => {
+        vanilla::blocks::NOTE_BLOCK => {
             let note: i32 = get("note").parse().unwrap_or(0);
             let tone = |o: f32| ((note as f32 / 24.0 + o) * std::f32::consts::TAU).sin().mul_add(0.65, 0.35).max(0.0);
             let color = ((tone(0.0) * 255.0) as u32) << 16 | ((tone(1.0 / 3.0) * 255.0) as u32) << 8 | (tone(2.0 / 3.0) * 255.0) as u32;
             let instrument = get("instrument");
             let ordinal = INSTRUMENTS.iter().position(|i| *i == instrument).unwrap_or(0);
-            out.push(colored("minecraft:music_disc_chirp", instrument_color(instrument), ordinal.to_string()));
-            out.push(colored("minecraft:note_block", color, note.to_string()));
+            out.push(colored(vanilla::items::MUSIC_DISC_CHIRP, instrument_color(instrument), ordinal.to_string()));
+            out.push(colored(vanilla::items::NOTE_BLOCK, color, note.to_string()));
         }
         akashic::BOOKSHELF => {
             if let Some((_, iota)) = akashic::shelf(srv, dim, pos) {
-                out.push(line("minecraft:book", iota.display()));
+                out.push(line(vanilla::items::BOOK, iota.display()));
             }
         }
-        "minecraft:comparator" => {
+        vanilla::items::COMPARATOR => {
             let value = srv
                 .get_block_nbt(dim, to_ypos(pos))
                 .and_then(|n| crate::snbt::Nbt::parse(&n).get_i64("OutputSignal"))
                 .unwrap_or(0) as i32;
-            out.push(colored("minecraft:redstone", redstone_color(value, 15), value.to_string()));
+            out.push(colored(vanilla::items::REDSTONE, redstone_color(value, 15), value.to_string()));
             let compare = get("mode") == "compare";
-            out.push(colored("minecraft:redstone_torch", redstone_color(if compare { 0 } else { 15 }, 15), if compare { ">=" } else { "-" }));
+            out.push(colored(vanilla::items::REDSTONE_TORCH, redstone_color(if compare { 0 } else { 15 }, 15), if compare { ">=" } else { "-" }));
         }
-        "minecraft:powered_rail" => {
+        vanilla::items::POWERED_RAIL => {
             let power = powered_rail_strength(srv, dim, pos);
-            out.push(colored("minecraft:powered_rail", redstone_color(power, 9), power.to_string()));
+            out.push(colored(vanilla::items::POWERED_RAIL, redstone_color(power, 9), power.to_string()));
         }
-        "minecraft:repeater" => {
-            out.push(colored("minecraft:clock", 0xFFFF55, get("delay")));
+        vanilla::items::REPEATER => {
+            out.push(colored(vanilla::items::CLOCK, 0xFFFF55, get("delay")));
         }
         _ => {}
     }
     // Any redstone source (but a comparator): what it gives off, first.
-    if id != "minecraft:comparator"
+    if id != vanilla::blocks::COMPARATOR
         && let Some(signal) = srv.redstone_signal(dim, to_ypos(pos))
     {
         let s = signal as i32;
-        out.insert(0, colored("minecraft:redstone", redstone_color(s, 15), s.to_string()));
+        out.insert(0, colored(vanilla::items::REDSTONE, redstone_color(s, 15), s.to_string()));
     }
     out
 }

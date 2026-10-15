@@ -14,6 +14,7 @@ pub mod casting;
 pub mod circle;
 pub mod conjured;
 pub mod events;
+pub mod ids;
 pub mod iota;
 pub mod item;
 pub mod lens;

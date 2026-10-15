@@ -4,6 +4,7 @@
 
 use std::sync::atomic::{AtomicU8, Ordering};
 
+use yog_api::vanilla;
 use yog_api::core::{EntityInfo, entity_flags};
 use yog_api::{Server, Storage};
 
@@ -109,7 +110,7 @@ impl Stack {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.count == 0 || self.id.is_empty() || self.id == "minecraft:air"
+        self.count == 0 || self.id.is_empty() || self.id == vanilla::items::AIR
     }
 
     pub fn is(&self, id: &str) -> bool {
@@ -369,7 +370,7 @@ impl<'a> CastEnv<'a> {
     /// `printMessage`: a circle's impetus shows it instead (`postPrint`).
     pub fn print_message(&mut self, msg: &Text) {
         if matches!(self.source, Source::Circle(_)) {
-            self.circle_posts.push((msg.clone(), "minecraft:book"));
+            self.circle_posts.push((msg.clone(), vanilla::items::BOOK));
         } else if let Some(name) = self.caster_name() {
             self.srv.tellraw(name, &msg.to_json());
         }
@@ -379,7 +380,7 @@ impl<'a> CastEnv<'a> {
     /// (`postMishap`).
     pub fn report_mishap(&mut self, msg: &Text) {
         if matches!(self.source, Source::Circle(_)) {
-            self.circle_posts.push((msg.clone(), "minecraft:music_disc_11"));
+            self.circle_posts.push((msg.clone(), vanilla::items::MUSIC_DISC_11));
         } else {
             self.print_message(msg);
         }
@@ -474,7 +475,7 @@ impl<'a> CastEnv<'a> {
         self.srv
             .block_info(&self.dim, to_ypos(pos))
             .map(|b| b.block_id().to_owned())
-            .unwrap_or_else(|| "minecraft:air".into())
+            .unwrap_or_else(|| vanilla::items::AIR.into())
     }
 
     /// A block's name (`block.<ns>.<path>`).
@@ -871,7 +872,7 @@ impl<'a> CastEnv<'a> {
         let before = self.srv.entity_health(uuid).unwrap_or(0.0);
         let attacker = self.caster_uuid().unwrap_or_default();
         self.srv
-            .entity_damage(uuid, amount, "hexcasting:overcast", &attacker);
+            .entity_damage(uuid, amount, crate::ids::damage::OVERCAST, &attacker);
         let after = self.srv.entity_health(uuid).unwrap_or(0.0);
         if before > 0.0 && after >= before {
             let target = before - amount;
@@ -982,7 +983,7 @@ impl<'a> CastEnv<'a> {
         };
         let air = self.srv.player_info(name).map_or(300, |p| p.air);
         if air < 200 {
-            self.srv.entity_damage(&uuid, 2.0, "minecraft:drown", "");
+            self.srv.entity_damage(&uuid, 2.0, vanilla::damage_types::DROWN, "");
         }
         self.srv.entity_set_nbt(&uuid, "{Air:0s}");
     }
@@ -1002,7 +1003,7 @@ impl<'a> CastEnv<'a> {
         }
         if let Some(uuid) = self.caster_uuid() {
             self.srv
-                .entity_add_effect(&uuid, "minecraft:blindness", ticks, 0, true);
+                .entity_add_effect(&uuid, vanilla::effects::BLINDNESS, ticks, 0, true);
         }
     }
 }

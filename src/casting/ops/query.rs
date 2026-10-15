@@ -5,6 +5,7 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use yog_api::vanilla;
 use yog_api::Server;
 use yog_api::core::{EntityInfo, entity_flags as ef};
 
@@ -307,10 +308,10 @@ fn velocity(srv: &dyn Server, info: &EntityInfo, uuid: &str) -> Vec3 {
     };
     match info.type_id.as_str() {
         // Resting items still get gravity added every tick.
-        "minecraft:item" if v.x * v.x + v.z * v.z <= 1.0e-5 && nbt().get_bool("OnGround") => {
+        vanilla::entities::ITEM if v.x * v.x + v.z * v.z <= 1.0e-5 && nbt().get_bool("OnGround") => {
             Vec3::ZERO
         }
-        "minecraft:arrow" | "minecraft:spectral_arrow" | "minecraft:trident"
+        vanilla::entities::ARROW | vanilla::entities::SPECTRAL_ARROW | vanilla::entities::TRIDENT
             if nbt().get_bool("inGround") =>
         {
             Vec3::ZERO

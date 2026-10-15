@@ -19,10 +19,10 @@ use crate::ui::spellcasting::{self, CH_SCROLL};
 pub fn register(registry: &mut Registry) {
     // The Hexbook and a staff on first join.
     registry.register_startup_grant(
-        StartupGrant::new("hexcasting:give_hexbook").item(Items::THEHEXBOOK),
+        StartupGrant::new(crate::ids::grants::HEXBOOK).item(Items::THEHEXBOOK),
     );
     registry
-        .register_startup_grant(StartupGrant::new("hexcasting:give_staff").item(Items::STAFF_OAK));
+        .register_startup_grant(StartupGrant::new(crate::ids::grants::STAFF).item(Items::STAFF_OAK));
 
     registry.on_use_item(|ev, phase, srv| {
         if phase == EventPhase::Post {

@@ -2,6 +2,7 @@
 //! amethyst that's spent whole, and phials / casting items that hold an
 //! amount in their NBT.
 
+use yog_api::vanilla;
 use yog_api::Server;
 
 use crate::casting::env::{SLOT_OFFHAND, Stack};
@@ -24,7 +25,7 @@ pub const BATTERY: &str = Items::BATTERY;
 /// Items worth a fixed amount each, spent whole: (id, worth, priority).
 const STATIC: [(&str, i64, i32); 5] = [
     (Items::AMETHYST_DUST, DUST, 3000),
-    ("minecraft:amethyst_shard", SHARD, 2000),
+    (vanilla::items::AMETHYST_SHARD, SHARD, 2000),
     (Items::CHARGED_AMETHYST, CRYSTAL, 1000),
     (Items::QUENCHED_ALLAY_SHARD, QUENCHED_SHARD, 900),
     (Blocks::QUENCHED_ALLAY, QUENCHED_BLOCK, 800),

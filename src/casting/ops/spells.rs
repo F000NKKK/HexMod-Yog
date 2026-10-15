@@ -4,6 +4,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64::consts::PI;
 use std::sync::Mutex;
 
+use yog_api::vanilla;
 use yog_api::Server;
 use yog_api::core::Face;
 
@@ -79,7 +80,7 @@ pub fn actions() -> Vec<Action> {
             env.assert_pos_in_range_for_editing(pos)?;
             Ok(Spell::new((DUST as f64 * 1.125) as i64, vec![Spray::burst(Vec3::center_of(pos), 1.0)], move |env, _| {
                 let player = env.caster_name().unwrap_or_default().to_owned();
-                env.srv.use_item_on_block(&env.dim, to_ypos(pos), Face::Up, "minecraft:bone_meal", &player);
+                env.srv.use_item_on_block(&env.dim, to_ypos(pos), Face::Up, vanilla::items::BONE_MEAL, &player);
             }))
         };
         "recharge" NW "qqqqqwaeaeaeaeaea" => spell [env, img; e: ItemEnt] { recharge(env, e) };
@@ -102,19 +103,19 @@ pub fn actions() -> Vec<Action> {
             craft_packaged(env, e, hex, Items::ARTIFACT, 10 * CRYSTAL)
         };
         "potion/weakness" NW "qqqqqaqwawaw" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:weakness", DUST / 10, false)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::WEAKNESS, DUST / 10, false)
         };
         "potion/levitation" W "qqqqqawwawawd" => spell [env, img; e: Living, dur: PosDouble] {
-            potion(env, e, dur.0, None, "minecraft:levitation", DUST / 5, false)
+            potion(env, e, dur.0, None, vanilla::effects::LEVITATION, DUST / 5, false)
         };
         "potion/wither" SW "qqqqqaewawawe" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:wither", DUST, false)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::WITHER, DUST, false)
         };
         "potion/poison" SE "qqqqqadwawaww" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:poison", DUST / 3, false)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::POISON, DUST / 3, false)
         };
         "potion/slowness" SE "qqqqqadwawaw" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), "minecraft:slowness", DUST / 3, false)
+            potion(env, e, dur.0, Some(&pot), vanilla::effects::SLOWNESS, DUST / 3, false)
         };
         "flight/range" SW "awawaawq" => spell [env, img; p: Player, arg: PosDouble] { flight(env, p, arg.0, true) };
         "flight/time" NE "dwdwdewq" => spell [env, img; p: Player, arg: PosDouble] { flight(env, p, arg.0, false) };
@@ -203,7 +204,7 @@ fn assert_battery_media(env: &CastEnv, e: &Ent) -> MResult<()> {
 pub fn assert_teleportable(env: &CastEnv, e: &Ent) -> MResult<()> {
     if env
         .srv
-        .has_entity_tag(&e.info.type_id, "hexcasting:cannot_teleport")
+        .has_entity_tag(&e.info.type_id, crate::ids::tags::CANNOT_TELEPORT)
     {
         Err(Mishap::ImmuneEntity {
             entity: e.r.clone(),
@@ -252,7 +253,7 @@ pub fn teleport_by(srv: &dyn Server, dim: &str, uuid: &str, delta: Vec3) {
     srv.entity_dismount(uuid);
     let sticky = srv
         .entity_info(uuid)
-        .is_some_and(|i| srv.has_entity_tag(&i.type_id, "hexcasting:sticky_teleporters"));
+        .is_some_and(|i| srv.has_entity_tag(&i.type_id, crate::ids::tags::STICKY_TELEPORTERS));
     if !sticky {
         for rider in srv.entity_passengers(uuid) {
             srv.entity_dismount(&rider);
@@ -317,7 +318,7 @@ fn break_block(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
     let id = env.block_id(pos);
     let cost = if env
         .srv
-        .has_block_tag(&id, "hexcasting:cheap_to_break_block")
+        .has_block_tag(&id, crate::ids::tags::CHEAP_TO_BREAK_BLOCK)
     {
         DUST / 100
     } else {
@@ -391,18 +392,18 @@ pub fn create_fluid(env: &mut CastEnv<'_>, pos: BlockPos, lava: bool) -> MResult
         cost,
         vec![Spray::burst(Vec3::center_of(pos), 1.0)],
         move |env, _| {
-            if env.block_id(pos) == "minecraft:cauldron" {
+            if env.block_id(pos) == vanilla::blocks::CAULDRON {
                 let full = if lava {
-                    "minecraft:lava_cauldron"
+                    vanilla::blocks::LAVA_CAULDRON
                 } else {
                     "minecraft:water_cauldron[level=3]"
                 };
                 env.srv.set_block(&env.dim, to_ypos(pos), full);
             } else {
                 let bucket = if lava {
-                    "minecraft:lava_bucket"
+                    vanilla::items::LAVA_BUCKET
                 } else {
-                    "minecraft:water_bucket"
+                    vanilla::items::WATER_BUCKET
                 };
                 env.srv.pour_fluid(&env.dim, to_ypos(pos), bucket);
             }
@@ -431,7 +432,7 @@ fn smoke(env: &CastEnv, here: BlockPos) {
         here.0 as f64 + j(),
         here.1 as f64 + j(),
         here.2 as f64 + j(),
-        "minecraft:smoke",
+        vanilla::particles::SMOKE,
         2,
         0.0,
         0.05,
@@ -443,9 +444,9 @@ fn smoke(env: &CastEnv, here: BlockPos) {
 /// `OpDestroyFluid`: drains a cauldron, or soaks up fluid like a sponge.
 fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
     let id = env.block_id(base);
-    if id != "minecraft:cauldron" && id.starts_with("minecraft:") && id.ends_with("cauldron") {
+    if id != vanilla::blocks::CAULDRON && id.starts_with("minecraft:") && id.ends_with("cauldron") {
         env.srv
-            .set_block(&env.dim, to_ypos(base), "minecraft:cauldron");
+            .set_block(&env.dim, to_ypos(base), vanilla::blocks::CAULDRON);
         return;
     }
     let mut todo = VecDeque::new();
@@ -477,16 +478,16 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
                 at,
                 &info.state.replace("waterlogged=true", "waterlogged=false"),
             )
-        } else if matches!(info.block_id(), "minecraft:water" | "minecraft:lava")
+        } else if matches!(info.block_id(), vanilla::blocks::WATER | vanilla::blocks::LAVA)
             || info.block_id() == info.fluid.as_deref().unwrap_or_default()
         {
-            env.srv.set_block(&env.dim, at, "minecraft:air")
+            env.srv.set_block(&env.dim, at, vanilla::blocks::AIR)
         } else if env
             .srv
-            .has_block_tag(info.block_id(), "hexcasting:water_plants")
+            .has_block_tag(info.block_id(), crate::ids::tags::WATER_PLANTS)
         {
             env.srv.break_block(&env.dim, at, true, "");
-            env.srv.set_block(&env.dim, at, "minecraft:air");
+            env.srv.set_block(&env.dim, at, vanilla::blocks::AIR);
             true
         } else {
             false
@@ -504,7 +505,7 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
             c.x,
             c.y,
             c.z,
-            "minecraft:block.fire.extinguish",
+            yog_api::vanilla::sounds::BLOCK_FIRE_EXTINGUISH,
             1.0,
             0.95,
         );
@@ -532,12 +533,12 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
         let id = state.split('[').next().unwrap_or_default();
         let lit = state.contains("lit=true");
         let success = match id {
-            "minecraft:fire" | "minecraft:soul_fire" | "minecraft:nether_portal" => {
-                env.srv.set_block(&env.dim, at, "minecraft:air")
+            vanilla::blocks::FIRE | vanilla::blocks::SOUL_FIRE | vanilla::blocks::NETHER_PORTAL => {
+                env.srv.set_block(&env.dim, at, vanilla::blocks::AIR)
             }
-            "minecraft:campfire" | "minecraft:soul_campfire" if lit => {
+            vanilla::blocks::CAMPFIRE | vanilla::blocks::SOUL_CAMPFIRE if lit => {
                 env.srv
-                    .use_item_on_block(&env.dim, at, Face::Up, "minecraft:wooden_shovel", "")
+                    .use_item_on_block(&env.dim, at, Face::Up, vanilla::items::WOODEN_SHOVEL, "")
             }
             _ if lit && (id.ends_with("candle") || id.ends_with("candle_cake")) => {
                 let ok = env
@@ -550,7 +551,7 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
                         c.x,
                         c.y,
                         c.z,
-                        "minecraft:block.candle.extinguish",
+                        yog_api::vanilla::sounds::BLOCK_CANDLE_EXTINGUISH,
                         1.0,
                         1.0,
                     );
@@ -571,7 +572,7 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
             target.0 as f64,
             target.1 as f64,
             target.2 as f64,
-            "minecraft:block.fire.extinguish",
+            yog_api::vanilla::sounds::BLOCK_FIRE_EXTINGUISH,
             1.0,
             0.95,
         );
@@ -605,14 +606,14 @@ fn ignite(env: &mut CastEnv<'_>, target: &Iota) -> MResult<Spell> {
                         &env.dim,
                         at,
                         Face::Up,
-                        "minecraft:fire_charge",
+                        vanilla::items::FIRE_CHARGE,
                         "",
                     ) {
                         env.srv.use_item_on_block(
                             &env.dim,
                             at,
                             Face::Up,
-                            "minecraft:flint_and_steel",
+                            vanilla::items::FLINT_AND_STEEL,
                             "",
                         );
                     }
@@ -649,16 +650,16 @@ fn conjure(env: &mut CastEnv<'_>, pos: BlockPos, light: bool) -> MResult<Spell> 
 
 /// `AkashicTreeGrower`'s trees.
 const EDIFIED_TREES: [&str; 3] = [
-    "hexcasting:amethyst_edified_tree",
-    "hexcasting:aventurine_edified_tree",
-    "hexcasting:citrine_edified_tree",
+    crate::ids::features::AMETHYST_EDIFIED_TREE,
+    crate::ids::features::AVENTURINE_EDIFIED_TREE,
+    crate::ids::features::CITRINE_EDIFIED_TREE,
 ];
 
 /// `OpEdifySapling`.
 fn edify(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     let id = env.block_id(pos);
-    if !env.srv.has_block_tag(&id, "minecraft:saplings") {
+    if !env.srv.has_block_tag(&id, vanilla::block_tags::SAPLINGS) {
         return Err(Mishap::bad_block(pos, "sapling"));
     }
     let spray = Spray {
@@ -679,7 +680,7 @@ fn edify(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
         // AbstractTreeGrower.growTree: clear the sapling, put it back if
         // no tree fits.
         for _ in 0..8 {
-            env.srv.set_block(&env.dim, at, "minecraft:air");
+            env.srv.set_block(&env.dim, at, vanilla::blocks::AIR);
             let tree = EDIFIED_TREES
                 [(random() * EDIFIED_TREES.len() as f64) as usize % EDIFIED_TREES.len()];
             if env.srv.place_feature(&env.dim, at, tree) {
@@ -728,7 +729,7 @@ fn beep(env: &mut CastEnv<'_>, at: Vec3, instrument: usize, note: i64) {
         at.x,
         at.y + 0.2,
         at.z,
-        "minecraft:note",
+        vanilla::particles::NOTE,
         0,
         note as f64 / 24.0,
         0.0,
@@ -890,7 +891,7 @@ fn craft_packaged(
 /// `OpMakeBattery`.
 pub fn craft_battery(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
     let phial_base = |env: &CastEnv, s: &Stack| {
-        !s.is_empty() && env.srv.has_item_tag(&s.id, "hexcasting:phial_base")
+        !s.is_empty() && env.srv.has_item_tag(&s.id, crate::ids::tags::PHIAL_BASE)
     };
     let (held, hand) = env
         .held_item_to_operate_on(|s| phial_base(env, s))
@@ -1162,7 +1163,7 @@ pub fn tick_flight(srv: &dyn Server) {
                 pos.x,
                 pos.y,
                 pos.z,
-                "hexcasting:flight.finish",
+                crate::sounds::FLIGHT_FINISH,
                 2.0,
                 1.0,
             );
@@ -1224,7 +1225,7 @@ pub fn tick_flight(srv: &dyn Server) {
                 pos.x,
                 pos.y,
                 pos.z,
-                "hexcasting:flight.ambience",
+                crate::sounds::FLIGHT_AMBIENCE,
                 0.2,
                 1.0,
             );

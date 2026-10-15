@@ -32,7 +32,7 @@ pub fn dye_pigment(color: u32) -> Pigment {
         .find(|(_, c)| *c == color)
         .map_or("red", |(n, _)| n);
     Pigment {
-        item: format!("hexcasting:dye_colorizer_{name}"),
+        item: format!("{}{name}", crate::ids::prefixes::DYE_PIGMENT),
         owner: NIL_UUID.into(),
     }
 }
@@ -101,7 +101,7 @@ enum Provider {
 }
 
 fn provider(item: &str) -> Option<Provider> {
-    let path = item.strip_prefix("hexcasting:")?;
+    let path = item.strip_prefix(crate::ids::prefixes::NAMESPACE)?;
     Some(match path {
         "default_colorizer" => Provider::Solid(0xab65eb),
         "ancient_colorizer" => Provider::Morph(ANCIENT.to_vec(), 600.0),

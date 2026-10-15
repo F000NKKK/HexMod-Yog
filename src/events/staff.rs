@@ -18,7 +18,7 @@ const KEY_IMAGE: &str = "staff.image";
 const KEY_PATTERNS: &str = "staff.patterns";
 
 pub fn is_staff(id: &str) -> bool {
-    id.starts_with("hexcasting:staff/")
+    id.starts_with(crate::ids::prefixes::STAFF)
 }
 
 /// `getStaffcastVM`'s image.
@@ -79,7 +79,7 @@ pub fn use_staff(srv: &dyn Server, player: &str, sneaking: bool) {
     };
     if sneaking {
         clear(srv, &info.uuid);
-        srv.play_sound_to_player(player, "hexcasting:staff.reset", 1.0, 1.0);
+        srv.play_sound_to_player(player, crate::sounds::STAFF_RESET, 1.0, 1.0);
     }
     let image = image(srv, &info.uuid);
     let gui = OpenGui {

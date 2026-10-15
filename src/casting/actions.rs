@@ -360,7 +360,7 @@ pub fn lookup(pattern: &HexPattern, env: &CastEnv) -> Lookup {
 // ── great spells: drawn differently in every world ────────────────────────
 
 const SEED_KEY: &str = "scrungled_patterns.seed";
-const SEED_DIMENSION: &str = "minecraft:overworld";
+const SEED_DIMENSION: &str = yog_api::vanilla::dimensions::OVERWORLD;
 
 /// This world's great spells, by the signature they're drawn with here.
 pub struct PerWorld {
