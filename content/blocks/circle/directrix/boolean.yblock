@@ -6,18 +6,116 @@
     "resistance": 4,
     "sound": "stone",
     "tool": "pickaxe",
-    "requires_tool": true
+    "requires_tool": true,
+    "comparator": "energized"
   },
   "model": {
     "parent": "cube",
     "textures": {
-      "north": "block/circle/directrix/boolean/front_dim_false.png",
-      "south": "block/circle/directrix/boolean/back_dim_true.png",
-      "west": "block/circle/directrix/boolean/left_neither.png",
-      "east": "block/circle/directrix/boolean/right_neither.png",
-      "up": "block/circle/directrix/boolean/top_neither.png",
       "down": "block/circle/bottom.png",
-      "particle": "block/circle/directrix/boolean/front_dim_false.png"
+      "east": "block/circle/directrix/boolean/left_neither.png",
+      "north": "block/circle/directrix/boolean/front_not_false.png",
+      "particle": "block/slate.png",
+      "south": "block/circle/directrix/boolean/back_not_true.png",
+      "up": "block/circle/directrix/boolean/top_neither.png",
+      "west": "block/circle/directrix/boolean/right_neither.png"
+    }
+  },
+  "states": {
+    "facing": "all",
+    "placement": "away",
+    "properties": {
+      "energized": [
+        "false",
+        "true"
+      ],
+      "state": [
+        "neither",
+        "true",
+        "false"
+      ]
+    },
+    "models": {
+      "dim_false": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/directrix/boolean/left_false.png",
+          "north": "block/circle/directrix/boolean/front_dim_false.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/directrix/boolean/back_not_true.png",
+          "up": "block/circle/directrix/boolean/top_false.png",
+          "west": "block/circle/directrix/boolean/right_false.png"
+        }
+      },
+      "dim_neither": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/directrix/boolean/left_neither.png",
+          "north": "block/circle/directrix/boolean/front_not_false.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/directrix/boolean/back_not_true.png",
+          "up": "block/circle/directrix/boolean/top_neither.png",
+          "west": "block/circle/directrix/boolean/right_neither.png"
+        }
+      },
+      "dim_true": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/directrix/boolean/left_true.png",
+          "north": "block/circle/directrix/boolean/front_not_false.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/directrix/boolean/back_dim_true.png",
+          "up": "block/circle/directrix/boolean/top_true.png",
+          "west": "block/circle/directrix/boolean/right_true.png"
+        }
+      },
+      "lit_false": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/directrix/boolean/left_false.png",
+          "north": "block/circle/directrix/boolean/front_lit_false.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/directrix/boolean/back_not_true.png",
+          "up": "block/circle/directrix/boolean/top_false.png",
+          "west": "block/circle/directrix/boolean/right_false.png"
+        }
+      },
+      "lit_neither": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/directrix/boolean/left_neither.png",
+          "north": "block/circle/directrix/boolean/front_not_false.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/directrix/boolean/back_not_true.png",
+          "up": "block/circle/directrix/boolean/top_neither.png",
+          "west": "block/circle/directrix/boolean/right_neither.png"
+        }
+      },
+      "lit_true": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/directrix/boolean/left_true.png",
+          "north": "block/circle/directrix/boolean/front_not_false.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/directrix/boolean/back_lit_true.png",
+          "up": "block/circle/directrix/boolean/top_true.png",
+          "west": "block/circle/directrix/boolean/right_true.png"
+        }
+      }
+    },
+    "variants": {
+      "energized=false,state=false": "dim_false",
+      "energized=false,state=neither": "dim_neither",
+      "energized=false,state=true": "dim_true",
+      "energized=true,state=false": "lit_false",
+      "energized=true,state=neither": "lit_neither",
+      "energized=true,state=true": "lit_true"
     }
   }
 }

@@ -243,6 +243,8 @@ pub struct CircleRun {
     pub facing: (i32, i32, i32),
     pub min: BlockPos,
     pub max: BlockPos,
+    /// The component running now (sounds and mishaps come from it).
+    pub current: BlockPos,
 }
 
 /// What a hex is cast from.
@@ -275,6 +277,11 @@ pub struct CastEnv<'a> {
     pub loudest: Sound,
     /// Media a circle's impetus holds (circle casts).
     pub circle_media: i64,
+    /// The impetus' pigment (circle casts; a colorize changes it).
+    pub circle_pigment: Option<Pigment>,
+    /// What the impetus shows after this (circle casts): a message and the
+    /// item beside it (`postPrint`, `postMishap`).
+    pub circle_posts: Vec<(Text, &'static str)>,
 }
 
 impl<'a> CastEnv<'a> {
@@ -294,6 +301,8 @@ impl<'a> CastEnv<'a> {
             sounds_played: 0,
             loudest: Sound::Nothing,
             circle_media: 0,
+            circle_pigment: None,
+            circle_posts: Vec::new(),
         }
     }
 
@@ -349,19 +358,39 @@ impl<'a> CastEnv<'a> {
         }
     }
 
-    /// `isEnlightened`.
+    /// `isEnlightened` (a circle without a caster is).
     pub fn is_enlightened(&self) -> bool {
+        if matches!(self.source, Source::Circle(_)) && self.caster.is_none() {
+            return true;
+        }
         self.has_flag(FLAG_ENLIGHTENED)
     }
 
-    pub fn print_message(&self, msg: &Text) {
-        if let Some(name) = self.caster_name() {
+    /// `printMessage`: a circle's impetus shows it instead (`postPrint`).
+    pub fn print_message(&mut self, msg: &Text) {
+        if matches!(self.source, Source::Circle(_)) {
+            self.circle_posts.push((msg.clone(), "minecraft:book"));
+        } else if let Some(name) = self.caster_name() {
             self.srv.tellraw(name, &msg.to_json());
         }
     }
 
-    /// The caster's pigment; a packaged hex uses the one it was made with.
+    /// A mishap's message: to the caster, or on a circle's impetus
+    /// (`postMishap`).
+    pub fn report_mishap(&mut self, msg: &Text) {
+        if matches!(self.source, Source::Circle(_)) {
+            self.circle_posts.push((msg.clone(), "minecraft:music_disc_11"));
+        } else {
+            self.print_message(msg);
+        }
+    }
+
+    /// The caster's pigment; a packaged hex uses the one it was made with,
+    /// a circle its impetus'.
     pub fn pigment(&self) -> Pigment {
+        if matches!(self.source, Source::Circle(_)) {
+            return self.circle_pigment.clone().unwrap_or_default();
+        }
         if self.source == Source::Packaged
             && let Some(p) = self
                 .held(self.hand)
@@ -389,9 +418,25 @@ impl<'a> CastEnv<'a> {
         );
     }
 
-    /// `postExecution`: a staff plays each pattern's sound; packaged items
-    /// remember the loudest one.
+    /// `setPigment`: the caster's, or a circle's impetus'.
+    pub fn set_pigment(&mut self, p: Pigment) {
+        if matches!(self.source, Source::Circle(_)) {
+            self.circle_pigment = Some(p);
+        } else if let Some(uuid) = self.caster_uuid() {
+            set_pigment(self.srv, &uuid, &p);
+        }
+    }
+
+    /// `postExecution`: a staff plays each pattern's sound, a circle where
+    /// it runs; packaged items remember the loudest one.
     pub fn post_execution(&mut self, sound: Sound) {
+        if let Source::Circle(c) = &self.source {
+            if let Some(id) = sound.id() {
+                let p = Vec3::center_of(c.current);
+                self.srv.play_sound(&self.dim, p.x, p.y, p.z, id, 1.0, 1.0);
+            }
+            return;
+        }
         match self.source {
             Source::Staff => {
                 if let (Some(id), Some(pos)) = (sound.id(), self.caster_pos())
@@ -443,7 +488,7 @@ impl<'a> CastEnv<'a> {
 
     pub fn mishap_spray_pos(&self) -> Vec3 {
         match &self.source {
-            Source::Circle(c) => Vec3::center_of(c.impetus),
+            Source::Circle(c) => Vec3::center_of(c.current),
             _ => self.caster_pos().unwrap_or_default(),
         }
     }
@@ -524,8 +569,11 @@ impl<'a> CastEnv<'a> {
         self.assert_vec_in_range(Vec3::center_of(pos))
     }
 
-    /// `hasEditPermissionsAt`: adventure-mode casters can't edit.
+    /// `hasEditPermissionsAt`: adventure-mode casters can't edit; circles can.
     pub fn has_edit_permissions(&self, _pos: BlockPos) -> bool {
+        if matches!(self.source, Source::Circle(_)) {
+            return true;
+        }
         match self.caster_name().and_then(|n| self.srv.player_info(n)) {
             Some(p) => p.gamemode != "adventure",
             None => matches!(self.source, Source::Circle(_)),
@@ -596,7 +644,7 @@ impl<'a> CastEnv<'a> {
 
     /// `getPrimaryStacks`: the other hand, then the casting hand.
     pub fn primary_stacks(&self) -> Vec<(Stack, Hand)> {
-        if self.caster.is_none() || matches!(self.source, Source::Circle(_)) {
+        if self.caster.is_none() {
             return Vec::new();
         }
         let other = other_hand(self.hand);
@@ -616,12 +664,17 @@ impl<'a> CastEnv<'a> {
         let Some(name) = self.caster_name() else {
             return Vec::new();
         };
-        if matches!(self.source, Source::Circle(_)) {
-            return Vec::new();
-        }
+        let circle = matches!(self.source, Source::Circle(_));
         let selected = self.srv.player_info(name).map_or(0, |p| p.selected_slot);
         let mut slots = Vec::new();
         match mode {
+            // A circle casts with no hand: both hands, then the hotbar
+            // from right of the selected slot.
+            Discovery::Query if circle => {
+                slots.push(selected);
+                slots.push(SLOT_OFFHAND);
+                slots.extend((0..9).map(|d| (selected + 1 + d) % 9));
+            }
             Discovery::Query => {
                 slots.push(match other_hand(self.hand) {
                     Hand::Main => selected,
@@ -831,6 +884,9 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn yeet_held_items_towards(&self, target: Vec3) {
+        if matches!(self.source, Source::Circle(_)) {
+            return; // `CircleMishapEnv`: the caster isn't touched
+        }
         let Some(pos) = self.caster_pos() else { return };
         let delta = (target - pos).normalize() * 0.5;
         for h in [Hand::Main, Hand::Off] {
@@ -863,6 +919,9 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn drop_held_items(&self) {
+        if matches!(self.source, Source::Circle(_)) {
+            return; // `CircleMishapEnv`: the caster isn't touched
+        }
         let Some(c) = self.caster_info() else { return };
         let look = self
             .caster_uuid()
@@ -905,6 +964,9 @@ impl<'a> CastEnv<'a> {
 
     /// `damage(healthProportion)`.
     pub fn mishap_damage(&self, proportion: f32) {
+        if matches!(self.source, Source::Circle(_)) {
+            return; // `CircleMishapEnv`: the caster isn't touched
+        }
         if let Some(uuid) = self.caster_uuid() {
             let health = self.srv.entity_health(&uuid).unwrap_or(0.0);
             self.truly_hurt(&uuid, health * proportion);
@@ -912,6 +974,9 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn drown(&self) {
+        if matches!(self.source, Source::Circle(_)) {
+            return; // `CircleMishapEnv`: the caster isn't touched
+        }
         let (Some(uuid), Some(name)) = (self.caster_uuid(), self.caster_name()) else {
             return;
         };
@@ -923,12 +988,18 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn remove_xp(&self, amount: i32) {
+        if matches!(self.source, Source::Circle(_)) {
+            return; // `CircleMishapEnv`: the caster isn't touched
+        }
         if let Some(name) = self.caster_name() {
             self.srv.player_add_xp(name, -amount);
         }
     }
 
     pub fn blind(&self, ticks: i32) {
+        if matches!(self.source, Source::Circle(_)) {
+            return; // `CircleMishapEnv`: the caster isn't touched
+        }
         if let Some(uuid) = self.caster_uuid() {
             self.srv
                 .entity_add_effect(&uuid, "minecraft:blindness", ticks, 0, true);

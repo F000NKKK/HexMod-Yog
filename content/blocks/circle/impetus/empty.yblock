@@ -7,18 +7,59 @@
     "resistance": 4,
     "sound": "stone",
     "tool": "pickaxe",
-    "requires_tool": true
+    "requires_tool": true,
+    "comparator": "energized"
   },
   "model": {
     "parent": "cube",
     "textures": {
-      "north": "block/circle/impetus/empty/front_dim.png",
-      "south": "block/circle/impetus/back_dim.png",
-      "west": "block/circle/impetus/empty/left_dim.png",
-      "east": "block/circle/impetus/empty/right_dim.png",
-      "up": "block/circle/impetus/empty/top_dim.png",
       "down": "block/circle/bottom.png",
-      "particle": "block/circle/impetus/empty/front_dim.png"
+      "east": "block/circle/impetus/empty/left_dim.png",
+      "north": "block/circle/impetus/empty/front_dim.png",
+      "particle": "block/slate.png",
+      "south": "block/circle/impetus/back_dim.png",
+      "up": "block/circle/impetus/empty/top_dim.png",
+      "west": "block/circle/impetus/empty/right_dim.png"
+    }
+  },
+  "states": {
+    "facing": "all",
+    "placement": "away",
+    "properties": {
+      "energized": [
+        "false",
+        "true"
+      ]
+    },
+    "models": {
+      "dim": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/impetus/empty/left_dim.png",
+          "north": "block/circle/impetus/empty/front_dim.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/impetus/back_dim.png",
+          "up": "block/circle/impetus/empty/top_dim.png",
+          "west": "block/circle/impetus/empty/right_dim.png"
+        }
+      },
+      "lit": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/impetus/empty/left_lit.png",
+          "north": "block/circle/impetus/empty/front_lit.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/impetus/back_lit.png",
+          "up": "block/circle/impetus/empty/top_lit.png",
+          "west": "block/circle/impetus/empty/right_lit.png"
+        }
+      }
+    },
+    "variants": {
+      "energized=false": "dim",
+      "energized=true": "lit"
     }
   }
 }

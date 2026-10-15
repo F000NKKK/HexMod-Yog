@@ -6,18 +6,64 @@
     "resistance": 4,
     "sound": "stone",
     "tool": "pickaxe",
-    "requires_tool": true
+    "requires_tool": true,
+    "comparator": "energized",
+    "powered": "powered"
   },
   "model": {
     "parent": "cube",
     "textures": {
-      "north": "block/circle/impetus/redstone/front_dim.png",
-      "south": "block/circle/impetus/back_dim.png",
-      "west": "block/circle/impetus/redstone/left_dim.png",
-      "east": "block/circle/impetus/redstone/right_dim.png",
-      "up": "block/circle/impetus/redstone/top_dim.png",
       "down": "block/circle/bottom.png",
-      "particle": "block/circle/impetus/redstone/front_dim.png"
+      "east": "block/circle/impetus/redstone/left_dim.png",
+      "north": "block/circle/impetus/redstone/front_dim.png",
+      "particle": "block/slate.png",
+      "south": "block/circle/impetus/back_dim.png",
+      "up": "block/circle/impetus/redstone/top_dim.png",
+      "west": "block/circle/impetus/redstone/right_dim.png"
+    }
+  },
+  "states": {
+    "facing": "all",
+    "placement": "away",
+    "properties": {
+      "energized": [
+        "false",
+        "true"
+      ],
+      "powered": [
+        "false",
+        "true"
+      ]
+    },
+    "models": {
+      "dim": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/impetus/redstone/left_dim.png",
+          "north": "block/circle/impetus/redstone/front_dim.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/impetus/back_dim.png",
+          "up": "block/circle/impetus/redstone/top_dim.png",
+          "west": "block/circle/impetus/redstone/right_dim.png"
+        }
+      },
+      "lit": {
+        "parent": "cube",
+        "textures": {
+          "down": "block/circle/bottom.png",
+          "east": "block/circle/impetus/redstone/left_lit.png",
+          "north": "block/circle/impetus/redstone/front_lit.png",
+          "particle": "block/slate.png",
+          "south": "block/circle/impetus/back_lit.png",
+          "up": "block/circle/impetus/redstone/top_lit.png",
+          "west": "block/circle/impetus/redstone/right_lit.png"
+        }
+      }
+    },
+    "variants": {
+      "energized=false": "dim",
+      "energized=true": "lit"
     }
   }
 }
