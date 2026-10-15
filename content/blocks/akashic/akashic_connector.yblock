@@ -9,8 +9,6 @@
   },
   "model": {
     "parent": "cube_all",
-    "textures": {
-      "all": "block/akashic_ligature.png"
-    }
+    "textures": { "all": "block/akashic_ligature.png" }
   }
 }
