@@ -8,10 +8,10 @@
   ],
   "key": {
     "A": "@item:hexcasting:charged_amethyst",
-    "D": "@tag:item:minecraft:music_discs",
+    "D": "@tag:item:yog:music_discs",
     "F": [
       "@item:minecraft:gold_ingot",
-      "@tag:item:c:gold_ingots"
+      "@tag:item:yog:ingots/gold"
     ]
   },
   "result": "@item:hexcasting:artifact",

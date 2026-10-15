@@ -9,7 +9,7 @@
   "key": {
     "A": "@item:minecraft:amethyst_shard",
     "S": "@item:minecraft:stick",
-    "W": "@tag:item:minecraft:planks"
+    "W": "@tag:item:yog:planks"
   },
   "result": "@item:hexcasting:abacus",
   "category": "equipment"

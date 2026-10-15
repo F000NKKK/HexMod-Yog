@@ -19,7 +19,6 @@
     "@entity:create:super_glue",
     "@entity:create:crafting_blueprint",
     "@entity:create:seat",
-    "@tag:entity:forge:bosses",
-    "@tag:entity:c:bosses"
+    "@tag:entity:yog:bosses"
   ]
 }

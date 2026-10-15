@@ -9,7 +9,7 @@
   "key": {
     "C": [
       "@item:minecraft:copper_ingot",
-      "@tag:item:c:copper_ingots"
+      "@tag:item:yog:ingots/copper"
     ],
     "I": "@item:hexcasting:amethyst_dust"
   },

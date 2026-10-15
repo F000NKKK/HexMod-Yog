@@ -8,7 +8,7 @@
   "key": {
     "B": [
       "@item:minecraft:copper_ingot",
-      "@tag:item:c:copper_ingots"
+      "@tag:item:yog:ingots/copper"
     ],
     "T": "@item:hexcasting:charged_amethyst"
   },

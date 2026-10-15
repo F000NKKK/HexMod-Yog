@@ -10,15 +10,15 @@
     "A": "@item:minecraft:amethyst_shard",
     "I": [
       "@item:minecraft:iron_ingot",
-      "@tag:item:c:iron_ingots"
+      "@tag:item:yog:ingots/iron"
     ],
     "N": [
       "@item:minecraft:iron_nugget",
-      "@tag:item:c:iron_nuggets"
+      "@tag:item:yog:nuggets/iron"
     ],
     "S": [
       "@item:minecraft:stick",
-      "@tag:item:c:wood_sticks"
+      "@tag:item:yog:rods/wooden"
     ]
   },
   "result": "@item:hexcasting:jeweler_hammer",

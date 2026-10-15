@@ -12,7 +12,7 @@
     "F": "@item:minecraft:chorus_fruit",
     "N": [
       "@item:minecraft:gold_nugget",
-      "@tag:item:c:gold_nuggets"
+      "@tag:item:yog:nuggets/gold"
     ]
   },
   "result": "@item:hexcasting:spellbook",

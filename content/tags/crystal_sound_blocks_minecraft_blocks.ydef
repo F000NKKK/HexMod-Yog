@@ -1,7 +1,7 @@
 {
   kind: "tag",
   of: "block",
-  id: "minecraft:crystal_sound_blocks",
+  id: "yog:crystal_sound_blocks",
   values: [
     "@block:hexcasting:amethyst_sconce",
     "@block:hexcasting:amethyst_tiles",

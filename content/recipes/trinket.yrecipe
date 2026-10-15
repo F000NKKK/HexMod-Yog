@@ -9,7 +9,7 @@
   "key": {
     "C": [
       "@item:minecraft:iron_ingot",
-      "@tag:item:c:iron_ingots"
+      "@tag:item:yog:ingots/iron"
     ],
     "I": "@item:minecraft:amethyst_shard"
   },

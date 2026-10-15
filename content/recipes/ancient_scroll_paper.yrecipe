@@ -4,8 +4,8 @@
   "ingredients": [
     [
       "@item:minecraft:brown_dye",
-      "@tag:item:c:brown_dye",
-      "@tag:item:c:brown_dyes"
+      "@tag:item:yog:dyes/brown",
+      "@tag:item:yog:dyes/brown"
     ],
     "@item:hexcasting:scroll_paper",
     "@item:hexcasting:scroll_paper",
