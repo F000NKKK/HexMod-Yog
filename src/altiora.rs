@@ -2,14 +2,18 @@
 //! that let a player glide as with an elytra — deployed by jumping in the
 //! air, gone once they touch anything.
 //!
-//! Built on the loader's bodies (`yog_api::body`): the wings are a rig
-//! drawn on the player, the glide is the player's travel step, the gliding
-//! pose a turn of the body, and the glider's hitbox and eyes an elytra
-//! flier's.
+//! The server decides: who has wings and who glides is entity data on the
+//! player (`hexcasting:altiora`), synced by the loader to everyone who sees
+//! them; a client only asks to deploy or fold the wings, and the server
+//! checks. Built on the loader's bodies (`yog_api::body`): the wings are a
+//! rig drawn on the player, the glide is the player's travel step, the
+//! gliding pose a turn of the body, and the glider's hitbox and eyes an
+//! elytra flier's.
 
 use std::collections::HashMap;
 use std::f32::consts::PI;
 use std::sync::{LazyLock, Mutex};
+use std::time::{Duration, Instant};
 
 use yog_api::body::{self, Anchor, BoneOp, Frame, Mat4, Ops, Rig, TravelFrame};
 use yog_api::core::entity_flags;
@@ -20,15 +24,13 @@ use crate::casting::env::{SLOT_OFFHAND, Spray, Stack, get_pigment, random};
 use crate::math::Vec3;
 use crate::sounds;
 
-/// Server → client: `[state][uuid]` — who has wings ([`WINGS`]) and who
-/// glides ([`GLIDING`]), or neither.
-pub const CH_ALTIORA: &str = "hexcasting:altiora";
-/// Client → server: `[1 | 0]` — the sender deployed or folded the wings.
+/// Entity data on a player: `[WINGS | GLIDING]`, absent without wings.
+pub const DATA: &str = "hexcasting:altiora";
+/// Client → server: `[1 | 0]` — the sender asks to deploy or fold the wings.
 pub const CH_GLIDE: &str = "hexcasting:altiora_glide";
 /// Server → client: `[ticks: u16][uuid]` — a rocket pushes the glider.
 pub const CH_BOOST: &str = "hexcasting:altiora_boost";
 
-const NONE: u8 = 0;
 const WINGS: u8 = 1;
 const GLIDING: u8 = 2;
 
@@ -62,30 +64,21 @@ struct Wings {
 
 static SERVER: LazyLock<Mutex<HashMap<String, Wings>>> = LazyLock::new(Default::default);
 
-fn packet(state: u8, uuid: &str) -> Vec<u8> {
-    let mut b = vec![state];
-    b.extend_from_slice(uuid.as_bytes());
-    b
-}
-
-fn broadcast(srv: &dyn Server, state: u8, uuid: &str) {
-    let p = packet(state, uuid);
-    for name in srv.online_players() {
-        srv.send_to_player(&name, CH_ALTIORA, &p);
-    }
+fn show(srv: &dyn Server, uuid: &str, state: Option<u8>) {
+    srv.set_entity_data(uuid, DATA, state.as_ref().map(std::slice::from_ref), false);
 }
 
 /// `OpAltiora`'s spell: up into the air, wings on.
 pub fn give(srv: &dyn Server, uuid: &str) {
     srv.entity_add_velocity(uuid, 0.0, LIFT, 0.0);
     SERVER.lock().unwrap_or_else(|e| e.into_inner()).insert(uuid.to_owned(), Wings { grace: GRACE_PERIOD, gliding: false, last_y: None });
-    broadcast(srv, WINGS, uuid);
+    show(srv, uuid, Some(WINGS));
 }
 
 fn take(srv: &dyn Server, uuid: &str) {
     if SERVER.lock().unwrap_or_else(|e| e.into_inner()).remove(uuid).is_some() {
         srv.entity_set_dimensions(uuid, None);
-        broadcast(srv, NONE, uuid);
+        show(srv, uuid, None);
     }
 }
 
@@ -171,6 +164,10 @@ struct Seen {
     /// Ticks a rocket still pushes (the local player).
     boost: i32,
     was_jumping: bool,
+    /// The local player asked the server to deploy (`true`) or fold the
+    /// wings, and when: shown as asked till the server agrees, or for
+    /// [`ASK_PATIENCE`] if it doesn't (it refused).
+    asked: Option<(bool, Instant)>,
 }
 
 impl Seen {
@@ -181,23 +178,37 @@ impl Seen {
             wing: body::Vec3::new(0.2617994, 0.0, -0.2617994),
             boost: 0,
             was_jumping: false,
+            asked: None,
         }
     }
 
-    /// Starts or ends the glide of `uuid` here: the pose's clock, the
-    /// glider's hitbox.
-    fn glide(&mut self, uuid: &str, on: bool) {
+    /// Follows the server's word (`data`), or what was asked until it agrees.
+    fn update(&mut self, data: &[u8]) {
+        let told = data.first() == Some(&GLIDING);
+        let on = match self.asked {
+            Some((a, at)) if a != told && at.elapsed() < ASK_PATIENCE => a,
+            _ => {
+                self.asked = None;
+                told
+            }
+        };
         if self.gliding != on {
             self.gliding = on;
             self.since = f32::NAN;
-            body::set_dimensions(uuid, on.then_some(GLIDING_SIZE));
         }
     }
 }
 
 static CLIENT: LazyLock<Mutex<HashMap<String, Seen>>> = LazyLock::new(Default::default);
 
-fn tell_server(on: bool) {
+/// How long the local player's ask is shown before the server's word wins.
+const ASK_PATIENCE: Duration = Duration::from_secs(1);
+
+/// Asks the server to deploy or fold the local player's wings.
+fn ask(s: &mut Seen, on: bool) {
+    s.asked = Some((on, Instant::now()));
+    s.gliding = on;
+    s.since = f32::NAN;
     if let Some(srv) = yog_api::server() {
         srv.send_to_server(CH_GLIDE, &[on as u8]);
     }
@@ -264,7 +275,12 @@ fn glide_limbs(ops: &mut Ops, f: &Frame) {
 /// The wings and the gliding pose (`AltioraLayer`, the elytra's pose).
 fn draw(f: &Frame, ops: &mut Ops) {
     let mut map = CLIENT.lock().unwrap_or_else(|e| e.into_inner());
-    let Some(s) = map.get_mut(&f.uuid) else { return };
+    let Some(data) = f.data(DATA) else {
+        map.remove(&f.uuid);
+        return;
+    };
+    let s = map.entry(f.uuid.clone()).or_insert_with(Seen::new);
+    s.update(data);
     if s.gliding && s.since.is_nan() {
         s.since = f.age;
     }
@@ -294,8 +310,10 @@ fn draw(f: &Frame, ops: &mut Ops) {
 /// The local player's glide: deployed by a jump in the air, an elytra's
 /// flight (pushed by rockets), folded on the ground.
 fn travel(f: &TravelFrame) -> Option<body::Vec3> {
+    let data = body::entity_data(&f.uuid, DATA)?;
     let mut map = CLIENT.lock().unwrap_or_else(|e| e.into_inner());
-    let s = map.get_mut(&f.uuid)?;
+    let s = map.entry(f.uuid.clone()).or_insert_with(Seen::new);
+    s.update(&data);
     let jumped = f.jumping && !s.was_jumping;
     s.was_jumping = f.jumping;
     let on_ground = f.flags & entity_flags::ON_GROUND != 0;
@@ -303,12 +321,10 @@ fn travel(f: &TravelFrame) -> Option<body::Vec3> {
         if !(jumped && !on_ground && f.flags & entity_flags::GLIDING == 0) {
             return None;
         }
-        s.glide(&f.uuid, true);
-        tell_server(true);
+        ask(s, true);
     } else if on_ground {
-        s.glide(&f.uuid, false);
+        ask(s, false);
         s.boost = 0;
-        tell_server(false);
         return None;
     }
     let mut v = f.velocity;
@@ -321,20 +337,18 @@ fn travel(f: &TravelFrame) -> Option<body::Vec3> {
 
 pub fn register(registry: &mut Registry) {
     registry.on_tick(tick);
-    registry.on_player_join(|e, _, srv| {
-        let map = SERVER.lock().unwrap_or_else(|e| e.into_inner());
-        for (uuid, w) in map.iter() {
-            srv.send_to_player(&e.player_name, CH_ALTIORA, &packet(if w.gliding { GLIDING } else { WINGS }, uuid));
-        }
-        true
-    });
     registry.on_player_leave(|e, _, srv| {
         take(srv, &e.uuid);
         true
     });
+    // A client asks to deploy or fold its wings: deploying needs wings and
+    // the air under the player, as the server sees it.
     registry.on_packet(CH_GLIDE, |ev, srv| {
         let Some(info) = srv.player_info(&ev.player) else { return };
         let on = ev.payload.first() == Some(&1);
+        if on && srv.entity_info(&info.uuid).is_none_or(|e| e.has(entity_flags::ON_GROUND)) {
+            return;
+        }
         let changed = {
             let mut map = SERVER.lock().unwrap_or_else(|e| e.into_inner());
             let Some(w) = map.get_mut(&info.uuid) else { return };
@@ -344,24 +358,10 @@ pub fn register(registry: &mut Registry) {
         };
         if changed {
             srv.entity_set_dimensions(&info.uuid, on.then_some(GLIDING_SIZE));
-            broadcast(srv, if on { GLIDING } else { WINGS }, &info.uuid);
+            show(srv, &info.uuid, Some(if on { GLIDING } else { WINGS }));
         }
     });
     registry.on_use_item(|e, phase, srv| phase != EventPhase::Pre || rocket(e, srv));
-    registry.on_client_packet(CH_ALTIORA, |ev, _| {
-        let Some((&state, uuid)) = ev.payload.split_first() else { return };
-        let Ok(uuid) = std::str::from_utf8(uuid) else { return };
-        let mut map = CLIENT.lock().unwrap_or_else(|e| e.into_inner());
-        if state == NONE {
-            if map.remove(uuid).is_some_and(|s| s.gliding) {
-                body::set_dimensions(uuid, None);
-            }
-            body::track(uuid, false);
-            return;
-        }
-        map.entry(uuid.to_owned()).or_insert_with(Seen::new).glide(uuid, state == GLIDING);
-        body::track(uuid, true);
-    });
     registry.on_client_packet(CH_BOOST, |ev, _| {
         let [a, b, ref uuid @ ..] = ev.payload[..] else { return };
         let Ok(uuid) = std::str::from_utf8(uuid) else { return };
@@ -369,6 +369,8 @@ pub fn register(registry: &mut Registry) {
             s.boost = u16::from_le_bytes([a, b]) as i32;
         }
     });
+    // Every player is asked about: the wings show for whoever has them.
+    body::track_type(yog_api::vanilla::entities::PLAYER, true);
     registry.on_body(draw);
     registry.on_travel(travel);
 }
