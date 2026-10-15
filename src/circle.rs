@@ -911,6 +911,41 @@ pub fn register(registry: &mut Registry) {
         true
     });
 
+    // `BlockEntityAbstractImpetus` as a container: hoppers and droppers
+    // feed it media (`insertMedia`); a creative unlocker makes it endless.
+    registry.on_item_insert(|ev, phase, srv| {
+        if !is_impetus(&ev.block_id) {
+            return false;
+        }
+        let pos = from_ypos(ev.pos);
+        let mut imp = impetus(srv, &ev.dimension, pos);
+        if imp.room() == 0 {
+            return false;
+        }
+        if ev.item_id == crate::content::Items::CREATIVE_UNLOCKER {
+            if phase == EventPhase::Post {
+                imp.media = -1;
+                save_impetus(srv, &ev.dimension, pos, &imp);
+            }
+            return true;
+        }
+        let mut stack = crate::casting::env::Stack {
+            slot: 0,
+            id: ev.item_id.clone(),
+            count: ev.count,
+            nbt: crate::snbt::Nbt::parse(&ev.nbt),
+        };
+        let taken = crate::item::media::withdraw(&mut stack, imp.room(), phase == EventPhase::Pre);
+        if taken <= 0 {
+            return false;
+        }
+        if phase == EventPhase::Post {
+            imp.media = (imp.media + taken).min(MAX_MEDIA);
+            save_impetus(srv, &ev.dimension, pos, &imp);
+        }
+        true
+    });
+
     registry.on_block_break(|ev, phase, srv| {
         if phase != EventPhase::Post {
             return true;
