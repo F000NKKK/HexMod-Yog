@@ -1,7 +1,7 @@
 //! Mishaps — what goes wrong while casting, and what it does to the caster
 //! (Hex Casting's `api/casting/mishaps/*`).
 
-use crate::casting::env::{CastEnv, Spray};
+use crate::casting::env::{CastEnv, Spray, to_ypos};
 use crate::iota::{EntityRef, Iota};
 use crate::math::{HexPattern, Vec3};
 use crate::protocol::ResolvedType;
@@ -85,6 +85,10 @@ pub enum Mishap {
     NeedsParens,
     NoAkashicRecord(BlockPos),
     NoSpellCircle,
+    /// `MishapBoolDirectrixEmptyStack`: the stack was empty at a boolean directrix.
+    BoolDirectrixEmptyStack(BlockPos),
+    /// `MishapBoolDirectrixNotBool`: what a boolean directrix found wasn't a bool.
+    BoolDirectrixNotBool(Iota, BlockPos),
     NotEnoughArgs {
         expected: usize,
         got: usize,
@@ -249,6 +253,7 @@ impl Mishap {
             Mishap::InvalidPattern(_) => YELLOW,
             Mishap::NeedsParens => ORANGE,
             Mishap::NoAkashicRecord(_) => PURPLE,
+            Mishap::BoolDirectrixEmptyStack(_) | Mishap::BoolDirectrixNotBool(..) => GRAY,
             Mishap::NoSpellCircle => LIGHT_BLUE,
             Mishap::NotEnoughArgs { .. } => LIGHT_GRAY,
         }
@@ -323,6 +328,10 @@ impl Mishap {
                 }
             }
             Mishap::NoAkashicRecord(_) => env.remove_xp(100),
+            // The directrix breaks.
+            Mishap::BoolDirectrixEmptyStack(pos) | Mishap::BoolDirectrixNotBool(_, pos) => {
+                env.srv.break_block(&env.dim, to_ypos(*pos), true, "");
+            }
             Mishap::NoSpellCircle => env.drop_everything(),
             Mishap::NotEnoughArgs { expected, got } => {
                 for _ in *got..*expected {
@@ -447,6 +456,8 @@ impl Mishap {
             ),
             Mishap::NeedsParens => error("needs_parens", vec![]),
             Mishap::NoAkashicRecord(pos) => error("no_akashic_record", vec![pos_text(*pos)]),
+            Mishap::BoolDirectrixEmptyStack(pos) => error("circle.bool_directrix.empty_stack", vec![pos_text(*pos)]),
+            Mishap::BoolDirectrixNotBool(perp, pos) => error("circle.bool_directrix.no_bool", vec![pos_text(*pos), perp.display()]),
             Mishap::NoSpellCircle => error("no_spell_circle", vec![]),
             Mishap::NotEnoughArgs { expected, got: 0 } => {
                 error("no_args", vec![Text::int(*expected as i64)])
