@@ -84,6 +84,12 @@ pub fn set_shelf(
             s.remove(&key(pos, IOTA));
         }
     }
+    // `HAS_BOOKS`: the shelf shows books while it holds something.
+    if block_id(srv, dim, pos) == BOOKSHELF {
+        let has = if mapping.is_some() { "true" } else { "false" };
+        srv.set_block_properties(dim, to_ypos(pos), &format!("has_books={has}"));
+    }
+    crate::render::shelf_changed(srv, dim, pos, mapping.map(|(p, _)| p));
 }
 
 /// Drops what shelves no longer there held: blown up, pushed away or

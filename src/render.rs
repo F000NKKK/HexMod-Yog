@@ -77,6 +77,11 @@ fn load_slates(srv: &dyn Server) {
     }
 }
 
+/// A bookshelf got a pattern, or lost it (`None`): drawn on its front.
+pub fn shelf_changed(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPattern>) {
+    slate_changed(srv, dim, pos, pattern);
+}
+
 /// A slate was placed with `pattern`, or broken (`None`).
 pub fn slate_changed(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPattern>) {
     {
@@ -225,6 +230,8 @@ fn slate_plane(s: &Slate) -> (Vec3, Vec3, Vec3) {
     // Right of someone facing the pattern.
     let right = Vec3::new(f.z, 0.0, -f.x);
     match s.face.as_str() {
+        // An akashic bookshelf: on its front, a hair out.
+        "" => (c + f * 0.502, right, Vec3::new(0.0, 1.0, 0.0)),
         "floor" => (c + Vec3::new(0.0, OUT - 0.5, 0.0), right, f * -1.0),
         "ceiling" => (c + Vec3::new(0.0, 0.5 - OUT, 0.0), right * -1.0, f * -1.0),
         _ => (c - f * (0.5 - OUT), right, Vec3::new(0.0, 1.0, 0.0)),

@@ -4,13 +4,308 @@
     "hardness": 3,
     "resistance": 4,
     "sound": "wood",
-    "tool": "axe"
+    "tool": "axe",
+    "render_layer": "cutout",
+    "comparator": "has_books"
   },
   "model": {
-    "parent": "cube_column",
+    "parent": "orientable",
     "textures": {
-      "end": "block/akashic_bookshelf_vert.png",
-      "side": "block/akashic_bookshelf.png"
+      "front": "block/akashic_bookshelf.png",
+      "side": "block/akashic_bookshelf_horiz.png",
+      "top": "block/akashic_bookshelf_vert.png"
+    }
+  },
+  "states": {
+    "facing": "horizontal",
+    "uvlock": true,
+    "properties": {
+      "has_books": [
+        "false",
+        "true"
+      ]
+    },
+    "models": {
+      "books_1": {
+        "textures": {
+          "front": "block/akashic_bookshelf.png",
+          "side": "block/akashic_bookshelf_horiz.png",
+          "top_bottom": "block/akashic_bookshelf_vert.png",
+          "overlay": "block/akashic_bookshelf_overlay_1.png",
+          "particle": "block/akashic_bookshelf_vert.png"
+        },
+        "elements": [
+          {
+            "faces": {
+              "down": {
+                "cullface": "down",
+                "texture": "#top_bottom"
+              },
+              "east": {
+                "cullface": "east",
+                "texture": "#side"
+              },
+              "north": {
+                "cullface": "north",
+                "texture": "#front"
+              },
+              "south": {
+                "cullface": "south",
+                "texture": "#side"
+              },
+              "up": {
+                "cullface": "up",
+                "texture": "#top_bottom"
+              },
+              "west": {
+                "cullface": "west",
+                "texture": "#side"
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          },
+          {
+            "faces": {
+              "north": {
+                "cullface": "north",
+                "texture": "#overlay",
+                "tint": 0
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          }
+        ]
+      },
+      "books_2": {
+        "textures": {
+          "front": "block/akashic_bookshelf.png",
+          "side": "block/akashic_bookshelf_horiz.png",
+          "top_bottom": "block/akashic_bookshelf_vert.png",
+          "overlay": "block/akashic_bookshelf_overlay_2.png",
+          "particle": "block/akashic_bookshelf_vert.png"
+        },
+        "elements": [
+          {
+            "faces": {
+              "down": {
+                "cullface": "down",
+                "texture": "#top_bottom"
+              },
+              "east": {
+                "cullface": "east",
+                "texture": "#side"
+              },
+              "north": {
+                "cullface": "north",
+                "texture": "#front"
+              },
+              "south": {
+                "cullface": "south",
+                "texture": "#side"
+              },
+              "up": {
+                "cullface": "up",
+                "texture": "#top_bottom"
+              },
+              "west": {
+                "cullface": "west",
+                "texture": "#side"
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          },
+          {
+            "faces": {
+              "north": {
+                "cullface": "north",
+                "texture": "#overlay",
+                "tint": 0
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          }
+        ]
+      },
+      "books_3": {
+        "textures": {
+          "front": "block/akashic_bookshelf.png",
+          "side": "block/akashic_bookshelf_horiz.png",
+          "top_bottom": "block/akashic_bookshelf_vert.png",
+          "overlay": "block/akashic_bookshelf_overlay_3.png",
+          "particle": "block/akashic_bookshelf_vert.png"
+        },
+        "elements": [
+          {
+            "faces": {
+              "down": {
+                "cullface": "down",
+                "texture": "#top_bottom"
+              },
+              "east": {
+                "cullface": "east",
+                "texture": "#side"
+              },
+              "north": {
+                "cullface": "north",
+                "texture": "#front"
+              },
+              "south": {
+                "cullface": "south",
+                "texture": "#side"
+              },
+              "up": {
+                "cullface": "up",
+                "texture": "#top_bottom"
+              },
+              "west": {
+                "cullface": "west",
+                "texture": "#side"
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          },
+          {
+            "faces": {
+              "north": {
+                "cullface": "north",
+                "texture": "#overlay",
+                "tint": 0
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          }
+        ]
+      },
+      "books_4": {
+        "textures": {
+          "front": "block/akashic_bookshelf.png",
+          "side": "block/akashic_bookshelf_horiz.png",
+          "top_bottom": "block/akashic_bookshelf_vert.png",
+          "overlay": "block/akashic_bookshelf_overlay_4.png",
+          "particle": "block/akashic_bookshelf_vert.png"
+        },
+        "elements": [
+          {
+            "faces": {
+              "down": {
+                "cullface": "down",
+                "texture": "#top_bottom"
+              },
+              "east": {
+                "cullface": "east",
+                "texture": "#side"
+              },
+              "north": {
+                "cullface": "north",
+                "texture": "#front"
+              },
+              "south": {
+                "cullface": "south",
+                "texture": "#side"
+              },
+              "up": {
+                "cullface": "up",
+                "texture": "#top_bottom"
+              },
+              "west": {
+                "cullface": "west",
+                "texture": "#side"
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          },
+          {
+            "faces": {
+              "north": {
+                "cullface": "north",
+                "texture": "#overlay",
+                "tint": 0
+              }
+            },
+            "from": [
+              0,
+              0,
+              0
+            ],
+            "to": [
+              16,
+              16,
+              16
+            ]
+          }
+        ]
+      }
+    },
+    "variants": {
+      "has_books=true": [
+        "books_1",
+        "books_2",
+        "books_3",
+        "books_4"
+      ]
     }
   }
 }
