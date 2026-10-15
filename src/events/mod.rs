@@ -9,7 +9,7 @@ use yog_api::{EventPhase, Registry};
 
 use crate::akashic;
 use crate::casting::env::from_ypos;
-use crate::casting::ops::{great, query, spells};
+use crate::casting::ops::{query, spells};
 use crate::content::Items;
 use crate::item::holder::ABACUS;
 use crate::item::media;

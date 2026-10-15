@@ -18,7 +18,6 @@ use yog_api::{EventPhase, Registry, Server};
 use crate::content::Models;
 use crate::casting::env::{SLOT_OFFHAND, Spray, Stack, get_pigment, random};
 use crate::math::Vec3;
-use crate::snbt::Nbt;
 use crate::sounds;
 
 /// Server → client: `[state][uuid]` — who has wings ([`WINGS`]) and who
