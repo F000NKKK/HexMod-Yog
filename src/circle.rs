@@ -899,6 +899,7 @@ pub fn register(registry: &mut Registry) {
                 if k == Kind::Slate {
                     let pattern = PLACING.lock().unwrap().remove(&ev.player_name).flatten();
                     set_slate_pattern(srv, &ev.dimension, pos, pattern.as_ref());
+                    crate::render::slate_changed(srv, &ev.dimension, pos, pattern.as_ref());
                 }
                 if is_impetus(&ev.block_id) {
                     forget_impetus(srv, &ev.dimension, pos);
@@ -955,6 +956,7 @@ pub fn register(registry: &mut Registry) {
             // The slate keeps its pattern (the original's loot table copies it).
             let pattern = slate_pattern(srv, &ev.dimension, pos);
             set_slate_pattern(srv, &ev.dimension, pos, None);
+            crate::render::slate_changed(srv, &ev.dimension, pos, None);
             let creative = srv.player_info(&ev.player_name).is_some_and(|p| p.gamemode == "creative");
             if !creative {
                 let c = Vec3::center_of(pos);

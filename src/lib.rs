@@ -17,6 +17,7 @@ pub mod item;
 pub mod lens;
 pub mod math;
 pub mod protocol;
+pub mod render;
 pub mod snbt;
 pub mod text;
 pub mod ui;
@@ -42,6 +43,7 @@ impl Mod for HexMod {
         events::register(registry);
         circle::register(registry);
         lens::register(registry);
+        render::register(registry);
 
         info!("[hexcasting-yog] gate opened. The book is ready.");
     }
