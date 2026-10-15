@@ -865,12 +865,6 @@ fn slate_item_nbt(pattern: Option<&HexPattern>) -> String {
 
 // ── events ──────────────────────────────────────────────────────────────────
 
-fn sneaking(srv: &dyn Server, player: &str) -> bool {
-    srv.player_info(player)
-        .and_then(|p| srv.entity_info(&p.uuid))
-        .is_some_and(|e| e.has(yog_api::core::entity_flags::SNEAKING))
-}
-
 pub fn register(registry: &mut Registry) {
     registry.on_server_started(|srv| {
         load_known(srv);
@@ -897,7 +891,7 @@ pub fn register(registry: &mut Registry) {
             _ => {
                 // `placeStateDirAndSneak`: sneaking turns it the other way.
                 if matches!(k, Kind::Impetus | Kind::EmptyImpetus | Kind::DirEmpty | Kind::DirRedstone | Kind::DirBoolean)
-                    && sneaking(srv, &ev.player_name)
+                    && ev.sneaking
                     && let Some(f) = srv.block_property(&ev.dimension, ev.pos, "facing").as_deref().and_then(Dir::parse)
                 {
                     srv.set_block_properties(&ev.dimension, ev.pos, &format!("facing={}", f.opposite().name()));
@@ -949,7 +943,7 @@ pub fn register(registry: &mut Registry) {
         let pos = from_ypos(ev.pos);
         match ev.block_id.as_str() {
             // `BlockRightClickImpetus.use`.
-            Blocks::IMPETUS_RIGHTCLICK if !sneaking(srv, &ev.player_name) => {
+            Blocks::IMPETUS_RIGHTCLICK if !ev.sneaking => {
                 start(srv, &ev.dimension, pos, Caster::by_name(srv, &ev.player_name));
                 false
             }
@@ -959,7 +953,7 @@ pub fn register(registry: &mut Registry) {
                 let selected = srv.player_info(&ev.player_name).map_or(0, |p| p.selected_slot);
                 let held = crate::casting::env::Stack::read(srv, &ev.player_name, selected);
                 let c = Vec3::center_of(pos);
-                if held.is_empty() && sneaking(srv, &ev.player_name) {
+                if held.is_empty() && ev.sneaking {
                     let mut imp = impetus(srv, &ev.dimension, pos);
                     imp.player = None;
                     save_impetus(srv, &ev.dimension, pos, &imp);
