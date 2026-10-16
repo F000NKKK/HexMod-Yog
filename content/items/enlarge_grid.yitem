@@ -1,0 +1,9 @@
+{
+  "item": {
+    "potion": {
+      "effects": [
+        { "effect": "@effect:hexcasting:enlarge_grid", "duration": 3600 }
+      ]
+    }
+  }
+}

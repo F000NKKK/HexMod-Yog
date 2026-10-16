@@ -1,0 +1,6 @@
+{
+  "type": "brewing",
+  "from": "@item:hexcasting:enlarge_grid",
+  "ingredient": "@item:minecraft:fermented_spider_eye",
+  "result": "@item:hexcasting:shrink_grid"
+}

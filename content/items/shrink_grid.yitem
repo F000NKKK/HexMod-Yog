@@ -1,0 +1,9 @@
+{
+  "item": {
+    "potion": {
+      "effects": [
+        { "effect": "@effect:hexcasting:shrink_grid", "duration": 3600 }
+      ]
+    }
+  }
+}

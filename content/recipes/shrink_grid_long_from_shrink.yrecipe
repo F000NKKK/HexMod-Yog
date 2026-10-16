@@ -1,0 +1,6 @@
+{
+  "type": "brewing",
+  "from": "@item:hexcasting:shrink_grid",
+  "ingredient": "@item:minecraft:redstone",
+  "result": "@item:hexcasting:shrink_grid_long"
+}

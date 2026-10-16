@@ -1,0 +1,10 @@
+{
+  "item": {
+    "potion": {
+      "name": "shrink_grid",
+      "effects": [
+        { "effect": "@effect:hexcasting:shrink_grid", "duration": 1800, "amplifier": 1 }
+      ]
+    }
+  }
+}

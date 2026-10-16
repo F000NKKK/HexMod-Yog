@@ -1,0 +1,6 @@
+{
+  "type": "brewing",
+  "from": "@item:yog:potion/awkward",
+  "ingredient": "@item:hexcasting:amethyst_dust",
+  "result": "@item:hexcasting:enlarge_grid"
+}
