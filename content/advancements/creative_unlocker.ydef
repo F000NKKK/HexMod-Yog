@@ -1,0 +1,14 @@
+{
+  "kind": "advancement",
+  "id": "creative_unlocker",
+  "parent": "@advancement:hexcasting:root",
+  "icon": "@item:hexcasting:creative_unlocker",
+  "title": "@Lang.advancement.hexcasting.creative_unlocker",
+  "description": "@Lang.advancement.hexcasting.creative_unlocker.desc",
+  "hidden": true,
+  "criteria": [
+    {
+      "has_item": "@item:hexcasting:creative_unlocker"
+    }
+  ]
+}

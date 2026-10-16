@@ -1,0 +1,14 @@
+// A truly huge amount of media spent in one cast (the code grants it).
+{
+  "kind": "advancement",
+  "id": "aab_big_cast",
+  "parent": "@advancement:hexcasting:root",
+  "icon": "@item:hexcasting:charged_amethyst",
+  "title": "@Lang.advancement.hexcasting.big_cast",
+  "description": "@Lang.advancement.hexcasting.big_cast.desc",
+  "criteria": [
+    {
+      "granted": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "advancement",
+  "id": "lore/experiment1",
+  "parent": "@advancement:hexcasting:lore",
+  "icon": "@item:hexcasting:lore_fragment",
+  "title": "@Lang.advancement.hexcasting.lore.experiment1",
+  "hidden": true,
+  "criteria": [
+    {
+      "granted": true
+    }
+  ]
+}

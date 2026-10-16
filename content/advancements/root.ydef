@@ -1,0 +1,15 @@
+// The research tab: found the first media.
+{
+  "kind": "advancement",
+  "id": "root",
+  "icon": "@item:minecraft:budding_amethyst",
+  "title": "@Lang.advancement.hexcasting.root",
+  "description": "@Lang.advancement.hexcasting.root.desc",
+  "hidden": true,
+  "background": "minecraft:textures/block/calcite.png",
+  "criteria": [
+    {
+      "has_item": "@tag:item:hexcasting:grants_root_advancement"
+    }
+  ]
+}

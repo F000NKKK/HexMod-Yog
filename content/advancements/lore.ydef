@@ -1,0 +1,15 @@
+// The lore tab: read a lore fragment (the code grants it).
+{
+  "kind": "advancement",
+  "id": "lore",
+  "icon": "@item:hexcasting:akashic_connector",
+  "title": "@Lang.advancement.hexcasting.lore",
+  "description": "@Lang.advancement.hexcasting.lore.desc",
+  "frame": "goal",
+  "background": "hexcasting:textures/block/slate.png",
+  "criteria": [
+    {
+      "granted": true
+    }
+  ]
+}

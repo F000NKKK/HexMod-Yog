@@ -1,0 +1,14 @@
+// A great spell failed for want of enlightenment (the code grants it).
+{
+  "kind": "advancement",
+  "id": "y_u_no_cast_angy",
+  "parent": "@advancement:hexcasting:root",
+  "icon": "@item:minecraft:blaze_powder",
+  "title": "@Lang.advancement.hexcasting.y_u_no_cast_angy",
+  "description": "@Lang.advancement.hexcasting.y_u_no_cast_angy.desc",
+  "criteria": [
+    {
+      "granted": true
+    }
+  ]
+}

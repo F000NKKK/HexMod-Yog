@@ -1,0 +1,14 @@
+{
+  "kind": "advancement",
+  "id": "lore/cardamom2",
+  "parent": "@advancement:hexcasting:lore",
+  "icon": "@item:hexcasting:lore_fragment",
+  "title": "@Lang.advancement.hexcasting.lore.cardamom2",
+  "description": "@Lang.advancement.hexcasting.lore.cardamom2.desc",
+  "hidden": true,
+  "criteria": [
+    {
+      "granted": true
+    }
+  ]
+}
