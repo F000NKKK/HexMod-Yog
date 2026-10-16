@@ -1,4 +1,7 @@
 {
+  "model": {
+    "parent": "minecraft:item/potion"
+  },
   "item": {
     "potion": {
       "name": "shrink_grid",
