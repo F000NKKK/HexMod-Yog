@@ -46,6 +46,47 @@ pub fn register(registry: &mut Registry) {
     }
 }
 
+/// What stores a hex (cyphers, trinkets, artifacts) shows it under its
+/// tooltip: its iotas, the patterns as runes, as the casting grid's stack does.
+const HEX_TOOLTIP_WIDTH: f32 = 160.0;
+/// A line of it: a rune and the gap under it.
+const HEX_TOOLTIP_LINE: f32 = super::rune_text::RUNE_HEIGHT + 2.0;
+
+pub fn register_hex_tooltips(registry: &mut Registry) {
+    for item in [Items::CYPHER, Items::ANCIENT_CYPHER, Items::TRINKET, Items::ARTIFACT] {
+        registry.on_item_tooltip(
+            item,
+            |_, snbt| {
+                let (lines, _) = hex_lines(snbt, &approx_width)?;
+                let w = lines.iter().map(|l| super::rune_text::width(l, &approx_width)).fold(0.0, f32::max);
+                Some((w.ceil(), lines.len() as f32 * HEX_TOOLTIP_LINE))
+            },
+            |gfx, _, snbt, [x, y, _, _]| {
+                let Some((lines, color)) = hex_lines(snbt, &approx_width) else { return };
+                for (i, line) in lines.iter().enumerate() {
+                    super::rune_text::draw(gfx, line, x, y + i as f32 * HEX_TOOLTIP_LINE, color, true);
+                }
+            },
+        );
+    }
+}
+
+/// The font's width of `text`, near enough to lay a tooltip out before it's drawn.
+fn approx_width(text: &str) -> f32 {
+    text.chars().count() as f32 * 6.0
+}
+
+/// A stored hex as lines of words and runes, and its colour; `None` when
+/// the stack holds none.
+fn hex_lines(snbt: &str, width_of: &dyn Fn(&str) -> f32) -> Option<(Vec<Vec<crate::text::Segment>>, u32)> {
+    let program = crate::iota::Iota::deserialize(Nbt::parse(snbt).get_str(crate::item::packaged::TAG_PROGRAM)?);
+    if !matches!(program, crate::iota::Iota::List(_)) {
+        return None;
+    }
+    let segs = program.display().segments();
+    Some((super::rune_text::wrap(&segs, HEX_TOOLTIP_WIDTH, width_of), program.kind().color()))
+}
+
 /// The pattern a stack bears and the paper it's shown on.
 fn tooltip(item: &str, snbt: &str) -> Option<(HexPattern, &'static str)> {
     let nbt = Nbt::parse(snbt);
