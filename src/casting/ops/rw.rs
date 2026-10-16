@@ -35,7 +35,7 @@ pub fn actions() -> Vec<Action> {
         };
         "writable/entity" E "wdwewewewewewqw" => konst [env, e: Ent] {
             e.in_range(env)?;
-            entity_holder(env, &e).is_some_and(|(s, _)| holder::writeable(&s))
+            entity_holder(env, &e).is_some_and(|(s, how)| how.writeable() && holder::writeable(&s))
         };
         "akashic/read" W "qqqwqqqqqaq" => konst(DUST) [env, pos: Block, key: HexPattern] {
             if env.block_id(pos.0) != akashic::RECORD {
@@ -118,8 +118,8 @@ fn entity_holder(env: &CastEnv, e: &Ent) -> Option<(Stack, EntityHolder)> {
 fn write_entity(env: &mut CastEnv, e: Ent, datum: Iota) -> MResult<Spell> {
     e.in_range(env)?;
     let bad = || Mishap::bad_entity(env, &e.r, "iota.write");
-    let (stack, _) = entity_holder(env, &e).ok_or_else(bad)?;
-    if !can_write(&stack, &datum) {
+    let (stack, how) = entity_holder(env, &e).ok_or_else(bad)?;
+    if !how.writeable() || !can_write(&stack, &datum) {
         return Err(bad());
     }
     // Not even the caster's own name: no remote true names via sentinels.

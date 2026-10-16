@@ -1,6 +1,9 @@
 {
   "name": "@Items.scroll",
   "tooltip": "@Items.scroll.desc",
+  "item": {
+    "hangs": { "entity": "@entity:hexcasting:wall_scroll", "size": [3, 3] }
+  },
   "model": {
     "parent": "generated",
     "textures": {

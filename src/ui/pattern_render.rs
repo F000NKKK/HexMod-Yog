@@ -93,7 +93,7 @@ fn tooltip(item: &str, snbt: &str) -> Option<(HexPattern, &'static str)> {
     let nbt = Nbt::parse(snbt);
     let paper = if item == holder::SLATE {
         SLATE_BG
-    } else if nbt.contains("op_id") {
+    } else if nbt.contains(holder::TAG_OP_ID) {
         ANCIENT_BG
     } else {
         PRISTINE_BG

@@ -26,6 +26,7 @@ pub mod snbt;
 pub mod sounds;
 pub mod text;
 pub mod ui;
+pub mod wall_scroll;
 pub mod wire;
 
 // `crate::res` — typed accessors for resources/*.yres.
@@ -49,6 +50,7 @@ impl Mod for HexMod {
         circle::register(registry);
         lens::register(registry);
         render::register(registry);
+        wall_scroll::register(registry);
         conjured::register(registry);
         loot::register(registry);
 
