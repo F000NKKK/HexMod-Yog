@@ -46,6 +46,9 @@ fn pattern_of(nbt: &Nbt, key: &str) -> Option<Iota> {
     HexPattern::from_serialized(s).map(Iota::Pattern)
 }
 
+/// A scroll's action, when it's an ancient scroll of one (`ItemScroll.TAG_OP_ID`).
+pub const TAG_OP_ID: &str = "op_id";
+
 /// The pattern a scroll or a slate (its item) of `id` with data `nbt` bears.
 pub fn written_pattern(id: &str, nbt: &Nbt) -> Option<HexPattern> {
     let s = match id {
@@ -181,6 +184,15 @@ pub enum EntityHolder {
     Item,
     /// An item frame; `modern` is 1.20.5+'s `count`/`components` layout.
     Frame { modern: bool },
+    /// A scroll on a wall: read only (`ToWallScroll`).
+    WallScroll,
+}
+
+impl EntityHolder {
+    /// Whether what it holds may be written over.
+    pub fn writeable(self) -> bool {
+        self != EntityHolder::WallScroll
+    }
 }
 
 const CUSTOM_DATA: &str = "minecraft:custom_data";
@@ -226,6 +238,16 @@ pub fn entity_stack(
             };
             Some((stack, EntityHolder::Frame { modern }))
         }
+        crate::content::Entities::WALL_SCROLL => {
+            let h = yog_api::entities::Hanging::get(srv, uuid)?;
+            let stack = Stack {
+                slot: 0,
+                id: h.item,
+                count: 1,
+                nbt: Nbt::parse(&h.nbt),
+            };
+            Some((stack, EntityHolder::WallScroll))
+        }
         _ => None,
     }
 }
@@ -253,6 +275,8 @@ pub fn save_entity_stack(srv: &dyn yog_api::Server, uuid: &str, stack: &Stack, h
             root.set("Item", item);
             srv.entity_set_nbt(uuid, &root.to_snbt());
         }
+        // It keeps its scroll as it was.
+        EntityHolder::WallScroll => {}
     }
 }
 
