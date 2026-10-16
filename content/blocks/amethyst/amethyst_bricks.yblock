@@ -1,5 +1,7 @@
 {
-  "tags": ["amethyst_blocks"],
+  "tags": [
+    "amethyst_blocks"
+  ],
   "name": "@Blocks.amethyst_bricks",
   "block": {
     "hardness": 1.5,
@@ -10,8 +12,6 @@
   },
   "model": {
     "parent": "cube_all",
-    "textures": {
-      "all": "block/deco/amethyst_bricks.png"
-    }
+    "textures": { "all": "block/deco/amethyst_bricks.png" }
   }
 }
