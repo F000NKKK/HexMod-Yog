@@ -205,10 +205,7 @@ impl Iota {
                     ", ".into(),
                 )],
             ),
-            Iota::Pattern(p) => Text::key_args(
-                Lang::TOOLTIP_PATTERN_IOTA_KEY,
-                vec![Text::Lit(pattern_text(p))],
-            ),
+            Iota::Pattern(p) => Text::Pattern(p.clone()),
             Iota::Continuation(_) => Text::key(Lang::TOOLTIP_JUMP_IOTA_KEY),
         }
     }

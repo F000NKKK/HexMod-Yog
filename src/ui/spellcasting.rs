@@ -87,7 +87,8 @@ enum Effect {
 /// An iota as shown in a box: its text cut to fit, and its colour.
 #[derive(Debug, Clone, PartialEq)]
 struct Desc {
-    text: String,
+    /// Its words and runes, cut to fit.
+    segs: Vec<crate::text::Segment>,
     cut: bool,
     color: u32,
 }
@@ -491,39 +492,12 @@ fn can_be_undone(p: &ResolvedPattern) -> bool {
     }
 }
 
-/// `IotaType.getDisplayWithMaxWidth`: the iota's text, and when it's wider
-/// than `max_width`, its first line (wrapped at `max_width` less the "...")
-/// followed by a grey "...". Coloured by the iota's type.
+/// `IotaType.getDisplayWithMaxWidth`: the iota's text — its patterns as
+/// runes — and when it's wider than `max_width`, the start that fits less
+/// the "..." (a grey "..." follows). Coloured by the iota's type.
 fn describe(iota: &Iota, max_width: f32, width_of: &dyn Fn(&str) -> f32) -> Desc {
-    let (text, cut) = fit(&iota.display().render(), max_width, width_of);
-    Desc {
-        text,
-        cut,
-        color: iota.kind().color(),
-    }
-}
-
-fn fit(text: &str, max_width: f32, width_of: &dyn Fn(&str) -> f32) -> (String, bool) {
-    let limit = max_width - width_of("...");
-    if width_of(text) <= limit {
-        return (text.to_owned(), false);
-    }
-    // The longest prefix that fits, broken after a space when there is one
-    // (how the font splits lines).
-    let mut end = 0;
-    let mut last_space = None;
-    for (i, c) in text.char_indices() {
-        let next = i + c.len_utf8();
-        if width_of(&text[..next]) > limit {
-            break;
-        }
-        end = next;
-        if c == ' ' {
-            last_space = Some(next);
-        }
-    }
-    let end = last_space.unwrap_or(end);
-    (text[..end].trim_end().to_owned(), true)
+    let (segs, cut) = super::rune_text::fit(&iota.display().segments(), max_width, width_of);
+    Desc { segs, cut, color: iota.kind().color() }
 }
 
 // ── the screen ───────────────────────────────────────────────────────────────
@@ -592,7 +566,7 @@ impl Surface for GridSurface {
         let w = grid.size.0;
         let mut y = oy + 10.0 + 7.0;
         for desc in grid.stack_descs(&width_of) {
-            draw_desc(&d2, &width_of, desc, ox + 10.0 + 5.0, y, desc.color);
+            draw_desc(gfx, &width_of, desc, ox + 10.0 + 5.0, y, desc.color);
             y += 10.0;
         }
         if let Some(desc) = grid.ravenmind_desc(&width_of) {
@@ -600,7 +574,7 @@ impl Surface for GridSurface {
             let opacity = lerp(((ticks() * 0.2).sin() as f32 + 1.0) / 2.0, 150.0, 255.0) as u32;
             let color = (desc.color & 0x00FF_FFFF) | opacity << 24;
             // The original draws this 1.5× larger; Draw2D has no text scale.
-            draw_desc(&d2, &width_of, desc, ox + x + 5.0, oy + y + 5.0, color);
+            draw_desc(gfx, &width_of, desc, ox + x + 5.0, oy + y + 5.0, color);
         }
     }
 
@@ -661,24 +635,12 @@ fn shift_scroll(delta: f64) {
     }
 }
 
-fn draw_desc(
-    d2: &yog_api::gfx_draw2d::Draw2D<'_>,
-    width_of: &dyn Fn(&str) -> f32,
-    desc: &Desc,
-    x: f32,
-    y: f32,
-    color: u32,
-) {
-    d2.text(&desc.text, x, y, color, true);
+fn draw_desc(gfx: &GfxContext, width_of: &dyn Fn(&str) -> f32, desc: &Desc, x: f32, y: f32, color: u32) {
+    super::rune_text::draw(gfx, &desc.segs, x, y, color, true);
     if desc.cut {
         let alpha = color & 0xFF00_0000;
-        d2.text(
-            "...",
-            x + width_of(&desc.text),
-            y,
-            (ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha,
-            true,
-        );
+        let end = x + super::rune_text::width(&desc.segs, width_of);
+        gfx.draw2d().text("...", end, y, (ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha, true);
     }
 }
 
@@ -951,16 +913,6 @@ mod tests {
         assert!(g.scroll(0.5));
         assert!(!g.scroll(-0.5));
         assert!(g.scroll(-1.0));
-    }
-
-    #[test]
-    fn long_iotas_are_cut() {
-        let width = |s: &str| s.chars().count() as f32 * 6.0;
-        assert_eq!(fit("short", 100.0, &width), ("short".to_string(), false));
-        let (t, cut) = fit("one two three four", 80.0, &width);
-        assert!(cut);
-        assert_eq!(t, "one two");
-        assert!(width(&t) + width("...") <= 80.0);
     }
 
     #[test]

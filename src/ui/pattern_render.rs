@@ -93,6 +93,40 @@ pub fn draw_pattern(gfx: &GfxContext, pattern: &HexPattern, x: f32, y: f32, w: f
     mesh.draw(gfx);
 }
 
+/// How wide `pattern` is as a rune `h` tall in a line of text.
+pub fn rune_width(pattern: &HexPattern, h: f32) -> f32 {
+    let (w, ht) = extent(&super::render_lib::to_lines(pattern, 1.0, Vec2::ZERO));
+    let aspect = if ht < 0.01 { 3.0 } else { (w / ht).clamp(0.5, 3.0) };
+    (h * aspect).ceil()
+}
+
+/// Adds `pattern` as a rune `h` tall in a line of text (its top-left at
+/// `x, y`, [`rune_width`] wide): its stroke in `color`.
+pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, h: f32, color: u32) {
+    let w = rune_width(pattern, h);
+    let pts = super::render_lib::to_lines(pattern, 1.0, Vec2::ZERO);
+    let (pw, ph) = extent(&pts);
+    let (min_x, min_y) = pts.iter().fold((f32::INFINITY, f32::INFINITY), |(a, b), p| (a.min(p.x), b.min(p.y)));
+    // A pixel's margin all round, the stroke inside it.
+    let scale = ((w - 2.0) / pw.max(0.01)).min((h - 2.0) / ph.max(0.01));
+    let off = Vec2::new(x + (w - pw * scale) / 2.0, y + (h - ph * scale) / 2.0);
+    let pts: Vec<Vec2> = pts.iter().map(|p| Vec2::new((p.x - min_x) * scale, (p.y - min_y) * scale) + off).collect();
+    draw_line_seq(mesh, &pts, 1.0, color, color, false);
+    if let Some(&first) = pts.first() {
+        draw_spot(mesh, first, 0.9, color);
+    }
+}
+
+/// Width and height of `points`' bounds.
+fn extent(points: &[Vec2]) -> (f32, f32) {
+    let (mut lo, mut hi) = (Vec2::new(f32::INFINITY, f32::INFINITY), Vec2::new(f32::NEG_INFINITY, f32::NEG_INFINITY));
+    for p in points {
+        lo = Vec2::new(lo.x.min(p.x), lo.y.min(p.y));
+        hi = Vec2::new(hi.x.max(p.x), hi.y.max(p.y));
+    }
+    if points.is_empty() { (0.0, 0.0) } else { (hi.x - lo.x, hi.y - lo.y) }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

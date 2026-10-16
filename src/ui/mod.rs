@@ -5,4 +5,5 @@ pub mod book_page;
 mod noise;
 pub mod pattern_render;
 pub mod render_lib;
+pub mod rune_text;
 pub mod spellcasting;
