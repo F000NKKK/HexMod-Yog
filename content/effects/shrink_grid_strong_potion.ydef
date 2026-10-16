@@ -1,0 +1,12 @@
+{
+  "kind": "potion",
+  "id": "shrink_grid_strong",
+  "name": "shrink_grid",
+  "effects": [
+    { "effect": "@effect:hexcasting:shrink_grid", "duration": 1800, "amplifier": 1 }
+  ],
+  "brewed": [
+    { "from": "@potion:hexcasting:shrink_grid", "with": "@item:minecraft:glowstone_dust" },
+    { "from": "@potion:hexcasting:enlarge_grid_strong", "with": "@item:minecraft:fermented_spider_eye" }
+  ]
+}

@@ -1,0 +1,10 @@
+// Clarity: the casting grid a quarter bigger a level.
+{
+  "kind": "effect",
+  "id": "enlarge_grid",
+  "category": "beneficial",
+  "color": 13137407,
+  "modifiers": [
+    { "attribute": "@attribute:hexcasting:grid_zoom", "amount": 0.25, "operation": "multiply_total" }
+  ]
+}

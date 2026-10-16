@@ -140,7 +140,8 @@ impl Grid {
     /// Distance between neighbouring dots: 512 hexes' worth of area on
     /// any screen.
     fn hex_size(&self) -> f32 {
-        (self.size.0 as f64 * self.size.1 as f64 / 512.0).sqrt() as f32
+        let base = (self.size.0 as f64 * self.size.1 as f64 / 512.0).sqrt();
+        (base / grid_zoom()) as f32
     }
 
     fn coords_offset(&self) -> Vec2 {
@@ -499,6 +500,15 @@ fn describe(iota: &Iota, max_width: f32, width_of: &dyn Fn(&str) -> f32) -> Desc
     let (segs, cut) = super::rune_text::fit(&iota.display().segments(), max_width, width_of);
     Desc { segs, cut, color: iota.kind().color() }
 }
+
+/// How big the grid is drawn — the player's `hexcasting:grid_zoom`
+/// (Clarity enlarges it, Clouding shrinks it); 1 without a player.
+fn grid_zoom() -> f64 {
+    client::attribute_value(GRID_ZOOM).filter(|z| *z > 0.0).unwrap_or(1.0)
+}
+
+/// The attribute the grid's size follows (content/effects/grid_zoom.ydef).
+const GRID_ZOOM: &str = "hexcasting:grid_zoom";
 
 // ── the screen ───────────────────────────────────────────────────────────────
 

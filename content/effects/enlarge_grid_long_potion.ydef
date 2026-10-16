@@ -1,0 +1,11 @@
+{
+  "kind": "potion",
+  "id": "enlarge_grid_long",
+  "name": "enlarge_grid",
+  "effects": [
+    { "effect": "@effect:hexcasting:enlarge_grid", "duration": 9600, "amplifier": 0 }
+  ],
+  "brewed": [
+    { "from": "@potion:hexcasting:enlarge_grid", "with": "@item:minecraft:redstone" }
+  ]
+}

@@ -137,7 +137,7 @@
   "subtitles.lore_fragment.read": "Read lore fragment",
   "subtitles.flight.ambience": "Player flies",
   "subtitles.flight.finish": "Flight ends",
-  "attributes.grid_zoom": "Casting Grid Size",
+  "attributes.grid_zoom": { "value": "Casting Grid Size", "key": "attribute.name.hexcasting.grid_zoom" },
   "attributes.media_consumption": "Media Consumption",
   "attributes.ambit_radius": "Player Ambit Radius",
   "attributes.sentinel_radius": "Sentinel Ambit Radius",
@@ -480,5 +480,13 @@
   "mishap.circle.bool_directrix.no_bool": "the iota encountered at {0} was {1}, not a bool",
   "mishap.circle.bool_directrix.empty_stack": "the stack was empty at {0}",
   "circles.no_exit": "The flow of media at {0} could not find an exit",
-  "circles.many_exits": "The flow of media at {0} had too many exits"
+  "circles.many_exits": "The flow of media at {0} had too many exits",
+  "potion.effect.enlarge_grid": { "value": "Potion of Clarity", "key": "item.minecraft.potion.effect.enlarge_grid" },
+  "splash_potion.effect.enlarge_grid": { "value": "Splash Potion of Clarity", "key": "item.minecraft.splash_potion.effect.enlarge_grid" },
+  "lingering_potion.effect.enlarge_grid": { "value": "Lingering Potion of Clarity", "key": "item.minecraft.lingering_potion.effect.enlarge_grid" },
+  "tipped_arrow.effect.enlarge_grid": { "value": "Arrow of Clarity", "key": "item.minecraft.tipped_arrow.effect.enlarge_grid" },
+  "potion.effect.shrink_grid": { "value": "Potion of Clouding", "key": "item.minecraft.potion.effect.shrink_grid" },
+  "splash_potion.effect.shrink_grid": { "value": "Splash Potion of Clouding", "key": "item.minecraft.splash_potion.effect.shrink_grid" },
+  "lingering_potion.effect.shrink_grid": { "value": "Lingering Potion of Clouding", "key": "item.minecraft.lingering_potion.effect.shrink_grid" },
+  "tipped_arrow.effect.shrink_grid": { "value": "Arrow of Clouding", "key": "item.minecraft.tipped_arrow.effect.shrink_grid" }
 }

@@ -1,0 +1,10 @@
+{
+  "kind": "potion",
+  "id": "enlarge_grid",
+  "effects": [
+    { "effect": "@effect:hexcasting:enlarge_grid", "duration": 3600, "amplifier": 0 }
+  ],
+  "brewed": [
+    { "from": "@potion:minecraft:awkward", "with": "@item:hexcasting:amethyst_dust" }
+  ]
+}

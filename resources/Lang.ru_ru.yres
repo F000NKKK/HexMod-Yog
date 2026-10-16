@@ -480,5 +480,13 @@
   "mishap.circle.bool_directrix.no_bool": "значение йоты, обнаруженное в {0}, было {1}, а не bool",
   "mishap.circle.bool_directrix.empty_stack": "стек был пуст в момент {0}",
   "circles.no_exit": "Поток мысли в {0} не смог найти выход",
-  "circles.many_exits": "Поток мысли в {0} имел слишком много выходов"
+  "circles.many_exits": "Поток мысли в {0} имел слишком много выходов",
+  "potion.effect.enlarge_grid": "Зелье ясности",
+  "splash_potion.effect.enlarge_grid": "Взрывное зелье ясности",
+  "lingering_potion.effect.enlarge_grid": "Оседающее зелье ясности",
+  "tipped_arrow.effect.enlarge_grid": "Стрела ясности",
+  "potion.effect.shrink_grid": "Зелье помрачения",
+  "splash_potion.effect.shrink_grid": "Взрывное зелье помрачения",
+  "lingering_potion.effect.shrink_grid": "Оседающее зелье помрачения",
+  "tipped_arrow.effect.shrink_grid": "Стрела помрачения"
 }

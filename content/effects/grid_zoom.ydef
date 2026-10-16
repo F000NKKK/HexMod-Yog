@@ -1,0 +1,8 @@
+// How big the casting grid is drawn: Clarity enlarges it, Clouding shrinks it.
+{
+  "kind": "attribute",
+  "id": "grid_zoom",
+  "default": 1.0,
+  "min": 0.5,
+  "max": 4.0
+}
