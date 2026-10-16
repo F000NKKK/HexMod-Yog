@@ -1,0 +1,20 @@
+{
+  "kind": "slab",
+  "tags": ["yog:slabs", "yog:wooden_slabs"],
+  "name": "@Blocks.edified_slab",
+  "block": {
+    "hardness": 2,
+    "resistance": 2,
+    "sound": "wood",
+    "tool": "axe",
+    "occludes": false,
+    "base": "@block:hexcasting:edified_planks"
+  },
+  "model": {
+    "textures": {
+      "bottom": "block/edified_planks.png",
+      "top": "block/edified_planks.png",
+      "side": "block/edified_planks.png"
+    }
+  }
+}

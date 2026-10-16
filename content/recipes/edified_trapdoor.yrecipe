@@ -1,0 +1,14 @@
+{
+  "id": "hexcasting:edified_trapdoor",
+  "type": "shaped",
+  "pattern": [
+    "WWW",
+    "WWW"
+  ],
+  "key": {
+    "W": "@tag:item:hexcasting:edified_planks"
+  },
+  "result": "@item:hexcasting:edified_trapdoor",
+  "count": 2,
+  "category": "redstone"
+}

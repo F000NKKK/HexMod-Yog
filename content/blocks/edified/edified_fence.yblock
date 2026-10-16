@@ -1,0 +1,17 @@
+{
+  "kind": "fence",
+  "tags": ["yog:fences", "yog:wooden_fences"],
+  "name": "@Blocks.edified_fence",
+  "block": {
+    "hardness": 2,
+    "resistance": 2,
+    "sound": "wood",
+    "tool": "axe",
+    "occludes": false
+  },
+  "model": {
+    "textures": {
+      "texture": "block/edified_planks.png"
+    }
+  }
+}

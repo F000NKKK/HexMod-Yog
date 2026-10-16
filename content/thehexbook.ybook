@@ -1029,11 +1029,35 @@
         },
         {
           "type": "recipe",
+          "recipe": "@recipe:hexcasting:edified_stairs"
+        },
+        {
+          "type": "recipe",
+          "recipe": "@recipe:hexcasting:edified_slab"
+        },
+        {
+          "type": "recipe",
           "recipe": "@recipe:hexcasting:edified_panel"
         },
         {
           "type": "recipe",
           "recipe": "@recipe:hexcasting:edified_tile"
+        },
+        {
+          "type": "recipe",
+          "recipe": "@recipe:hexcasting:edified_door"
+        },
+        {
+          "type": "recipe",
+          "recipe": "@recipe:hexcasting:edified_trapdoor"
+        },
+        {
+          "type": "recipe",
+          "recipe": "@recipe:hexcasting:edified_button"
+        },
+        {
+          "type": "recipe",
+          "recipe": "@recipe:hexcasting:edified_pressure_plate"
         },
         {
           "type": "text",

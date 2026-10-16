@@ -1,0 +1,18 @@
+{
+  "kind": "pressure_plate",
+  "tags": ["yog:wooden_pressure_plates"],
+  "name": "@Blocks.edified_pressure_plate",
+  "block": {
+    "hardness": 2,
+    "resistance": 2,
+    "sound": "wood",
+    "tool": "axe",
+    "occludes": false,
+    "set": "oak"
+  },
+  "model": {
+    "textures": {
+      "texture": "block/edified_planks.png"
+    }
+  }
+}

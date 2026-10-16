@@ -1,0 +1,19 @@
+{
+  "kind": "trapdoor",
+  "tags": ["yog:trapdoors", "yog:wooden_trapdoors"],
+  "name": "@Blocks.edified_trapdoor",
+  "block": {
+    "hardness": 2,
+    "resistance": 2,
+    "sound": "wood",
+    "tool": "axe",
+    "occludes": false,
+    "set": "oak",
+    "render_layer": "cutout"
+  },
+  "model": {
+    "textures": {
+      "texture": "block/edified_trapdoor.png"
+    }
+  }
+}

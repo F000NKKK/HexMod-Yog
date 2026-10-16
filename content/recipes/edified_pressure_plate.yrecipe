@@ -1,0 +1,12 @@
+{
+  "id": "hexcasting:edified_pressure_plate",
+  "type": "shaped",
+  "pattern": [
+    "WW"
+  ],
+  "key": {
+    "W": "@tag:item:hexcasting:edified_planks"
+  },
+  "result": "@item:hexcasting:edified_pressure_plate",
+  "category": "redstone"
+}

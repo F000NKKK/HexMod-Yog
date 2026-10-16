@@ -1,0 +1,26 @@
+{
+  "kind": "door",
+  "tags": ["yog:doors", "yog:wooden_doors"],
+  "name": "@Blocks.edified_door",
+  "block": {
+    "hardness": 2,
+    "resistance": 2,
+    "sound": "wood",
+    "tool": "axe",
+    "occludes": false,
+    "set": "oak",
+    "render_layer": "cutout"
+  },
+  "model": {
+    "textures": {
+      "bottom": "block/edified_door_lower.png",
+      "top": "block/edified_door_upper.png"
+    }
+  },
+  "item_model": {
+    "parent": "generated",
+    "textures": {
+      "layer0": "item/edified_door.png"
+    }
+  }
+}

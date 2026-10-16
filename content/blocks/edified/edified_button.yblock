@@ -1,0 +1,18 @@
+{
+  "kind": "button",
+  "tags": ["yog:buttons", "yog:wooden_buttons"],
+  "name": "@Blocks.edified_button",
+  "block": {
+    "hardness": 2,
+    "resistance": 2,
+    "sound": "wood",
+    "tool": "axe",
+    "occludes": false,
+    "set": "dark_oak"
+  },
+  "model": {
+    "textures": {
+      "texture": "block/edified_planks.png"
+    }
+  }
+}
