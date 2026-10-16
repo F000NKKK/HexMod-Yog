@@ -52,7 +52,7 @@ static SLATES: LazyLock<Mutex<HashMap<(String, (i32, i32, i32)), HexPattern>>> =
 const SLATES_KEY: &str = "render.slates";
 
 fn global(srv: &dyn Server) -> Storage {
-    Storage::open(&srv.game_dir(), MOD_ID)
+    Storage::open(&srv.world_dir(), MOD_ID)
 }
 
 fn save_slates(srv: &dyn Server) {

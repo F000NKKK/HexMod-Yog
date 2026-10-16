@@ -239,14 +239,14 @@ fn sweepee_matches(srv: &dyn Server, mob: &Ent, want: &Sweepee) -> bool {
 
 /// `IXplatAbstractions.isBrainswept`.
 pub fn is_brainswept(srv: &dyn Server, uuid: &str) -> bool {
-    Storage::open_entity(&srv.game_dir(), MOD_ID, uuid)
+    Storage::open_entity(&srv.world_dir(), MOD_ID, uuid)
         .get_bool("brainswept")
         .unwrap_or(false)
 }
 
 /// `HexAPI.brainsweep`: the mob stays, but its mind is gone.
 fn mark_brainswept(srv: &dyn Server, uuid: &str) {
-    let mut s = Storage::open_entity(&srv.game_dir(), MOD_ID, uuid);
+    let mut s = Storage::open_entity(&srv.world_dir(), MOD_ID, uuid);
     s.set("brainswept", true);
     srv.entity_set_nbt(uuid, "{NoAI:1b}");
 }

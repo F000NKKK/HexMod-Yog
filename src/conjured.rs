@@ -24,7 +24,7 @@ static KNOWN: LazyLock<Mutex<HashMap<(String, BlockPos), (bool, Pigment)>>> = La
 static TICKS: Mutex<u64> = Mutex::new(0);
 
 fn global(srv: &dyn Server) -> Storage {
-    Storage::open(&srv.game_dir(), MOD_ID)
+    Storage::open(&srv.world_dir(), MOD_ID)
 }
 
 fn save(srv: &dyn Server) {

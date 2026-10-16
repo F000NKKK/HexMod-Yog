@@ -227,7 +227,7 @@ fn set_energized(srv: &dyn Server, dim: &str, pos: BlockPos, part: &Part, on: bo
 // ── an impetus' state (`BlockEntityAbstractImpetus`) ────────────────────────
 
 fn store(srv: &dyn Server, dim: &str, pos: BlockPos) -> Storage {
-    Storage::open_chunk(&srv.game_dir(), MOD_ID, dim, pos.0 >> 4, pos.2 >> 4)
+    Storage::open_chunk(&srv.world_dir(), MOD_ID, dim, pos.0 >> 4, pos.2 >> 4)
 }
 
 fn key(what: &str, pos: BlockPos) -> String {
@@ -415,7 +415,7 @@ static PLACING: LazyLock<Mutex<HashMap<String, Option<HexPattern>>>> = LazyLock:
 const KNOWN_KEY: &str = "circles.impetuses";
 
 fn global(srv: &dyn Server) -> Storage {
-    Storage::open(&srv.game_dir(), MOD_ID)
+    Storage::open(&srv.world_dir(), MOD_ID)
 }
 
 fn save_known(srv: &dyn Server) {

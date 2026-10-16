@@ -364,7 +364,7 @@ const SEED_DIMENSION: &str = yog_api::vanilla::dimensions::OVERWORLD;
 
 /// This world's great spells, by the signature they're drawn with here.
 pub struct PerWorld {
-    game_dir: String,
+    world_dir: String,
     pub seed: i64,
     by_sig: HashMap<String, &'static Action>,
 }
@@ -379,14 +379,14 @@ impl PerWorld {
 /// lookups after that never touch the disk.
 pub fn per_world(srv: &dyn yog_api::Server) -> Arc<PerWorld> {
     static CACHE: Mutex<Option<Arc<PerWorld>>> = Mutex::new(None);
-    let game_dir = srv.game_dir();
+    let world_dir = srv.world_dir();
     let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
     if let Some(pw) = cache.as_ref()
-        && pw.game_dir == game_dir
+        && pw.world_dir == world_dir
     {
         return pw.clone();
     }
-    let mut store = Storage::open_world(&game_dir, MOD_ID, SEED_DIMENSION);
+    let mut store = Storage::open_world(&world_dir, MOD_ID, SEED_DIMENSION);
     let seed = store.get_int(SEED_KEY).unwrap_or_else(|| {
         let s = (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
         store.set(SEED_KEY, s);
@@ -398,7 +398,7 @@ pub fn per_world(srv: &dyn yog_api::Server) -> Arc<PerWorld> {
         .map(|a| (alt_drawing(&a.pattern(), seed).signature(), a))
         .collect();
     let pw = Arc::new(PerWorld {
-        game_dir,
+        world_dir,
         seed,
         by_sig,
     });

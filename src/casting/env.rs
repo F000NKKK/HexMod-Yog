@@ -64,7 +64,7 @@ pub fn random() -> f64 {
 
 /// A player's persistent state (flags, pigment, sentinel, staff grid).
 pub fn player_storage(srv: &dyn Server, uuid: &str) -> Storage {
-    Storage::open_player(&srv.game_dir(), MOD_ID, uuid)
+    Storage::open_player(&srv.world_dir(), MOD_ID, uuid)
 }
 
 /// The caster: a player, by name (for inventory calls) and uuid.

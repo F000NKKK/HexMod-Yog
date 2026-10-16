@@ -35,7 +35,7 @@ pub fn is_floodfiller(id: &str) -> bool {
 }
 
 fn store(srv: &dyn Server, dim: &str, pos: BlockPos) -> Storage {
-    Storage::open_chunk(&srv.game_dir(), MOD_ID, dim, pos.0 >> 4, pos.2 >> 4)
+    Storage::open_chunk(&srv.world_dir(), MOD_ID, dim, pos.0 >> 4, pos.2 >> 4)
 }
 
 const KEY_PREFIX: &str = "akashic.";
