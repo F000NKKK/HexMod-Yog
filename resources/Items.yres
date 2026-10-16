@@ -64,6 +64,7 @@
   "jeweler_hammer": "Jeweler's Hammer",
   "jeweler_hammer.desc": "Breaks blocks without breaking the block underneath them.",
   "lore_fragment": "Lore Fragment",
+  "lore_fragment.all": "It seems I have found all the lore this world has to offer.",
   "sub_sandwich": "Submarine Sandwich",
   "creative_unlocker": "The Media Cube",
   "creative_unlocker.desc": "INFINITE MEDIA",
