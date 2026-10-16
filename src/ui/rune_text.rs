@@ -106,7 +106,7 @@ pub fn draw(gfx: &GfxContext, segs: &[Segment], x: f32, y: f32, color: u32, shad
     let mut at = x;
     for seg in segs {
         match seg {
-            Segment::Words(w) => d2.text(w, at, y, color, shadow),
+            Segment::Words(w) => d2.text(w, Vec2::new(at, y), color, shadow),
             Segment::Rune(p) => mesh_rune(&mut mesh, p, at, y, RUNE_HEIGHT, color),
         }
         at += seg_width(seg, &width_of);

@@ -372,12 +372,12 @@ fn draw(gfx: &GfxContext) {
     let mut y = h / 2.0 - total;
     for (l, rows) in wrapped {
         if !l.item.is_empty() {
-            d.item(&l.item, x, y, 16.0);
+            d.item(&l.item, Vec2::new(x, y), 16.0);
         }
         let tx = if l.item.is_empty() { x } else { x + 18.0 };
         let color = 0xFF00_0000 | l.color.unwrap_or(0xFF_FFFF);
         for row in &rows {
-            d.text(row, tx, y + 5.0, color, true);
+            d.text(row, Vec2::new(tx, y + 5.0), color, true);
             y += LINE;
         }
         if rows.is_empty() {

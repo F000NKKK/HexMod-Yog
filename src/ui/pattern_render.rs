@@ -38,7 +38,7 @@ pub fn register(registry: &mut Registry) {
             |item, snbt| tooltip(item, snbt).map(|_| (TOOLTIP_SIZE, TOOLTIP_SIZE)),
             |gfx, item, snbt, [x, y, w, h]| {
                 if let Some((pattern, paper)) = tooltip(item, snbt) {
-                    gfx.draw2d().image(paper, x, y, w, h);
+                    gfx.draw2d().image(paper, Rect::new(x, y, w, h));
                     draw_pattern(gfx, &pattern, x, y, w, h);
                 }
             },

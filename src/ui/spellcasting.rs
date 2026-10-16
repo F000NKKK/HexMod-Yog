@@ -650,7 +650,7 @@ fn draw_desc(gfx: &GfxContext, width_of: &dyn Fn(&str) -> f32, desc: &Desc, x: f
     if desc.cut {
         let alpha = color & 0xFF00_0000;
         let end = x + super::rune_text::width(&desc.segs, width_of);
-        gfx.draw2d().text("...", end, y, (ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha, true);
+        gfx.draw2d().text("...", Vec2::new(end, y), (ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha, true);
     }
 }
 
