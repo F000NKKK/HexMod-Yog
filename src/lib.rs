@@ -18,6 +18,7 @@ pub mod ids;
 pub mod iota;
 pub mod item;
 pub mod lens;
+pub mod loot;
 pub mod math;
 pub mod protocol;
 pub mod render;
@@ -49,6 +50,7 @@ impl Mod for HexMod {
         lens::register(registry);
         render::register(registry);
         conjured::register(registry);
+        loot::register(registry);
 
         info!("[hexcasting-yog] gate opened. The book is ready.");
     }

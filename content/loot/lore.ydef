@@ -1,0 +1,20 @@
+// Lore fragments, now and then.
+{
+  "kind": "loot_modifier",
+  "id": "lore",
+  "tables": [
+    "@loot_table:minecraft:chests/simple_dungeon",
+    "@loot_table:minecraft:chests/abandoned_mineshaft",
+    "@loot_table:minecraft:chests/pillager_outpost",
+    "@loot_table:minecraft:chests/woodland_mansion",
+    "@loot_table:minecraft:chests/stronghold_library",
+    "@loot_table:minecraft:chests/village/village_desert_house",
+    "@loot_table:minecraft:chests/village/village_plains_house",
+    "@loot_table:minecraft:chests/village/village_savanna_house",
+    "@loot_table:minecraft:chests/village/village_snowy_house",
+    "@loot_table:minecraft:chests/village/village_taiga_house"
+  ],
+  "add": [
+    { "item": "@item:hexcasting:lore_fragment", "chance": 0.4 }
+  ]
+}

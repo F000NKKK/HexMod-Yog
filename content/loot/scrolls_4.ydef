@@ -1,0 +1,13 @@
+// Ancient cities keep amethyst; pillagers, it seems, keep scrolls.
+// Scrolls of this world's great spells: from -4 to 4 of them, none below one.
+{
+  "kind": "loot_modifier",
+  "id": "scrolls_4",
+  "tables": [
+    "@loot_table:minecraft:chests/ancient_city",
+    "@loot_table:minecraft:chests/pillager_outpost"
+  ],
+  "add": [
+    { "item": "@item:hexcasting:scroll", "count": [-4, 4], "function": "hexcasting:per_world_pattern" }
+  ]
+}

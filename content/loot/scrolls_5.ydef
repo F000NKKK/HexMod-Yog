@@ -1,0 +1,13 @@
+// Whoever finds these deserves a lot of scrolls.
+// Scrolls of this world's great spells: from -5 to 5 of them, none below one.
+{
+  "kind": "loot_modifier",
+  "id": "scrolls_5",
+  "tables": [
+    "@loot_table:minecraft:chests/woodland_mansion",
+    "@loot_table:minecraft:chests/stronghold_library"
+  ],
+  "add": [
+    { "item": "@item:hexcasting:scroll", "count": [-5, 5], "function": "hexcasting:per_world_pattern" }
+  ]
+}

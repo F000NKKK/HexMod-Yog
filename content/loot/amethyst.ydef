@@ -1,0 +1,10 @@
+// Amethyst clusters drop half the shards; what they drop besides (dust,
+// charged crystals) is the mod's code (loot.rs), by tool and fortune.
+{
+  "kind": "loot_modifier",
+  "id": "amethyst",
+  "tables": ["@loot_table:minecraft:blocks/amethyst_cluster"],
+  "scale": [
+    { "item": "@item:minecraft:amethyst_shard", "by": 0.5 }
+  ]
+}

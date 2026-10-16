@@ -53,6 +53,10 @@
   "artifact": "Artifact",
   "artifact.desc": "Casts a stored hex, drawing on your own media when empty.",
   "ancient_cypher": "Ancient Cypher",
+  "ancient_cypher.preset": {
+    "value": "Ancient Cypher: {hex}",
+    "comment": "An ancient cypher found in a chest, named after the old hex it holds"
+  },
   "battery": "Phial of Media",
   "battery.desc": "Stores media for use in casting.",
   "lens": "Scrying Lens",
