@@ -5,11 +5,12 @@ use yog_api::Server;
 
 use crate::casting::env::{CastEnv, Caster, Source, Spray, random};
 use crate::casting::vm::Vm;
+use crate::content::{Advancements, Items};
 use crate::item::holder::{self, ABACUS, SPELLBOOK};
 use crate::item::{media, packaged};
 use crate::math::Vec3;
 use crate::protocol::Hand;
-use crate::res::Lang;
+use crate::res::{self, Lang};
 use crate::text::Text;
 use crate::wire::Reader;
 
@@ -179,6 +180,50 @@ pub fn reset_abacus(srv: &dyn Server, player: &str) {
         Lang::TOOLTIP_ABACUS_RESET_KEY
     };
     actionbar(srv, player, &Text::key(key).to_json());
+}
+
+/// The lore a fragment can tell (`ItemLoreFragment.NAMES`).
+const LORE: [&str; 8] = [
+    Advancements::LORE_CARDAMOM1,
+    Advancements::LORE_CARDAMOM2,
+    Advancements::LORE_CARDAMOM3,
+    Advancements::LORE_CARDAMOM4,
+    Advancements::LORE_CARDAMOM5,
+    Advancements::LORE_EXPERIMENT1,
+    Advancements::LORE_EXPERIMENT2,
+    Advancements::LORE_INVENTORY,
+];
+/// What a fragment gives once all the lore is found (`giveExperiencePoints`).
+const LORE_FOUND_XP: i32 = 20;
+
+/// `ItemLoreFragment.use`: a piece of lore not read yet, picked at random
+/// — or, all of it read, some experience. The fragment is used up.
+pub fn read_lore(srv: &dyn Server, player: &str) {
+    let Some(caster) = Caster::by_name(srv, player) else {
+        return;
+    };
+    let Some(env) = CastEnv::for_player(srv, caster, Hand::Main, Source::Staff) else {
+        return;
+    };
+    let Some(mut stack) = [Hand::Main, Hand::Off]
+        .into_iter()
+        .filter_map(|h| env.held(h))
+        .find(|s| s.id == Items::LORE_FRAGMENT)
+    else {
+        return;
+    };
+    srv.play_sound_to_player(player, crate::sounds::LORE_FRAGMENT_READ, 1.0, 1.0);
+    let unread: Vec<&str> = LORE.into_iter().filter(|id| !env.has_advancement(id)).collect();
+    if unread.is_empty() {
+        actionbar(srv, player, &Text::key(res::Items::LORE_FRAGMENT_ALL_KEY).to_json());
+        srv.player_add_xp(player, LORE_FOUND_XP);
+    } else {
+        let pick = ((random() * unread.len() as f64) as usize).min(unread.len() - 1);
+        env.grant_advancement(Advancements::LORE);
+        env.grant_advancement(unread[pick]);
+    }
+    stack.count -= 1;
+    env.save(&stack);
 }
 
 /// `displayClientMessage(text, true)`.

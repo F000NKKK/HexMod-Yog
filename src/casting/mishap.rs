@@ -364,7 +364,7 @@ impl Mishap {
                 );
                 // HexAdvancementTriggers.FAIL_GREAT_SPELL_TRIGGER: unlocks
                 // overcasting ("Blind Diversion").
-                env.grant_advancement(crate::casting::env::advancements::CAN_OVERCAST);
+                env.grant_advancement(crate::content::Advancements::Y_U_NO_CAST_ANGY);
             }
         }
     }

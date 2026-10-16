@@ -33,6 +33,8 @@ pub fn register(registry: &mut Registry) {
                 items::use_packaged(srv, &ev.player_name, id);
             } else if id == ABACUS && ev.sneaking {
                 items::reset_abacus(srv, &ev.player_name);
+            } else if id == Items::LORE_FRAGMENT {
+                items::read_lore(srv, &ev.player_name);
             }
         }
         true

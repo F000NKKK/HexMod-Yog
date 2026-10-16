@@ -11,6 +11,7 @@ use yog_api::{Server, Storage};
 use crate::casting::mishap::{BlockPos, MResult, Mishap, ShownItem, item_name};
 use crate::casting::vm::Sound;
 use crate::iota::EntityRef;
+use crate::content::Advancements;
 use crate::item::media;
 use crate::item::pigment::{Pigment, dye_pigment};
 use crate::math::Vec3;
@@ -19,20 +20,6 @@ use crate::snbt::Nbt;
 use crate::text::Text;
 
 pub const MOD_ID: &str = "hexcasting";
-/// The original's advancements (content/advancements) the casting awards.
-pub mod advancements {
-    /// "Blind Diversion": a great spell failed for want of enlightenment —
-    /// unlocks casting from health.
-    pub const CAN_OVERCAST: &str = "hexcasting:y_u_no_cast_angy";
-    /// "Opened Eyes": health paid for a hex.
-    pub const OPENED_EYES: &str = "hexcasting:opened_eyes";
-    /// Enlightenment: unlocks the great spells.
-    pub const ENLIGHTENED: &str = "hexcasting:enlightenment";
-    /// "Waste Not…": a lot of media wasted in one cast.
-    pub const WASTEFUL_CAST: &str = "hexcasting:aaa_wasteful_cast";
-    /// "…Want Not": a huge amount of media spent in one cast.
-    pub const BIG_CAST: &str = "hexcasting:aab_big_cast";
-}
 
 /// Enlightenment: most of one's health (`EnlightenmentTrigger`'s 0.8) paid
 /// for one hex, and alive with at most half a heart's worth left over 1.
@@ -379,7 +366,7 @@ impl<'a> CastEnv<'a> {
         if matches!(self.source, Source::Circle(_)) && self.caster.is_none() {
             return true;
         }
-        self.has_advancement(advancements::ENLIGHTENED)
+        self.has_advancement(Advancements::ENLIGHTENMENT)
     }
 
     /// `printMessage`: a circle's impetus shows it instead (`postPrint`).
@@ -808,10 +795,10 @@ impl<'a> CastEnv<'a> {
         // `SpendMediaTrigger`: what one cast spent, and wasted.
         if !simulate {
             if cost - left.max(0) >= BIG_CAST_MEDIA {
-                self.grant_advancement(advancements::BIG_CAST);
+                self.grant_advancement(Advancements::AAB_BIG_CAST);
             }
             if -left >= WASTEFUL_MEDIA {
-                self.grant_advancement(advancements::WASTEFUL_CAST);
+                self.grant_advancement(Advancements::AAA_WASTEFUL_CAST);
             }
         }
         left
@@ -820,10 +807,10 @@ impl<'a> CastEnv<'a> {
     /// `OvercastTrigger`: `used` health paid for a hex, `left` left — eyes
     /// opened, and enlightenment for nearly all of it.
     fn overcast(&self, uuid: &str, used: f64, left: f64) {
-        self.grant_advancement(advancements::OPENED_EYES);
+        self.grant_advancement(Advancements::OPENED_EYES);
         let max = self.srv.entity_attribute_value(uuid, MAX_HEALTH).unwrap_or(20.0).max(1.0);
         if used / max >= ENLIGHTENING_HEALTH_USED && left > 0.0 && left <= ENLIGHTENING_HEALTH_LEFT {
-            self.grant_advancement(advancements::ENLIGHTENED);
+            self.grant_advancement(Advancements::ENLIGHTENMENT);
         }
     }
 
@@ -836,7 +823,7 @@ impl<'a> CastEnv<'a> {
                 if self.is_creative() {
                     return 0;
                 }
-                let over = self.has_advancement(advancements::CAN_OVERCAST);
+                let over = self.has_advancement(Advancements::Y_U_NO_CAST_ANGY);
                 self.extract_from_inventory(cost, over, simulate)
             }
             Source::Packaged => {
@@ -856,7 +843,7 @@ impl<'a> CastEnv<'a> {
                 }
                 left -= taken;
                 if media::draws_from_inventory(&stack.id) && left > 0 {
-                    let over = self.has_advancement(advancements::CAN_OVERCAST);
+                    let over = self.has_advancement(Advancements::Y_U_NO_CAST_ANGY);
                     left = self.extract_from_inventory(left, over, simulate);
                 }
                 left
