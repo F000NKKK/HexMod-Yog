@@ -6,7 +6,6 @@
 
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::ops::{Add, Mul, Neg, Sub};
 use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
 
@@ -24,65 +23,24 @@ const PI: f32 = std::f32::consts::PI;
 pub const CAP_THETA: f32 = 180.0 / 10.0;
 pub const DEFAULT_READABILITY_OFFSET: f32 = 0.2;
 
-/// Minecraft's `Vec2`.
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Vec2 {
-    pub x: f32,
-    pub y: f32,
-}
+pub use yog_api::ui::Vec2;
 
-impl Vec2 {
-    pub const ZERO: Vec2 = Vec2 { x: 0.0, y: 0.0 };
-
-    pub const fn new(x: f32, y: f32) -> Self {
-        Vec2 { x, y }
-    }
-
-    pub fn length(self) -> f32 {
-        (self.x * self.x + self.y * self.y).sqrt()
-    }
-
-    pub fn distance_to_sqr(self, o: Vec2) -> f32 {
-        let (dx, dy) = (o.x - self.x, o.y - self.y);
-        dx * dx + dy * dy
-    }
-
+/// Minecraft's `Vec2` methods the original uses.
+pub trait McVec2 {
+    fn distance_to_sqr(self, o: Vec2) -> f32;
     /// `ZERO` when (almost) zero-length, like Minecraft's.
-    pub fn normalized(self) -> Vec2 {
+    fn normalized(self) -> Vec2;
+}
+
+impl McVec2 for Vec2 {
+    fn distance_to_sqr(self, o: Vec2) -> f32 {
+        let d = o - self;
+        d.dot(d)
+    }
+
+    fn normalized(self) -> Vec2 {
         let l = self.length();
-        if l < 1.0e-4 {
-            Vec2::ZERO
-        } else {
-            Vec2::new(self.x / l, self.y / l)
-        }
-    }
-}
-
-impl Add for Vec2 {
-    type Output = Vec2;
-    fn add(self, o: Vec2) -> Vec2 {
-        Vec2::new(self.x + o.x, self.y + o.y)
-    }
-}
-
-impl Sub for Vec2 {
-    type Output = Vec2;
-    fn sub(self, o: Vec2) -> Vec2 {
-        Vec2::new(self.x - o.x, self.y - o.y)
-    }
-}
-
-impl Neg for Vec2 {
-    type Output = Vec2;
-    fn neg(self) -> Vec2 {
-        Vec2::new(-self.x, -self.y)
-    }
-}
-
-impl Mul<f32> for Vec2 {
-    type Output = Vec2;
-    fn mul(self, s: f32) -> Vec2 {
-        Vec2::new(self.x * s, self.y * s)
+        if l < 1.0e-4 { Vec2::ZERO } else { Vec2::new(self.x / l, self.y / l) }
     }
 }
 

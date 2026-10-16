@@ -4,6 +4,7 @@
 //!
 //! [`render_lib`]: super::render_lib
 
+use yog_api::ui::Rect;
 use yog_api::{GfxContext, Registry};
 
 use crate::content::Items;

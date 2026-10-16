@@ -23,12 +23,12 @@ use std::collections::HashSet;
 use std::sync::{Arc, Mutex, MutexGuard, Once};
 
 use yog_api::client::{self, SoundHandle, ui_flags};
-use yog_api::ui::{Pointer, Rect, Surface};
+use yog_api::ui::{Color, Pointer, Rect, Surface};
 use yog_api::{GfxContext, Server};
 use yog_kit::prelude::*;
 
 use super::render_lib::{
-    DEFAULT_READABILITY_OFFSET, Mesh, PatternStyle, Vec2, coord_to_px, draw_pattern_from_points,
+    DEFAULT_READABILITY_OFFSET, McVec2, Mesh, PatternStyle, Vec2, coord_to_px, draw_pattern_from_points,
     draw_spot, find_dup_indices, positions_from, px_to_coord, range_around, ticks, to_lines,
 };
 use crate::content::Items;
@@ -650,7 +650,7 @@ fn draw_desc(gfx: &GfxContext, width_of: &dyn Fn(&str) -> f32, desc: &Desc, x: f
     if desc.cut {
         let alpha = color & 0xFF00_0000;
         let end = x + super::rune_text::width(&desc.segs, width_of);
-        gfx.draw2d().text("...", Vec2::new(end, y), (ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha, true);
+        gfx.draw2d().text("...", Vec2::new(end, y), Color((ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha), true);
     }
 }
 

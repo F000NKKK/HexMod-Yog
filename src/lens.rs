@@ -9,6 +9,7 @@
 use std::sync::Mutex;
 
 use yog_api::vanilla;
+use yog_api::ui::{Color, Vec2};
 use yog_api::{GfxContext, Registry, Server, split_state};
 
 use crate::akashic;
@@ -377,7 +378,7 @@ fn draw(gfx: &GfxContext) {
         let tx = if l.item.is_empty() { x } else { x + 18.0 };
         let color = 0xFF00_0000 | l.color.unwrap_or(0xFF_FFFF);
         for row in &rows {
-            d.text(row, Vec2::new(tx, y + 5.0), color, true);
+            d.text(row, Vec2::new(tx, y + 5.0), Color(color), true);
             y += LINE;
         }
         if rows.is_empty() {
