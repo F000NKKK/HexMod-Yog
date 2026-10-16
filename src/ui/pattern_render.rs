@@ -44,6 +44,7 @@ pub fn register(registry: &mut Registry) {
             },
         );
     }
+    register_hex_tooltips(registry);
 }
 
 /// What stores a hex (cyphers, trinkets, artifacts) shows it under its
@@ -52,7 +53,7 @@ const HEX_TOOLTIP_WIDTH: f32 = 160.0;
 /// A line of it: a rune and the gap under it.
 const HEX_TOOLTIP_LINE: f32 = super::rune_text::RUNE_HEIGHT + 2.0;
 
-pub fn register_hex_tooltips(registry: &mut Registry) {
+fn register_hex_tooltips(registry: &mut Registry) {
     for item in [Items::CYPHER, Items::ANCIENT_CYPHER, Items::TRINKET, Items::ARTIFACT] {
         registry.on_item_tooltip(
             item,
@@ -183,6 +184,17 @@ mod tests {
         let slate = format!("{{BlockEntityTag:{{pattern:\"{}\"}}}}", p.serialized_form());
         assert_eq!(tooltip(holder::SLATE, &slate).map(|(_, bg)| bg), Some(SLATE_BG));
         assert!(tooltip(Items::SCROLL, "{}").is_none(), "a blank scroll: no picture");
+    }
+
+    #[test]
+    fn a_stored_hex_shows_in_lines_of_runes() {
+        let p = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
+        let hex = crate::iota::Iota::List(vec![crate::iota::Iota::Pattern(p.clone()); 12]).serialize();
+        let snbt = format!("{{patterns:\"{}\"}}", hex.replace('\\', "\\\\").replace('"', "\\\""));
+        let (lines, _) = hex_lines(&snbt, &approx_width).expect("a hex");
+        assert!(lines.len() > 1, "twelve runes wrap");
+        assert!(lines.iter().flatten().any(|s| matches!(s, crate::text::Segment::Rune(r) if *r == p)));
+        assert!(hex_lines("{}", &approx_width).is_none(), "an empty trinket: nothing");
     }
 
     #[test]
