@@ -731,15 +731,15 @@ dependencies = [
 
 [[package]]
 name = "yog-abi"
-version = "0.30.6"
+version = "0.30.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5c67f89c7037c7c8fd9f81acbfb57bfb18751bfce7db383a83348107b4fbc82"
+checksum = "fb1fed4ea6d39f3a2cd33c9f3671ee96ff37ea1de187397d9909361b6ee15116"
 
 [[package]]
 name = "yog-api"
-version = "0.97.0"
+version = "0.97.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f064c10bc95c1a29252582cd0830ac6d6069498892ddf6cf7f8b0a74b43c1297"
+checksum = "aa786911cfec8c6c7f444c04d916641f5352ca27006dc4639fd568a5cf5d55ac"
 dependencies = [
  "ctor",
  "rkyv",
@@ -776,9 +776,9 @@ dependencies = [
 
 [[package]]
 name = "yog-book"
-version = "0.65.0"
+version = "0.65.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c2535e18e21533650c409276f438bbc577c2a4f19bc01e1fbe279dd9830aa88"
+checksum = "3ff58d2657da7d36a44188ee4d1a19fc48b658658ecbf7cdc955d62350cf5ace"
 dependencies = [
  "serde",
  "serde_json",
