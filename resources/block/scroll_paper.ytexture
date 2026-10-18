@@ -1,4 +1,6 @@
+// Not packed into the blocks atlas: the wall scroll draws this picture
+// itself (wall_scroll.rs), so it stays a file of its own — the blocks'
+// models still find it in block/, a folder the game's atlas takes whole.
 {
   image: "@BlockImages.block.scroll_paper",
-  atlas: "minecraft:blocks",
 }
