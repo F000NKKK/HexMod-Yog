@@ -7,7 +7,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/scroll_pristine_small.png"
+      "layer0": "@texture:hexcasting:item/scroll_pristine_small"
     }
   }
 }

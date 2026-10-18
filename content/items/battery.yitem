@@ -7,7 +7,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/phial/phial_small_0.png"
+      "layer0": "@texture:hexcasting:item/phial/phial_small_0"
     }
   }
 }

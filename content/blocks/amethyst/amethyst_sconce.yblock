@@ -11,9 +11,9 @@
   },
   "model": {
     "textures": {
-      "0": "minecraft:block/cut_copper",
-      "3": "minecraft:block/large_amethyst_bud",
-      "particle": "minecraft:block/cut_copper"
+      "0": "@texture:minecraft:block/cut_copper",
+      "3": "@texture:minecraft:block/large_amethyst_bud",
+      "particle": "@texture:minecraft:block/cut_copper"
     },
     "elements": [
       {

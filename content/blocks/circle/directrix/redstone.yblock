@@ -14,13 +14,13 @@
   "model": {
     "parent": "cube",
     "textures": {
-      "down": "block/circle/bottom.png",
-      "east": "block/circle/directrix/redstone/left_unpowered.png",
-      "north": "block/circle/directrix/redstone/front_dim_unpowered.png",
-      "particle": "block/slate.png",
-      "south": "block/circle/directrix/redstone/back_dim_unpowered.png",
-      "up": "block/circle/directrix/redstone/top_unpowered.png",
-      "west": "block/circle/directrix/redstone/right_unpowered.png"
+      "down": "@texture:hexcasting:block/circle/bottom",
+      "east": "@texture:hexcasting:block/circle/directrix/redstone/left_unpowered",
+      "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_unpowered",
+      "particle": "@texture:hexcasting:block/slate",
+      "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_unpowered",
+      "up": "@texture:hexcasting:block/circle/directrix/redstone/top_unpowered",
+      "west": "@texture:hexcasting:block/circle/directrix/redstone/right_unpowered"
     }
   },
   "states": {
@@ -40,49 +40,49 @@
       "dim_powered": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/redstone/left_powered.png",
-          "north": "block/circle/directrix/redstone/front_dim_powered.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/redstone/back_dim_powered.png",
-          "up": "block/circle/directrix/redstone/top_powered.png",
-          "west": "block/circle/directrix/redstone/right_powered.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_powered",
+          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_powered",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_powered",
+          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_powered",
+          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_powered"
         }
       },
       "dim_unpowered": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/redstone/left_unpowered.png",
-          "north": "block/circle/directrix/redstone/front_dim_unpowered.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/redstone/back_dim_unpowered.png",
-          "up": "block/circle/directrix/redstone/top_unpowered.png",
-          "west": "block/circle/directrix/redstone/right_unpowered.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_unpowered",
+          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_unpowered",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_unpowered",
+          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_unpowered",
+          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_unpowered"
         }
       },
       "lit_powered": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/redstone/left_powered.png",
-          "north": "block/circle/directrix/redstone/front_lit_powered.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/redstone/back_dim_powered.png",
-          "up": "block/circle/directrix/redstone/top_powered.png",
-          "west": "block/circle/directrix/redstone/right_powered.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_powered",
+          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_lit_powered",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_powered",
+          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_powered",
+          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_powered"
         }
       },
       "lit_unpowered": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/redstone/left_unpowered.png",
-          "north": "block/circle/directrix/redstone/front_dim_unpowered.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/redstone/back_lit_unpowered.png",
-          "up": "block/circle/directrix/redstone/top_unpowered.png",
-          "west": "block/circle/directrix/redstone/right_unpowered.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_unpowered",
+          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_unpowered",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_lit_unpowered",
+          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_unpowered",
+          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_unpowered"
         }
       }
     },

@@ -10,7 +10,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/deco/slate_amethyst_tiles.png"
+      "all": "@texture:hexcasting:block/deco/slate_amethyst_tiles"
     }
   }
 }

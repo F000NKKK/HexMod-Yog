@@ -12,9 +12,9 @@
   },
   "model": {
     "textures": {
-      "bottom": "block/edified_planks.png",
-      "top": "block/edified_planks.png",
-      "side": "block/edified_planks.png"
+      "bottom": "@texture:hexcasting:block/edified_planks",
+      "top": "@texture:hexcasting:block/edified_planks",
+      "side": "@texture:hexcasting:block/edified_planks"
     }
   }
 }

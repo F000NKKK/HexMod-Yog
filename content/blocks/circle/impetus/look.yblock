@@ -14,13 +14,13 @@
   "model": {
     "parent": "cube",
     "textures": {
-      "down": "block/circle/bottom.png",
-      "east": "block/circle/impetus/look/left_dim.png",
-      "north": "block/circle/impetus/look/front_dim.png",
-      "particle": "block/slate.png",
-      "south": "block/circle/impetus/back_dim.png",
-      "up": "block/circle/impetus/look/top_dim.png",
-      "west": "block/circle/impetus/look/right_dim.png"
+      "down": "@texture:hexcasting:block/circle/bottom",
+      "east": "@texture:hexcasting:block/circle/impetus/look/left_dim",
+      "north": "@texture:hexcasting:block/circle/impetus/look/front_dim",
+      "particle": "@texture:hexcasting:block/slate",
+      "south": "@texture:hexcasting:block/circle/impetus/back_dim",
+      "up": "@texture:hexcasting:block/circle/impetus/look/top_dim",
+      "west": "@texture:hexcasting:block/circle/impetus/look/right_dim"
     }
   },
   "states": {
@@ -36,25 +36,25 @@
       "dim": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/impetus/look/left_dim.png",
-          "north": "block/circle/impetus/look/front_dim.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/impetus/back_dim.png",
-          "up": "block/circle/impetus/look/top_dim.png",
-          "west": "block/circle/impetus/look/right_dim.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/impetus/look/left_dim",
+          "north": "@texture:hexcasting:block/circle/impetus/look/front_dim",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/impetus/back_dim",
+          "up": "@texture:hexcasting:block/circle/impetus/look/top_dim",
+          "west": "@texture:hexcasting:block/circle/impetus/look/right_dim"
         }
       },
       "lit": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/impetus/look/left_lit.png",
-          "north": "block/circle/impetus/look/front_lit.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/impetus/back_lit.png",
-          "up": "block/circle/impetus/look/top_lit.png",
-          "west": "block/circle/impetus/look/right_lit.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/impetus/look/left_lit",
+          "north": "@texture:hexcasting:block/circle/impetus/look/front_lit",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/impetus/back_lit",
+          "up": "@texture:hexcasting:block/circle/impetus/look/top_lit",
+          "west": "@texture:hexcasting:block/circle/impetus/look/right_lit"
         }
       }
     },

@@ -10,8 +10,8 @@
   "model": {
     "parent": "cube_column",
     "textures": {
-      "end": "block/edified_log_top.png",
-      "side": "block/deco/edified_log_amethyst.png"
+      "end": "@texture:hexcasting:block/edified_log_top",
+      "side": "@texture:hexcasting:block/deco/edified_log_amethyst"
     }
   }
 }

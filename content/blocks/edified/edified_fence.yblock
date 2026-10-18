@@ -11,7 +11,7 @@
   },
   "model": {
     "textures": {
-      "texture": "block/edified_planks.png"
+      "texture": "@texture:hexcasting:block/edified_planks"
     }
   }
 }

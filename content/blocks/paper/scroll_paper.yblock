@@ -8,7 +8,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/scroll_paper.png"
+      "all": "@texture:hexcasting:block/scroll_paper"
     }
   }
 }

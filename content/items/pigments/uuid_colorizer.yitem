@@ -8,7 +8,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/colorizer/uuid.png"
+      "layer0": "@texture:hexcasting:item/colorizer/uuid"
     }
   }
 }

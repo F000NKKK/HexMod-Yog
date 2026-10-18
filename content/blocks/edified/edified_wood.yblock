@@ -10,7 +10,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/edified_log.png"
+      "all": "@texture:hexcasting:block/edified_log"
     }
   }
 }

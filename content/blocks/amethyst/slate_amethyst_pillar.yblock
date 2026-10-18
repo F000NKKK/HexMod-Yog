@@ -10,8 +10,8 @@
   "model": {
     "parent": "cube_column",
     "textures": {
-      "end": "block/deco/slate_amethyst_pillar_end.png",
-      "side": "block/deco/slate_amethyst_pillar_side.png"
+      "end": "@texture:hexcasting:block/deco/slate_amethyst_pillar_end",
+      "side": "@texture:hexcasting:block/deco/slate_amethyst_pillar_side"
     }
   }
 }

@@ -5,7 +5,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/amethyst_dust.png"
+      "layer0": "@texture:hexcasting:item/amethyst_dust"
     }
   }
 }

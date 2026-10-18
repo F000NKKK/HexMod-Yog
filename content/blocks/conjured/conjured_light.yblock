@@ -12,7 +12,7 @@
   },
   "model": {
     "textures": {
-      "particle": "minecraft:block/amethyst_block"
+      "particle": "@texture:minecraft:block/amethyst_block"
     },
     "elements": []
   }

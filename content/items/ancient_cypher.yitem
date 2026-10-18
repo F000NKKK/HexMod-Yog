@@ -6,8 +6,8 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/cad/0_ancient_cypher.png",
-      "layer1": "item/cad/0_ancient_cypher_overlay.png"
+      "layer0": "@texture:hexcasting:item/cad/0_ancient_cypher",
+      "layer1": "@texture:hexcasting:item/cad/0_ancient_cypher_overlay"
     }
   }
 }

@@ -12,7 +12,7 @@
   },
   "model": {
     "textures": {
-      "0": "block/slate.png"
+      "0": "@texture:hexcasting:block/slate"
     },
     "elements": [
       {
@@ -90,7 +90,7 @@
   "item_model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/slate_blank.png"
+      "layer0": "@texture:hexcasting:item/slate_blank"
     }
   },
   "states": {

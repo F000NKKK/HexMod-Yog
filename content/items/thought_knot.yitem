@@ -7,7 +7,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/thought_knot.png"
+      "layer0": "@texture:hexcasting:item/thought_knot"
     }
   }
 }

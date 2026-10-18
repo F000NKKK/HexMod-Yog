@@ -12,6 +12,6 @@
   },
   "model": {
     "parent": "cube_all",
-    "textures": { "all": "block/deco/amethyst_bricks.png" }
+    "textures": { "all": "@texture:hexcasting:block/deco/amethyst_bricks" }
   }
 }

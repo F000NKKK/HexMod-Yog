@@ -20,7 +20,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/quenched_allay_0.png"
+      "all": "@texture:hexcasting:block/quenched_allay_0"
     }
   }
 }

@@ -11,9 +11,9 @@
   "model": {
     "parent": "orientable",
     "textures": {
-      "front": "block/akashic_bookshelf.png",
-      "side": "block/akashic_bookshelf_horiz.png",
-      "top": "block/akashic_bookshelf_vert.png"
+      "front": "@texture:hexcasting:block/akashic_bookshelf",
+      "side": "@texture:hexcasting:block/akashic_bookshelf_horiz",
+      "top": "@texture:hexcasting:block/akashic_bookshelf_vert"
     }
   },
   "states": {
@@ -28,11 +28,11 @@
     "models": {
       "books_1": {
         "textures": {
-          "front": "block/akashic_bookshelf.png",
-          "side": "block/akashic_bookshelf_horiz.png",
-          "top_bottom": "block/akashic_bookshelf_vert.png",
-          "overlay": "block/akashic_bookshelf_overlay_1.png",
-          "particle": "block/akashic_bookshelf_vert.png"
+          "front": "@texture:hexcasting:block/akashic_bookshelf",
+          "side": "@texture:hexcasting:block/akashic_bookshelf_horiz",
+          "top_bottom": "@texture:hexcasting:block/akashic_bookshelf_vert",
+          "overlay": "@texture:hexcasting:block/akashic_bookshelf_overlay_1",
+          "particle": "@texture:hexcasting:block/akashic_bookshelf_vert"
         },
         "elements": [
           {
@@ -96,11 +96,11 @@
       },
       "books_2": {
         "textures": {
-          "front": "block/akashic_bookshelf.png",
-          "side": "block/akashic_bookshelf_horiz.png",
-          "top_bottom": "block/akashic_bookshelf_vert.png",
-          "overlay": "block/akashic_bookshelf_overlay_2.png",
-          "particle": "block/akashic_bookshelf_vert.png"
+          "front": "@texture:hexcasting:block/akashic_bookshelf",
+          "side": "@texture:hexcasting:block/akashic_bookshelf_horiz",
+          "top_bottom": "@texture:hexcasting:block/akashic_bookshelf_vert",
+          "overlay": "@texture:hexcasting:block/akashic_bookshelf_overlay_2",
+          "particle": "@texture:hexcasting:block/akashic_bookshelf_vert"
         },
         "elements": [
           {
@@ -164,11 +164,11 @@
       },
       "books_3": {
         "textures": {
-          "front": "block/akashic_bookshelf.png",
-          "side": "block/akashic_bookshelf_horiz.png",
-          "top_bottom": "block/akashic_bookshelf_vert.png",
-          "overlay": "block/akashic_bookshelf_overlay_3.png",
-          "particle": "block/akashic_bookshelf_vert.png"
+          "front": "@texture:hexcasting:block/akashic_bookshelf",
+          "side": "@texture:hexcasting:block/akashic_bookshelf_horiz",
+          "top_bottom": "@texture:hexcasting:block/akashic_bookshelf_vert",
+          "overlay": "@texture:hexcasting:block/akashic_bookshelf_overlay_3",
+          "particle": "@texture:hexcasting:block/akashic_bookshelf_vert"
         },
         "elements": [
           {
@@ -232,11 +232,11 @@
       },
       "books_4": {
         "textures": {
-          "front": "block/akashic_bookshelf.png",
-          "side": "block/akashic_bookshelf_horiz.png",
-          "top_bottom": "block/akashic_bookshelf_vert.png",
-          "overlay": "block/akashic_bookshelf_overlay_4.png",
-          "particle": "block/akashic_bookshelf_vert.png"
+          "front": "@texture:hexcasting:block/akashic_bookshelf",
+          "side": "@texture:hexcasting:block/akashic_bookshelf_horiz",
+          "top_bottom": "@texture:hexcasting:block/akashic_bookshelf_vert",
+          "overlay": "@texture:hexcasting:block/akashic_bookshelf_overlay_4",
+          "particle": "@texture:hexcasting:block/akashic_bookshelf_vert"
         },
         "elements": [
           {

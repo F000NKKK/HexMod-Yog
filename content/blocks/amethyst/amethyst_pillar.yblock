@@ -11,9 +11,9 @@
   "model": {
     "parent": "cube_bottom_top",
     "textures": {
-      "top": "block/deco/amethyst_pillar_top.png",
-      "bottom": "block/deco/amethyst_pillar_bottom.png",
-      "side": "block/deco/amethyst_pillar_side.png"
+      "top": "@texture:hexcasting:block/deco/amethyst_pillar_top",
+      "bottom": "@texture:hexcasting:block/deco/amethyst_pillar_bottom",
+      "side": "@texture:hexcasting:block/deco/amethyst_pillar_side"
     }
   }
 }

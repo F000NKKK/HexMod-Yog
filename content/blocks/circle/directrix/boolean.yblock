@@ -13,13 +13,13 @@
   "model": {
     "parent": "cube",
     "textures": {
-      "down": "block/circle/bottom.png",
-      "east": "block/circle/directrix/boolean/left_neither.png",
-      "north": "block/circle/directrix/boolean/front_not_false.png",
-      "particle": "block/slate.png",
-      "south": "block/circle/directrix/boolean/back_not_true.png",
-      "up": "block/circle/directrix/boolean/top_neither.png",
-      "west": "block/circle/directrix/boolean/right_neither.png"
+      "down": "@texture:hexcasting:block/circle/bottom",
+      "east": "@texture:hexcasting:block/circle/directrix/boolean/left_neither",
+      "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
+      "particle": "@texture:hexcasting:block/slate",
+      "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
+      "up": "@texture:hexcasting:block/circle/directrix/boolean/top_neither",
+      "west": "@texture:hexcasting:block/circle/directrix/boolean/right_neither"
     }
   },
   "states": {
@@ -40,73 +40,73 @@
       "dim_false": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/boolean/left_false.png",
-          "north": "block/circle/directrix/boolean/front_dim_false.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/boolean/back_not_true.png",
-          "up": "block/circle/directrix/boolean/top_false.png",
-          "west": "block/circle/directrix/boolean/right_false.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_false",
+          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_dim_false",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
+          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_false",
+          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_false"
         }
       },
       "dim_neither": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/boolean/left_neither.png",
-          "north": "block/circle/directrix/boolean/front_not_false.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/boolean/back_not_true.png",
-          "up": "block/circle/directrix/boolean/top_neither.png",
-          "west": "block/circle/directrix/boolean/right_neither.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_neither",
+          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
+          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_neither",
+          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_neither"
         }
       },
       "dim_true": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/boolean/left_true.png",
-          "north": "block/circle/directrix/boolean/front_not_false.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/boolean/back_dim_true.png",
-          "up": "block/circle/directrix/boolean/top_true.png",
-          "west": "block/circle/directrix/boolean/right_true.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_true",
+          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_dim_true",
+          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_true",
+          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_true"
         }
       },
       "lit_false": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/boolean/left_false.png",
-          "north": "block/circle/directrix/boolean/front_lit_false.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/boolean/back_not_true.png",
-          "up": "block/circle/directrix/boolean/top_false.png",
-          "west": "block/circle/directrix/boolean/right_false.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_false",
+          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_lit_false",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
+          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_false",
+          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_false"
         }
       },
       "lit_neither": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/boolean/left_neither.png",
-          "north": "block/circle/directrix/boolean/front_not_false.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/boolean/back_not_true.png",
-          "up": "block/circle/directrix/boolean/top_neither.png",
-          "west": "block/circle/directrix/boolean/right_neither.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_neither",
+          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
+          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_neither",
+          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_neither"
         }
       },
       "lit_true": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/boolean/left_true.png",
-          "north": "block/circle/directrix/boolean/front_not_false.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/boolean/back_lit_true.png",
-          "up": "block/circle/directrix/boolean/top_true.png",
-          "west": "block/circle/directrix/boolean/right_true.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_true",
+          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_lit_true",
+          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_true",
+          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_true"
         }
       }
     },

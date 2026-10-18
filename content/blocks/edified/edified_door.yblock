@@ -13,14 +13,14 @@
   },
   "model": {
     "textures": {
-      "bottom": "block/edified_door_lower.png",
-      "top": "block/edified_door_upper.png"
+      "bottom": "@texture:hexcasting:block/edified_door_lower",
+      "top": "@texture:hexcasting:block/edified_door_upper"
     }
   },
   "item_model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/edified_door.png"
+      "layer0": "@texture:hexcasting:item/edified_door"
     }
   }
 }

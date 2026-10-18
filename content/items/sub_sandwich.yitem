@@ -9,7 +9,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/sub_sandwich.png"
+      "layer0": "@texture:hexcasting:item/sub_sandwich"
     }
   }
 }

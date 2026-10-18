@@ -11,7 +11,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/slate.png"
+      "all": "@texture:hexcasting:block/slate"
     }
   }
 }

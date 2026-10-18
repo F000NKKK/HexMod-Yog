@@ -9,7 +9,7 @@
   "model": {
     "parent": "handheld",
     "textures": {
-      "layer0": "item/staff/quenched_0.png"
+      "layer0": "@texture:hexcasting:item/staff/quenched_0"
     }
   }
 }

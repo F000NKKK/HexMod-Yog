@@ -9,7 +9,7 @@
   "model": {
     "parent": "handheld",
     "textures": {
-      "layer0": "item/staff/mindsplice.png"
+      "layer0": "@texture:hexcasting:item/staff/mindsplice"
     }
   }
 }

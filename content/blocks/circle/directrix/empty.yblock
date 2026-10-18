@@ -13,13 +13,13 @@
   "model": {
     "parent": "cube",
     "textures": {
-      "down": "block/circle/bottom.png",
-      "east": "block/circle/directrix/empty/left_dim.png",
-      "north": "block/circle/directrix/empty/front_dim.png",
-      "particle": "block/slate.png",
-      "south": "block/circle/directrix/empty/back_dim.png",
-      "up": "block/circle/directrix/empty/top_dim.png",
-      "west": "block/circle/directrix/empty/right_dim.png"
+      "down": "@texture:hexcasting:block/circle/bottom",
+      "east": "@texture:hexcasting:block/circle/directrix/empty/left_dim",
+      "north": "@texture:hexcasting:block/circle/directrix/empty/front_dim",
+      "particle": "@texture:hexcasting:block/slate",
+      "south": "@texture:hexcasting:block/circle/directrix/empty/back_dim",
+      "up": "@texture:hexcasting:block/circle/directrix/empty/top_dim",
+      "west": "@texture:hexcasting:block/circle/directrix/empty/right_dim"
     }
   },
   "states": {
@@ -35,25 +35,25 @@
       "dim": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/empty/left_dim.png",
-          "north": "block/circle/directrix/empty/front_dim.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/empty/back_dim.png",
-          "up": "block/circle/directrix/empty/top_dim.png",
-          "west": "block/circle/directrix/empty/right_dim.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/empty/left_dim",
+          "north": "@texture:hexcasting:block/circle/directrix/empty/front_dim",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/empty/back_dim",
+          "up": "@texture:hexcasting:block/circle/directrix/empty/top_dim",
+          "west": "@texture:hexcasting:block/circle/directrix/empty/right_dim"
         }
       },
       "lit": {
         "parent": "cube",
         "textures": {
-          "down": "block/circle/bottom.png",
-          "east": "block/circle/directrix/empty/left_lit.png",
-          "north": "block/circle/directrix/empty/front_lit.png",
-          "particle": "block/slate.png",
-          "south": "block/circle/directrix/empty/back_lit.png",
-          "up": "block/circle/directrix/empty/top_lit.png",
-          "west": "block/circle/directrix/empty/right_lit.png"
+          "down": "@texture:hexcasting:block/circle/bottom",
+          "east": "@texture:hexcasting:block/circle/directrix/empty/left_lit",
+          "north": "@texture:hexcasting:block/circle/directrix/empty/front_lit",
+          "particle": "@texture:hexcasting:block/slate",
+          "south": "@texture:hexcasting:block/circle/directrix/empty/back_lit",
+          "up": "@texture:hexcasting:block/circle/directrix/empty/top_lit",
+          "west": "@texture:hexcasting:block/circle/directrix/empty/right_lit"
         }
       }
     },

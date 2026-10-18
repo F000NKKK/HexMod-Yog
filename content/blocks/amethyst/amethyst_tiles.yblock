@@ -11,7 +11,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/deco/amethyst_tiles.png"
+      "all": "@texture:hexcasting:block/deco/amethyst_tiles"
     }
   }
 }

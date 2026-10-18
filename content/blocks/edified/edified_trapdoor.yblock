@@ -13,7 +13,7 @@
   },
   "model": {
     "textures": {
-      "texture": "block/edified_trapdoor.png"
+      "texture": "@texture:hexcasting:block/edified_trapdoor"
     }
   }
 }

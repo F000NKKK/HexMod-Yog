@@ -7,7 +7,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/colorizer/pride_gay.png"
+      "layer0": "@texture:hexcasting:item/colorizer/pride_gay"
     }
   }
 }

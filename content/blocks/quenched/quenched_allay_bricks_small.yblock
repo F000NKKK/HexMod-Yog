@@ -12,7 +12,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/deco/quenched_allay_bricks_small_0.png"
+      "all": "@texture:hexcasting:block/deco/quenched_allay_bricks_small_0"
     }
   }
 }

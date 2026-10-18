@@ -3,7 +3,7 @@
   "model": {
     "parent": "generated",
     "textures": {
-      "layer0": "item/lore_fragment.png"
+      "layer0": "@texture:hexcasting:item/lore_fragment"
     }
   }
 }

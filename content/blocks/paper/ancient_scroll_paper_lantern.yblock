@@ -9,9 +9,9 @@
   "model": {
     "parent": "cube_bottom_top",
     "textures": {
-      "top": "block/ancient_scroll_paper_lantern_top.png",
-      "bottom": "block/ancient_scroll_paper_lantern_bottom.png",
-      "side": "block/ancient_scroll_paper_lantern_side.png"
+      "top": "@texture:hexcasting:block/ancient_scroll_paper_lantern_top",
+      "bottom": "@texture:hexcasting:block/ancient_scroll_paper_lantern_bottom",
+      "side": "@texture:hexcasting:block/ancient_scroll_paper_lantern_side"
     }
   }
 }

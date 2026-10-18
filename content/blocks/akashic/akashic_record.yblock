@@ -11,7 +11,7 @@
   "model": {
     "parent": "cube_all",
     "textures": {
-      "all": "block/akashic_record.png"
+      "all": "@texture:hexcasting:block/akashic_record"
     }
   }
 }
