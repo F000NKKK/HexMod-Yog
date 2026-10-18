@@ -26,7 +26,7 @@ pub enum Hand {
 }
 
 /// Hex Casting's `ResolvedPatternType`: how a drawn pattern went, and the
-/// colours the grid draws it in.
+/// colors the grid draws it in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResolvedType {
     Unresolved,

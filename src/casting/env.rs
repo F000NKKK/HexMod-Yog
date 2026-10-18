@@ -179,7 +179,7 @@ impl Spray {
         }
     }
 
-    /// `MsgCastParticleS2C.handle`, done on the server with coloured dust
+    /// `MsgCastParticleS2C.handle`, done on the server with colored dust
     /// (Hex Casting's conjure particles are client-side).
     pub fn spawn(&self, srv: &dyn Server, dim: &str, pigment: &Pigment) {
         let time = srv.world_time(dim).unwrap_or(0) as f32;
@@ -215,7 +215,7 @@ fn random_on_sphere() -> Vec3 {
 /// 0: not tried yet, 1: `dust{color:[…]}` (1.20.5+), 2: `dust r g b s`.
 static DUST_SYNTAX: AtomicU8 = AtomicU8::new(0);
 
-/// One coloured dust particle moving along `vel`.
+/// One colored dust particle moving along `vel`.
 pub fn spawn_dust(srv: &dyn Server, dim: &str, pos: Vec3, vel: Vec3, color: u32) {
     let (r, g, b) = (
         ((color >> 16) & 0xff) as f64 / 255.0,

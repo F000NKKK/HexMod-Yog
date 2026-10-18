@@ -78,7 +78,7 @@ fn approx_width(text: &str) -> f32 {
     text.chars().count() as f32 * 6.0
 }
 
-/// A stored hex as lines of words and runes, and its colour; `None` when
+/// A stored hex as lines of words and runes, and its color; `None` when
 /// the stack holds none.
 fn hex_lines(snbt: &str, width_of: &dyn Fn(&str) -> f32) -> Option<(Vec<Vec<crate::text::Segment>>, u32)> {
     let program = crate::iota::Iota::deserialize(Nbt::parse(snbt).get_str(crate::item::packaged::TAG_PROGRAM)?);

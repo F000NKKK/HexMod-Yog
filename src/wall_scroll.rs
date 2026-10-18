@@ -36,7 +36,7 @@ const ANCIENT: [&str; 3] = [
     "hexcasting:textures/entity/scroll_ancient_medium.png",
     "hexcasting:textures/entity/scroll_ancient_large.png",
 ];
-/// What the pattern's flat colours are drawn with.
+/// What the pattern's flat colors are drawn with.
 const WHITE: &str = "hexcasting:textures/entity/white.png";
 /// Untinted.
 const PLAIN: u32 = 0xFF_FFFFFF;
@@ -82,7 +82,7 @@ struct Drawn {
     key: (String, bool, u32, i32),
     paper: &'static str,
     paper_quads: Vec<Quad>,
-    /// The pattern's strokes and dot, each one colour.
+    /// The pattern's strokes and dot, each one color.
     pattern: Vec<(u32, Vec<Quad>)>,
 }
 
@@ -207,7 +207,7 @@ fn fitted_points(pattern: &HexPattern, readable: bool, seed: f64) -> (Vec<Vec2>,
 }
 
 /// `renderPatternForScroll`: the strokes (and the starting dot) on the
-/// paper's face, each colour its quads. Lit as if from above, as the
+/// paper's face, each color its quads. Lit as if from above, as the
 /// original turns their normals.
 fn pattern_quads(pattern: &HexPattern, size: f32, readable: bool, seed: f64) -> Vec<(u32, Vec<Quad>)> {
     let (zappy, dots) = fitted_points(pattern, readable, seed);

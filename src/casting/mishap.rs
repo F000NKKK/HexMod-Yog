@@ -105,7 +105,7 @@ pub enum Mishap {
 
 pub type MResult<T> = Result<T, Mishap>;
 
-/// Minecraft's dye colours (`DyeColor` text colours), for mishap sprays.
+/// Minecraft's dye colors (`DyeColor` text colors), for mishap sprays.
 pub mod dye {
     pub const WHITE: u32 = 0xF9FFFE;
     pub const ORANGE: u32 = 0xF9801D;

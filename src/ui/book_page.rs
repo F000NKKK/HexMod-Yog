@@ -1,6 +1,6 @@
 //! The book's pattern page (`hexcasting:pattern`, Hex Casting's
 //! `AbstractPatternComponent`): the page's patterns in a grid of cells the
-//! size of its picture, each fitted into its cell, in the book's colours
+//! size of its picture, each fitted into its cell, in the book's colors
 //! (`READABLE_GRID_SCROLL_COLORS`) and strokes (`fromStroke(4)`), still —
 //! the book's patterns don't move. The book lays the page out by
 //! `pattern_page.yui` (title, picture, `input → output`, text) and calls
@@ -18,7 +18,7 @@ pub const DRAWER: &str = "hexcasting:pattern";
 const OUTER: u32 = 0xff_d2c8c8;
 const INNER: u32 = 0xff_554d54;
 const START_DOT: u32 = 0xff_5b7bd7;
-/// Grid dots: the outline colour at half alpha.
+/// Grid dots: the outline color at half alpha.
 const GRID_DOT: u32 = 0x80_d2c8c8;
 
 pub fn register(registry: &mut Registry) {

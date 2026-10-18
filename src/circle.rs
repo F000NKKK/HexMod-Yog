@@ -606,7 +606,7 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
     imp.run = Some(run.clone());
 
     let flow = accept(&part, run.image.clone(), &mut env, run.entered_from, run.current);
-    // What the cast spent, recoloured and said.
+    // What the cast spent, recolored and said.
     if imp.media >= 0 {
         imp.media = env.circle_media.max(0);
     }

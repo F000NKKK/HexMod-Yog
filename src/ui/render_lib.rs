@@ -1,7 +1,7 @@
 //! Hex Casting's `RenderLib.kt` (and the grid helpers of `HexUtils.kt`):
 //! hex-grid ↔ pixel conversion, the zappy pattern lines, the little
-//! hexagonal spots — built into a [`Mesh`] of coloured triangles that
-//! [`Mesh::draw`] sends to the GPU with a position-colour shader, as the
+//! hexagonal spots — built into a [`Mesh`] of colored triangles that
+//! [`Mesh::draw`] sends to the GPU with a position-color shader, as the
 //! original draws with Minecraft's `PositionColorShader`.
 
 use std::collections::{HashMap, HashSet};
@@ -122,7 +122,7 @@ pub fn ticks() -> f64 {
     START.get_or_init(Instant::now).elapsed().as_secs_f64() * 20.0
 }
 
-// ── colours (`FastColor.ARGB32`) ─────────────────────────────────────────────
+// ── colors (`FastColor.ARGB32`) ─────────────────────────────────────────────
 
 pub fn alpha(c: u32) -> i32 {
     (c >> 24) as i32
@@ -143,7 +143,7 @@ pub fn argb(a: i32, r: i32, g: i32, b: i32) -> u32 {
         | (b as u32 & 0xFF)
 }
 
-/// A colour from 0..1 components (`drawSpot`'s float overload).
+/// A color from 0..1 components (`drawSpot`'s float overload).
 pub fn argb_f(a: f32, r: f32, g: f32, b: f32) -> u32 {
     argb(
         (a * 255.0) as i32,
@@ -177,7 +177,7 @@ fn rotate(v: Vec2, theta: f32) -> Vec2 {
 
 // ── the mesh ─────────────────────────────────────────────────────────────────
 
-/// Coloured triangles in GUI pixels, drawn in the order they were added.
+/// Colored triangles in GUI pixels, drawn in the order they were added.
 #[derive(Default)]
 pub struct Mesh {
     /// `x, y, r, g, b, a` per vertex.
@@ -316,7 +316,7 @@ static GL: Mutex<Option<Gl>> = Mutex::new(None);
 
 // ── RenderLib ────────────────────────────────────────────────────────────────
 
-/// `drawLineSeq`: a `width`-thick polyline through `points`, coloured from
+/// `drawLineSeq`: a `width`-thick polyline through `points`, colored from
 /// `tail` to `head` along its length when `gradient` (holding Ctrl in the
 /// original), else `tail` throughout; round joins and caps.
 pub fn draw_line_seq(
@@ -459,7 +459,7 @@ pub struct PatternStyle {
     pub readability_offset: f32,
     pub last_segment_len_prop: f32,
     pub seed: f64,
-    /// Colour the stroke tail → head (Ctrl held).
+    /// Color the stroke tail → head (Ctrl held).
     pub gradient: bool,
 }
 

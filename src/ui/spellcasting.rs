@@ -1,7 +1,7 @@
 //! Hex Casting's staff screen (`GuiSpellcasting`), as in the original: the
 //! whole screen is a transparent grid. Dots fade in around the cursor,
 //! dragging between them draws a pattern, which goes to the server when the
-//! button comes up; the patterns drawn so far stay on the grid in the colour
+//! button comes up; the patterns drawn so far stay on the grid in the color
 //! of how they resolved. The stack is listed top-left, the ravenmind
 //! top-right. Esc first drops the stroke being drawn, then closes; the
 //! screen also closes when the staff leaves the hand it was opened with.
@@ -84,7 +84,7 @@ enum Effect {
     Send(NewPattern),
 }
 
-/// An iota as shown in a box: its text cut to fit, and its colour.
+/// An iota as shown in a box: its text cut to fit, and its color.
 #[derive(Debug, Clone, PartialEq)]
 struct Desc {
     /// Its words and runes, cut to fit.
@@ -495,7 +495,7 @@ fn can_be_undone(p: &ResolvedPattern) -> bool {
 
 /// `IotaType.getDisplayWithMaxWidth`: the iota's text — its patterns as
 /// runes — and when it's wider than `max_width`, the start that fits less
-/// the "..." (a grey "..." follows). Coloured by the iota's type.
+/// the "..." (a grey "..." follows). Colored by the iota's type.
 fn describe(iota: &Iota, max_width: f32, width_of: &dyn Fn(&str) -> f32) -> Desc {
     let (segs, cut) = super::rune_text::fit(&iota.display().segments(), max_width, width_of);
     Desc { segs, cut, color: iota.kind().color() }
@@ -868,7 +868,7 @@ mod tests {
     }
 
     #[test]
-    fn results_colour_their_patterns() {
+    fn results_color_their_patterns() {
         let mut g = grid();
         draw(&mut g, &[HexCoord(0, 0), HexCoord(1, 0)]);
         assert!(g.recv_server_update(result(ResolvedType::Errored, 0)));

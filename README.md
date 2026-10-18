@@ -58,7 +58,7 @@ media costs, mishaps and pattern signatures.
 - **Media cost model**: dust, shards and charged crystals are spent from the
   inventory in the original's order. Overcasting drains health.
 - **Mishaps**: every mishap from the original, with the same messages, the
-  coloured sparks and side effects (Garbage pushed, items dropped, the
+  colored sparks and side effects (Garbage pushed, items dropped, the
   caster hurt or blinded).
 
 ### ✨ Patterns and Spells
@@ -119,7 +119,7 @@ pattern drawn as Hex Casting draws it.
 | ![A pattern page](docs/images/book-pattern.png) | ![A crafting page](docs/images/book-crafting.png) |
 | A pattern, its stack effect and description | A recipe with the original's crafting grid |
 | ![Hand-drawn patterns](docs/images/book-patterns.png) | ![A text page in Russian](docs/images/book-text-ru.png) |
-| Several patterns on one page | Coloured terms and links |
+| Several patterns on one page | Colored terms and links |
 
 </div>
 
@@ -220,7 +220,7 @@ Library. Not yet ported:
   register these yet.
 - **Smaller gaps**:
   - Altiora's gliding pose;
-  - pigment-coloured conjured blocks;
+  - pigment-colored conjured blocks;
   - item cooldowns;
   - teleporting passengers;
   - Pehkui interop.

@@ -171,7 +171,7 @@ impl Text {
         }
     }
 
-    /// [`to_json`](Self::to_json) in a colour (`"gray"`, `"#RRGGBB"`, …).
+    /// [`to_json`](Self::to_json) in a color (`"gray"`, `"#RRGGBB"`, …).
     /// Into the wire format (for packets and storage).
     pub fn write(&self, w: &mut crate::wire::Writer) {
         match self {

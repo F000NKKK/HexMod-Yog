@@ -1,4 +1,4 @@
-//! Pigments — the colours a caster's particles take (Hex Casting's
+//! Pigments — the colors a caster's particles take (Hex Casting's
 //! `FrozenPigment` and the `ColorProvider`s of its pigment items).
 
 use crate::casting::mishap::dye;
@@ -25,7 +25,7 @@ impl Default for Pigment {
     }
 }
 
-/// A pigment made from one dye colour (the mishap sprays).
+/// A pigment made from one dye color (the mishap sprays).
 pub fn dye_pigment(color: u32) -> Pigment {
     let name = DYES
         .iter()
@@ -118,7 +118,7 @@ fn provider(item: &str) -> Option<Provider> {
 }
 
 impl Pigment {
-    /// `ColorProvider.getColor`: the colour at `time` (ticks) for a particle
+    /// `ColorProvider.getColor`: the color at `time` (ticks) for a particle
     /// heading along `pos`, with the original's minimum luminance.
     pub fn color(&self, time: f32, pos: Vec3) -> u32 {
         let raw = match provider(&self.item) {
@@ -167,7 +167,7 @@ fn morph(colors: &[u32], time: f32, pos: Vec3) -> u32 {
     (lerp(16) << 16) | (lerp(8) << 8) | lerp(0)
 }
 
-/// `ItemUUIDPigment`'s two colours "scrungled" from the owner's uuid
+/// `ItemUUIDPigment`'s two colors "scrungled" from the owner's uuid
 /// (`java.util.Random` seeded with `least ^ most`).
 fn uuid_colors(owner: &str) -> Vec<u32> {
     let hex: String = owner.chars().filter(char::is_ascii_hexdigit).collect();
@@ -183,7 +183,7 @@ fn uuid_colors(owner: &str) -> Vec<u32> {
     vec![hsv_to_rgb(hue1, sat1, bri1), hsv_to_rgb(hue2, sat2, bri2)]
 }
 
-/// `java.util.Random`, for the colours the original derives from seeds.
+/// `java.util.Random`, for the colors the original derives from seeds.
 pub struct JavaRandom(u64);
 
 impl JavaRandom {
@@ -262,7 +262,7 @@ mod tests {
     }
 
     #[test]
-    fn colours() {
+    fn colors() {
         let p = Pigment::default();
         assert_eq!(p.color(0.0, Vec3::ZERO), 0xab65eb);
         assert!(is_pigment(Items::PRIDE_COLORIZER_GAY));

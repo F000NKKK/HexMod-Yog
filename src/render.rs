@@ -43,7 +43,7 @@ struct Slate {
     facing: String,
     energized: bool,
     pattern: HexPattern,
-    /// A bookshelf's books are tinted with its iota's colour.
+    /// A bookshelf's books are tinted with its iota's color.
     tint: Option<u32>,
 }
 
@@ -311,7 +311,7 @@ fn icosahedron() -> Vec<([f32; 3], [f32; 3])> {
 }
 
 /// `renderSentinel`: the icosahedron bobbing and spinning (tumbling too
-/// for a greater sentinel), coloured by the owner's pigment, seen through
+/// for a greater sentinel), colored by the owner's pigment, seen through
 /// walls; its lines as thin quads facing the camera.
 fn sentinel_triangles(s: &Shown, ticks: f32, cam: Vec3, out: &mut Vec<f32>) {
     let time = ticks / 2.0;
@@ -434,7 +434,7 @@ pub fn register(registry: &mut Registry) {
             for s in &slates {
                 slate_triangles(s, &mut mesh);
             }
-            // Books take their shelf's colour; shelves no longer sent lose it.
+            // Books take their shelf's color; shelves no longer sent lose it.
             let at = |p: (i32, i32, i32)| yog_api::BlockPos { x: p.0, y: p.1, z: p.2 };
             for (d, p) in seen.tinted.drain(..) {
                 yog_api::client::set_block_tint(&d, at(p), None);

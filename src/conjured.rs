@@ -3,7 +3,7 @@
 //! own, and under the feet of whatever walks on a block.
 //!
 //! The pigment is kept per position in the chunk's mod storage; the
-//! sparkles are coloured dust, sent from the server.
+//! sparkles are colored dust, sent from the server.
 
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};

@@ -78,7 +78,7 @@ impl IotaType {
         Text::key(format!("hexcasting.iota.hexcasting:{}.desc", self.id()))
     }
 
-    /// Hex Casting's display colour (ARGB).
+    /// Hex Casting's display color (ARGB).
     pub fn color(self) -> u32 {
         match self {
             IotaType::Null => 0xFF_AAAAAA,
