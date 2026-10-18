@@ -1,3 +1,4 @@
 {
-  source: "0_ancient_cypher_overlay.png",
+  image: "@ItemImages.item.cad.0_ancient_cypher_overlay",
+  atlas: "minecraft:blocks",
 }

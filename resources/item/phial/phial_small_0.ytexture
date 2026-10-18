@@ -1,3 +1,4 @@
 {
-  source: "phial_small_0.png",
+  image: "@ItemImages.item.phial.phial_small_0",
+  atlas: "minecraft:blocks",
 }

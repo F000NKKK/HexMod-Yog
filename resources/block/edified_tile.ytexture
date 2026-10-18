@@ -1,3 +1,4 @@
 {
-  source: "edified_tile.png",
+  image: "@BlockImages.block.edified_tile",
+  atlas: "minecraft:blocks",
 }

@@ -1,0 +1,4 @@
+{
+  image: "@MobEffectImages.mob_effect.shrink_grid",
+  atlas: "minecraft:mob_effects",
+}

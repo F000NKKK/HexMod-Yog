@@ -1,3 +1,4 @@
 {
-  source: "citrine_edified_leaves.png",
+  image: "@BlockImages.block.citrine_edified_leaves",
+  atlas: "minecraft:blocks",
 }

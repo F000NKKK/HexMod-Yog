@@ -1,3 +1,4 @@
 {
-  source: "sub_sandwich.png",
+  image: "@ItemImages.item.sub_sandwich",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "ancient_scroll_paper_lantern_top.png",
+  image: "@BlockImages.block.ancient_scroll_paper_lantern_top",
+  atlas: "minecraft:blocks",
 }

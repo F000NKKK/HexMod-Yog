@@ -1,3 +1,4 @@
 {
-  source: "tome.png",
+  image: "@ItemImages.item.tome",
+  atlas: "minecraft:blocks",
 }

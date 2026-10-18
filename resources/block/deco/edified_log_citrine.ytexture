@@ -1,3 +1,4 @@
 {
-  source: "edified_log_citrine.png",
+  image: "@BlockImages.block.deco.edified_log_citrine",
+  atlas: "minecraft:blocks",
 }

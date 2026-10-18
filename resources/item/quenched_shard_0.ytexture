@@ -1,3 +1,4 @@
 {
-  source: "quenched_shard_0.png",
+  image: "@ItemImages.item.quenched_shard_0",
+  atlas: "minecraft:blocks",
 }

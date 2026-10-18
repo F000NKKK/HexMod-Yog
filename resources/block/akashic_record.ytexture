@@ -1,3 +1,4 @@
 {
-  source: "akashic_record.png",
+  image: "@BlockImages.block.akashic_record",
+  atlas: "minecraft:blocks",
 }

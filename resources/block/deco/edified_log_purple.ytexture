@@ -1,3 +1,4 @@
 {
-  source: "edified_log_purple.png",
+  image: "@BlockImages.block.deco.edified_log_purple",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "amethyst_edified_leaves.png",
+  image: "@BlockImages.block.amethyst_edified_leaves",
+  atlas: "minecraft:blocks",
 }

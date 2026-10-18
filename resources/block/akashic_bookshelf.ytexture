@@ -1,3 +1,4 @@
 {
-  source: "akashic_bookshelf.png",
+  image: "@BlockImages.block.akashic_bookshelf",
+  atlas: "minecraft:blocks",
 }

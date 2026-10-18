@@ -1,3 +1,4 @@
 {
-  source: "left_neither.png",
+  image: "@BlockImages.block.circle.directrix.boolean.left_neither",
+  atlas: "minecraft:blocks",
 }

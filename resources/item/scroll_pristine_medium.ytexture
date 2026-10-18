@@ -1,3 +1,4 @@
 {
-  source: "scroll_pristine_medium.png",
+  image: "@ItemImages.item.scroll_pristine_medium",
+  atlas: "minecraft:blocks",
 }

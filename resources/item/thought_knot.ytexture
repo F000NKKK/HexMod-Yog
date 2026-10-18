@@ -1,3 +1,4 @@
 {
-  source: "thought_knot.png",
+  image: "@ItemImages.item.thought_knot",
+  atlas: "minecraft:blocks",
 }

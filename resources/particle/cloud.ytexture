@@ -1,0 +1,4 @@
+{
+  image: "@ParticleImages.particle.cloud",
+  atlas: "minecraft:particles",
+}

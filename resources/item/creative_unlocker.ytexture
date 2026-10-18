@@ -1,3 +1,4 @@
 {
-  source: "creative_unlocker.png",
+  image: "@ItemImages.item.creative_unlocker",
+  atlas: "minecraft:blocks",
 }

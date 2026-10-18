@@ -1,3 +1,4 @@
 {
-  source: "lore_fragment.png",
+  image: "@ItemImages.item.lore_fragment",
+  atlas: "minecraft:blocks",
 }

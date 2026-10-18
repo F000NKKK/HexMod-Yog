@@ -1,5 +1,6 @@
 {
-  source: "pride_demigirl.png",
+  image: "@ItemImages.item.colorizer.pride_demigirl",
+  atlas: "minecraft:blocks",
   // Frames top to bottom.
   animation: {
     frames: [
@@ -40,5 +41,5 @@
       { index: 34, time: 1 },
       { index: 35, time: 10 },
     ],
-  },
+  }
 }

@@ -1,3 +1,4 @@
 {
-  source: "spruce.png",
+  image: "@ItemImages.item.staff.spruce",
+  atlas: "minecraft:blocks",
 }

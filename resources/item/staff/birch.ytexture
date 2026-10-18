@@ -1,3 +1,4 @@
 {
-  source: "birch.png",
+  image: "@ItemImages.item.staff.birch",
+  atlas: "minecraft:blocks",
 }

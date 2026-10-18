@@ -1,3 +1,4 @@
 {
-  source: "spellbook_empty.png",
+  image: "@ItemImages.item.spellbook_empty",
+  atlas: "minecraft:blocks",
 }

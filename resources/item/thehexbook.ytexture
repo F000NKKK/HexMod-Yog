@@ -1,3 +1,4 @@
 {
-  source: "thehexbook.png",
+  image: "@ItemImages.item.thehexbook",
+  atlas: "minecraft:blocks",
 }

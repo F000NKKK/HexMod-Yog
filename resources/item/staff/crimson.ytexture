@@ -1,3 +1,4 @@
 {
-  source: "crimson.png",
+  image: "@ItemImages.item.staff.crimson",
+  atlas: "minecraft:blocks",
 }

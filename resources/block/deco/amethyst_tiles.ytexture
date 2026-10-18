@@ -1,3 +1,4 @@
 {
-  source: "amethyst_tiles.png",
+  image: "@BlockImages.block.deco.amethyst_tiles",
+  atlas: "minecraft:blocks",
 }

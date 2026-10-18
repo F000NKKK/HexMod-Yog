@@ -1,3 +1,4 @@
 {
-  source: "0_ancient_cypher.png",
+  image: "@ItemImages.item.cad.0_ancient_cypher",
+  atlas: "minecraft:blocks",
 }

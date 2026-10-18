@@ -1,3 +1,4 @@
 {
-  source: "edified_log_amethyst.png",
+  image: "@BlockImages.block.deco.edified_log_amethyst",
+  atlas: "minecraft:blocks",
 }

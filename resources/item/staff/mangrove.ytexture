@@ -1,3 +1,4 @@
 {
-  source: "mangrove.png",
+  image: "@ItemImages.item.staff.mangrove",
+  atlas: "minecraft:blocks",
 }

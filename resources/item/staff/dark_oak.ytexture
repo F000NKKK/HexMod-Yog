@@ -1,3 +1,4 @@
 {
-  source: "dark_oak.png",
+  image: "@ItemImages.item.staff.dark_oak",
+  atlas: "minecraft:blocks",
 }

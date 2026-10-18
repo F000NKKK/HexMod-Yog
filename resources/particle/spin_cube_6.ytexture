@@ -1,0 +1,4 @@
+{
+  image: "@ParticleImages.particle.spin_cube_6",
+  atlas: "minecraft:particles",
+}

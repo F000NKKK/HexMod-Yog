@@ -1,3 +1,4 @@
 {
-  source: "oak.png",
+  image: "@ItemImages.item.staff.oak",
+  atlas: "minecraft:blocks",
 }

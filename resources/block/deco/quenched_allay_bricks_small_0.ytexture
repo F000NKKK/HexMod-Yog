@@ -1,3 +1,4 @@
 {
-  source: "quenched_allay_bricks_small_0.png",
+  image: "@BlockImages.block.deco.quenched_allay_bricks_small_0",
+  atlas: "minecraft:blocks",
 }

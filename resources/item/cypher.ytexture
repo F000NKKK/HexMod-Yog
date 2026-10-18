@@ -1,3 +1,4 @@
 {
-  source: "cypher.png",
+  image: "@ItemImages.item.cypher",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "warped.png",
+  image: "@ItemImages.item.staff.warped",
+  atlas: "minecraft:blocks",
 }

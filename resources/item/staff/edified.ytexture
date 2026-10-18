@@ -1,3 +1,4 @@
 {
-  source: "edified.png",
+  image: "@ItemImages.item.staff.edified",
+  atlas: "minecraft:blocks",
 }

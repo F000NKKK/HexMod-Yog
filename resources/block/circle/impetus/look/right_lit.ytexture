@@ -1,3 +1,4 @@
 {
-  source: "right_lit.png",
+  image: "@BlockImages.block.circle.impetus.look.right_lit",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "lens.png",
+  image: "@ItemImages.item.lens",
+  atlas: "minecraft:blocks",
 }

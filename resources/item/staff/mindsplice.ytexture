@@ -1,3 +1,4 @@
 {
-  source: "mindsplice.png",
+  image: "@ItemImages.item.staff.mindsplice",
+  atlas: "minecraft:blocks",
 }

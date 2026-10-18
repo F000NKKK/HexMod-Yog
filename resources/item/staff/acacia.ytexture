@@ -1,3 +1,4 @@
 {
-  source: "acacia.png",
+  image: "@ItemImages.item.staff.acacia",
+  atlas: "minecraft:blocks",
 }

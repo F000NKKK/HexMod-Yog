@@ -1,5 +1,5 @@
 {
-  "texture": "misc/altiora.png",
+  "texture": "@texture:hexcasting:misc/altiora",
   "texture_size": [64, 32],
   "bones": [
     {

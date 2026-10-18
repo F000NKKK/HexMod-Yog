@@ -1,3 +1,4 @@
 {
-  source: "aventurine_edified_leaves.png",
+  image: "@BlockImages.block.aventurine_edified_leaves",
+  atlas: "minecraft:blocks",
 }

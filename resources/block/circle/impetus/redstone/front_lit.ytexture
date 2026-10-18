@@ -1,3 +1,4 @@
 {
-  source: "front_lit.png",
+  image: "@BlockImages.block.circle.impetus.redstone.front_lit",
+  atlas: "minecraft:blocks",
 }

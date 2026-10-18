@@ -1,3 +1,4 @@
 {
-  source: "edified_door.png",
+  image: "@ItemImages.item.edified_door",
+  atlas: "minecraft:blocks",
 }

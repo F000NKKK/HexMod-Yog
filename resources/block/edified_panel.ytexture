@@ -1,3 +1,4 @@
 {
-  source: "edified_panel.png",
+  image: "@BlockImages.block.edified_panel",
+  atlas: "minecraft:blocks",
 }

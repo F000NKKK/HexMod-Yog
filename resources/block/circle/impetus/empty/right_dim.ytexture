@@ -1,3 +1,4 @@
 {
-  source: "right_dim.png",
+  image: "@BlockImages.block.circle.impetus.empty.right_dim",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "right_true.png",
+  image: "@BlockImages.block.circle.directrix.boolean.right_true",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "abacus.png",
+  image: "@ItemImages.item.abacus",
+  atlas: "minecraft:blocks",
 }

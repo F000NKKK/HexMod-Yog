@@ -1,3 +1,4 @@
 {
-  source: "edified_planks.png",
+  image: "@BlockImages.block.edified_planks",
+  atlas: "minecraft:blocks",
 }

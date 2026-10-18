@@ -1,3 +1,4 @@
 {
-  source: "charged_amethyst.png",
+  image: "@ItemImages.item.charged_amethyst",
+  atlas: "minecraft:blocks",
 }

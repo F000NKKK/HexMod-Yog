@@ -1,3 +1,4 @@
 {
-  source: "back_not_true.png",
+  image: "@BlockImages.block.circle.directrix.boolean.back_not_true",
+  atlas: "minecraft:blocks",
 }

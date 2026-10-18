@@ -1,3 +1,4 @@
 {
-  source: "trinket.png",
+  image: "@ItemImages.item.trinket",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "bamboo.png",
+  image: "@ItemImages.item.staff.bamboo",
+  atlas: "minecraft:blocks",
 }

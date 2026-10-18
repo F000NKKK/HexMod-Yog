@@ -1,3 +1,4 @@
 {
-  source: "akashic_ligature.png",
+  image: "@BlockImages.block.akashic_ligature",
+  atlas: "minecraft:blocks",
 }

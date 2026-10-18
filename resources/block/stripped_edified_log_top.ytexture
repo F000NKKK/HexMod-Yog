@@ -1,3 +1,4 @@
 {
-  source: "stripped_edified_log_top.png",
+  image: "@BlockImages.block.stripped_edified_log_top",
+  atlas: "minecraft:blocks",
 }

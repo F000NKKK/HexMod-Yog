@@ -1,3 +1,4 @@
 {
-  source: "jeweler_hammer.png",
+  image: "@ItemImages.item.jeweler_hammer",
+  atlas: "minecraft:blocks",
 }

@@ -1,5 +1,6 @@
 {
-  source: "uuid.png",
+  image: "@ItemImages.item.colorizer.uuid",
+  atlas: "minecraft:blocks",
   // Frames top to bottom.
   animation: {
     frames: [
@@ -24,5 +25,5 @@
       { index: 18, time: 1 },
       { index: 19, time: 1 },
     ],
-  },
+  }
 }

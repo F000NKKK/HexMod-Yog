@@ -1,3 +1,4 @@
 {
-  source: "jungle.png",
+  image: "@ItemImages.item.staff.jungle",
+  atlas: "minecraft:blocks",
 }

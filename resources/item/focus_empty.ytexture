@@ -1,3 +1,4 @@
 {
-  source: "focus_empty.png",
+  image: "@ItemImages.item.focus_empty",
+  atlas: "minecraft:blocks",
 }

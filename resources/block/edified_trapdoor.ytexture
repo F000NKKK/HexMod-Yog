@@ -1,3 +1,4 @@
 {
-  source: "edified_trapdoor.png",
+  image: "@BlockImages.block.edified_trapdoor",
+  atlas: "minecraft:blocks",
 }

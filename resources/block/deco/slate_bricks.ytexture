@@ -1,3 +1,4 @@
 {
-  source: "slate_bricks.png",
+  image: "@BlockImages.block.deco.slate_bricks",
+  atlas: "minecraft:blocks",
 }

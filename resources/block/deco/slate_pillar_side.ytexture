@@ -1,3 +1,4 @@
 {
-  source: "slate_pillar_side.png",
+  image: "@BlockImages.block.deco.slate_pillar_side",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "right_powered.png",
+  image: "@BlockImages.block.circle.directrix.redstone.right_powered",
+  atlas: "minecraft:blocks",
 }

@@ -1,3 +1,4 @@
 {
-  source: "bottom.png",
+  image: "@BlockImages.block.circle.bottom",
+  atlas: "minecraft:blocks",
 }
