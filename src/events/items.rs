@@ -213,9 +213,16 @@ pub fn read_lore(srv: &dyn Server, player: &str) {
         return;
     };
     srv.play_sound_to_player(player, crate::sounds::LORE_FRAGMENT_READ, 1.0, 1.0);
-    let unread: Vec<&str> = LORE.into_iter().filter(|id| !env.has_advancement(id)).collect();
+    let unread: Vec<&str> = LORE
+        .into_iter()
+        .filter(|id| !env.has_advancement(id))
+        .collect();
     if unread.is_empty() {
-        actionbar(srv, player, &Text::key(res::Items::LORE_FRAGMENT_ALL_KEY).to_json());
+        actionbar(
+            srv,
+            player,
+            &Text::key(res::Items::LORE_FRAGMENT_ALL_KEY).to_json(),
+        );
         srv.player_add_xp(player, LORE_FOUND_XP);
     } else {
         let pick = ((random() * unread.len() as f64) as usize).min(unread.len() - 1);

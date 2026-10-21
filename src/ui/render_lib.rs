@@ -40,7 +40,11 @@ impl McVec2 for Vec2 {
 
     fn normalized(self) -> Vec2 {
         let l = self.length();
-        if l < 1.0e-4 { Vec2::ZERO } else { Vec2::new(self.x / l, self.y / l) }
+        if l < 1.0e-4 {
+            Vec2::ZERO
+        } else {
+            Vec2::new(self.x / l, self.y / l)
+        }
     }
 }
 

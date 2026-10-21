@@ -56,7 +56,14 @@ pub enum Dir {
 }
 
 impl Dir {
-    pub const ALL: [Dir; 6] = [Dir::Down, Dir::Up, Dir::North, Dir::South, Dir::West, Dir::East];
+    pub const ALL: [Dir; 6] = [
+        Dir::Down,
+        Dir::Up,
+        Dir::North,
+        Dir::South,
+        Dir::West,
+        Dir::East,
+    ];
 
     pub fn name(self) -> &'static str {
         ["down", "up", "north", "south", "west", "east"][self as usize]
@@ -112,7 +119,9 @@ pub enum Kind {
 
 pub fn kind(id: &str) -> Option<Kind> {
     Some(match id {
-        Blocks::IMPETUS_RIGHTCLICK | Blocks::IMPETUS_LOOK | Blocks::IMPETUS_REDSTONE => Kind::Impetus,
+        Blocks::IMPETUS_RIGHTCLICK | Blocks::IMPETUS_LOOK | Blocks::IMPETUS_REDSTONE => {
+            Kind::Impetus
+        }
         Blocks::IMPETUS_EMPTY => Kind::EmptyImpetus,
         Blocks::SLATE => Kind::Slate,
         Blocks::DIRECTRIX_EMPTY => Kind::DirEmpty,
@@ -137,12 +146,18 @@ impl Part {
         Some(Part {
             kind: kind(id)?,
             id: id.to_owned(),
-            props: props.into_iter().map(|(k, v)| (k.to_owned(), v.to_owned())).collect(),
+            props: props
+                .into_iter()
+                .map(|(k, v)| (k.to_owned(), v.to_owned()))
+                .collect(),
         })
     }
 
     fn prop(&self, name: &str) -> &str {
-        self.props.iter().find(|(k, _)| k == name).map_or("", |(_, v)| v)
+        self.props
+            .iter()
+            .find(|(k, _)| k == name)
+            .map_or("", |(_, v)| v)
     }
 
     fn facing(&self) -> Dir {
@@ -151,7 +166,11 @@ impl Part {
 
     /// `BlockRedstoneDirectrix.getRealFacing`.
     fn real_facing(&self) -> Dir {
-        if self.prop("powered") == "true" { self.facing() } else { self.facing().opposite() }
+        if self.prop("powered") == "true" {
+            self.facing()
+        } else {
+            self.facing().opposite()
+        }
     }
 
     /// `canEnterFromDirection`.
@@ -160,7 +179,9 @@ impl Part {
         match self.kind {
             // FACING is where media leaves: it can't come in that way.
             Kind::Impetus | Kind::EmptyImpetus => enter != f.opposite(),
-            Kind::DirEmpty | Kind::DirRedstone | Kind::DirBoolean => enter != f.opposite() && enter != f,
+            Kind::DirEmpty | Kind::DirRedstone | Kind::DirBoolean => {
+                enter != f.opposite() && enter != f
+            }
             Kind::Slate => enter != self.normal(srv, dim, pos, 16).opposite(),
         }
     }
@@ -181,7 +202,9 @@ impl Part {
     /// `normalDir`: which way is "up" for the particles here.
     fn normal(&self, srv: &dyn Server, dim: &str, pos: BlockPos, left: i32) -> Dir {
         match self.kind {
-            Kind::Impetus | Kind::EmptyImpetus | Kind::DirBoolean => normal_of_other(srv, dim, relative(pos, self.facing()), left),
+            Kind::Impetus | Kind::EmptyImpetus | Kind::DirBoolean => {
+                normal_of_other(srv, dim, relative(pos, self.facing()), left)
+            }
             Kind::DirRedstone => normal_of_other(srv, dim, relative(pos, self.real_facing()), left),
             Kind::DirEmpty => Dir::Up,
             Kind::Slate => match self.prop("face") {
@@ -194,7 +217,11 @@ impl Part {
 
     /// `particleHeight`.
     fn particle_height(&self) -> f64 {
-        if self.kind == Kind::Slate { 0.5 - 15.0 / 16.0 } else { 0.5 }
+        if self.kind == Kind::Slate {
+            0.5 - 15.0 / 16.0
+        } else {
+            0.5
+        }
     }
 }
 
@@ -285,7 +312,10 @@ impl Run {
     }
 
     fn decode(s: &str) -> Option<Run> {
-        let get = |k: &str| s.lines().find_map(|l| l.strip_prefix(k)?.strip_prefix('\t'));
+        let get = |k: &str| {
+            s.lines()
+                .find_map(|l| l.strip_prefix(k)?.strip_prefix('\t'))
+        };
         Some(Run {
             impetus: parse_pos(get("impetus")?)?,
             impetus_dir: Dir::parse(get("impetus_dir")?)?,
@@ -299,7 +329,10 @@ impl Run {
             caster: get("caster").map(str::to_owned),
             caster_pigment: get("pigment").and_then(|p| {
                 let (item, owner) = p.split_once('\t')?;
-                Some(Pigment { item: item.into(), owner: owner.into() })
+                Some(Pigment {
+                    item: item.into(),
+                    owner: owner.into(),
+                })
             }),
         })
     }
@@ -336,7 +369,10 @@ pub fn impetus(srv: &dyn Server, dim: &str, pos: BlockPos) -> Impetus {
         }),
         pigment: get("impetus.pigment").and_then(|p| {
             let (item, owner) = p.split_once('\t')?;
-            Some(Pigment { item: item.into(), owner: owner.into() })
+            Some(Pigment {
+                item: item.into(),
+                owner: owner.into(),
+            })
         }),
         run: get("impetus.run").and_then(|r| Run::decode(&r)),
         look: s.get_int(&key("impetus.look", pos)).unwrap_or(0) as i32,
@@ -356,16 +392,36 @@ fn save_impetus(srv: &dyn Server, dim: &str, pos: BlockPos, i: &Impetus) {
             s.remove(&key(what, pos));
         }
     };
-    put("impetus.display", i.display.as_ref().map(|(text, item)| format!("{item}\t{}", text.encode())));
-    put("impetus.pigment", i.pigment.as_ref().map(|p| format!("{}\t{}", p.item, p.owner)));
+    put(
+        "impetus.display",
+        i.display
+            .as_ref()
+            .map(|(text, item)| format!("{item}\t{}", text.encode())),
+    );
+    put(
+        "impetus.pigment",
+        i.pigment
+            .as_ref()
+            .map(|p| format!("{}\t{}", p.item, p.owner)),
+    );
     put("impetus.run", i.run.as_ref().map(Run::encode));
-    put("impetus.player", i.player.as_ref().map(|(u, n)| format!("{u}\t{n}")));
+    put(
+        "impetus.player",
+        i.player.as_ref().map(|(u, n)| format!("{u}\t{n}")),
+    );
     s.set(key("impetus.look", pos), i.look as i64);
 }
 
 fn forget_impetus(srv: &dyn Server, dim: &str, pos: BlockPos) {
     let mut s = store(srv, dim, pos);
-    for what in ["impetus.media", "impetus.display", "impetus.pigment", "impetus.run", "impetus.player", "impetus.look"] {
+    for what in [
+        "impetus.media",
+        "impetus.display",
+        "impetus.pigment",
+        "impetus.run",
+        "impetus.player",
+        "impetus.look",
+    ] {
         s.remove(&key(what, pos));
     }
 }
@@ -387,12 +443,19 @@ impl Impetus {
     /// `postNoExits`.
     fn post_no_exits(&mut self, pos: BlockPos) {
         let at = Text::lit(format!("{}, {}, {}", pos.0, pos.1, pos.2));
-        self.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_NO_EXIT_KEY, vec![at]), vanilla::items::OAK_SIGN);
+        self.post(
+            &Text::key_args(Lang::TOOLTIP_CIRCLE_NO_EXIT_KEY, vec![at]),
+            vanilla::items::OAK_SIGN,
+        );
     }
 
     /// `remainingMediaCapacity`.
     pub fn room(&self) -> i64 {
-        if self.media < 0 { 0 } else { (MAX_MEDIA - self.media).max(0) }
+        if self.media < 0 {
+            0
+        } else {
+            (MAX_MEDIA - self.media).max(0)
+        }
     }
 }
 
@@ -410,7 +473,8 @@ struct Known {
 static KNOWN: LazyLock<Mutex<HashMap<(String, BlockPos), Known>>> = LazyLock::new(Default::default);
 static TICKS: Mutex<u64> = Mutex::new(0);
 /// The slate a player is about to place: its pattern (from the item).
-static PLACING: LazyLock<Mutex<HashMap<String, Option<HexPattern>>>> = LazyLock::new(Default::default);
+static PLACING: LazyLock<Mutex<HashMap<String, Option<HexPattern>>>> =
+    LazyLock::new(Default::default);
 
 const KNOWN_KEY: &str = "circles.impetuses";
 
@@ -420,7 +484,10 @@ fn global(srv: &dyn Server) -> Storage {
 
 fn save_known(srv: &dyn Server) {
     let known = KNOWN.lock().unwrap();
-    let list: Vec<String> = known.iter().map(|((dim, p), k)| format!("{dim}|{}|{}", pos_str(*p), k.id)).collect();
+    let list: Vec<String> = known
+        .iter()
+        .map(|((dim, p), k)| format!("{dim}|{}|{}", pos_str(*p), k.id))
+        .collect();
     global(srv).set(KNOWN_KEY, list.join("\n"));
 }
 
@@ -430,15 +497,29 @@ fn load_known(srv: &dyn Server) {
     known.clear();
     for line in text.lines() {
         let mut it = line.split('|');
-        let (Some(dim), Some(pos), Some(id)) = (it.next(), it.next().and_then(parse_pos), it.next()) else { continue };
+        let (Some(dim), Some(pos), Some(id)) =
+            (it.next(), it.next().and_then(parse_pos), it.next())
+        else {
+            continue;
+        };
         let i = impetus(srv, dim, pos);
         let powered = srv.block_property(dim, to_ypos(pos), "powered").as_deref() == Some("true");
-        known.insert((dim.to_owned(), pos), Known { id: id.to_owned(), due: i.run.as_ref().map(|_| 1), powered });
+        known.insert(
+            (dim.to_owned(), pos),
+            Known {
+                id: id.to_owned(),
+                due: i.run.as_ref().map(|_| 1),
+                powered,
+            },
+        );
     }
 }
 
 fn is_impetus(id: &str) -> bool {
-    matches!(id, Blocks::IMPETUS_RIGHTCLICK | Blocks::IMPETUS_LOOK | Blocks::IMPETUS_REDSTONE)
+    matches!(
+        id,
+        Blocks::IMPETUS_RIGHTCLICK | Blocks::IMPETUS_LOOK | Blocks::IMPETUS_REDSTONE
+    )
 }
 
 // ── a run ───────────────────────────────────────────────────────────────────
@@ -446,12 +527,20 @@ fn is_impetus(id: &str) -> bool {
 /// `CircleExecutionState.createNew`: flood-fills the circle from the
 /// impetus. `Err(None)`: nowhere to go; `Err(Some(pos))`: the media can't
 /// get back to the impetus, `pos` the last block it reached.
-fn create_run(srv: &dyn Server, dim: &str, pos: BlockPos, dir: Dir, caster: Option<&Caster>) -> Result<Run, Option<BlockPos>> {
+fn create_run(
+    srv: &dyn Server,
+    dim: &str,
+    pos: BlockPos,
+    dir: Dir,
+    caster: Option<&Caster>,
+) -> Result<Run, Option<BlockPos>> {
     let mut todo = vec![(dir, relative(pos, dir))];
     let mut seen = HashSet::new();
     let (mut lo, mut hi, mut last) = (pos, pos, pos);
     while let Some((enter, here)) = todo.pop() {
-        let Some(part) = Part::at(srv, dim, here) else { continue };
+        let Some(part) = Part::at(srv, dim, here) else {
+            continue;
+        };
         if !part.can_enter(srv, dim, enter, here) {
             continue;
         }
@@ -490,7 +579,13 @@ fn create_run(srv: &dyn Server, dim: &str, pos: BlockPos, dir: Dir, caster: Opti
 }
 
 /// `ICircleComponent.sfx`: particles and a sound where media moves (or fails).
-fn sfx(srv: &dyn Server, dim: &str, pos: BlockPos, imp: Option<(&Impetus, BlockPos)>, success: bool) {
+fn sfx(
+    srv: &dyn Server,
+    dim: &str,
+    pos: BlockPos,
+    imp: Option<(&Impetus, BlockPos)>,
+    success: bool,
+) {
     let (center, out) = match Part::at(srv, dim, pos) {
         Some(part) => {
             let n = part.normal(srv, dim, pos, 16).step();
@@ -499,10 +594,15 @@ fn sfx(srv: &dyn Server, dim: &str, pos: BlockPos, imp: Option<(&Impetus, BlockP
         }
         None => (Vec3::center_of(pos), Vec3::new(0.0, 0.0, 0.0)),
     };
-    let activator = imp.and_then(|(i, _)| i.run.as_ref()?.caster.clone()).unwrap_or_else(|| Pigment::default().owner);
+    let activator = imp
+        .and_then(|(i, _)| i.run.as_ref()?.caster.clone())
+        .unwrap_or_else(|| Pigment::default().owner);
     let pigment = match imp {
         Some((i, _)) if success && i.run.is_some() => i.pigment(),
-        _ => Pigment { owner: activator, ..dye_pigment(dye::RED) },
+        _ => Pigment {
+            owner: activator,
+            ..dye_pigment(dye::RED)
+        },
     };
     let spray = Spray {
         pos: center,
@@ -532,14 +632,22 @@ fn semitone_from_scale(srv: &dyn Server, dim: &str, impetus: BlockPos, note: i64
     const BAD_TIME: &[i32] = &[0, 0, 12, 7, 6, 5, 3, 0, 3, 5];
     const SUSSY_BAKA: &[i32] = &[5, 8, 10, 11, 10, 8, 5, 3, 7, 5];
     let below = (impetus.0, impetus.1 - 1, impetus.2);
-    let id = srv.block_info(dim, to_ypos(below)).map(|b| b.block_id().to_owned()).unwrap_or_default();
+    let id = srv
+        .block_info(dim, to_ypos(below))
+        .map(|b| b.block_id().to_owned())
+        .unwrap_or_default();
     let tagged = |tag: &str| srv.has_block_tag(&id, tag);
     let scale = match id.as_str() {
         vanilla::blocks::CRYING_OBSIDIAN => MINOR,
         _ if tagged(vanilla::block_tags::DOORS) || tagged(vanilla::block_tags::TRAPDOORS) => DORIAN,
         vanilla::blocks::PISTON | vanilla::blocks::STICKY_PISTON => MIXOLYDIAN,
-        vanilla::blocks::BLUE_WOOL | vanilla::blocks::BLUE_CONCRETE | vanilla::blocks::BLUE_CONCRETE_POWDER | vanilla::blocks::BLUE_TERRACOTTA
-        | vanilla::blocks::BLUE_GLAZED_TERRACOTTA | vanilla::blocks::BLUE_STAINED_GLASS | vanilla::blocks::BLUE_STAINED_GLASS_PANE => BLUES,
+        vanilla::blocks::BLUE_WOOL
+        | vanilla::blocks::BLUE_CONCRETE
+        | vanilla::blocks::BLUE_CONCRETE_POWDER
+        | vanilla::blocks::BLUE_TERRACOTTA
+        | vanilla::blocks::BLUE_GLAZED_TERRACOTTA
+        | vanilla::blocks::BLUE_STAINED_GLASS
+        | vanilla::blocks::BLUE_STAINED_GLASS_PANE => BLUES,
         vanilla::blocks::BONE_BLOCK => BAD_TIME,
         vanilla::blocks::COMPOSTER => SUSSY_BAKA,
         _ => MAJOR,
@@ -549,7 +657,9 @@ fn semitone_from_scale(srv: &dyn Server, dim: &str, impetus: BlockPos, note: i64
 
 /// `BlockEntityAbstractImpetus.startExecution`.
 pub fn start(srv: &dyn Server, dim: &str, pos: BlockPos, caster: Option<Caster>) {
-    let Some(part) = Part::at(srv, dim, pos).filter(|p| p.kind == Kind::Impetus) else { return };
+    let Some(part) = Part::at(srv, dim, pos).filter(|p| p.kind == Kind::Impetus) else {
+        return;
+    };
     let mut imp = impetus(srv, dim, pos);
     if imp.run.is_some() {
         return;
@@ -562,7 +672,10 @@ pub fn start(srv: &dyn Server, dim: &str, pos: BlockPos, caster: Option<Caster>)
         Err(Some(at)) => {
             sfx(srv, dim, at, None, false);
             let shown = Text::lit(format!("{}, {}, {}", at.0, at.1, at.2));
-            imp.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_NO_CLOSURE_KEY, vec![shown]), vanilla::items::LEAD);
+            imp.post(
+                &Text::key_args(Lang::TOOLTIP_CIRCLE_NO_CLOSURE_KEY, vec![shown]),
+                vanilla::items::LEAD,
+            );
         }
         Ok(run) => {
             let speed = run.tick_speed();
@@ -579,10 +692,15 @@ pub fn start(srv: &dyn Server, dim: &str, pos: BlockPos, caster: Option<Caster>)
 
 /// `CircleExecutionState.tick`: one step of a run; whether to go on.
 fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
-    let Some(run) = imp.run.clone() else { return false };
+    let Some(run) = imp.run.clone() else {
+        return false;
+    };
     let caster = run.caster.as_ref().and_then(|uuid| {
         let info = srv.entity_info(uuid)?;
-        Some(Caster { name: info.name, uuid: uuid.clone() })
+        Some(Caster {
+            name: info.name,
+            uuid: uuid.clone(),
+        })
     });
     let circle = CircleRun {
         impetus: run.impetus,
@@ -591,7 +709,13 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
         max: run.max,
         current: run.current,
     };
-    let mut env = CastEnv::new(srv, caster, Hand::Off, Source::Circle(circle), dim.to_owned());
+    let mut env = CastEnv::new(
+        srv,
+        caster,
+        Hand::Off,
+        Source::Circle(circle),
+        dim.to_owned(),
+    );
     env.circle_media = if imp.media < 0 { i64::MAX } else { imp.media };
     env.circle_pigment = Some(imp.pigment());
 
@@ -605,7 +729,13 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
     run.reached_slate += 1;
     imp.run = Some(run.clone());
 
-    let flow = accept(&part, run.image.clone(), &mut env, run.entered_from, run.current);
+    let flow = accept(
+        &part,
+        run.image.clone(),
+        &mut env,
+        run.entered_from,
+        run.current,
+    );
     // What the cast spent, recolored and said.
     if imp.media >= 0 {
         imp.media = env.circle_media.max(0);
@@ -629,8 +759,14 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
                     continue;
                 }
                 if found.is_some() {
-                    let shown = Text::lit(format!("{}, {}, {}", run.current.0, run.current.1, run.current.2));
-                    imp.post(&Text::key_args(Lang::TOOLTIP_CIRCLE_MANY_EXITS_KEY, vec![shown]), vanilla::items::COMPASS);
+                    let shown = Text::lit(format!(
+                        "{}, {}, {}",
+                        run.current.0, run.current.1, run.current.2
+                    ));
+                    imp.post(
+                        &Text::key_args(Lang::TOOLTIP_CIRCLE_MANY_EXITS_KEY, vec![shown]),
+                        vanilla::items::COMPASS,
+                    );
                     sfx(srv, dim, run.current, Some((imp, at)), false);
                     return false;
                 }
@@ -664,7 +800,11 @@ fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: Blo
         Kind::Impetus => Flow::Stop,
         Kind::EmptyImpetus => Flow::Continue(image, vec![exit(part.facing())]),
         Kind::DirEmpty => {
-            let d = if random() < 0.5 { part.facing() } else { part.facing().opposite() };
+            let d = if random() < 0.5 {
+                part.facing()
+            } else {
+                part.facing().opposite()
+            };
             Flow::Continue(image, vec![exit(d)])
         }
         Kind::DirRedstone => Flow::Continue(image, vec![exit(part.real_facing())]),
@@ -673,8 +813,16 @@ fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: Blo
             let mishap = match stack.pop() {
                 None => Some(Mishap::BoolDirectrixEmptyStack(pos)),
                 Some(Iota::Bool(b)) => {
-                    srv.set_block_properties(&dim, to_ypos(pos), if b { "state=true" } else { "state=false" });
-                    let out = if b { part.facing().opposite() } else { part.facing() };
+                    srv.set_block_properties(
+                        &dim,
+                        to_ypos(pos),
+                        if b { "state=true" } else { "state=false" },
+                    );
+                    let out = if b {
+                        part.facing().opposite()
+                    } else {
+                        part.facing()
+                    };
                     return Flow::Continue(Image { stack, ..image }, vec![exit(out)]);
                 }
                 Some(other) => Some(Mishap::BoolDirectrixNotBool(other, pos)),
@@ -691,18 +839,36 @@ fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: Blo
                 .filter(|&d| d != enter.opposite())
                 .map(exit)
                 .collect();
-            let Some(pattern) = slate_pattern(srv, &dim, pos) else { return Flow::Continue(image, exits) };
+            let Some(pattern) = slate_pattern(srv, &dim, pos) else {
+                return Flow::Continue(image, exits);
+            };
             // A slate's cast runs in its own env, one that shares the impetus' state.
-            let mut vm = Vm::new(image, std::mem::replace(env, CastEnv::new(srv, None, Hand::Off, Source::Staff, dim.clone())));
+            let mut vm = Vm::new(
+                image,
+                std::mem::replace(
+                    env,
+                    CastEnv::new(srv, None, Hand::Off, Source::Staff, dim.clone()),
+                ),
+            );
             let view = vm.queue_execute(vec![Iota::Pattern(pattern)]);
             *env = vm.env;
-            if view.kind.success() { Flow::Continue(vm.image, exits) } else { Flow::Stop }
+            if view.kind.success() {
+                Flow::Continue(vm.image, exits)
+            } else {
+                Flow::Stop
+            }
         }
     }
 }
 
 /// `fakeThrowMishap`: a component's own mishap, named after the block.
-fn fake_throw_mishap(part: &Part, pos: BlockPos, image: Image, env: &mut CastEnv<'_>, mishap: Mishap) {
+fn fake_throw_mishap(
+    part: &Part,
+    pos: BlockPos,
+    image: Image,
+    env: &mut CastEnv<'_>,
+    mishap: Mishap,
+) {
     let (ns, path) = part.id.split_once(':').unwrap_or(("hexcasting", &part.id));
     let name = Text::Join(
         vec![
@@ -711,7 +877,10 @@ fn fake_throw_mishap(part: &Part, pos: BlockPos, image: Image, env: &mut CastEnv
         ],
         String::new(),
     );
-    let ctx = Context { pattern: None, name: Some(name) };
+    let ctx = Context {
+        pattern: None,
+        name: Some(name),
+    };
     if let Some(msg) = mishap.message_with_name(env, &ctx) {
         env.report_mishap(&msg);
     }
@@ -751,15 +920,26 @@ fn tick_run(srv: &dyn Server, dim: &str, pos: BlockPos, now: u64) -> Option<u64>
 
 /// `BlockEntityLookingImpetus.serverTick`: someone staring at it fills it.
 fn tick_look(srv: &dyn Server, dim: &str, pos: BlockPos) {
-    if srv.block_property(dim, to_ypos(pos), "energized").as_deref() == Some("true") {
+    if srv
+        .block_property(dim, to_ypos(pos), "energized")
+        .as_deref()
+        == Some("true")
+    {
         return;
     }
     let mut looker = None;
     for name in srv.online_players() {
-        let Some(info) = srv.player_info(&name).and_then(|p| Some((p.uuid.clone(), srv.entity_info(&p.uuid)?))) else { continue };
+        let Some(info) = srv
+            .player_info(&name)
+            .and_then(|p| Some((p.uuid.clone(), srv.entity_info(&p.uuid)?)))
+        else {
+            continue;
+        };
         let (uuid, e) = info;
         let eye = Vec3::new(e.pos.0, e.pos.1 + e.eye_height, e.pos.2);
-        if e.dimension != dim || eye.distance_sqr(Vec3::center_of(pos)) > 3.0 * LOOK_RANGE * LOOK_RANGE {
+        if e.dimension != dim
+            || eye.distance_sqr(Vec3::center_of(pos)) > 3.0 * LOOK_RANGE * LOOK_RANGE
+        {
             continue;
         }
         // A carved pumpkin on the head hides the gaze.
@@ -767,7 +947,10 @@ fn tick_look(srv: &dyn Server, dim: &str, pos: BlockPos) {
             continue;
         }
         let end = eye + crate::casting::env::look_vec(srv, &uuid) * (LOOK_RANGE / 1.5);
-        if srv.raycast_block(dim, eye.tuple(), end.tuple()).is_some_and(|h| from_ypos(h.pos) == pos) {
+        if srv
+            .raycast_block(dim, eye.tuple(), end.tuple())
+            .is_some_and(|h| from_ypos(h.pos) == pos)
+        {
             looker = Caster::by_name(srv, &name);
             break;
         }
@@ -800,11 +983,20 @@ pub fn tick(srv: &dyn Server) {
         *t += 1;
         *t
     };
-    let known: Vec<((String, BlockPos), Known)> = KNOWN.lock().unwrap().iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+    let known: Vec<((String, BlockPos), Known)> = KNOWN
+        .lock()
+        .unwrap()
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect();
     let mut changed = false;
     for ((dim, pos), k) in known {
         // Gone some way a break didn't see (an explosion, a piston).
-        if now.is_multiple_of(20) && srv.block_info(&dim, to_ypos(pos)).is_some_and(|b| b.block_id() != k.id) {
+        if now.is_multiple_of(20)
+            && srv
+                .block_info(&dim, to_ypos(pos))
+                .is_some_and(|b| b.block_id() != k.id)
+        {
             KNOWN.lock().unwrap().remove(&(dim.clone(), pos));
             forget_impetus(srv, &dim, pos);
             changed = true;
@@ -820,13 +1012,16 @@ pub fn tick(srv: &dyn Server) {
             Blocks::IMPETUS_LOOK => tick_look(srv, &dim, pos),
             // `BlockRedstoneImpetus.neighborChanged`: power coming on starts it.
             Blocks::IMPETUS_REDSTONE => {
-                let powered = srv.block_property(&dim, to_ypos(pos), "powered").as_deref() == Some("true");
+                let powered =
+                    srv.block_property(&dim, to_ypos(pos), "powered").as_deref() == Some("true");
                 if powered != k.powered {
                     if let Some(e) = KNOWN.lock().unwrap().get_mut(&(dim.clone(), pos)) {
                         e.powered = powered;
                     }
                     if powered {
-                        let player = impetus(srv, &dim, pos).player.and_then(|(_, name)| Caster::by_name(srv, &name));
+                        let player = impetus(srv, &dim, pos)
+                            .player
+                            .and_then(|(_, name)| Caster::by_name(srv, &name));
                         start(srv, &dim, pos, player);
                     }
                 }
@@ -875,27 +1070,47 @@ pub fn register(registry: &mut Registry) {
 
     registry.on_player_place_block(|ev, phase, srv| {
         let pos = from_ypos(ev.pos);
-        let Some(k) = kind(&ev.block_id) else { return true };
+        let Some(k) = kind(&ev.block_id) else {
+            return true;
+        };
         match phase {
             EventPhase::Pre => {
                 if k == Kind::Slate {
                     // The item placing it is in a hand now; it may be used up after.
-                    let selected = srv.player_info(&ev.player_name).map_or(0, |p| p.selected_slot);
+                    let selected = srv
+                        .player_info(&ev.player_name)
+                        .map_or(0, |p| p.selected_slot);
                     let pattern = [selected, crate::casting::env::SLOT_OFFHAND]
                         .into_iter()
                         .map(|slot| crate::casting::env::Stack::read(srv, &ev.player_name, slot))
                         .find(|s| s.id == Blocks::SLATE)
                         .and_then(|s| holder::written_pattern(&s.id, &s.nbt));
-                    PLACING.lock().unwrap().insert(ev.player_name.clone(), pattern);
+                    PLACING
+                        .lock()
+                        .unwrap()
+                        .insert(ev.player_name.clone(), pattern);
                 }
             }
             _ => {
                 // `placeStateDirAndSneak`: sneaking turns it the other way.
-                if matches!(k, Kind::Impetus | Kind::EmptyImpetus | Kind::DirEmpty | Kind::DirRedstone | Kind::DirBoolean)
-                    && ev.sneaking
-                    && let Some(f) = srv.block_property(&ev.dimension, ev.pos, "facing").as_deref().and_then(Dir::parse)
+                if matches!(
+                    k,
+                    Kind::Impetus
+                        | Kind::EmptyImpetus
+                        | Kind::DirEmpty
+                        | Kind::DirRedstone
+                        | Kind::DirBoolean
+                ) && ev.sneaking
+                    && let Some(f) = srv
+                        .block_property(&ev.dimension, ev.pos, "facing")
+                        .as_deref()
+                        .and_then(Dir::parse)
                 {
-                    srv.set_block_properties(&ev.dimension, ev.pos, &format!("facing={}", f.opposite().name()));
+                    srv.set_block_properties(
+                        &ev.dimension,
+                        ev.pos,
+                        &format!("facing={}", f.opposite().name()),
+                    );
                 }
                 if k == Kind::Slate {
                     let pattern = PLACING.lock().unwrap().remove(&ev.player_name).flatten();
@@ -904,8 +1119,18 @@ pub fn register(registry: &mut Registry) {
                 }
                 if is_impetus(&ev.block_id) {
                     forget_impetus(srv, &ev.dimension, pos);
-                    let powered = srv.block_property(&ev.dimension, ev.pos, "powered").as_deref() == Some("true");
-                    KNOWN.lock().unwrap().insert((ev.dimension.clone(), pos), Known { id: ev.block_id.clone(), due: None, powered });
+                    let powered = srv
+                        .block_property(&ev.dimension, ev.pos, "powered")
+                        .as_deref()
+                        == Some("true");
+                    KNOWN.lock().unwrap().insert(
+                        (ev.dimension.clone(), pos),
+                        Known {
+                            id: ev.block_id.clone(),
+                            due: None,
+                            powered,
+                        },
+                    );
                     save_known(srv);
                 }
             }
@@ -958,10 +1183,19 @@ pub fn register(registry: &mut Registry) {
             let pattern = slate_pattern(srv, &ev.dimension, pos);
             set_slate_pattern(srv, &ev.dimension, pos, None);
             crate::render::slate_changed(srv, &ev.dimension, pos, None);
-            let creative = srv.player_info(&ev.player_name).is_some_and(|p| p.gamemode == "creative");
+            let creative = srv
+                .player_info(&ev.player_name)
+                .is_some_and(|p| p.gamemode == "creative");
             if !creative {
                 let c = Vec3::center_of(pos);
-                srv.spawn_item(&ev.dimension, c.tuple(), (0.0, 0.1, 0.0), Blocks::SLATE, 1, &slate_item_nbt(pattern.as_ref()));
+                srv.spawn_item(
+                    &ev.dimension,
+                    c.tuple(),
+                    (0.0, 0.1, 0.0),
+                    Blocks::SLATE,
+                    1,
+                    &slate_item_nbt(pattern.as_ref()),
+                );
             }
         }
         if is_impetus(&ev.block_id) {
@@ -982,13 +1216,20 @@ pub fn register(registry: &mut Registry) {
         match ev.block_id.as_str() {
             // `BlockRightClickImpetus.use`.
             Blocks::IMPETUS_RIGHTCLICK if !ev.sneaking => {
-                start(srv, &ev.dimension, pos, Caster::by_name(srv, &ev.player_name));
+                start(
+                    srv,
+                    &ev.dimension,
+                    pos,
+                    Caster::by_name(srv, &ev.player_name),
+                );
                 false
             }
             // `BlockRedstoneImpetus.use`: bind the player a held iota names, or
             // (sneaking, empty-handed) unbind.
             Blocks::IMPETUS_REDSTONE => {
-                let selected = srv.player_info(&ev.player_name).map_or(0, |p| p.selected_slot);
+                let selected = srv
+                    .player_info(&ev.player_name)
+                    .map_or(0, |p| p.selected_slot);
                 let held = crate::casting::env::Stack::read(srv, &ev.player_name, selected);
                 let c = Vec3::center_of(pos);
                 if held.is_empty() && ev.sneaking {

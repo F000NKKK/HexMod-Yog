@@ -19,8 +19,8 @@ use yog_api::body::{self, Anchor, BoneOp, Frame, Mat4, Ops, Rig, TravelFrame};
 use yog_api::core::entity_flags;
 use yog_api::{EventPhase, Registry, Server};
 
-use crate::content::Models;
 use crate::casting::env::{SLOT_OFFHAND, Spray, Stack, get_pigment, random};
+use crate::content::Models;
 use crate::math::Vec3;
 use crate::sounds;
 
@@ -71,24 +71,45 @@ fn show(srv: &dyn Server, uuid: &str, state: Option<u8>) {
 /// `OpAltiora`'s spell: up into the air, wings on.
 pub fn give(srv: &dyn Server, uuid: &str) {
     srv.entity_add_velocity(uuid, 0.0, LIFT, 0.0);
-    SERVER.lock().unwrap_or_else(|e| e.into_inner()).insert(uuid.to_owned(), Wings { grace: GRACE_PERIOD, gliding: false, last_y: None });
+    SERVER.lock().unwrap_or_else(|e| e.into_inner()).insert(
+        uuid.to_owned(),
+        Wings {
+            grace: GRACE_PERIOD,
+            gliding: false,
+            last_y: None,
+        },
+    );
     show(srv, uuid, Some(WINGS));
 }
 
 fn take(srv: &dyn Server, uuid: &str) {
-    if SERVER.lock().unwrap_or_else(|e| e.into_inner()).remove(uuid).is_some() {
+    if SERVER
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .remove(uuid)
+        .is_some()
+    {
         srv.entity_set_dimensions(uuid, None);
         show(srv, uuid, None);
     }
 }
 
 fn gliding(uuid: &str) -> bool {
-    SERVER.lock().unwrap_or_else(|e| e.into_inner()).get(uuid).is_some_and(|w| w.gliding)
+    SERVER
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .get(uuid)
+        .is_some_and(|w| w.gliding)
 }
 
 /// `OpAltiora.checkPlayerCollision`, every tick.
 fn tick(srv: &dyn Server) {
-    let uuids: Vec<String> = SERVER.lock().unwrap_or_else(|e| e.into_inner()).keys().cloned().collect();
+    let uuids: Vec<String> = SERVER
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .keys()
+        .cloned()
+        .collect();
     for uuid in uuids {
         let Some(info) = srv.entity_info(&uuid) else {
             take(srv, &uuid);
@@ -96,10 +117,13 @@ fn tick(srv: &dyn Server) {
         };
         let pos = Vec3::from_tuple(info.pos);
         let dim = info.dimension.as_str();
-        let landed = info.has(entity_flags::ON_GROUND) || info.has(entity_flags::HORIZONTAL_COLLISION);
+        let landed =
+            info.has(entity_flags::ON_GROUND) || info.has(entity_flags::HORIZONTAL_COLLISION);
         let (over, glides, fell) = {
             let mut map = SERVER.lock().unwrap_or_else(|e| e.into_inner());
-            let Some(w) = map.get_mut(&uuid) else { continue };
+            let Some(w) = map.get_mut(&uuid) else {
+                continue;
+            };
             let over = w.grace == 0 && landed;
             w.grace = (w.grace - 1).max(0);
             let fell = w.last_y.map_or(0.0, |y| pos.y - y);
@@ -108,17 +132,39 @@ fn tick(srv: &dyn Server) {
         };
         if over {
             take(srv, &uuid);
-            srv.play_sound(dim, pos.x, pos.y, pos.z, sounds::FLIGHT_FINISH, FINISH_VOLUME, 1.0);
+            srv.play_sound(
+                dim,
+                pos.x,
+                pos.y,
+                pos.z,
+                sounds::FLIGHT_FINISH,
+                FINISH_VOLUME,
+                1.0,
+            );
             continue;
         }
         if glides && fell > SLOW_FALL {
             srv.entity_set_fall_distance(&uuid, 1.0);
         }
         if random() < AMBIENCE_CHANCE {
-            srv.play_sound(dim, pos.x, pos.y, pos.z, sounds::FLIGHT_AMBIENCE, AMBIENCE_VOLUME, 1.0);
+            srv.play_sound(
+                dim,
+                pos.x,
+                pos.y,
+                pos.z,
+                sounds::FLIGHT_AMBIENCE,
+                AMBIENCE_VOLUME,
+                1.0,
+            );
         }
-        Spray { pos, vel: Vec3::new(0.0, -0.2, 0.0), fuzziness: 0.4, spread: std::f64::consts::FRAC_PI_2, count: 3 }
-            .spawn(srv, dim, &get_pigment(srv, &uuid));
+        Spray {
+            pos,
+            vel: Vec3::new(0.0, -0.2, 0.0),
+            fuzziness: 0.4,
+            spread: std::f64::consts::FRAC_PI_2,
+            count: 3,
+        }
+        .spawn(srv, dim, &get_pigment(srv, &uuid));
     }
 }
 
@@ -128,26 +174,47 @@ fn rocket(e: &yog_api::UseItemEvent, srv: &dyn Server) -> bool {
     if e.item_id != FIREWORK {
         return true;
     }
-    let Some(info) = srv.player_info(&e.player_name) else { return true };
+    let Some(info) = srv.player_info(&e.player_name) else {
+        return true;
+    };
     if !gliding(&info.uuid) {
         return true;
     }
     let main = Stack::read(srv, &e.player_name, info.selected_slot);
-    let mut stack = if main.is(FIREWORK) { main } else { Stack::read(srv, &e.player_name, SLOT_OFFHAND) };
+    let mut stack = if main.is(FIREWORK) {
+        main
+    } else {
+        Stack::read(srv, &e.player_name, SLOT_OFFHAND)
+    };
     if !stack.is(FIREWORK) {
         return true;
     }
-    let flight = stack.nbt.get("Fireworks").and_then(|f| f.get_i64("Flight")).unwrap_or(0) as i32;
-    let ticks = ROCKET_TICKS_PER_FLIGHT * (1 + flight) + (random() * 6.0) as i32 + (random() * 7.0) as i32;
+    let flight = stack
+        .nbt
+        .get("Fireworks")
+        .and_then(|f| f.get_i64("Flight"))
+        .unwrap_or(0) as i32;
+    let ticks =
+        ROCKET_TICKS_PER_FLIGHT * (1 + flight) + (random() * 6.0) as i32 + (random() * 7.0) as i32;
     if info.gamemode != "creative" {
         stack.count -= 1;
         stack.save(srv, &e.player_name);
     }
-    let mut boost = (ticks.clamp(0, u16::MAX as i32) as u16).to_le_bytes().to_vec();
+    let mut boost = (ticks.clamp(0, u16::MAX as i32) as u16)
+        .to_le_bytes()
+        .to_vec();
     boost.extend_from_slice(info.uuid.as_bytes());
     srv.send_to_player(&e.player_name, CH_BOOST, &boost);
     if let Some(p) = srv.entity_info(&info.uuid) {
-        srv.play_sound(&p.dimension, p.pos.0, p.pos.1, p.pos.2, yog_api::vanilla::sounds::ENTITY_FIREWORK_ROCKET_LAUNCH, 3.0, 1.0);
+        srv.play_sound(
+            &p.dimension,
+            p.pos.0,
+            p.pos.1,
+            p.pos.2,
+            yog_api::vanilla::sounds::ENTITY_FIREWORK_ROCKET_LAUNCH,
+            3.0,
+            1.0,
+        );
     }
     false
 }
@@ -223,7 +290,14 @@ fn wing_target(f: &Frame, gliding: bool) -> (body::Vec3, f32) {
         if f.velocity.y < 0.0 {
             k = 1.0 - (-f.velocity.normalize().y).powf(1.5);
         }
-        return (body::Vec3::new(k * 0.34906584 + (1.0 - k) * rest.x, 0.0, k * (-PI / 2.0) + (1.0 - k) * rest.z), 0.0);
+        return (
+            body::Vec3::new(
+                k * 0.34906584 + (1.0 - k) * rest.x,
+                0.0,
+                k * (-PI / 2.0) + (1.0 - k) * rest.z,
+            ),
+            0.0,
+        );
     }
     if f.has(entity_flags::SNEAKING) {
         return (body::Vec3::new(0.6981317, 0.08726646, -PI / 4.0), 3.0);
@@ -237,7 +311,11 @@ fn glide_turn(f: &Frame, ticks: f32) -> Mat4 {
     let lean = (ticks * ticks / 100.0).clamp(0.0, 1.0);
     let mut m = Mat4::rotation_x((lean * (-90.0 - f.pitch)).to_radians());
     let (yaw, pitch) = ((f.body_yaw + f.head_yaw).to_radians(), f.pitch.to_radians());
-    let view = body::Vec3::new(-yaw.sin() * pitch.cos(), -pitch.sin(), yaw.cos() * pitch.cos());
+    let view = body::Vec3::new(
+        -yaw.sin() * pitch.cos(),
+        -pitch.sin(),
+        yaw.cos() * pitch.cos(),
+    );
     let v = f.velocity;
     let (dv, dl) = (v.x * v.x + v.z * v.z, view.x * view.x + view.z * view.z);
     if dv > 0.0 && dl > 0.0 {
@@ -251,7 +329,11 @@ fn glide_turn(f: &Frame, ticks: f32) -> Mat4 {
 /// `HumanoidModel.setupAnim` while fall-flying (after 4 ticks): the head
 /// looks ahead, and the limbs swing less the faster the flight.
 fn glide_limbs(ops: &mut Ops, f: &Frame) {
-    let head = BoneOp { rotation: body::Vec3::new(-PI / 4.0, f.head_yaw.to_radians(), 0.0), set_rotation: true, ..Default::default() };
+    let head = BoneOp {
+        rotation: body::Vec3::new(-PI / 4.0, f.head_yaw.to_radians(), 0.0),
+        set_rotation: true,
+        ..Default::default()
+    };
     ops.bone("head", &head);
     ops.bone("hat", &head);
     let speed = f.velocity.dot(f.velocity) / 0.2;
@@ -267,7 +349,13 @@ fn glide_limbs(ops: &mut Ops, f: &Frame) {
         (["left_leg", "left_pants"], leg(PI)),
     ] {
         for p in parts {
-            ops.bone(p, &BoneOp { rotation: body::Vec3::new(x, 0.0, 0.0), ..Default::default() });
+            ops.bone(
+                p,
+                &BoneOp {
+                    rotation: body::Vec3::new(x, 0.0, 0.0),
+                    ..Default::default()
+                },
+            );
         }
     }
 }
@@ -286,10 +374,16 @@ fn draw(f: &Frame, ops: &mut Ops) {
     }
     let (target, drop) = wing_target(f, s.gliding);
     s.wing = s.wing + (target - s.wing) * 0.1;
-    let Some(model) = body::model(Models::BODY_ALTIORA) else { return };
+    let Some(model) = body::model(Models::BODY_ALTIORA) else {
+        return;
+    };
     let mut rig = Rig::new(model, Anchor::Model);
     rig.glint = true;
-    let rest = |name: &str| rig.model.bone(name).map_or(body::Vec3::ZERO, |i| rig.model.bones[i].rotation);
+    let rest = |name: &str| {
+        rig.model
+            .bone(name)
+            .map_or(body::Vec3::ZERO, |i| rig.model.bones[i].rotation)
+    };
     let rest = (rest("left_wing"), rest("right_wing"));
     let left = rig.manual.bone("left_wing");
     left.rotation = s.wing - rest.0;
@@ -332,7 +426,10 @@ fn travel(f: &TravelFrame) -> Option<body::Vec3> {
         s.boost -= 1;
         v = v + f.look * 0.1 + (f.look * 1.5 - v) * 0.5;
     }
-    Some(body::movement::elytra(&TravelFrame { velocity: v, ..f.clone() }))
+    Some(body::movement::elytra(&TravelFrame {
+        velocity: v,
+        ..f.clone()
+    }))
 }
 
 pub fn register(registry: &mut Registry) {
@@ -344,14 +441,22 @@ pub fn register(registry: &mut Registry) {
     // A client asks to deploy or fold its wings: deploying needs wings and
     // the air under the player, as the server sees it.
     registry.on_packet(CH_GLIDE, |ev, srv| {
-        let Some(info) = srv.player_info(&ev.player) else { return };
+        let Some(info) = srv.player_info(&ev.player) else {
+            return;
+        };
         let on = ev.payload.first() == Some(&1);
-        if on && srv.entity_info(&info.uuid).is_none_or(|e| e.has(entity_flags::ON_GROUND)) {
+        if on
+            && srv
+                .entity_info(&info.uuid)
+                .is_none_or(|e| e.has(entity_flags::ON_GROUND))
+        {
             return;
         }
         let changed = {
             let mut map = SERVER.lock().unwrap_or_else(|e| e.into_inner());
-            let Some(w) = map.get_mut(&info.uuid) else { return };
+            let Some(w) = map.get_mut(&info.uuid) else {
+                return;
+            };
             let changed = w.gliding != on;
             w.gliding = on;
             changed
@@ -363,9 +468,17 @@ pub fn register(registry: &mut Registry) {
     });
     registry.on_use_item(|e, phase, srv| phase != EventPhase::Pre || rocket(e, srv));
     registry.on_client_packet(CH_BOOST, |ev, _| {
-        let [a, b, ref uuid @ ..] = ev.payload[..] else { return };
-        let Ok(uuid) = std::str::from_utf8(uuid) else { return };
-        if let Some(s) = CLIENT.lock().unwrap_or_else(|e| e.into_inner()).get_mut(uuid) {
+        let [a, b, ref uuid @ ..] = ev.payload[..] else {
+            return;
+        };
+        let Ok(uuid) = std::str::from_utf8(uuid) else {
+            return;
+        };
+        if let Some(s) = CLIENT
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .get_mut(uuid)
+        {
             s.boost = u16::from_le_bytes([a, b]) as i32;
         }
     });

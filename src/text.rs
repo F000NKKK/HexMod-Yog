@@ -104,14 +104,23 @@ impl Text {
             // A translation around runes: worded with markers, split at them.
             Text::Key(key, args) if self.has_pattern() => {
                 let markers: Vec<String> = (0..args.len()).map(marker).collect();
-                let refs: Vec<&dyn std::fmt::Display> = markers.iter().map(|m| m as &dyn std::fmt::Display).collect();
+                let refs: Vec<&dyn std::fmt::Display> = markers
+                    .iter()
+                    .map(|m| m as &dyn std::fmt::Display)
+                    .collect();
                 let mut rest = yog_api::tr_args(key, &refs);
                 let mut placed = vec![false; args.len()];
                 while let Some(start) = rest.find('\u{E000}') {
                     words(out, &rest[..start]);
                     let after = &rest[start + '\u{E000}'.len_utf8()..];
-                    let Some(end) = after.find('\u{E001}') else { break };
-                    if let Some(i) = after[..end].parse::<usize>().ok().filter(|i| *i < args.len()) {
+                    let Some(end) = after.find('\u{E001}') else {
+                        break;
+                    };
+                    if let Some(i) = after[..end]
+                        .parse::<usize>()
+                        .ok()
+                        .filter(|i| *i < args.len())
+                    {
                         args[i].push_segments(out);
                         placed[i] = true;
                     }
@@ -270,12 +279,21 @@ mod wire_tests {
 
     #[test]
     fn a_text_survives_the_wire() {
-        let t = Text::key_args("a.b", vec![Text::lit("x:y;"), Text::Join(vec![Text::int(3), Text::key("c")], ", ".into())]);
+        let t = Text::key_args(
+            "a.b",
+            vec![
+                Text::lit("x:y;"),
+                Text::Join(vec![Text::int(3), Text::key("c")], ", ".into()),
+            ],
+        );
         assert_eq!(Text::decode(&t.encode()), Some(t));
     }
 }
 
 /// A pattern in words: `Pattern(NORTH_EAST qaq)`.
 fn worded(p: &crate::math::HexPattern) -> Text {
-    Text::key_args(crate::res::Lang::TOOLTIP_PATTERN_IOTA_KEY, vec![Text::Lit(crate::iota::pattern_text(p))])
+    Text::key_args(
+        crate::res::Lang::TOOLTIP_PATTERN_IOTA_KEY,
+        vec![Text::Lit(crate::iota::pattern_text(p))],
+    )
 }

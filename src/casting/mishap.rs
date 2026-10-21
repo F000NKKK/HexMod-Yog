@@ -456,8 +456,13 @@ impl Mishap {
             ),
             Mishap::NeedsParens => error("needs_parens", vec![]),
             Mishap::NoAkashicRecord(pos) => error("no_akashic_record", vec![pos_text(*pos)]),
-            Mishap::BoolDirectrixEmptyStack(pos) => error("circle.bool_directrix.empty_stack", vec![pos_text(*pos)]),
-            Mishap::BoolDirectrixNotBool(perp, pos) => error("circle.bool_directrix.no_bool", vec![pos_text(*pos), perp.display()]),
+            Mishap::BoolDirectrixEmptyStack(pos) => {
+                error("circle.bool_directrix.empty_stack", vec![pos_text(*pos)])
+            }
+            Mishap::BoolDirectrixNotBool(perp, pos) => error(
+                "circle.bool_directrix.no_bool",
+                vec![pos_text(*pos), perp.display()],
+            ),
             Mishap::NoSpellCircle => error("no_spell_circle", vec![]),
             Mishap::NotEnoughArgs { expected, got: 0 } => {
                 error("no_args", vec![Text::int(*expected as i64)])

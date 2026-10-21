@@ -17,7 +17,11 @@ pub const PEHKUI: &str = "pehkui";
 const SCALE: &str = "virtuoel.pehkui.api.ScaleTypes.BASE.getScaleData($0)";
 
 pub fn actions() -> Vec<Action> {
-    if yog_api::mod_loaded(PEHKUI) { pehkui() } else { Vec::new() }
+    if yog_api::mod_loaded(PEHKUI) {
+        pehkui()
+    } else {
+        Vec::new()
+    }
 }
 
 fn entity(uuid: &str) -> Value {

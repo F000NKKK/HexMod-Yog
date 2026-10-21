@@ -4,12 +4,12 @@
 //!
 //! Iotas are kept in the item's NBT as [`crate::wire`] strings.
 
-use yog_api::vanilla;
 use crate::casting::env::Stack;
 use crate::content::{Blocks, Items};
 use crate::iota::Iota;
 use crate::math::HexPattern;
 use crate::snbt::Nbt;
+use yog_api::vanilla;
 
 pub const FOCUS: &str = Items::FOCUS;
 pub const SPELLBOOK: &str = Items::SPELLBOOK;
@@ -71,7 +71,9 @@ pub fn read(stack: &Stack) -> Option<Iota> {
         ABACUS => Some(Iota::Double(nbt.get_f64("value").unwrap_or(0.0))),
         SLATE => pattern_of(nbt.get("BlockEntityTag")?, "pattern"),
         // Hex Casting's pie: as many π as there are pies.
-        vanilla::items::PUMPKIN_PIE => Some(Iota::Double(std::f64::consts::PI * stack.count as f64)),
+        vanilla::items::PUMPKIN_PIE => {
+            Some(Iota::Double(std::f64::consts::PI * stack.count as f64))
+        }
         id if is_scroll(id) => pattern_of(nbt, "pattern"),
         _ => None,
     }

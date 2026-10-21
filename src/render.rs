@@ -48,7 +48,8 @@ struct Slate {
 }
 
 /// Every slate with a pattern, by dimension and position (the server's).
-static SLATES: LazyLock<Mutex<HashMap<(String, (i32, i32, i32)), HexPattern>>> = LazyLock::new(Default::default);
+static SLATES: LazyLock<Mutex<HashMap<(String, (i32, i32, i32)), HexPattern>>> =
+    LazyLock::new(Default::default);
 const SLATES_KEY: &str = "render.slates";
 
 fn global(srv: &dyn Server) -> Storage {
@@ -70,9 +71,13 @@ fn load_slates(srv: &dyn Server) {
     slates.clear();
     for line in text.lines() {
         let mut it = line.splitn(3, '|');
-        let (Some(dim), Some(pos), Some(pat)) = (it.next(), it.next(), it.next()) else { continue };
+        let (Some(dim), Some(pos), Some(pat)) = (it.next(), it.next(), it.next()) else {
+            continue;
+        };
         let mut n = pos.split(',').filter_map(|v| v.parse().ok());
-        let (Some(x), Some(y), Some(z)) = (n.next(), n.next(), n.next()) else { continue };
+        let (Some(x), Some(y), Some(z)) = (n.next(), n.next(), n.next()) else {
+            continue;
+        };
         if let Some(p) = HexPattern::from_serialized(pat) {
             slates.insert((dim.to_owned(), (x, y, z)), p);
         }
@@ -80,12 +85,22 @@ fn load_slates(srv: &dyn Server) {
 }
 
 /// A bookshelf got a pattern, or lost it (`None`): drawn on its front.
-pub fn shelf_changed(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPattern>) {
+pub fn shelf_changed(
+    srv: &dyn Server,
+    dim: &str,
+    pos: (i32, i32, i32),
+    pattern: Option<&HexPattern>,
+) {
     slate_changed(srv, dim, pos, pattern);
 }
 
 /// A slate was placed with `pattern`, or broken (`None`).
-pub fn slate_changed(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPattern>) {
+pub fn slate_changed(
+    srv: &dyn Server,
+    dim: &str,
+    pos: (i32, i32, i32),
+    pattern: Option<&HexPattern>,
+) {
     {
         let mut slates = SLATES.lock().unwrap();
         match pattern {
@@ -100,8 +115,13 @@ fn encode_slates(dim: &str, slates: &[Slate]) -> Vec<u8> {
     let mut w = Writer::new();
     w.str(dim).int(slates.len() as i64);
     for s in slates {
-        w.int(s.pos.0 as i64).int(s.pos.1 as i64).int(s.pos.2 as i64);
-        w.str(&s.face).str(&s.facing).int(s.energized as i64).str(&s.pattern.serialized_form());
+        w.int(s.pos.0 as i64)
+            .int(s.pos.1 as i64)
+            .int(s.pos.2 as i64);
+        w.str(&s.face)
+            .str(&s.facing)
+            .int(s.energized as i64)
+            .str(&s.pattern.serialized_form());
         w.int(s.tint.map_or(-1, |c| c as i64));
     }
     w.finish().into_bytes()
@@ -119,7 +139,14 @@ fn decode_slates(b: &[u8]) -> Option<(String, Vec<Slate>)> {
             let energized = r.int()? != 0;
             let pattern = HexPattern::from_serialized(r.str()?)?;
             let tint = r.int()?;
-            Some(Slate { pos, face, facing, energized, pattern, tint: (tint >= 0).then_some(tint as u32) })
+            Some(Slate {
+                pos,
+                face,
+                facing,
+                energized,
+                pattern,
+                tint: (tint >= 0).then_some(tint as u32),
+            })
         })
         .collect::<Option<Vec<_>>>()?;
     Some((dim, slates))
@@ -141,7 +168,11 @@ fn encode_sentinel(s: Option<&Shown>) -> Vec<u8> {
             w.int(0);
         }
         Some(s) => {
-            w.int(1).num(s.pos.x).num(s.pos.y).num(s.pos.z).int(s.great as i64);
+            w.int(1)
+                .num(s.pos.x)
+                .num(s.pos.y)
+                .num(s.pos.z)
+                .int(s.great as i64);
             w.str(&s.pigment.item).str(&s.pigment.owner);
         }
     }
@@ -155,8 +186,15 @@ fn decode_sentinel(b: &[u8]) -> Option<Option<Shown>> {
     }
     let pos = Vec3::new(r.num()?, r.num()?, r.num()?);
     let great = r.int()? != 0;
-    let pigment = Pigment { item: r.str()?.to_owned(), owner: r.str()?.to_owned() };
-    Some(Some(Shown { pos, great, pigment }))
+    let pigment = Pigment {
+        item: r.str()?.to_owned(),
+        owner: r.str()?.to_owned(),
+    };
+    Some(Some(Shown {
+        pos,
+        great,
+        pigment,
+    }))
 }
 
 // ── the server ──────────────────────────────────────────────────────────────
@@ -177,30 +215,58 @@ fn tick(srv: &dyn Server) {
     let slates = SLATES.lock().unwrap().clone();
     let mut sent = SENT.lock().unwrap();
     for name in srv.online_players() {
-        let Some(p) = srv.player_info(&name) else { continue };
-        let Some(e) = srv.entity_info(&p.uuid) else { continue };
+        let Some(p) = srv.player_info(&name) else {
+            continue;
+        };
+        let Some(e) = srv.entity_info(&p.uuid) else {
+            continue;
+        };
         let here = Vec3::from_tuple(e.pos);
         let near: Vec<Slate> = slates
             .iter()
-            .filter(|((dim, pos), _)| *dim == e.dimension && Vec3::center_of(*pos).distance_sqr(here) <= SLATE_RANGE * SLATE_RANGE)
+            .filter(|((dim, pos), _)| {
+                *dim == e.dimension
+                    && Vec3::center_of(*pos).distance_sqr(here) <= SLATE_RANGE * SLATE_RANGE
+            })
             .filter_map(|((dim, pos), pattern)| {
                 let state = srv.get_block_state(dim, to_ypos(*pos))?;
                 let (_, props) = split_state(&state);
-                let get = |k: &str| props.iter().find(|(n, _)| *n == k).map_or("", |(_, v)| *v).to_owned();
+                let get = |k: &str| {
+                    props
+                        .iter()
+                        .find(|(n, _)| *n == k)
+                        .map_or("", |(_, v)| *v)
+                        .to_owned()
+                };
                 let face = get("face");
                 // `IotaType.getColor`: what a bookshelf holds tints its books.
                 let tint = if face.is_empty() {
-                    crate::akashic::shelf(srv, dim, *pos).map(|(_, iota)| iota.kind().color() & 0xFF_FFFF)
+                    crate::akashic::shelf(srv, dim, *pos)
+                        .map(|(_, iota)| iota.kind().color() & 0xFF_FFFF)
                 } else {
                     None
                 };
-                Some(Slate { pos: *pos, face, facing: get("facing"), energized: get("energized") == "true", pattern: pattern.clone(), tint })
+                Some(Slate {
+                    pos: *pos,
+                    face,
+                    facing: get("facing"),
+                    energized: get("energized") == "true",
+                    pattern: pattern.clone(),
+                    tint,
+                })
             })
             .collect();
         let sentinel = get_sentinel(srv, &p.uuid)
             .filter(|s| s.dim == e.dimension)
-            .map(|s| Shown { pos: s.pos, great: s.great, pigment: get_pigment(srv, &p.uuid) });
-        let (a, b) = (encode_slates(&e.dimension, &near), encode_sentinel(sentinel.as_ref()));
+            .map(|s| Shown {
+                pos: s.pos,
+                great: s.great,
+                pigment: get_pigment(srv, &p.uuid),
+            });
+        let (a, b) = (
+            encode_slates(&e.dimension, &near),
+            encode_sentinel(sentinel.as_ref()),
+        );
         let last = sent.entry(name.clone()).or_default();
         if last.0 != a {
             srv.send_to_player(&name, CH_SLATES, &a);
@@ -224,8 +290,14 @@ struct Seen {
     sentinel: Option<Shown>,
 }
 
-static SEEN: LazyLock<Mutex<Seen>> =
-    LazyLock::new(|| Mutex::new(Seen { slates: Vec::new(), tinted: Vec::new(), slate_mesh: Vec::new(), sentinel: None }));
+static SEEN: LazyLock<Mutex<Seen>> = LazyLock::new(|| {
+    Mutex::new(Seen {
+        slates: Vec::new(),
+        tinted: Vec::new(),
+        slate_mesh: Vec::new(),
+        sentinel: None,
+    })
+});
 
 /// A horizontal direction's unit vector.
 fn dir(name: &str) -> Vec3 {
@@ -266,7 +338,11 @@ fn slate_triangles(s: &Slate, out: &mut Vec<f32>) {
     let (_, pts) = get_centered_pattern(&s.pattern, size, size, size / 4.0);
     let center = Vec2::new(UNIT / 2.0, UNIT / 2.0);
     let pts: Vec<Vec2> = pts.into_iter().map(|p| p + center).collect();
-    let (inner, outer) = if s.energized { (screen_col(GLOW), GLOW) } else { (INNER, OUTER) };
+    let (inner, outer) = if s.energized {
+        (screen_col(GLOW), GLOW)
+    } else {
+        (INNER, OUTER)
+    };
     draw_line_seq(&mut mesh, &pts, STROKE * 2.0 * UNIT, outer, outer, false);
     draw_line_seq(&mut mesh, &pts, STROKE * UNIT, inner, inner, false);
     let (origin, right, up) = slate_plane(s);
@@ -333,11 +409,25 @@ fn sentinel_triangles(s: &Shown, ticks: f32, cam: Vec3, out: &mut Vec<f32>) {
         let to_eye = cam - pa;
         let side = along.cross(to_eye).normalize() * WIDTH;
         let color = |p: [f32; 3]| {
-            let c = s.pigment.color(time, Vec3::new(p[0] as f64, p[1] as f64, p[2] as f64));
-            [((c >> 16) & 255) as f32 / 255.0, ((c >> 8) & 255) as f32 / 255.0, (c & 255) as f32 / 255.0, 1.0]
+            let c = s
+                .pigment
+                .color(time, Vec3::new(p[0] as f64, p[1] as f64, p[2] as f64));
+            [
+                ((c >> 16) & 255) as f32 / 255.0,
+                ((c >> 8) & 255) as f32 / 255.0,
+                (c & 255) as f32 / 255.0,
+                1.0,
+            ]
         };
         let (ca, cb) = (color(a), color(b));
-        let quad = [(pa - side, ca), (pa + side, ca), (pb + side, cb), (pa - side, ca), (pb + side, cb), (pb - side, cb)];
+        let quad = [
+            (pa - side, ca),
+            (pa + side, ca),
+            (pb + side, cb),
+            (pa - side, ca),
+            (pb + side, cb),
+            (pb - side, cb),
+        ];
         for (p, c) in quad {
             out.extend_from_slice(&[p.x as f32, p.y as f32, p.z as f32, c[0], c[1], c[2], c[3]]);
         }
@@ -382,7 +472,9 @@ fn draw(gfx: &GfxContext) {
     }
     let mut gl = GL.lock().unwrap();
     if gl.is_none() {
-        let Ok(prog) = gfx.create_shader(VERT, FRAG) else { return };
+        let Ok(prog) = gfx.create_shader(VERT, FRAG) else {
+            return;
+        };
         let vbo = gfx.create_buffer();
         let vao = gfx.create_vao();
         vao.attrib(gfx, &vbo, 0, 3, DataType::F32, false, 28, 0);
@@ -394,10 +486,26 @@ fn draw(gfx: &GfxContext) {
     gl.prog.uniform_mat4(gfx, "uViewProj", &gfx.view_proj());
     // Coordinates are sent as offsets from the camera's block, so floats keep their precision far out.
     let base = [cam[0].floor(), cam[1].floor(), cam[2].floor()];
-    gl.prog.uniform_3f(gfx, "uCamera", cam[0] - base[0], cam[1] - base[1], cam[2] - base[2]);
+    gl.prog.uniform_3f(
+        gfx,
+        "uCamera",
+        cam[0] - base[0],
+        cam[1] - base[1],
+        cam[2] - base[2],
+    );
     let local = |v: &[f32]| -> Vec<f32> {
         v.chunks_exact(7)
-            .flat_map(|c| [c[0] - base[0], c[1] - base[1], c[2] - base[2], c[3], c[4], c[5], c[6]])
+            .flat_map(|c| {
+                [
+                    c[0] - base[0],
+                    c[1] - base[1],
+                    c[2] - base[2],
+                    c[3],
+                    c[4],
+                    c[5],
+                    c[6],
+                ]
+            })
             .collect()
     };
     gfx.set_blend(true, blend::SRC_ALPHA, blend::ONE_MINUS_SRC_ALPHA);
@@ -406,7 +514,13 @@ fn draw(gfx: &GfxContext) {
         let verts = local(&seen.slate_mesh);
         // SAFETY: `f32`s are plain data.
         unsafe { gl.vbo.upload(gfx, &verts, true) };
-        gfx.draw_arrays(&gl.vao, &gl.prog, DrawMode::Triangles, 0, (verts.len() / 7) as u32);
+        gfx.draw_arrays(
+            &gl.vao,
+            &gl.prog,
+            DrawMode::Triangles,
+            0,
+            (verts.len() / 7) as u32,
+        );
     }
     if let Some(s) = &seen.sentinel {
         let ticks = client_ticks();
@@ -416,7 +530,13 @@ fn draw(gfx: &GfxContext) {
         gfx.set_depth(false, false);
         let verts = local(&tris);
         unsafe { gl.vbo.upload(gfx, &verts, true) };
-        gfx.draw_arrays(&gl.vao, &gl.prog, DrawMode::Triangles, 0, (verts.len() / 7) as u32);
+        gfx.draw_arrays(
+            &gl.vao,
+            &gl.prog,
+            DrawMode::Triangles,
+            0,
+            (verts.len() / 7) as u32,
+        );
     }
 }
 
@@ -435,7 +555,11 @@ pub fn register(registry: &mut Registry) {
                 slate_triangles(s, &mut mesh);
             }
             // Books take their shelf's color; shelves no longer sent lose it.
-            let at = |p: (i32, i32, i32)| yog_api::BlockPos { x: p.0, y: p.1, z: p.2 };
+            let at = |p: (i32, i32, i32)| yog_api::BlockPos {
+                x: p.0,
+                y: p.1,
+                z: p.2,
+            };
             for (d, p) in seen.tinted.drain(..) {
                 yog_api::client::set_block_tint(&d, at(p), None);
             }
@@ -463,22 +587,50 @@ mod tests {
     #[test]
     fn slates_and_sentinels_survive_the_wire() {
         let pattern = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
-        let s = vec![Slate { pos: (1, -2, 3), face: "wall".into(), facing: "north".into(), energized: true, pattern, tint: Some(0x55FF55) }];
-        assert_eq!(decode_slates(&encode_slates("minecraft:overworld", &s)), Some(("minecraft:overworld".into(), s)));
-        let sentinel = Shown { pos: Vec3::new(1.5, 2.0, -3.25), great: true, pigment: Pigment::default() };
-        assert_eq!(decode_sentinel(&encode_sentinel(Some(&sentinel))), Some(Some(sentinel)));
+        let s = vec![Slate {
+            pos: (1, -2, 3),
+            face: "wall".into(),
+            facing: "north".into(),
+            energized: true,
+            pattern,
+            tint: Some(0x55FF55),
+        }];
+        assert_eq!(
+            decode_slates(&encode_slates("minecraft:overworld", &s)),
+            Some(("minecraft:overworld".into(), s))
+        );
+        let sentinel = Shown {
+            pos: Vec3::new(1.5, 2.0, -3.25),
+            great: true,
+            pigment: Pigment::default(),
+        };
+        assert_eq!(
+            decode_sentinel(&encode_sentinel(Some(&sentinel))),
+            Some(Some(sentinel))
+        );
         assert_eq!(decode_sentinel(&encode_sentinel(None)), Some(None));
     }
 
     #[test]
     fn a_slate_pattern_lies_on_its_plate() {
         let pattern = HexPattern::from_angles("waqaw", HexDir::East).unwrap();
-        let s = Slate { pos: (0, 0, 0), face: "floor".into(), facing: "south".into(), energized: false, pattern, tint: None };
+        let s = Slate {
+            pos: (0, 0, 0),
+            face: "floor".into(),
+            facing: "south".into(),
+            energized: false,
+            pattern,
+            tint: None,
+        };
         let mut out = Vec::new();
         slate_triangles(&s, &mut out);
         assert!(!out.is_empty());
         for v in out.chunks_exact(7) {
-            assert!((v[1] - (1.0 / 16.0 + 0.002)).abs() < 1e-4, "on the plate's top: {}", v[1]);
+            assert!(
+                (v[1] - (1.0 / 16.0 + 0.002)).abs() < 1e-4,
+                "on the plate's top: {}",
+                v[1]
+            );
             assert!((0.0..=1.0).contains(&v[0]) && (0.0..=1.0).contains(&v[2]));
         }
     }
@@ -487,9 +639,14 @@ mod tests {
     fn the_icosahedron_has_thirty_equal_edges_on_the_unit_sphere() {
         let edges = icosahedron();
         assert_eq!(edges.len(), 30);
-        let len = |(a, b): ([f32; 3], [f32; 3])| ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt();
+        let len = |(a, b): ([f32; 3], [f32; 3])| {
+            ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
+        };
         let first = len(edges[0]);
-        assert!(edges.iter().all(|&e| (len(e) - first).abs() < 1e-4), "every edge as long");
+        assert!(
+            edges.iter().all(|&e| (len(e) - first).abs() < 1e-4),
+            "every edge as long"
+        );
         for (a, b) in edges {
             for p in [a, b] {
                 let r = (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]).sqrt();

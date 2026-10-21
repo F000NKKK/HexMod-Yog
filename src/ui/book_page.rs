@@ -9,7 +9,9 @@
 use yog_api::yog_data::Value;
 use yog_api::{GfxContext, Registry};
 
-use super::render_lib::{Mesh, Vec2, coord_to_px, draw_line_seq, draw_spot, find_dup_indices, make_zappy};
+use super::render_lib::{
+    Mesh, Vec2, coord_to_px, draw_line_seq, draw_spot, find_dup_indices, make_zappy,
+};
 use crate::math::{HexDir, HexPattern};
 
 /// The drawer id the book's pages name.
@@ -22,20 +24,30 @@ const START_DOT: u32 = 0xff_5b7bd7;
 const GRID_DOT: u32 = 0x80_d2c8c8;
 
 pub fn register(registry: &mut Registry) {
-    registry.on_book_page(DRAWER, |gfx, data, [x, y, w, h]| draw(gfx, &patterns(data), x, y, w, h));
+    registry.on_book_page(DRAWER, |gfx, data, [x, y, w, h]| {
+        draw(gfx, &patterns(data), x, y, w, h)
+    });
 }
 
 /// The page's patterns — the list itself (`PatternPage`'s `patterns`) or
 /// an object's `patterns`: `{ startdir: "EAST", signature: "qaq" }` each.
 pub fn patterns(data: &Value) -> Vec<HexPattern> {
-    let Some(list) = data.as_list().or_else(|| data.get("patterns").and_then(Value::as_list)) else {
+    let Some(list) = data
+        .as_list()
+        .or_else(|| data.get("patterns").and_then(Value::as_list))
+    else {
         return Vec::new();
     };
     list.iter()
         .filter_map(|p| {
             let dir = p.get("startdir").and_then(Value::as_str)?;
-            let dir = HexDir::ALL.into_iter().find(|d| d.name().eq_ignore_ascii_case(dir))?;
-            HexPattern::from_angles(p.get("signature").and_then(Value::as_str).unwrap_or(""), dir)
+            let dir = HexDir::ALL
+                .into_iter()
+                .find(|d| d.name().eq_ignore_ascii_case(dir))?;
+            HexPattern::from_angles(
+                p.get("signature").and_then(Value::as_str).unwrap_or(""),
+                dir,
+            )
         })
         .collect()
 }
@@ -55,7 +67,10 @@ pub fn mesh(patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) -> Mesh {
         if pos.len() < 2 {
             continue;
         }
-        let dots: Vec<Vec2> = pos.iter().map(|&p| coord_to_px(p, 1.0, Vec2::new(0.0, 0.0))).collect();
+        let dots: Vec<Vec2> = pos
+            .iter()
+            .map(|&p| coord_to_px(p, 1.0, Vec2::new(0.0, 0.0)))
+            .collect();
         let dups = find_dup_indices(pos.iter().copied());
         let zappy = make_zappy(&dots, Some(&dups), 10, 0.5, 0.0, 0.2, 0.2, 0.8, 0.0, 0.0);
         // HexPatternPoints: fit into the cell (padding 2, base scale 16).
@@ -71,7 +86,10 @@ pub fn mesh(patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) -> Mesh {
         let (iw, ih) = (bw * scale + pad, bh * scale + pad);
         let off_x = (iw - bw * scale) / 2.0 + (cell_w - iw).max(0.0) / 2.0;
         let off_y = (ih - bh * scale) / 2.0 + (cell_h - ih).max(0.0) / 2.0;
-        let (cx, cy) = (x + cell_w * (k % cols) as f32, y + cell_h * (k / cols) as f32);
+        let (cx, cy) = (
+            x + cell_w * (k % cols) as f32,
+            y + cell_h * (k / cols) as f32,
+        );
         let at = |p: Vec2| Vec2::new(cx + (p.x - x0) * fin + off_x, cy + (p.y - y0) * fin + off_y);
         let line: Vec<Vec2> = zappy.iter().map(|&p| at(p)).collect();
         draw_line_seq(&mut mesh, &line, stroke, OUTER, OUTER, false);
@@ -99,17 +117,25 @@ mod tests {
 
     #[test]
     fn a_page_reads_its_patterns() {
-        let d = data(r#"{ patterns: [ { startdir: "NORTH_EAST", signature: "qaq" }, { startdir: "EAST", signature: "aa" }, { startdir: "UP" } ] }"#);
+        let d = data(
+            r#"{ patterns: [ { startdir: "NORTH_EAST", signature: "qaq" }, { startdir: "EAST", signature: "aa" }, { startdir: "UP" } ] }"#,
+        );
         let p = patterns(&d);
         assert_eq!(p.len(), 2, "an unknown direction is skipped");
         assert_eq!(p[0].positions().len(), 5);
         assert!(patterns(&data("{ op_id: \"hexcasting:manual\" }")).is_empty());
-        assert_eq!(patterns(&data(r#"[ { startdir: "EAST", signature: "aa" } ]"#)).len(), 1, "the list itself");
+        assert_eq!(
+            patterns(&data(r#"[ { startdir: "EAST", signature: "aa" } ]"#)).len(),
+            1,
+            "the list itself"
+        );
     }
 
     #[test]
     fn patterns_fill_the_box_in_cells() {
-        let p = patterns(&data(r#"{ patterns: [ { startdir: "EAST", signature: "qaq" }, { startdir: "EAST", signature: "w" } ] }"#));
+        let p = patterns(&data(
+            r#"{ patterns: [ { startdir: "EAST", signature: "qaq" }, { startdir: "EAST", signature: "w" } ] }"#,
+        ));
         let one = mesh(&p[..1], 0.0, 0.0, 116.0, 64.0);
         let two = mesh(&p, 0.0, 0.0, 116.0, 64.0);
         assert!(one.vertex_count() > 0 && two.vertex_count() > one.vertex_count());
@@ -119,8 +145,12 @@ mod tests {
     /// writes the mesh of Mind's Reflection and two others (116×64, scale 4).
     #[test]
     fn write_a_pattern_page() {
-        let Some(out) = std::env::var_os("HEX_PAGE_OUT") else { return };
-        let p = patterns(&data(r#"{ patterns: [ { startdir: "NORTH_EAST", signature: "qaq" }, { startdir: "EAST", signature: "aa" }, { startdir: "EAST", signature: "qaqqqqq" } ] }"#));
+        let Some(out) = std::env::var_os("HEX_PAGE_OUT") else {
+            return;
+        };
+        let p = patterns(&data(
+            r#"{ patterns: [ { startdir: "NORTH_EAST", signature: "qaq" }, { startdir: "EAST", signature: "aa" }, { startdir: "EAST", signature: "qaqqqqq" } ] }"#,
+        ));
         let m = mesh(&p, 0.0, 0.0, 116.0 * 4.0, 64.0 * 4.0);
         let text: Vec<String> = m.vertices().iter().map(|v| v.to_string()).collect();
         std::fs::write(out, text.join(" ")).unwrap();

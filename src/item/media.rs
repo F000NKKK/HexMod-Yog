@@ -2,8 +2,8 @@
 //! amethyst that's spent whole, and phials / casting items that hold an
 //! amount in their NBT.
 
-use yog_api::vanilla;
 use yog_api::Server;
+use yog_api::vanilla;
 
 use crate::casting::env::{SLOT_OFFHAND, Stack};
 use crate::content::{Blocks, Items};

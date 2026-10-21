@@ -4,9 +4,9 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64::consts::PI;
 use std::sync::Mutex;
 
-use yog_api::vanilla;
 use yog_api::Server;
 use yog_api::core::Face;
+use yog_api::vanilla;
 
 use crate::akashic;
 use crate::casting::actions::{Action, actions};
@@ -16,8 +16,8 @@ use crate::casting::args::{
 };
 use crate::casting::cont::Cont;
 use crate::casting::env::{
-    CastEnv, DIM_TP_DENYLIST, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec, player_storage, random,
-    set_sentinel, to_ypos,
+    CastEnv, DIM_TP_DENYLIST, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec,
+    player_storage, random, set_sentinel, to_ypos,
 };
 use crate::casting::image::Image;
 use crate::casting::mishap::{BlockPos, MResult, Mishap, dye, item_name};
@@ -246,7 +246,9 @@ pub fn teleport_by(srv: &dyn Server, dim: &str, uuid: &str, delta: Vec3) {
     if DIM_TP_DENYLIST.contains(&dim) {
         return;
     }
-    let Some(p) = srv.entity_position(uuid) else { return };
+    let Some(p) = srv.entity_position(uuid) else {
+        return;
+    };
     let to = Vec3::from_tuple(p) + delta;
     // A "sticky" entity teleports itself and its riders. A teleport takes
     // the riders along, so they get off one that isn't.
@@ -478,8 +480,10 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
                 at,
                 &info.state.replace("waterlogged=true", "waterlogged=false"),
             )
-        } else if matches!(info.block_id(), vanilla::blocks::WATER | vanilla::blocks::LAVA)
-            || info.block_id() == info.fluid.as_deref().unwrap_or_default()
+        } else if matches!(
+            info.block_id(),
+            vanilla::blocks::WATER | vanilla::blocks::LAVA
+        ) || info.block_id() == info.fluid.as_deref().unwrap_or_default()
         {
             env.srv.set_block(&env.dim, at, vanilla::blocks::AIR)
         } else if env
@@ -536,10 +540,9 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
             vanilla::blocks::FIRE | vanilla::blocks::SOUL_FIRE | vanilla::blocks::NETHER_PORTAL => {
                 env.srv.set_block(&env.dim, at, vanilla::blocks::AIR)
             }
-            vanilla::blocks::CAMPFIRE | vanilla::blocks::SOUL_CAMPFIRE if lit => {
-                env.srv
-                    .use_item_on_block(&env.dim, at, Face::Up, vanilla::items::WOODEN_SHOVEL, "")
-            }
+            vanilla::blocks::CAMPFIRE | vanilla::blocks::SOUL_CAMPFIRE if lit => env
+                .srv
+                .use_item_on_block(&env.dim, at, Face::Up, vanilla::items::WOODEN_SHOVEL, ""),
             _ if lit && (id.ends_with("candle") || id.ends_with("candle_cake")) => {
                 let ok = env
                     .srv

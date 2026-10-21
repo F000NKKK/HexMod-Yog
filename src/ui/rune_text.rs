@@ -27,7 +27,11 @@ pub fn width(segs: &[Segment], width_of: &dyn Fn(&str) -> f32) -> f32 {
 
 /// `segs` cut to `max_width`, room left for a "...": the longest start that
 /// fits, words broken after a space when there's one; and whether it was cut.
-pub fn fit(segs: &[Segment], max_width: f32, width_of: &dyn Fn(&str) -> f32) -> (Vec<Segment>, bool) {
+pub fn fit(
+    segs: &[Segment],
+    max_width: f32,
+    width_of: &dyn Fn(&str) -> f32,
+) -> (Vec<Segment>, bool) {
     if width(segs, width_of) <= max_width - width_of("...") {
         return (segs.to_vec(), false);
     }
@@ -61,7 +65,11 @@ pub fn wrap(segs: &[Segment], max_width: f32, width_of: &dyn Fn(&str) -> f32) ->
 }
 
 /// The longest start of `segs` no wider than `limit`, and the rest.
-fn take_line(segs: &[Segment], limit: f32, width_of: &dyn Fn(&str) -> f32) -> (Vec<Segment>, Vec<Segment>) {
+fn take_line(
+    segs: &[Segment],
+    limit: f32,
+    width_of: &dyn Fn(&str) -> f32,
+) -> (Vec<Segment>, Vec<Segment>) {
     let mut line: Vec<Segment> = Vec::new();
     let mut used = 0.0;
     for (i, seg) in segs.iter().enumerate() {
@@ -128,20 +136,47 @@ mod tests {
     fn runes_take_room_in_the_line() {
         let width = |s: &str| s.chars().count() as f32 * 6.0;
         let rune = Segment::Rune(HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap());
-        let segs = vec![words("["), rune.clone(), words(", "), rune.clone(), words("]")];
+        let segs = vec![
+            words("["),
+            rune.clone(),
+            words(", "),
+            rune.clone(),
+            words("]"),
+        ];
         let full = super::width(&segs, &width);
         assert!(full > 4.0 * 6.0, "runes have width");
         assert_eq!(fit(&segs, full + 18.0, &width), (segs.clone(), false));
-        let (cut, was_cut) = fit(&segs, 6.0 + rune_width(match &rune { Segment::Rune(p) => p, _ => unreachable!() }, RUNE_HEIGHT) + 18.0 + 1.0, &width);
+        let (cut, was_cut) = fit(
+            &segs,
+            6.0 + rune_width(
+                match &rune {
+                    Segment::Rune(p) => p,
+                    _ => unreachable!(),
+                },
+                RUNE_HEIGHT,
+            ) + 18.0
+                + 1.0,
+            &width,
+        );
         assert!(was_cut);
         assert_eq!(cut, vec![words("["), rune.clone()]);
-        assert_eq!(fit(&[words("one two three four")], 80.0, &width).0, vec![words("one two")]);
+        assert_eq!(
+            fit(&[words("one two three four")], 80.0, &width).0,
+            vec![words("one two")]
+        );
     }
 
     #[test]
     fn long_text_wraps_into_lines() {
         let width = |s: &str| s.chars().count() as f32 * 6.0;
         let lines = wrap(&[words("one two three four")], 50.0, &width);
-        assert_eq!(lines, vec![vec![words("one two")], vec![words("three")], vec![words("four")]]);
+        assert_eq!(
+            lines,
+            vec![
+                vec![words("one two")],
+                vec![words("three")],
+                vec![words("four")]
+            ]
+        );
     }
 }

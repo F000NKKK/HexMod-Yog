@@ -8,8 +8,8 @@
 
 use std::sync::Mutex;
 
-use yog_api::vanilla;
 use yog_api::ui::{Color, Vec2};
+use yog_api::vanilla;
 use yog_api::{GfxContext, Registry, Server, split_state};
 
 use crate::akashic;
@@ -38,11 +38,19 @@ pub struct Line {
 }
 
 fn line(item: &str, text: Text) -> Line {
-    Line { item: item.into(), color: None, text }
+    Line {
+        item: item.into(),
+        color: None,
+        text,
+    }
 }
 
 fn colored(item: &str, color: u32, text: impl Into<String>) -> Line {
-    Line { item: item.into(), color: Some(color), text: Text::lit(text) }
+    Line {
+        item: item.into(),
+        color: Some(color),
+        text: Text::lit(text),
+    }
 }
 
 pub fn encode(lines: &[Line]) -> Vec<u8> {
@@ -63,7 +71,11 @@ pub fn decode(b: &[u8]) -> Option<Vec<Line>> {
             let item = r.str()?.to_owned();
             let color = r.int()?;
             let text = Text::read(&mut r)?;
-            Some(Line { item, color: (color >= 0).then_some(color as u32), text })
+            Some(Line {
+                item,
+                color: (color >= 0).then_some(color as u32),
+                text,
+            })
         })
         .collect()
 }
@@ -80,8 +92,29 @@ fn redstone_color(power: i32, max: i32) -> u32 {
 }
 
 const INSTRUMENTS: [&str; 23] = [
-    "harp", "basedrum", "snare", "hat", "bass", "flute", "bell", "guitar", "chime", "xylophone", "iron_xylophone", "cow_bell",
-    "didgeridoo", "bit", "banjo", "pling", "zombie", "skeleton", "creeper", "dragon", "wither_skeleton", "piglin", "custom_head",
+    "harp",
+    "basedrum",
+    "snare",
+    "hat",
+    "bass",
+    "flute",
+    "bell",
+    "guitar",
+    "chime",
+    "xylophone",
+    "iron_xylophone",
+    "cow_bell",
+    "didgeridoo",
+    "bit",
+    "banjo",
+    "pling",
+    "zombie",
+    "skeleton",
+    "creeper",
+    "dragon",
+    "wither_skeleton",
+    "piglin",
+    "custom_head",
 ];
 
 /// `instrumentColor`: the instrument's block's map color.
@@ -130,11 +163,20 @@ fn powered_rail_strength(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> i
     if srv.redstone_power(dim, to_ypos(pos)).is_some_and(|p| p > 0) {
         return 9;
     }
-    let shape = srv.block_property(dim, to_ypos(pos), "shape").unwrap_or_default();
+    let shape = srv
+        .block_property(dim, to_ypos(pos), "shape")
+        .unwrap_or_default();
     rail_signal(srv, dim, pos, &shape, true, 0).max(rail_signal(srv, dim, pos, &shape, false, 0))
 }
 
-fn rail_signal(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), shape: &str, positive: bool, depth: i32) -> i32 {
+fn rail_signal(
+    srv: &dyn Server,
+    dim: &str,
+    pos: (i32, i32, i32),
+    shape: &str,
+    positive: bool,
+    depth: i32,
+) -> i32 {
     if depth >= 8 {
         return 0;
     }
@@ -196,16 +238,27 @@ fn rail_signal(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), shape: &str, p
     }
 }
 
-fn rail_power(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), positive: bool, depth: i32, shape: &str) -> i32 {
-    let Some(state) = srv.get_block_state(dim, to_ypos(pos)) else { return 0 };
+fn rail_power(
+    srv: &dyn Server,
+    dim: &str,
+    pos: (i32, i32, i32),
+    positive: bool,
+    depth: i32,
+    shape: &str,
+) -> i32 {
+    let Some(state) = srv.get_block_state(dim, to_ypos(pos)) else {
+        return 0;
+    };
     let (id, props) = split_state(&state);
     if id != vanilla::blocks::POWERED_RAIL {
         return 0;
     }
     let get = |k: &str| props.iter().find(|(n, _)| *n == k).map_or("", |(_, v)| *v);
     let other = get("shape");
-    let crosses = (shape == "east_west" && matches!(other, "north_south" | "ascending_north" | "ascending_south"))
-        || (shape == "north_south" && matches!(other, "east_west" | "ascending_east" | "ascending_west"));
+    let crosses = (shape == "east_west"
+        && matches!(other, "north_south" | "ascending_north" | "ascending_south"))
+        || (shape == "north_south"
+            && matches!(other, "east_west" | "ascending_east" | "ascending_west"));
     if crosses || get("powered") != "true" {
         return 0;
     }
@@ -218,7 +271,9 @@ fn rail_power(srv: &dyn Server, dim: &str, pos: (i32, i32, i32), positive: bool,
 
 /// `ScryingLensOverlayRegistry.getLines` for the block at `pos`.
 pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
-    let Some(state) = srv.get_block_state(dim, to_ypos(pos)) else { return Vec::new() };
+    let Some(state) = srv.get_block_state(dim, to_ypos(pos)) else {
+        return Vec::new();
+    };
     let (id, props) = split_state(&state);
     let get = |k: &str| props.iter().find(|(n, _)| *n == k).map_or("", |(_, v)| *v);
     let mut out = Vec::new();
@@ -227,10 +282,16 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
             // `BlockEntityAbstractImpetus.applyScryingLensOverlay`.
             let imp = circle::impetus(srv, dim, pos);
             if imp.media < 0 {
-                out.push(line(Items::AMETHYST_DUST, Text::key("hexcasting.debug.infinite_media")));
+                out.push(line(
+                    Items::AMETHYST_DUST,
+                    Text::key("hexcasting.debug.infinite_media"),
+                ));
             } else {
                 let dust = dust_amount(imp.media as f64 / DUST as f64);
-                out.push(line(Items::AMETHYST_DUST, Text::key_args("hexcasting.tooltip.media", vec![Text::lit(dust)])));
+                out.push(line(
+                    Items::AMETHYST_DUST,
+                    Text::key_args("hexcasting.tooltip.media", vec![Text::lit(dust)]),
+                ));
             }
             if let Some((msg, item)) = &imp.display {
                 out.push(line(item, msg.clone()));
@@ -239,19 +300,39 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
                 match &imp.player {
                     Some((_, name)) => out.push(line(
                         vanilla::items::PLAYER_HEAD,
-                        Text::key_args("hexcasting.tooltip.lens.impetus.redstone.bound", vec![Text::lit(name.clone())]),
+                        Text::key_args(
+                            "hexcasting.tooltip.lens.impetus.redstone.bound",
+                            vec![Text::lit(name.clone())],
+                        ),
                     )),
-                    None => out.push(line(vanilla::items::BARRIER, Text::key("hexcasting.tooltip.lens.impetus.redstone.bound.none"))),
+                    None => out.push(line(
+                        vanilla::items::BARRIER,
+                        Text::key("hexcasting.tooltip.lens.impetus.redstone.bound.none"),
+                    )),
                 }
             }
         }
         vanilla::blocks::NOTE_BLOCK => {
             let note: i32 = get("note").parse().unwrap_or(0);
-            let tone = |o: f32| ((note as f32 / 24.0 + o) * std::f32::consts::TAU).sin().mul_add(0.65, 0.35).max(0.0);
-            let color = ((tone(0.0) * 255.0) as u32) << 16 | ((tone(1.0 / 3.0) * 255.0) as u32) << 8 | (tone(2.0 / 3.0) * 255.0) as u32;
+            let tone = |o: f32| {
+                ((note as f32 / 24.0 + o) * std::f32::consts::TAU)
+                    .sin()
+                    .mul_add(0.65, 0.35)
+                    .max(0.0)
+            };
+            let color = ((tone(0.0) * 255.0) as u32) << 16
+                | ((tone(1.0 / 3.0) * 255.0) as u32) << 8
+                | (tone(2.0 / 3.0) * 255.0) as u32;
             let instrument = get("instrument");
-            let ordinal = INSTRUMENTS.iter().position(|i| *i == instrument).unwrap_or(0);
-            out.push(colored(vanilla::items::MUSIC_DISC_CHIRP, instrument_color(instrument), ordinal.to_string()));
+            let ordinal = INSTRUMENTS
+                .iter()
+                .position(|i| *i == instrument)
+                .unwrap_or(0);
+            out.push(colored(
+                vanilla::items::MUSIC_DISC_CHIRP,
+                instrument_color(instrument),
+                ordinal.to_string(),
+            ));
             out.push(colored(vanilla::items::NOTE_BLOCK, color, note.to_string()));
         }
         akashic::BOOKSHELF => {
@@ -264,13 +345,25 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
                 .get_block_nbt(dim, to_ypos(pos))
                 .and_then(|n| crate::snbt::Nbt::parse(&n).get_i64("OutputSignal"))
                 .unwrap_or(0) as i32;
-            out.push(colored(vanilla::items::REDSTONE, redstone_color(value, 15), value.to_string()));
+            out.push(colored(
+                vanilla::items::REDSTONE,
+                redstone_color(value, 15),
+                value.to_string(),
+            ));
             let compare = get("mode") == "compare";
-            out.push(colored(vanilla::items::REDSTONE_TORCH, redstone_color(if compare { 0 } else { 15 }, 15), if compare { ">=" } else { "-" }));
+            out.push(colored(
+                vanilla::items::REDSTONE_TORCH,
+                redstone_color(if compare { 0 } else { 15 }, 15),
+                if compare { ">=" } else { "-" },
+            ));
         }
         vanilla::items::POWERED_RAIL => {
             let power = powered_rail_strength(srv, dim, pos);
-            out.push(colored(vanilla::items::POWERED_RAIL, redstone_color(power, 9), power.to_string()));
+            out.push(colored(
+                vanilla::items::POWERED_RAIL,
+                redstone_color(power, 9),
+                power.to_string(),
+            ));
         }
         vanilla::items::REPEATER => {
             out.push(colored(vanilla::items::CLOCK, 0xFFFF55, get("delay")));
@@ -282,7 +375,14 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
         && let Some(signal) = srv.redstone_signal(dim, to_ypos(pos))
     {
         let s = signal as i32;
-        out.insert(0, colored(vanilla::items::REDSTONE, redstone_color(s, 15), s.to_string()));
+        out.insert(
+            0,
+            colored(
+                vanilla::items::REDSTONE,
+                redstone_color(s, 15),
+                s.to_string(),
+            ),
+        );
     }
     out
 }
@@ -296,7 +396,9 @@ static TICKS: Mutex<u64> = Mutex::new(0);
 /// `SCRY_SIGHT`: a lens in either hand or on the head.
 fn has_lens(srv: &dyn Server, player: &str) -> bool {
     let selected = srv.player_info(player).map_or(0, |p| p.selected_slot);
-    [selected, SLOT_OFFHAND, HEAD_SLOT].into_iter().any(|slot| Stack::read(srv, player, slot).id == Items::LENS)
+    [selected, SLOT_OFFHAND, HEAD_SLOT]
+        .into_iter()
+        .any(|slot| Stack::read(srv, player, slot).id == Items::LENS)
 }
 
 pub fn tick(srv: &dyn Server) {
@@ -368,7 +470,11 @@ fn draw(gfx: &GfxContext) {
             (l, rows)
         })
         .collect();
-    let total: f32 = 8.0 + wrapped.iter().map(|(_, rows)| LINE + 6.0 + LINE * (rows.len().max(1) - 1) as f32).sum::<f32>();
+    let total: f32 = 8.0
+        + wrapped
+            .iter()
+            .map(|(_, rows)| LINE + 6.0 + LINE * (rows.len().max(1) - 1) as f32)
+            .sum::<f32>();
     let x = w / 2.0 + 8.0;
     let mut y = h / 2.0 - total;
     for (l, rows) in wrapped {
@@ -416,7 +522,10 @@ mod tests {
 
     #[test]
     fn lines_survive_the_wire() {
-        let ls = vec![colored("minecraft:redstone", 0xFF0000, "15"), line("minecraft:book", Text::key("x"))];
+        let ls = vec![
+            colored("minecraft:redstone", 0xFF0000, "15"),
+            line("minecraft:book", Text::key("x")),
+        ];
         assert_eq!(decode(&encode(&ls)), Some(ls));
     }
 

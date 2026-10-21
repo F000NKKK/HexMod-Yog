@@ -38,8 +38,6 @@ impl Mod for HexMod {
     fn register(registry: &mut Registry) {
         info!("[hexcasting-yog] initializing the gate between worlds...");
 
-
-
         // The staff's casting grid; the book's pattern pages.
         ui::spellcasting::register(registry);
         ui::book_page::register(registry);

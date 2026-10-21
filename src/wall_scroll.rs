@@ -18,7 +18,9 @@ use crate::item::holder::{self, TAG_OP_ID};
 use crate::math::HexPattern;
 use crate::snbt::Nbt;
 use crate::ui::pattern_render::{INNER_COLOR, OUTER_COLOR, STARTING_DOT};
-use crate::ui::render_lib::{Mesh, Vec2, draw_line_seq, draw_spot, find_dup_indices, make_zappy, to_lines};
+use crate::ui::render_lib::{
+    Mesh, Vec2, draw_line_seq, draw_spot, find_dup_indices, make_zappy, to_lines,
+};
 
 /// Entity data: the scroll shows its stroke order (`SHOWS_STROKE_ORDER`), saved with it.
 const STROKE_ORDER: &str = "hexcasting:shows_stroke_order";
@@ -42,7 +44,9 @@ const WHITE: &str = "hexcasting:textures/entity/white.png";
 const PLAIN: u32 = 0xFF_FFFFFF;
 
 pub fn register(registry: &mut Registry) {
-    registry.on_entity_interact(|ev, phase, srv| phase != EventPhase::Pre || ev.entity_type != Entities::WALL_SCROLL || !dust(srv, ev));
+    registry.on_entity_interact(|ev, phase, srv| {
+        phase != EventPhase::Pre || ev.entity_type != Entities::WALL_SCROLL || !dust(srv, ev)
+    });
     body::track_type(Entities::WALL_SCROLL, true);
     registry.on_body(draw);
 }
@@ -58,8 +62,14 @@ fn dust(srv: &dyn Server, ev: &EntityInteractEvent) -> bool {
     if shows_stroke_order(srv.entity_data(&ev.entity_uuid, STROKE_ORDER).as_deref()) {
         return false;
     }
-    let Some(player) = srv.player_info(&ev.player_name) else { return false };
-    let slot = if ev.hand == OFF_HAND { SLOT_OFFHAND } else { player.selected_slot };
+    let Some(player) = srv.player_info(&ev.player_name) else {
+        return false;
+    };
+    let slot = if ev.hand == OFF_HAND {
+        SLOT_OFFHAND
+    } else {
+        player.selected_slot
+    };
     let mut stack = Stack::read(srv, &ev.player_name, slot);
     if !stack.is(Items::AMETHYST_DUST) {
         return false;
@@ -70,7 +80,15 @@ fn dust(srv: &dyn Server, ev: &EntityInteractEvent) -> bool {
     }
     srv.set_entity_data(&ev.entity_uuid, STROKE_ORDER, Some(&[1]), true);
     if let Some(e) = srv.entity_info(&ev.entity_uuid) {
-        srv.play_sound(&e.dimension, e.pos.0, e.pos.1, e.pos.2, crate::sounds::SCROLL_DUST, 1.0, 1.0);
+        srv.play_sound(
+            &e.dimension,
+            e.pos.0,
+            e.pos.1,
+            e.pos.2,
+            crate::sounds::SCROLL_DUST,
+            1.0,
+            1.0,
+        );
     }
     true
 }
@@ -107,7 +125,14 @@ fn draw(f: &Frame, ops: &mut Ops) {
         drawn.insert(f.uuid.clone(), build(&h, readable, seed, key));
     }
     let d = &drawn[&f.uuid];
-    ops.mesh(&Anchor::Entity, d.paper, Mode::Cutout, false, PLAIN, &d.paper_quads);
+    ops.mesh(
+        &Anchor::Entity,
+        d.paper,
+        Mode::Cutout,
+        false,
+        PLAIN,
+        &d.paper_quads,
+    );
     for (color, quads) in &d.pattern {
         ops.mesh(&Anchor::Entity, WHITE, Mode::Cutout, false, *color, quads);
     }
@@ -116,9 +141,20 @@ fn draw(f: &Frame, ops: &mut Ops) {
 fn build(h: &Hanging, readable: bool, seed: i32, key: (String, bool, u32, i32)) -> Drawn {
     let nbt = Nbt::parse(&h.nbt);
     let size = key.2;
-    let papers = if nbt.contains(TAG_OP_ID) { ANCIENT } else { PRISTINE };
-    let pattern = holder::written_pattern(&h.item, &nbt).map_or_else(Vec::new, |p| pattern_quads(&p, size as f32, readable, seed as f64));
-    Drawn { paper: papers[(size.clamp(1, 3) - 1) as usize], paper_quads: paper_quads(size as f32), pattern, key }
+    let papers = if nbt.contains(TAG_OP_ID) {
+        ANCIENT
+    } else {
+        PRISTINE
+    };
+    let pattern = holder::written_pattern(&h.item, &nbt).map_or_else(Vec::new, |p| {
+        pattern_quads(&p, size as f32, readable, seed as f64)
+    });
+    Drawn {
+        paper: papers[(size.clamp(1, 3) - 1) as usize],
+        paper_quads: paper_quads(size as f32),
+        pattern,
+        key,
+    }
 }
 
 /// `WallScrollRenderer`'s space, after the entity's turn: x right, y down,
@@ -134,12 +170,60 @@ fn paper_quads(size: f32) -> Vec<Quad> {
     let margin = 1.0 / 48.0;
     // Corners (x, y, z, u, v) and the face's normal, as the original's vertices.
     let faces: [([[f32; 5]; 4], [f32; 3]); 6] = [
-        ([[0., 0., dz, 0., 0.], [0., dy, dz, 0., 1.], [dx, dy, dz, 1., 1.], [dx, 0., dz, 1., 0.]], [0., 0., -1.]),
-        ([[0., 0., 0., 0., 0.], [dx, 0., 0., 1., 0.], [dx, dy, 0., 1., 1.], [0., dy, 0., 0., 1.]], [0., 0., 1.]),
-        ([[0., 0., 0., 0., 0.], [0., 0., dz, 0., margin], [dx, 0., dz, 1., margin], [dx, 0., 0., 1., 0.]], [0., -1., 0.]),
-        ([[0., 0., 0., 0., 0.], [0., dy, 0., 0., 1.], [0., dy, dz, margin, 1.], [0., 0., dz, margin, 0.]], [-1., 0., 0.]),
-        ([[dx, 0., dz, 1. - margin, 0.], [dx, dy, dz, 1. - margin, 1.], [dx, dy, 0., 1., 1.], [dx, 0., 0., 1., 0.]], [1., 0., 0.]),
-        ([[0., dy, dz, 0., 1. - margin], [0., dy, 0., 0., 1.], [dx, dy, 0., 1., 1.], [dx, dy, dz, 1., 1. - margin]], [0., 1., 0.]),
+        (
+            [
+                [0., 0., dz, 0., 0.],
+                [0., dy, dz, 0., 1.],
+                [dx, dy, dz, 1., 1.],
+                [dx, 0., dz, 1., 0.],
+            ],
+            [0., 0., -1.],
+        ),
+        (
+            [
+                [0., 0., 0., 0., 0.],
+                [dx, 0., 0., 1., 0.],
+                [dx, dy, 0., 1., 1.],
+                [0., dy, 0., 0., 1.],
+            ],
+            [0., 0., 1.],
+        ),
+        (
+            [
+                [0., 0., 0., 0., 0.],
+                [0., 0., dz, 0., margin],
+                [dx, 0., dz, 1., margin],
+                [dx, 0., 0., 1., 0.],
+            ],
+            [0., -1., 0.],
+        ),
+        (
+            [
+                [0., 0., 0., 0., 0.],
+                [0., dy, 0., 0., 1.],
+                [0., dy, dz, margin, 1.],
+                [0., 0., dz, margin, 0.],
+            ],
+            [-1., 0., 0.],
+        ),
+        (
+            [
+                [dx, 0., dz, 1. - margin, 0.],
+                [dx, dy, dz, 1. - margin, 1.],
+                [dx, dy, 0., 1., 1.],
+                [dx, 0., 0., 1., 0.],
+            ],
+            [1., 0., 0.],
+        ),
+        (
+            [
+                [0., dy, dz, 0., 1. - margin],
+                [0., dy, 0., 0., 1.],
+                [dx, dy, 0., 1., 1.],
+                [dx, dy, dz, 1., 1. - margin],
+            ],
+            [0., 1., 0.],
+        ),
     ];
     faces
         .iter()
@@ -181,9 +265,25 @@ const PATTERN_Z: f32 = -1.0 / 16.0 - 0.01;
 fn fitted_points(pattern: &HexPattern, readable: bool, seed: f64) -> (Vec<Vec2>, Vec<Vec2>) {
     let dots = to_lines(pattern, 1.0, Vec2::ZERO);
     let dups: HashSet<usize> = find_dup_indices(pattern.positions());
-    let (offset, last) = if readable { (READABLE_OFFSET, READABLE_SEGMENT) } else { (0.0, 1.0) };
-    let zappy = make_zappy(&dots, Some(&dups), HOPS, VARIANCE, 0.0, FLOW_IRREGULAR, offset, last, seed, 0.0);
-    let (mut min_x, mut min_y, mut max_x, mut max_y) = (f64::MAX, f64::MAX, f64::MIN_POSITIVE, f64::MIN_POSITIVE);
+    let (offset, last) = if readable {
+        (READABLE_OFFSET, READABLE_SEGMENT)
+    } else {
+        (0.0, 1.0)
+    };
+    let zappy = make_zappy(
+        &dots,
+        Some(&dups),
+        HOPS,
+        VARIANCE,
+        0.0,
+        FLOW_IRREGULAR,
+        offset,
+        last,
+        seed,
+        0.0,
+    );
+    let (mut min_x, mut min_y, mut max_x, mut max_y) =
+        (f64::MAX, f64::MAX, f64::MIN_POSITIVE, f64::MIN_POSITIVE);
     for p in &zappy {
         min_x = min_x.min(p.x as f64);
         max_x = max_x.max(p.x as f64);
@@ -202,14 +302,27 @@ fn fitted_points(pattern: &HexPattern, readable: bool, seed: f64) -> (Vec<Vec2>,
         (inherent - extent * scale) / 2.0 + (1.0 - inherent).max(0.0) / 2.0
     };
     let (ox, oy) = (offset_of(base_w), offset_of(base_h));
-    let fit_point = |p: &Vec2| Vec2::new(((p.x as f64 - min_x) * final_scale + ox) as f32, ((p.y as f64 - min_y) * final_scale + oy) as f32);
-    (zappy.iter().map(fit_point).collect(), dots.iter().map(fit_point).collect())
+    let fit_point = |p: &Vec2| {
+        Vec2::new(
+            ((p.x as f64 - min_x) * final_scale + ox) as f32,
+            ((p.y as f64 - min_y) * final_scale + oy) as f32,
+        )
+    };
+    (
+        zappy.iter().map(fit_point).collect(),
+        dots.iter().map(fit_point).collect(),
+    )
 }
 
 /// `renderPatternForScroll`: the strokes (and the starting dot) on the
 /// paper's face, each color its quads. Lit as if from above, as the
 /// original turns their normals.
-fn pattern_quads(pattern: &HexPattern, size: f32, readable: bool, seed: f64) -> Vec<(u32, Vec<Quad>)> {
+fn pattern_quads(
+    pattern: &HexPattern,
+    size: f32,
+    readable: bool,
+    seed: f64,
+) -> Vec<(u32, Vec<Quad>)> {
     let (zappy, dots) = fitted_points(pattern, readable, seed);
     let mut layers = Vec::new();
     let mut layer = |color: u32, z: f32, fill: &dyn Fn(&mut Mesh)| {
@@ -224,15 +337,39 @@ fn pattern_quads(pattern: &HexPattern, size: f32, readable: bool, seed: f64) -> 
             .map(|t| {
                 let p = |i: usize| place(size, t[i * 6] * size, t[i * 6 + 1] * size, z);
                 // A triangle as a quad, its last corner twice.
-                Quad { pos: [p(0), p(1), p(2), p(2)], uv: [[0.5, 0.5]; 4], normal: body::Vec3::new(0.0, 1.0, 0.0) }
+                Quad {
+                    pos: [p(0), p(1), p(2), p(2)],
+                    uv: [[0.5, 0.5]; 4],
+                    normal: body::Vec3::new(0.0, 1.0, 0.0),
+                }
             })
             .collect();
         layers.push((color, quads));
     };
-    layer(OUTER_COLOR, OUTER_Z, &|m| draw_line_seq(m, &zappy, OUTER_WIDTH as f32, OUTER_COLOR, OUTER_COLOR, false));
-    layer(INNER_COLOR, INNER_Z, &|m| draw_line_seq(m, &zappy, INNER_WIDTH as f32, INNER_COLOR, INNER_COLOR, false));
+    layer(OUTER_COLOR, OUTER_Z, &|m| {
+        draw_line_seq(
+            m,
+            &zappy,
+            OUTER_WIDTH as f32,
+            OUTER_COLOR,
+            OUTER_COLOR,
+            false,
+        )
+    });
+    layer(INNER_COLOR, INNER_Z, &|m| {
+        draw_line_seq(
+            m,
+            &zappy,
+            INNER_WIDTH as f32,
+            INNER_COLOR,
+            INNER_COLOR,
+            false,
+        )
+    });
     if readable && let Some(&first) = dots.first() {
-        layer(STARTING_DOT, DOT_Z, &|m| draw_spot(m, first, START_DOT as f32, STARTING_DOT));
+        layer(STARTING_DOT, DOT_Z, &|m| {
+            draw_spot(m, first, START_DOT as f32, STARTING_DOT)
+        });
     }
     layers
 }
@@ -253,7 +390,9 @@ fn seed(center: [f64; 3], h: &Hanging) -> i32 {
     let x = (center[0] + 0.46875 * fx - w * cx - 0.5).round() as i32;
     let y = (center[1] - hh - 0.5).round() as i32;
     let z = (center[2] + 0.46875 * fz - w * cz - 0.5).round() as i32;
-    (y.wrapping_add(z.wrapping_mul(31))).wrapping_mul(31).wrapping_add(x)
+    (y.wrapping_add(z.wrapping_mul(31)))
+        .wrapping_mul(31)
+        .wrapping_add(x)
 }
 
 #[cfg(test)]
@@ -262,7 +401,13 @@ mod tests {
     use crate::math::HexDir;
 
     fn hanging(facing: &str, size: u32) -> Hanging {
-        Hanging { facing: facing.into(), width: size, height: size, item: Items::SCROLL.into(), nbt: "{}".into() }
+        Hanging {
+            facing: facing.into(),
+            width: size,
+            height: size,
+            item: Items::SCROLL.into(),
+            nbt: "{}".into(),
+        }
     }
 
     #[test]
@@ -295,10 +440,16 @@ mod tests {
         let p = HexPattern::from_angles("waqaw", HexDir::East).unwrap();
         let (zappy, _) = fitted_points(&p, false, 7.0);
         for pt in &zappy {
-            assert!((PAD as f32 - 0.05..=1.0 - PAD as f32 + 0.05).contains(&pt.x), "inside the padding: {pt:?}");
+            assert!(
+                (PAD as f32 - 0.05..=1.0 - PAD as f32 + 0.05).contains(&pt.x),
+                "inside the padding: {pt:?}"
+            );
         }
         let plain = pattern_quads(&p, 2.0, false, 7.0);
-        assert_eq!(plain.iter().map(|(c, _)| *c).collect::<Vec<_>>(), [OUTER_COLOR, INNER_COLOR]);
+        assert_eq!(
+            plain.iter().map(|(c, _)| *c).collect::<Vec<_>>(),
+            [OUTER_COLOR, INNER_COLOR]
+        );
         let all_quads = plain.iter().flat_map(|(_, q)| q).flat_map(|q| q.pos);
         for v in all_quads {
             assert!(v.z < -1.0 / 32.0, "in front of the paper: {}", v.z);
@@ -312,8 +463,15 @@ mod tests {
     fn each_size_has_its_paper() {
         let written = |op: bool| {
             let p = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
-            let op = if op { "op_id:\"hexcasting:get_caster\"," } else { "" };
-            Hanging { nbt: format!("{{{op}pattern:\"{}\"}}", p.serialized_form()), ..hanging("south", 1) }
+            let op = if op {
+                "op_id:\"hexcasting:get_caster\","
+            } else {
+                ""
+            };
+            Hanging {
+                nbt: format!("{{{op}pattern:\"{}\"}}", p.serialized_form()),
+                ..hanging("south", 1)
+            }
         };
         let d = build(&written(false), false, 0, (String::new(), false, 1, 0));
         assert_eq!(d.paper, PRISTINE[0]);

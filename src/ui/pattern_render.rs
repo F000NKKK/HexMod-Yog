@@ -33,7 +33,12 @@ const SLATE_BG: &str = "hexcasting:gui/slate";
 /// Scrolls and slates that bear a pattern show it under their tooltip, on
 /// their paper, as Hex Casting's `getTooltipImage` does.
 pub fn register(registry: &mut Registry) {
-    for item in [Items::SCROLL, Items::SCROLL_SMALL, Items::SCROLL_MEDIUM, holder::SLATE] {
+    for item in [
+        Items::SCROLL,
+        Items::SCROLL_SMALL,
+        Items::SCROLL_MEDIUM,
+        holder::SLATE,
+    ] {
         registry.on_item_tooltip(
             item,
             |item, snbt| tooltip(item, snbt).map(|_| (TOOLTIP_SIZE, TOOLTIP_SIZE)),
@@ -55,18 +60,35 @@ const HEX_TOOLTIP_WIDTH: f32 = 160.0;
 const HEX_TOOLTIP_LINE: f32 = super::rune_text::RUNE_HEIGHT + 2.0;
 
 fn register_hex_tooltips(registry: &mut Registry) {
-    for item in [Items::CYPHER, Items::ANCIENT_CYPHER, Items::TRINKET, Items::ARTIFACT] {
+    for item in [
+        Items::CYPHER,
+        Items::ANCIENT_CYPHER,
+        Items::TRINKET,
+        Items::ARTIFACT,
+    ] {
         registry.on_item_tooltip(
             item,
             |_, snbt| {
                 let (lines, _) = hex_lines(snbt, &approx_width)?;
-                let w = lines.iter().map(|l| super::rune_text::width(l, &approx_width)).fold(0.0, f32::max);
+                let w = lines
+                    .iter()
+                    .map(|l| super::rune_text::width(l, &approx_width))
+                    .fold(0.0, f32::max);
                 Some((w.ceil(), lines.len() as f32 * HEX_TOOLTIP_LINE))
             },
             |gfx, _, snbt, [x, y, _, _]| {
-                let Some((lines, color)) = hex_lines(snbt, &approx_width) else { return };
+                let Some((lines, color)) = hex_lines(snbt, &approx_width) else {
+                    return;
+                };
                 for (i, line) in lines.iter().enumerate() {
-                    super::rune_text::draw(gfx, line, x, y + i as f32 * HEX_TOOLTIP_LINE, color, true);
+                    super::rune_text::draw(
+                        gfx,
+                        line,
+                        x,
+                        y + i as f32 * HEX_TOOLTIP_LINE,
+                        color,
+                        true,
+                    );
                 }
             },
         );
@@ -80,13 +102,21 @@ fn approx_width(text: &str) -> f32 {
 
 /// A stored hex as lines of words and runes, and its color; `None` when
 /// the stack holds none.
-fn hex_lines(snbt: &str, width_of: &dyn Fn(&str) -> f32) -> Option<(Vec<Vec<crate::text::Segment>>, u32)> {
-    let program = crate::iota::Iota::deserialize(Nbt::parse(snbt).get_str(crate::item::packaged::TAG_PROGRAM)?);
+fn hex_lines(
+    snbt: &str,
+    width_of: &dyn Fn(&str) -> f32,
+) -> Option<(Vec<Vec<crate::text::Segment>>, u32)> {
+    let program = crate::iota::Iota::deserialize(
+        Nbt::parse(snbt).get_str(crate::item::packaged::TAG_PROGRAM)?,
+    );
     if !matches!(program, crate::iota::Iota::List(_)) {
         return None;
     }
     let segs = program.display().segments();
-    Some((super::rune_text::wrap(&segs, HEX_TOOLTIP_WIDTH, width_of), program.kind().color()))
+    Some((
+        super::rune_text::wrap(&segs, HEX_TOOLTIP_WIDTH, width_of),
+        program.kind().color(),
+    ))
 }
 
 /// The pattern a stack bears and the paper it's shown on.
@@ -139,7 +169,11 @@ pub fn draw_pattern(gfx: &GfxContext, pattern: &HexPattern, x: f32, y: f32, w: f
 /// How wide `pattern` is as a rune `h` tall in a line of text.
 pub fn rune_width(pattern: &HexPattern, h: f32) -> f32 {
     let (w, ht) = extent(&super::render_lib::to_lines(pattern, 1.0, Vec2::ZERO));
-    let aspect = if ht < 0.01 { 3.0 } else { (w / ht).clamp(0.5, 3.0) };
+    let aspect = if ht < 0.01 {
+        3.0
+    } else {
+        (w / ht).clamp(0.5, 3.0)
+    };
     (h * aspect).ceil()
 }
 
@@ -149,11 +183,18 @@ pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, h: f32, 
     let w = rune_width(pattern, h);
     let pts = super::render_lib::to_lines(pattern, 1.0, Vec2::ZERO);
     let (pw, ph) = extent(&pts);
-    let (min_x, min_y) = pts.iter().fold((f32::INFINITY, f32::INFINITY), |(a, b), p| (a.min(p.x), b.min(p.y)));
+    let (min_x, min_y) = pts
+        .iter()
+        .fold((f32::INFINITY, f32::INFINITY), |(a, b), p| {
+            (a.min(p.x), b.min(p.y))
+        });
     // A pixel's margin all round, the stroke inside it.
     let scale = ((w - 2.0) / pw.max(0.01)).min((h - 2.0) / ph.max(0.01));
     let off = Vec2::new(x + (w - pw * scale) / 2.0, y + (h - ph * scale) / 2.0);
-    let pts: Vec<Vec2> = pts.iter().map(|p| Vec2::new((p.x - min_x) * scale, (p.y - min_y) * scale) + off).collect();
+    let pts: Vec<Vec2> = pts
+        .iter()
+        .map(|p| Vec2::new((p.x - min_x) * scale, (p.y - min_y) * scale) + off)
+        .collect();
     draw_line_seq(mesh, &pts, 1.0, color, color, false);
     if let Some(&first) = pts.first() {
         draw_spot(mesh, first, 0.9, color);
@@ -162,12 +203,19 @@ pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, h: f32, 
 
 /// Width and height of `points`' bounds.
 fn extent(points: &[Vec2]) -> (f32, f32) {
-    let (mut lo, mut hi) = (Vec2::new(f32::INFINITY, f32::INFINITY), Vec2::new(f32::NEG_INFINITY, f32::NEG_INFINITY));
+    let (mut lo, mut hi) = (
+        Vec2::new(f32::INFINITY, f32::INFINITY),
+        Vec2::new(f32::NEG_INFINITY, f32::NEG_INFINITY),
+    );
     for p in points {
         lo = Vec2::new(lo.x.min(p.x), lo.y.min(p.y));
         hi = Vec2::new(hi.x.max(p.x), hi.y.max(p.y));
     }
-    if points.is_empty() { (0.0, 0.0) } else { (hi.x - lo.x, hi.y - lo.y) }
+    if points.is_empty() {
+        (0.0, 0.0)
+    } else {
+        (hi.x - lo.x, hi.y - lo.y)
+    }
 }
 
 #[cfg(test)]
@@ -179,23 +227,50 @@ mod tests {
     fn written_scrolls_and_slates_get_a_picture() {
         let p = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
         let written = format!("{{pattern:\"{}\"}}", p.serialized_form());
-        assert_eq!(tooltip(Items::SCROLL, &written).map(|(_, bg)| bg), Some(PRISTINE_BG));
-        let ancient = format!("{{op_id:\"hexcasting:get_caster\",pattern:\"{}\"}}", p.serialized_form());
-        assert_eq!(tooltip(Items::SCROLL_SMALL, &ancient).map(|(_, bg)| bg), Some(ANCIENT_BG));
+        assert_eq!(
+            tooltip(Items::SCROLL, &written).map(|(_, bg)| bg),
+            Some(PRISTINE_BG)
+        );
+        let ancient = format!(
+            "{{op_id:\"hexcasting:get_caster\",pattern:\"{}\"}}",
+            p.serialized_form()
+        );
+        assert_eq!(
+            tooltip(Items::SCROLL_SMALL, &ancient).map(|(_, bg)| bg),
+            Some(ANCIENT_BG)
+        );
         let slate = format!("{{BlockEntityTag:{{pattern:\"{}\"}}}}", p.serialized_form());
-        assert_eq!(tooltip(holder::SLATE, &slate).map(|(_, bg)| bg), Some(SLATE_BG));
-        assert!(tooltip(Items::SCROLL, "{}").is_none(), "a blank scroll: no picture");
+        assert_eq!(
+            tooltip(holder::SLATE, &slate).map(|(_, bg)| bg),
+            Some(SLATE_BG)
+        );
+        assert!(
+            tooltip(Items::SCROLL, "{}").is_none(),
+            "a blank scroll: no picture"
+        );
     }
 
     #[test]
     fn a_stored_hex_shows_in_lines_of_runes() {
         let p = HexPattern::from_angles("qaq", HexDir::NorthEast).unwrap();
-        let hex = crate::iota::Iota::List(vec![crate::iota::Iota::Pattern(p.clone()); 12]).serialize();
-        let snbt = format!("{{patterns:\"{}\"}}", hex.replace('\\', "\\\\").replace('"', "\\\""));
+        let hex =
+            crate::iota::Iota::List(vec![crate::iota::Iota::Pattern(p.clone()); 12]).serialize();
+        let snbt = format!(
+            "{{patterns:\"{}\"}}",
+            hex.replace('\\', "\\\\").replace('"', "\\\"")
+        );
         let (lines, _) = hex_lines(&snbt, &approx_width).expect("a hex");
         assert!(lines.len() > 1, "twelve runes wrap");
-        assert!(lines.iter().flatten().any(|s| matches!(s, crate::text::Segment::Rune(r) if *r == p)));
-        assert!(hex_lines("{}", &approx_width).is_none(), "an empty trinket: nothing");
+        assert!(
+            lines
+                .iter()
+                .flatten()
+                .any(|s| matches!(s, crate::text::Segment::Rune(r) if *r == p))
+        );
+        assert!(
+            hex_lines("{}", &approx_width).is_none(),
+            "an empty trinket: nothing"
+        );
     }
 
     #[test]

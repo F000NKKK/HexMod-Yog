@@ -138,7 +138,11 @@ fn splat_items(env: &CastEnv, distance: f64) {
     };
     for slot in 36..40 {
         let s = env.stack_at(slot);
-        if s.is_empty() || s.nbt.to_snbt().contains(vanilla::enchantments::BINDING_CURSE) {
+        if s.is_empty()
+            || s.nbt
+                .to_snbt()
+                .contains(vanilla::enchantments::BINDING_CURSE)
+        {
             continue;
         }
         if random() < base * 0.25 {
@@ -345,7 +349,9 @@ fn altiora(env: &mut CastEnv<'_>, p: Player) -> MResult<Spell> {
         },
     ];
     let uuid = p.uuid().to_owned();
-    Ok(Spell::new(CRYSTAL, particles, move |env, _| crate::altiora::give(env.srv, &uuid)))
+    Ok(Spell::new(CRYSTAL, particles, move |env, _| {
+        crate::altiora::give(env.srv, &uuid)
+    }))
 }
 
 #[cfg(test)]

@@ -21,8 +21,9 @@ pub fn register(registry: &mut Registry) {
     registry.register_startup_grant(
         StartupGrant::new(crate::ids::grants::HEXBOOK).item(Items::THEHEXBOOK),
     );
-    registry
-        .register_startup_grant(StartupGrant::new(crate::ids::grants::STAFF).item(Items::STAFF_OAK));
+    registry.register_startup_grant(
+        StartupGrant::new(crate::ids::grants::STAFF).item(Items::STAFF_OAK),
+    );
 
     registry.on_use_item(|ev, phase, srv| {
         if phase == EventPhase::Post {

@@ -36,7 +36,9 @@ const CRYSTAL_CHANCE: [f64; 5] = [0.25, 0.35, 0.5, 0.75, 1.0];
 const CRYSTAL_CHANCE_UNHARVESTED: f64 = 0.125;
 
 pub fn register(registry: &mut Registry) {
-    registry.loot_function("hexcasting:per_world_pattern", |srv, stack, _| per_world_scroll(srv, stack));
+    registry.loot_function("hexcasting:per_world_pattern", |srv, stack, _| {
+        per_world_scroll(srv, stack)
+    });
     registry.loot_function("hexcasting:ancient_hex", |_, stack, _| ancient_hex(stack));
     registry.on_loot(|srv, loot| {
         if loot.table == AMETHYST_CLUSTER {
@@ -46,7 +48,10 @@ pub fn register(registry: &mut Registry) {
     // An ancient cypher is named after its hex.
     registry.on_item_text(Items::ANCIENT_CYPHER, |_, snbt| {
         let key = Nbt::parse(snbt).get_str(TAG_HEX_NAME)?.to_owned();
-        Some((Some(crate::res::Items::ancient_cypher_preset(yog_api::tr(&key))), Vec::new()))
+        Some((
+            Some(crate::res::Items::ancient_cypher_preset(yog_api::tr(&key))),
+            Vec::new(),
+        ))
     });
 }
 
@@ -66,7 +71,9 @@ fn per_world_scroll(srv: &dyn yog_api::Server, stack: &mut LootStack) {
         return;
     }
     let action = great[below(great.len() as u32) as usize];
-    let Some(pattern) = per_world_pattern(srv, action.id) else { return };
+    let Some(pattern) = per_world_pattern(srv, action.id) else {
+        return;
+    };
     let mut nbt = Nbt::parse(&stack.nbt);
     nbt.set("op_id", Nbt::str(format!("{MOD_ID}:{}", action.id)));
     nbt.set("pattern", Nbt::str(pattern.serialized_form()));
@@ -77,12 +84,26 @@ fn per_world_scroll(srv: &dyn yog_api::Server, stack: &mut LootStack) {
 /// 32 shards of media, one of its looks.
 fn ancient_hex(stack: &mut LootStack) {
     let hex = LootHex::ALL[below(LootHex::ALL.len() as u32) as usize];
-    let program: Vec<Iota> = hex.patterns().iter().filter_map(|p| parse_pattern(p)).map(Iota::Pattern).collect();
-    let mut s = Stack { slot: 0, id: stack.id.clone(), count: stack.count, nbt: Nbt::parse(&stack.nbt) };
-    let ancient = Pigment { item: Items::ANCIENT_COLORIZER.to_owned(), owner: NO_OWNER.to_owned() };
+    let program: Vec<Iota> = hex
+        .patterns()
+        .iter()
+        .filter_map(|p| parse_pattern(p))
+        .map(Iota::Pattern)
+        .collect();
+    let mut s = Stack {
+        slot: 0,
+        id: stack.id.clone(),
+        count: stack.count,
+        nbt: Nbt::parse(&stack.nbt),
+    };
+    let ancient = Pigment {
+        item: Items::ANCIENT_COLORIZER.to_owned(),
+        owner: NO_OWNER.to_owned(),
+    };
     packaged::write_hex(&mut s, &program, Some(&ancient), CYPHER_MEDIA);
     s.nbt.set(TAG_HEX_NAME, Nbt::str(hex.name()));
-    s.nbt.set("variant", Nbt::int(below(CYPHER_VARIANTS) as i32));
+    s.nbt
+        .set("variant", Nbt::int(below(CYPHER_VARIANTS) as i32));
     stack.nbt = s.nbt.to_snbt();
 }
 
@@ -101,12 +122,22 @@ fn amethyst_cluster(srv: &dyn yog_api::Server, loot: &mut Loot) {
         return;
     }
     let fortune = loot.enchantment(FORTUNE);
-    let harvested = loot.tool.as_ref().is_some_and(|t| srv.has_item_tag(&t.id, CLUSTER_HARVESTERS));
+    let harvested = loot
+        .tool
+        .as_ref()
+        .is_some_and(|t| srv.has_item_tag(&t.id, CLUSTER_HARVESTERS));
     let (dust, crystal_chance) = if harvested {
         // 1–4, then the game's `ore_drops` fortune bonus.
         let base = 1 + below(4);
-        let bonus = if fortune > 0 { below(fortune + 2).saturating_sub(1) + 1 } else { 1 };
-        (base * bonus, CRYSTAL_CHANCE[(fortune as usize).min(CRYSTAL_CHANCE.len() - 1)])
+        let bonus = if fortune > 0 {
+            below(fortune + 2).saturating_sub(1) + 1
+        } else {
+            1
+        };
+        (
+            base * bonus,
+            CRYSTAL_CHANCE[(fortune as usize).min(CRYSTAL_CHANCE.len() - 1)],
+        )
     } else {
         (below(3), CRYSTAL_CHANCE_UNHARVESTED)
     };
@@ -136,9 +167,21 @@ mod tests {
         let mut stack = LootStack::new(Items::ANCIENT_CYPHER, 1);
         ancient_hex(&mut stack);
         let nbt = Nbt::parse(&stack.nbt);
-        assert!(nbt.get_str(TAG_HEX_NAME).is_some_and(|k| k.starts_with("hexcasting.loot_hex.")));
-        let s = Stack { slot: 0, id: stack.id.clone(), count: 1, nbt };
+        assert!(
+            nbt.get_str(TAG_HEX_NAME)
+                .is_some_and(|k| k.starts_with("hexcasting.loot_hex."))
+        );
+        let s = Stack {
+            slot: 0,
+            id: stack.id.clone(),
+            count: 1,
+            nbt,
+        };
         assert!(packaged::hex(&s).is_some_and(|h| !h.is_empty()));
-        assert!(s.nbt.get_i64("variant").is_some_and(|v| (0..CYPHER_VARIANTS as i64).contains(&v)));
+        assert!(
+            s.nbt
+                .get_i64("variant")
+                .is_some_and(|v| (0..CYPHER_VARIANTS as i64).contains(&v))
+        );
     }
 }

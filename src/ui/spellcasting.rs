@@ -28,8 +28,9 @@ use yog_api::{GfxContext, Server};
 use yog_kit::prelude::*;
 
 use super::render_lib::{
-    DEFAULT_READABILITY_OFFSET, McVec2, Mesh, PatternStyle, Vec2, coord_to_px, draw_pattern_from_points,
-    draw_spot, find_dup_indices, positions_from, px_to_coord, range_around, ticks, to_lines,
+    DEFAULT_READABILITY_OFFSET, McVec2, Mesh, PatternStyle, Vec2, coord_to_px,
+    draw_pattern_from_points, draw_spot, find_dup_indices, positions_from, px_to_coord,
+    range_around, ticks, to_lines,
 };
 use crate::content::Items;
 use crate::iota::Iota;
@@ -498,13 +499,19 @@ fn can_be_undone(p: &ResolvedPattern) -> bool {
 /// the "..." (a grey "..." follows). Colored by the iota's type.
 fn describe(iota: &Iota, max_width: f32, width_of: &dyn Fn(&str) -> f32) -> Desc {
     let (segs, cut) = super::rune_text::fit(&iota.display().segments(), max_width, width_of);
-    Desc { segs, cut, color: iota.kind().color() }
+    Desc {
+        segs,
+        cut,
+        color: iota.kind().color(),
+    }
 }
 
 /// How big the grid is drawn — the player's `hexcasting:grid_zoom`
 /// (Clarity enlarges it, Clouding shrinks it); 1 without a player.
 fn grid_zoom() -> f64 {
-    client::attribute_value(GRID_ZOOM).filter(|z| *z > 0.0).unwrap_or(1.0)
+    client::attribute_value(GRID_ZOOM)
+        .filter(|z| *z > 0.0)
+        .unwrap_or(1.0)
 }
 
 /// The attribute the grid's size follows (content/effects/grid_zoom.ydef).
@@ -645,12 +652,24 @@ fn shift_scroll(delta: f64) {
     }
 }
 
-fn draw_desc(gfx: &GfxContext, width_of: &dyn Fn(&str) -> f32, desc: &Desc, x: f32, y: f32, color: u32) {
+fn draw_desc(
+    gfx: &GfxContext,
+    width_of: &dyn Fn(&str) -> f32,
+    desc: &Desc,
+    x: f32,
+    y: f32,
+    color: u32,
+) {
     super::rune_text::draw(gfx, &desc.segs, x, y, color, true);
     if desc.cut {
         let alpha = color & 0xFF00_0000;
         let end = x + super::rune_text::width(&desc.segs, width_of);
-        gfx.draw2d().text("...", Vec2::new(end, y), Color((ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha), true);
+        gfx.draw2d().text(
+            "...",
+            Vec2::new(end, y),
+            Color((ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha),
+            true,
+        );
     }
 }
 

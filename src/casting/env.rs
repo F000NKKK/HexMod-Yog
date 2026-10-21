@@ -4,14 +4,14 @@
 
 use std::sync::atomic::{AtomicU8, Ordering};
 
-use yog_api::vanilla;
 use yog_api::core::{EntityInfo, entity_flags};
+use yog_api::vanilla;
 use yog_api::{Server, Storage};
 
 use crate::casting::mishap::{BlockPos, MResult, Mishap, ShownItem, item_name};
 use crate::casting::vm::Sound;
-use crate::iota::EntityRef;
 use crate::content::Advancements;
+use crate::iota::EntityRef;
 use crate::item::media;
 use crate::item::pigment::{Pigment, dye_pigment};
 use crate::math::Vec3;
@@ -351,7 +351,9 @@ impl<'a> CastEnv<'a> {
 
     /// Whether the caster has advancement `id`.
     pub fn has_advancement(&self, id: &str) -> bool {
-        self.caster.as_ref().is_some_and(|c| yog_api::advancements::done(&c.uuid, id))
+        self.caster
+            .as_ref()
+            .is_some_and(|c| yog_api::advancements::done(&c.uuid, id))
     }
 
     /// Awards the caster advancement `id`.
@@ -382,7 +384,8 @@ impl<'a> CastEnv<'a> {
     /// (`postMishap`).
     pub fn report_mishap(&mut self, msg: &Text) {
         if matches!(self.source, Source::Circle(_)) {
-            self.circle_posts.push((msg.clone(), vanilla::items::MUSIC_DISC_11));
+            self.circle_posts
+                .push((msg.clone(), vanilla::items::MUSIC_DISC_11));
         } else {
             self.print_message(msg);
         }
@@ -808,8 +811,13 @@ impl<'a> CastEnv<'a> {
     /// opened, and enlightenment for nearly all of it.
     fn overcast(&self, uuid: &str, used: f64, left: f64) {
         self.grant_advancement(Advancements::OPENED_EYES);
-        let max = self.srv.entity_attribute_value(uuid, MAX_HEALTH).unwrap_or(20.0).max(1.0);
-        if used / max >= ENLIGHTENING_HEALTH_USED && left > 0.0 && left <= ENLIGHTENING_HEALTH_LEFT {
+        let max = self
+            .srv
+            .entity_attribute_value(uuid, MAX_HEALTH)
+            .unwrap_or(20.0)
+            .max(1.0);
+        if used / max >= ENLIGHTENING_HEALTH_USED && left > 0.0 && left <= ENLIGHTENING_HEALTH_LEFT
+        {
             self.grant_advancement(Advancements::ENLIGHTENMENT);
         }
     }
@@ -1010,7 +1018,8 @@ impl<'a> CastEnv<'a> {
         };
         let air = self.srv.player_info(name).map_or(300, |p| p.air);
         if air < 200 {
-            self.srv.entity_damage(&uuid, 2.0, vanilla::damage_types::DROWN, "");
+            self.srv
+                .entity_damage(&uuid, 2.0, vanilla::damage_types::DROWN, "");
         }
         self.srv.entity_set_nbt(&uuid, "{Air:0s}");
     }
