@@ -1,15 +1,1 @@
-{
-  "id": "hexcasting:scroll_medium",
-  "type": "shaped",
-  "pattern": [
-    "  A",
-    "PP ",
-    "PP "
-  ],
-  "key": {
-    "A": "@item:hexcasting:amethyst_dust",
-    "P": "@item:minecraft:paper"
-  },
-  "result": "@item:hexcasting:scroll_medium",
-  "category": "misc"
-}
+YOGDid1hexcasting:scroll_medium	typeshapedpattern  APP keyA=@item:hexcasting:amethyst_dustP+@item:minecraft:paperresult=@item:hexcasting:scroll_mediumcategory	misc

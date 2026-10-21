@@ -1,16 +1,1 @@
-{
-  "id": "hexcasting:staff/jungle",
-  "type": "shaped",
-  "pattern": [
-    " SA",
-    " WS",
-    "S  "
-  ],
-  "key": {
-    "A": "@item:hexcasting:charged_amethyst",
-    "S": "@item:minecraft:stick",
-    "W": "@item:minecraft:jungle_planks"
-  },
-  "result": "@item:hexcasting:staff/jungle",
-  "category": "equipment"
-}
+YOGDid/hexcasting:staff/jungle	typeshapedpattern SA WSS  keyAC@item:hexcasting:charged_amethystS+@item:minecraft:stickW;@item:minecraft:jungle_planksresult;@item:hexcasting:staff/junglecategoryequipment

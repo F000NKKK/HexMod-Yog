@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.edified_trapdoor",
-  atlas: "minecraft:blocks",
-}
+YOGDimageG@BlockImages.block.edified_trapdooratlas!minecraft:blocks

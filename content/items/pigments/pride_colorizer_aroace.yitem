@@ -1,13 +1,1 @@
-{
-  "id": "pride_colorizer_aroace",
-  "name": "@Items.pride_colorizer_aroace",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/pride_aroace"
-    }
-  }
-}
+YOGDid-pride_colorizer_aroace	name;@Items.pride_colorizer_aroace	itemstack_sizemodelparentgeneratedtextureslayer0_@texture:hexcasting:item/colorizer/pride_aroace

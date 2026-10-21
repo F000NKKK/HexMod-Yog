@@ -1,18 +1,1 @@
-{
-  "tags": ["yog:leaves"],
-  "name": "@Blocks.aventurine_edified_leaves",
-  "block": {
-    "hardness": 0.2,
-    "resistance": 0.2,
-    "sound": "grass",
-    "tool": "hoe",
-    "render_layer": "cutout_mipped",
-    "drops": "none"
-  },
-  "model": {
-    "parent": "cube_all",
-    "textures": {
-      "all": "@texture:hexcasting:block/aventurine_edified_leaves"
-    }
-  }
-}
+YOGD	tagsyog:leaves	nameC@Blocks.aventurine_edified_leavesblockhardnessš™™™™™É?resistanceš™™™™™É?soundgrass	toolhoerender_layercutout_mippeddrops	nonemodelparentcube_alltexturesallg@texture:hexcasting:block/aventurine_edified_leaves

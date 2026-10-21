@@ -1,122 +1,1 @@
-{
-  "tags": ["directrices"],
-  "id": "directrix/boolean",
-  "name": "@Blocks.directrix.boolean",
-  "block": {
-    "hardness": 4,
-    "resistance": 4,
-    "sound": "stone",
-    "tool": "pickaxe",
-    "requires_tool": true,
-    "comparator": "energized"
-  },
-  "model": {
-    "parent": "cube",
-    "textures": {
-      "down": "@texture:hexcasting:block/circle/bottom",
-      "east": "@texture:hexcasting:block/circle/directrix/boolean/left_neither",
-      "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
-      "particle": "@texture:hexcasting:block/slate",
-      "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
-      "up": "@texture:hexcasting:block/circle/directrix/boolean/top_neither",
-      "west": "@texture:hexcasting:block/circle/directrix/boolean/right_neither"
-    }
-  },
-  "states": {
-    "facing": "all",
-    "placement": "away",
-    "properties": {
-      "energized": [
-        "false",
-        "true"
-      ],
-      "state": [
-        "neither",
-        "true",
-        "false"
-      ]
-    },
-    "models": {
-      "dim_false": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_false",
-          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_dim_false",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
-          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_false",
-          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_false"
-        }
-      },
-      "dim_neither": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_neither",
-          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
-          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_neither",
-          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_neither"
-        }
-      },
-      "dim_true": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_true",
-          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_dim_true",
-          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_true",
-          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_true"
-        }
-      },
-      "lit_false": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_false",
-          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_lit_false",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
-          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_false",
-          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_false"
-        }
-      },
-      "lit_neither": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_neither",
-          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_not_true",
-          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_neither",
-          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_neither"
-        }
-      },
-      "lit_true": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/boolean/left_true",
-          "north": "@texture:hexcasting:block/circle/directrix/boolean/front_not_false",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/boolean/back_lit_true",
-          "up": "@texture:hexcasting:block/circle/directrix/boolean/top_true",
-          "west": "@texture:hexcasting:block/circle/directrix/boolean/right_true"
-        }
-      }
-    },
-    "variants": {
-      "energized=false,state=false": "dim_false",
-      "energized=false,state=neither": "dim_neither",
-      "energized=false,state=true": "dim_true",
-      "energized=true,state=false": "lit_false",
-      "energized=true,state=neither": "lit_neither",
-      "energized=true,state=true": "lit_true"
-    }
-  }
-}
+YOGD	tagsdirectricesid#directrix/boolean	name3@Blocks.directrix.booleanblockhardnessresistancesoundstone	toolpickaxerequires_toolcomparatorenergizedmodelparent	cubetextures	downO@texture:hexcasting:block/circle/bottom	east@texture:hexcasting:block/circle/directrix/boolean/left_neithernorthÖ@texture:hexcasting:block/circle/directrix/boolean/front_not_falseparticle?@texture:hexcasting:block/slatesouthÅ@texture:hexcasting:block/circle/directrix/boolean/back_not_trueup}@texture:hexcasting:block/circle/directrix/boolean/top_neither	westÅ@texture:hexcasting:block/circle/directrix/boolean/right_neitherstatesfacingallplacement	awaypropertiesfalse	truestateneitherRPmodelsdim_false"$&(*,{@texture:hexcasting:block/circle/directrix/boolean/left_false0Ö@texture:hexcasting:block/circle/directrix/boolean/front_dim_false468:<y@texture:hexcasting:block/circle/directrix/boolean/top_false@}@texture:hexcasting:block/circle/directrix/boolean/right_falsedim_neither"$&(*,.02468:<>@Bdim_true"$&(*,y@texture:hexcasting:block/circle/directrix/boolean/left_true02468Å@texture:hexcasting:block/circle/directrix/boolean/back_dim_true<w@texture:hexcasting:block/circle/directrix/boolean/top_true@{@texture:hexcasting:block/circle/directrix/boolean/right_truelit_false"$&(*,\0Ö@texture:hexcasting:block/circle/directrix/boolean/front_lit_false468:<`@blit_neither"$&(*,.02468:<>@Blit_true"$&(*,h02468Å@texture:hexcasting:block/circle/directrix/boolean/back_lit_true<l@nvariants7energized=false,state=falseZ;energized=false,state=neitherd5energized=false,state=truef5energized=true,state=falsep9energized=true,state=neithert3energized=true,state=truev

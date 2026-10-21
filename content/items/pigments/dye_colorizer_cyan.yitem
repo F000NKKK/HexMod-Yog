@@ -1,13 +1,1 @@
-{
-  "id": "dye_colorizer_cyan",
-  "name": "@Items.dye_colorizer_cyan",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/dye_cyan"
-    }
-  }
-}
+YOGDid%dye_colorizer_cyan	name3@Items.dye_colorizer_cyan	itemstack_sizemodelparentgeneratedtextureslayer0W@texture:hexcasting:item/colorizer/dye_cyan

@@ -1,15 +1,2 @@
-// Where scrolls make little sense lore-wise: rarely, to spare new players the hunt.
-// Scrolls of this world's great spells: from -1 to 1 of them, none below one.
-{
-  "kind": "loot_modifier",
-  "id": "scrolls_1",
-  "tables": [
-    "@loot_table:minecraft:chests/simple_dungeon",
-    "@loot_table:minecraft:chests/abandoned_mineshaft",
-    "@loot_table:minecraft:chests/bastion_other",
-    "@loot_table:minecraft:chests/nether_bridge"
-  ],
-  "add": [
-    { "item": "@item:hexcasting:scroll", "count": [-1, 1], "function": "hexcasting:per_world_pattern" }
-  ]
-}
+YOGDcomment»Where scrolls make little sense lore-wise: rarely, to spare new players the hunt.
+Scrolls of this world's great spells: from -1 to 1 of them, none below one.	kindloot_modifieridscrolls_1tablesW@loot_table:minecraft:chests/simple_dungeona@loot_table:minecraft:chests/abandoned_mineshaftU@loot_table:minecraft:chests/bastion_otherU@loot_table:minecraft:chests/nether_bridgeadd	item/@item:hexcasting:scrollcountfunction9hexcasting:per_world_pattern

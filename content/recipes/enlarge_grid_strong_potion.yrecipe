@@ -1,6 +1,1 @@
-{
-  "type": "brewing",
-  "from": "@item:hexcasting:enlarge_grid",
-  "ingredient": "@item:minecraft:glowstone_dust",
-  "result": "@item:hexcasting:enlarge_grid_strong"
-}
+YOGD	typebrewing	from;@item:hexcasting:enlarge_gridingredient=@item:minecraft:glowstone_dustresultI@item:hexcasting:enlarge_grid_strong

@@ -1,15 +1,1 @@
-{
-  "tags": ["staves"],
-  "id": "staff/mindsplice",
-  "name": "@Items.staff.mindsplice",
-  "tooltip": "@Items.staff.mindsplice.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "handheld",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/staff/mindsplice"
-    }
-  }
-}
+YOGD	tagsstavesid!staff/mindsplice	name/@Items.staff.mindsplicetooltip9@Items.staff.mindsplice.desc	itemstack_sizemodelparenthandheldtextureslayer0S@texture:hexcasting:item/staff/mindsplice

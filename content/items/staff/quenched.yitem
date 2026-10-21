@@ -1,15 +1,1 @@
-{
-  "tags": ["staves"],
-  "id": "staff/quenched",
-  "name": "@Items.staff.quenched",
-  "tooltip": "@Items.staff.quenched.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "handheld",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/staff/quenched_0"
-    }
-  }
-}
+YOGD	tagsstavesidstaff/quenched	name+@Items.staff.quenchedtooltip5@Items.staff.quenched.desc	itemstack_sizemodelparenthandheldtextureslayer0S@texture:hexcasting:item/staff/quenched_0

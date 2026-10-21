@@ -1,4 +1,1 @@
-{
-  image: "@ItemImages.item.trinket",
-  atlas: "minecraft:blocks",
-}
+YOGDimage1@ItemImages.item.trinketatlas!minecraft:blocks

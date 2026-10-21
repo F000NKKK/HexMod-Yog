@@ -1,14 +1,1 @@
-{
-  "name": "@Items.jeweler_hammer",
-  "tooltip": "@Items.jeweler_hammer.desc",
-  "item": {
-    "stack_size": 1,
-    "durability": 1561
-  },
-  "model": {
-    "parent": "handheld",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/jeweler_hammer"
-    }
-  }
-}
+YOGD	name+@Items.jeweler_hammertooltip5@Items.jeweler_hammer.desc	itemstack_sizedurability²modelparenthandheldtextureslayer0O@texture:hexcasting:item/jeweler_hammer

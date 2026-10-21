@@ -1,15 +1,2 @@
-{
-  "id": "hexcasting:pride_colorizer_aroace",
-  "type": "shaped",
-  "pattern": [
-    " D ",
-    "DCD",
-    " D "
-  ],
-  "key": {
-    "C": "@item:minecraft:wheat_seeds",
-    "D": "@item:hexcasting:amethyst_dust"
-  },
-  "result": "@item:hexcasting:pride_colorizer_aroace",
-  "category": "misc"
-}
+YOGDidChexcasting:pride_colorizer_aroace	typeshapedpattern D DCD
+keyC7@item:minecraft:wheat_seedsD=@item:hexcasting:amethyst_dustresultO@item:hexcasting:pride_colorizer_aroacecategory	misc

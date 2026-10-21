@@ -1,13 +1,3 @@
-{
-  "id": "hexcasting:slate_block_from_slates",
-  "type": "shaped",
-  "pattern": [
-    "S",
-    "S"
-  ],
-  "key": {
-    "S": "@item:hexcasting:slate"
-  },
-  "result": "@item:hexcasting:slate_block",
-  "category": "building"
-}
+YOGDidEhexcasting:slate_block_from_slates	typeshapedpatternS
+key
+-@item:hexcasting:slateresult9@item:hexcasting:slate_blockcategorybuilding

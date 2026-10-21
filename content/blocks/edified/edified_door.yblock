@@ -1,26 +1,1 @@
-{
-  "kind": "door",
-  "tags": ["yog:doors", "yog:wooden_doors"],
-  "name": "@Blocks.edified_door",
-  "block": {
-    "hardness": 2,
-    "resistance": 2,
-    "sound": "wood",
-    "tool": "axe",
-    "occludes": false,
-    "set": "oak",
-    "render_layer": "cutout"
-  },
-  "model": {
-    "textures": {
-      "bottom": "@texture:hexcasting:block/edified_door_lower",
-      "top": "@texture:hexcasting:block/edified_door_upper"
-    }
-  },
-  "item_model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/edified_door"
-    }
-  }
-}
+YOGD	kind	door	tagsyog:doors!yog:wooden_doors	name)@Blocks.edified_doorblockhardnessresistancesound	wood	toolaxeoccludessetoakrender_layercutoutmodeltexturesbottomY@texture:hexcasting:block/edified_door_lowertopY@texture:hexcasting:block/edified_door_upperitem_modelparentgenerated(layer0K@texture:hexcasting:item/edified_door

@@ -1,11 +1,1 @@
-{
-  "tags": ["grants_root_advancement"],
-  "name": "@Items.charged_amethyst",
-  "tooltip": "@Items.charged_amethyst.desc",
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/charged_amethyst"
-    }
-  }
-}
+YOGD	tags/grants_root_advancement	name/@Items.charged_amethysttooltip9@Items.charged_amethyst.descmodelparentgeneratedtextureslayer0S@texture:hexcasting:item/charged_amethyst

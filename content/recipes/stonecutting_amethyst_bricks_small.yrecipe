@@ -1,6 +1,1 @@
-{
-  "id": "hexcasting:stonecutting/amethyst_bricks_small",
-  "type": "stonecutting",
-  "ingredient": "@tag:item:hexcasting:amethyst_blocks",
-  "result": "@item:hexcasting:amethyst_bricks_small"
-}
+YOGDid[hexcasting:stonecutting/amethyst_bricks_small	typestonecuttingingredientI@tag:item:hexcasting:amethyst_blocksresultM@item:hexcasting:amethyst_bricks_small

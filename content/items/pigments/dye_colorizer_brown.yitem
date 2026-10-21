@@ -1,13 +1,1 @@
-{
-  "id": "dye_colorizer_brown",
-  "name": "@Items.dye_colorizer_brown",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/dye_brown"
-    }
-  }
-}
+YOGDid'dye_colorizer_brown	name5@Items.dye_colorizer_brown	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/colorizer/dye_brown

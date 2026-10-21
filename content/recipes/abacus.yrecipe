@@ -1,16 +1,2 @@
-{
-  "id": "hexcasting:abacus",
-  "type": "shaped",
-  "pattern": [
-    "WAW",
-    "SAS",
-    "WAW"
-  ],
-  "key": {
-    "A": "@item:minecraft:amethyst_shard",
-    "S": "@item:minecraft:stick",
-    "W": "@tag:item:yog:planks"
-  },
-  "result": "@item:hexcasting:abacus",
-  "category": "equipment"
-}
+YOGDid#hexcasting:abacus	typeshapedpatternWAWSAS
+keyA=@item:minecraft:amethyst_shardS+@item:minecraft:stickW)@tag:item:yog:planksresult/@item:hexcasting:abacuscategoryequipment

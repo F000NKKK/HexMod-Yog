@@ -1,13 +1,1 @@
-{
-  "name": "@Items.abacus",
-  "tooltip": "@Items.abacus.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/abacus"
-    }
-  }
-}
+YOGD	name@Items.abacustooltip%@Items.abacus.desc	itemstack_sizemodelparentgeneratedtextureslayer0?@texture:hexcasting:item/abacus

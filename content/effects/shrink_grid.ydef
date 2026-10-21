@@ -1,10 +1,1 @@
-// Clouding: the casting grid a fifth smaller a level.
-{
-  "kind": "effect",
-  "id": "shrink_grid",
-  "category": "harmful",
-  "color": 12641888,
-  "modifiers": [
-    { "attribute": "@attribute:hexcasting:grid_zoom", "amount": -0.2, "operation": "multiply_total" }
-  ]
-}
+YOGDcommentgClouding: the casting grid a fifth smaller a level.	kindeffectidshrink_gridcategoryharmfulcolorÀ™‡modifiersattribute?@attribute:hexcasting:grid_zoomamountš™™™™™É¿operationmultiply_total

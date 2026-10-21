@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.akashic_bookshelf_vert",
-  atlas: "minecraft:blocks",
-}
+YOGDimageS@BlockImages.block.akashic_bookshelf_vertatlas!minecraft:blocks

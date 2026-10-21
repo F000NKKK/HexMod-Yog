@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.deco.edified_log_citrine",
-  atlas: "minecraft:blocks",
-}
+YOGDimageW@BlockImages.block.deco.edified_log_citrineatlas!minecraft:blocks

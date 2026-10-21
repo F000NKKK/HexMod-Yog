@@ -1,4 +1,1 @@
-{
-  image: "@ItemImages.item.artifact",
-  atlas: "minecraft:blocks",
-}
+YOGDimage3@ItemImages.item.artifactatlas!minecraft:blocks

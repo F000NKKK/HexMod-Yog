@@ -1,96 +1,1 @@
-{
-  "tags": ["directrices"],
-  "id": "directrix/redstone",
-  "name": "@Blocks.directrix.redstone",
-  "block": {
-    "hardness": 4,
-    "resistance": 4,
-    "sound": "stone",
-    "tool": "pickaxe",
-    "requires_tool": true,
-    "comparator": "energized",
-    "powered": "powered"
-  },
-  "model": {
-    "parent": "cube",
-    "textures": {
-      "down": "@texture:hexcasting:block/circle/bottom",
-      "east": "@texture:hexcasting:block/circle/directrix/redstone/left_unpowered",
-      "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_unpowered",
-      "particle": "@texture:hexcasting:block/slate",
-      "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_unpowered",
-      "up": "@texture:hexcasting:block/circle/directrix/redstone/top_unpowered",
-      "west": "@texture:hexcasting:block/circle/directrix/redstone/right_unpowered"
-    }
-  },
-  "states": {
-    "facing": "all",
-    "placement": "away",
-    "properties": {
-      "energized": [
-        "false",
-        "true"
-      ],
-      "powered": [
-        "false",
-        "true"
-      ]
-    },
-    "models": {
-      "dim_powered": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_powered",
-          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_powered",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_powered",
-          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_powered",
-          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_powered"
-        }
-      },
-      "dim_unpowered": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_unpowered",
-          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_unpowered",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_unpowered",
-          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_unpowered",
-          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_unpowered"
-        }
-      },
-      "lit_powered": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_powered",
-          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_lit_powered",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_dim_powered",
-          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_powered",
-          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_powered"
-        }
-      },
-      "lit_unpowered": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/directrix/redstone/left_unpowered",
-          "north": "@texture:hexcasting:block/circle/directrix/redstone/front_dim_unpowered",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/directrix/redstone/back_lit_unpowered",
-          "up": "@texture:hexcasting:block/circle/directrix/redstone/top_unpowered",
-          "west": "@texture:hexcasting:block/circle/directrix/redstone/right_unpowered"
-        }
-      }
-    },
-    "variants": {
-      "energized=false,powered=true": "dim_powered",
-      "energized=false,powered=false": "dim_unpowered",
-      "energized=true,powered=true": "lit_powered",
-      "energized=true,powered=false": "lit_unpowered"
-    }
-  }
-}
+YOGD	tagsdirectricesid%directrix/redstone	name5@Blocks.directrix.redstoneblockhardnessresistancesoundstone	toolpickaxerequires_toolcomparatorenergizedpowered modelparent	cubetextures	downO@texture:hexcasting:block/circle/bottom	east…@texture:hexcasting:block/circle/directrix/redstone/left_unpowerednorth@texture:hexcasting:block/circle/directrix/redstone/front_dim_unpoweredparticle?@texture:hexcasting:block/slatesouth@texture:hexcasting:block/circle/directrix/redstone/back_dim_unpoweredupƒ@texture:hexcasting:block/circle/directrix/redstone/top_unpowered	west‡@texture:hexcasting:block/circle/directrix/redstone/right_unpoweredstatesfacingallplacement	awaypropertiesfalse	true RTmodelsdim_powered$&(*,.@texture:hexcasting:block/circle/directrix/redstone/left_powered2‹@texture:hexcasting:block/circle/directrix/redstone/front_dim_powered68:‰@texture:hexcasting:block/circle/directrix/redstone/back_dim_powered>@texture:hexcasting:block/circle/directrix/redstone/top_poweredBƒ@texture:hexcasting:block/circle/directrix/redstone/right_powereddim_unpowered$&(*,.02468:<>@BDlit_powered$&(*,.Z2‹@texture:hexcasting:block/circle/directrix/redstone/front_lit_powered68:^>`Bblit_unpowered$&(*,.02468:@texture:hexcasting:block/circle/directrix/redstone/back_lit_unpowered>@BDvariants9energized=false,powered=trueX;energized=false,powered=falsed7energized=true,powered=truef9energized=true,powered=falsej

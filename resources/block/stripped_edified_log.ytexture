@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.stripped_edified_log",
-  atlas: "minecraft:blocks",
-}
+YOGDimageO@BlockImages.block.stripped_edified_logatlas!minecraft:blocks

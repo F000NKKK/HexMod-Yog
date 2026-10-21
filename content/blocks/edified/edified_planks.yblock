@@ -1,16 +1,1 @@
-{
-  "tags": ["edified_planks", "yog:planks"],
-  "name": "@Blocks.edified_planks",
-  "block": {
-    "hardness": 2,
-    "resistance": 3,
-    "sound": "wood",
-    "tool": "axe"
-  },
-  "model": {
-    "parent": "cube_all",
-    "textures": {
-      "all": "@texture:hexcasting:block/edified_planks"
-    }
-  }
-}
+YOGD	tagsedified_planksyog:planks	name-@Blocks.edified_planksblockhardnessresistancesound	wood	toolaxemodelparentcube_alltexturesallQ@texture:hexcasting:block/edified_planks

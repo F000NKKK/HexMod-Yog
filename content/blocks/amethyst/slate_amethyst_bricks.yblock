@@ -1,16 +1,1 @@
-{
-  "name": "@Blocks.slate_amethyst_bricks",
-  "block": {
-    "hardness": 2,
-    "resistance": 4,
-    "sound": "stone",
-    "tool": "pickaxe",
-    "requires_tool": true
-  },
-  "model": {
-    "parent": "cube_all",
-    "textures": {
-      "all": "@texture:hexcasting:block/deco/slate_amethyst_bricks_0"
-    }
-  }
-}
+YOGD	name;@Blocks.slate_amethyst_bricksblockhardnessresistancesoundstone	toolpickaxerequires_toolmodelparentcube_alltexturesallm@texture:hexcasting:block/deco/slate_amethyst_bricks_0

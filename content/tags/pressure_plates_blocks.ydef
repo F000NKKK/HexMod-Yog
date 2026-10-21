@@ -1,8 +1,1 @@
-{
-  kind: "tag",
-  of: "block",
-  id: "yog:pressure_plates",
-  values: [
-    "@block:hexcasting:edified_pressure_plate"
-  ]
-}
+YOGD	kindtagofblockid'yog:pressure_platesvaluesQ@block:hexcasting:edified_pressure_plate

@@ -1,13 +1,1 @@
-{
-  "id": "ancient_colorizer",
-  "name": "@Items.ancient_colorizer",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/ancient"
-    }
-  }
-}
+YOGDid#ancient_colorizer	name1@Items.ancient_colorizer	itemstack_sizemodelparentgeneratedtextureslayer0U@texture:hexcasting:item/colorizer/ancient

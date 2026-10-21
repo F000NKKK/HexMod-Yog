@@ -1,4 +1,1 @@
-{
-  image: "@ItemImages.item.cad.0_ancient_cypher_overlay",
-  atlas: "minecraft:blocks",
-}
+YOGDimage[@ItemImages.item.cad.0_ancient_cypher_overlayatlas!minecraft:blocks

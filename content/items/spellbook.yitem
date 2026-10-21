@@ -1,13 +1,1 @@
-{
-  "name": "@Items.spellbook",
-  "tooltip": "@Items.spellbook.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/spellbook_empty"
-    }
-  }
-}
+YOGD	name!@Items.spellbooktooltip+@Items.spellbook.desc	itemstack_sizemodelparentgeneratedtextureslayer0Q@texture:hexcasting:item/spellbook_empty

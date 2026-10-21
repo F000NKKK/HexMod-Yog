@@ -1,6 +1,1 @@
-{
-  "type": "brewing",
-  "from": "@item:hexcasting:shrink_grid",
-  "ingredient": "@item:minecraft:redstone",
-  "result": "@item:hexcasting:shrink_grid_long"
-}
+YOGD	typebrewing	from9@item:hexcasting:shrink_gridingredient1@item:minecraft:redstoneresultC@item:hexcasting:shrink_grid_long

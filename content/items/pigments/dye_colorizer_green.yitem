@@ -1,13 +1,1 @@
-{
-  "id": "dye_colorizer_green",
-  "name": "@Items.dye_colorizer_green",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/dye_green"
-    }
-  }
-}
+YOGDid'dye_colorizer_green	name5@Items.dye_colorizer_green	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/colorizer/dye_green

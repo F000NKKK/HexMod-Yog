@@ -1,15 +1,1 @@
-{
-  "tags": ["staves"],
-  "id": "staff/mangrove",
-  "name": "@Items.staff.mangrove",
-  "tooltip": "@Items.staff.mangrove.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "handheld",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/staff/mangrove"
-    }
-  }
-}
+YOGD	tagsstavesidstaff/mangrove	name+@Items.staff.mangrovetooltip5@Items.staff.mangrove.desc	itemstack_sizemodelparenthandheldtextureslayer0O@texture:hexcasting:item/staff/mangrove

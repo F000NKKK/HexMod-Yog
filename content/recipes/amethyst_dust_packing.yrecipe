@@ -1,13 +1,2 @@
-{
-  "id": "hexcasting:amethyst_dust_packing",
-  "type": "shaped",
-  "pattern": [
-    "XX",
-    "XX"
-  ],
-  "key": {
-    "X": "@item:hexcasting:amethyst_dust"
-  },
-  "result": "@item:hexcasting:amethyst_dust_block",
-  "category": "building"
-}
+YOGDidAhexcasting:amethyst_dust_packing	typeshapedpatternXX
+keyX=@item:hexcasting:amethyst_dustresultI@item:hexcasting:amethyst_dust_blockcategorybuilding

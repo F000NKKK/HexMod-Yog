@@ -1,14 +1,1 @@
-{
-  "kind": "advancement",
-  "id": "creative_unlocker",
-  "parent": "@advancement:hexcasting:root",
-  "icon": "@item:hexcasting:creative_unlocker",
-  "title": "@Lang.advancement.hexcasting.creative_unlocker",
-  "description": "@Lang.advancement.hexcasting.creative_unlocker.desc",
-  "hidden": true,
-  "criteria": [
-    {
-      "has_item": "@item:hexcasting:creative_unlocker"
-    }
-  ]
-}
+YOGD	kindadvancementid#creative_unlockerparent9@advancement:hexcasting:root	iconE@item:hexcasting:creative_unlockertitle]@Lang.advancement.hexcasting.creative_unlockerdescriptiong@Lang.advancement.hexcasting.creative_unlocker.deschiddencriteriahas_item

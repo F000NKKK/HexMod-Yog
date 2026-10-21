@@ -1,14 +1,1 @@
-{
-  "tags": ["grants_root_advancement"],
-  "name": "@Items.creative_unlocker",
-  "tooltip": "@Items.creative_unlocker.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/creative_unlocker"
-    }
-  }
-}
+YOGD	tags/grants_root_advancement	name1@Items.creative_unlockertooltip;@Items.creative_unlocker.desc	itemstack_sizemodelparentgeneratedtextureslayer0U@texture:hexcasting:item/creative_unlocker

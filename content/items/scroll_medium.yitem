@@ -1,13 +1,1 @@
-{
-  "name": "@Items.scroll_medium",
-  "tooltip": "@Items.scroll_medium.desc",
-  "item": {
-    "hangs": { "entity": "@entity:hexcasting:wall_scroll", "size": [2, 2] }
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/scroll_pristine_medium"
-    }
-  }
-}
+YOGD	name)@Items.scroll_mediumtooltip3@Items.scroll_medium.desc	itemhangsentity=@entity:hexcasting:wall_scroll	sizemodelparentgeneratedtextureslayer0_@texture:hexcasting:item/scroll_pristine_medium

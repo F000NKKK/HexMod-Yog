@@ -1,14 +1,2 @@
-{
-  "id": "hexcasting:amethyst_bricks",
-  "type": "shaped",
-  "pattern": [
-    "##",
-    "##"
-  ],
-  "key": {
-    "#": "@item:minecraft:amethyst_block"
-  },
-  "result": "@item:hexcasting:amethyst_bricks",
-  "count": 4,
-  "category": "building"
-}
+YOGDid5hexcasting:amethyst_bricks	typeshapedpattern##
+key#=@item:minecraft:amethyst_blockresultA@item:hexcasting:amethyst_brickscountcategorybuilding

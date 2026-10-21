@@ -1,10 +1,1 @@
-{
-  "id": "hexcasting:thought_knot",
-  "type": "shapeless",
-  "ingredients": [
-    "@item:hexcasting:amethyst_dust",
-    "@item:minecraft:string"
-  ],
-  "result": "@item:hexcasting:thought_knot",
-  "category": "equipment"
-}
+YOGDid/hexcasting:thought_knot	typeshapelessingredients=@item:hexcasting:amethyst_dust-@item:minecraft:stringresult;@item:hexcasting:thought_knotcategoryequipment

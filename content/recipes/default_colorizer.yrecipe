@@ -1,15 +1,2 @@
-{
-  "id": "hexcasting:default_colorizer",
-  "type": "shaped",
-  "pattern": [
-    " C ",
-    "CIC",
-    " C "
-  ],
-  "key": {
-    "C": "@item:hexcasting:amethyst_dust",
-    "I": "@item:minecraft:amethyst_shard"
-  },
-  "result": "@item:hexcasting:default_colorizer",
-  "category": "misc"
-}
+YOGDid9hexcasting:default_colorizer	typeshapedpattern C CIC
+keyC=@item:hexcasting:amethyst_dustI=@item:minecraft:amethyst_shardresultE@item:hexcasting:default_colorizercategory	misc

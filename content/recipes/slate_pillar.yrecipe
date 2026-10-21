@@ -1,14 +1,3 @@
-{
-  "id": "hexcasting:slate_pillar",
-  "type": "shaped",
-  "pattern": [
-    "#",
-    "#"
-  ],
-  "key": {
-    "#": "@item:hexcasting:slate_block"
-  },
-  "result": "@item:hexcasting:slate_pillar",
-  "count": 2,
-  "category": "building"
-}
+YOGDid/hexcasting:slate_pillar	typeshapedpattern#
+key
+9@item:hexcasting:slate_blockresult;@item:hexcasting:slate_pillarcountcategorybuilding

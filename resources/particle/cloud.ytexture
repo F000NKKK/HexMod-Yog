@@ -1,4 +1,1 @@
-{
-  image: "@ParticleImages.particle.cloud",
-  atlas: "minecraft:particles",
-}
+YOGDimage=@ParticleImages.particle.cloudatlas'minecraft:particles

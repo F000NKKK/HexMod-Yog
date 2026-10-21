@@ -1,233 +1,4 @@
-// The old hexes ancient cyphers come with: a name (its translation key) and
-// its patterns, `<start direction> <angles>` each.
-{
-  "kind": "table",
-  "id": "loot_hex",
-  "columns": {
-    "name": "string",
-    "patterns": "[string]"
-  },
-  "rows": {
-    "shatter": {
-      "name": "hexcasting.loot_hex.shatter",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "NORTH_EAST qaq",
-        "NORTH_EAST wa",
-        "EAST wqaawdd",
-        "EAST qaqqqqq"
-      ]
-    },
-    "kindle": {
-      "name": "hexcasting.loot_hex.kindle",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "NORTH_EAST qaq",
-        "NORTH_EAST wa",
-        "EAST wqaawdd",
-        "SOUTH_EAST aaqawawa"
-      ]
-    },
-    "illuminate": {
-      "name": "hexcasting.loot_hex.illuminate",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "NORTH_EAST qaq",
-        "NORTH_EAST wa",
-        "EAST aadadaaw",
-        "EAST wqaawdd",
-        "NORTH_EAST ddqdd",
-        "EAST weddwaa",
-        "NORTH_EAST waaw",
-        "NORTH_EAST qqd"
-      ]
-    },
-    "growth": {
-      "name": "hexcasting.loot_hex.growth",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "NORTH_EAST qaq",
-        "NORTH_EAST wa",
-        "EAST aadadaaw",
-        "EAST wqaawdd",
-        "NORTH_EAST ddqdd",
-        "EAST weddwaa",
-        "NORTH_EAST waaw",
-        "SOUTH_EAST aqaaedwd",
-        "EAST aadaadaa",
-        "NORTH_EAST wqaqwawqaqw",
-        "NORTH_EAST wqaqwawqaqw",
-        "NORTH_EAST wqaqwawqaqw"
-      ]
-    },
-    "lunge": {
-      "name": "hexcasting.loot_hex.lunge",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aadaa",
-        "NORTH_EAST wa",
-        "SOUTH_EAST aqaawa",
-        "SOUTH_EAST waqaw",
-        "SOUTH_WEST awqqqwaqw"
-      ]
-    },
-    "sidestep": {
-      "name": "hexcasting.loot_hex.sidestep",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aadaa",
-        "NORTH_EAST wa",
-        "NORTH_WEST eqqq",
-        "SOUTH_EAST aqaawd",
-        "SOUTH_EAST e",
-        "NORTH_WEST qqqqqew",
-        "SOUTH_WEST eeeeeqw",
-        "SOUTH_EAST awdd",
-        "NORTH_EAST wdedw",
-        "SOUTH_WEST awqqqwaqw"
-      ]
-    },
-    "ascend": {
-      "name": "hexcasting.loot_hex.ascend",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "SOUTH_EAST aqaae",
-        "WEST qqqqqawwawawd"
-      ]
-    },
-    "blink": {
-      "name": "hexcasting.loot_hex.blink",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aadaa",
-        "EAST aa",
-        "NORTH_EAST qaq",
-        "NORTH_EAST wa",
-        "EAST wqaawdd",
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "NORTH_WEST wddw",
-        "NORTH_EAST wqaqw",
-        "SOUTH_EAST aqaaw",
-        "NORTH_WEST wddw",
-        "SOUTH_WEST awqqqwaq"
-      ]
-    },
-    "blastoff": {
-      "name": "hexcasting.loot_hex.blastoff",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "NORTH_WEST qqqqqew",
-        "SOUTH_EAST aqaawaa",
-        "SOUTH_EAST waqaw",
-        "SOUTH_WEST awqqqwaqw"
-      ]
-    },
-    "radar": {
-      "name": "hexcasting.loot_hex.radar",
-      "patterns": [
-        "WEST qqq",
-        "EAST aadaa",
-        "EAST aa",
-        "SOUTH_EAST aqaawa",
-        "SOUTH_WEST ewdqdwe",
-        "NORTH_EAST de",
-        "EAST eee",
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "SOUTH_EAST aqaaeaqq",
-        "SOUTH_EAST qqqqqwdeddwd",
-        "NORTH_EAST dadad"
-      ]
-    },
-    "beckon": {
-      "name": "hexcasting.loot_hex.beckon",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "NORTH_EAST qaq",
-        "NORTH_EAST wa",
-        "EAST weaqa",
-        "EAST aadaa",
-        "EAST dd",
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "EAST aawdd",
-        "NORTH_WEST wddw",
-        "EAST aadaa",
-        "NORTH_EAST wqaqw",
-        "NORTH_EAST wdedw",
-        "SOUTH_EAST aqaawa",
-        "SOUTH_EAST waqaw",
-        "SOUTH_WEST awqqqwaqw"
-      ]
-    },
-    "detonate": {
-      "name": "hexcasting.loot_hex.detonate",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "SOUTH_EAST aqaaedwd",
-        "EAST ddwddwdd"
-      ]
-    },
-    "shockwave": {
-      "name": "hexcasting.loot_hex.shockwave",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "SOUTH_EAST aqaawaa",
-        "EAST aadaadaa",
-        "SOUTH_EAST aqawqadaq",
-        "SOUTH_EAST aqaaedwd",
-        "EAST aawaawaa",
-        "NORTH_EAST qqa",
-        "EAST qaqqqqq"
-      ]
-    },
-    "heat_wave": {
-      "name": "hexcasting.loot_hex.heat_wave",
-      "patterns": [
-        "WEST qqq",
-        "SOUTH_EAST aaqawawa",
-        "EAST eee",
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "SOUTH_EAST aqaae",
-        "SOUTH_EAST qqqqqwded",
-        "SOUTH_WEST aaqwqaa",
-        "SOUTH_EAST a",
-        "NORTH_EAST dadad"
-      ]
-    },
-    "wither_wave": {
-      "name": "hexcasting.loot_hex.wither_wave",
-      "patterns": [
-        "WEST qqq",
-        "SOUTH_EAST aqaae",
-        "SOUTH_EAST aqaaw",
-        "SOUTH_WEST qqqqqaewawawe",
-        "EAST eee",
-        "NORTH_EAST qaq",
-        "EAST aa",
-        "SOUTH_EAST aqaae",
-        "SOUTH_EAST qqqqqwdeddwd",
-        "SOUTH_WEST aaqwqaa",
-        "SOUTH_EAST a",
-        "NORTH_EAST dadad"
-      ]
-    },
-    "flight_zone": {
-      "name": "hexcasting.loot_hex.flight_zone",
-      "patterns": [
-        "NORTH_EAST qaq",
-        "SOUTH_EAST aqaaq",
-        "SOUTH_WEST awawaawq"
-      ]
-    }
-  }
-}
+YOGDcommentõThe old hexes ancient cyphers come with: a name (its translation key) and
+its patterns, `<start direction> <angles>` each.	kindtableidloot_hexcolumns	namestringpatterns[string]	rowsshatter7hexcasting.loot_hex.shatterNORTH_EAST qaqEAST aaNORTH_EAST waEAST wqaawddEAST qaqqqqqkindle5hexcasting.loot_hex.kindle "'SOUTH_EAST aaqawawailluminate=hexcasting.loot_hex.illuminate
+ EAST aadadaaw"!NORTH_EAST ddqddEAST weddwaaNORTH_EAST waawNORTH_EAST qqdgrowth5hexcasting.loot_hex.growth 0"246'SOUTH_EAST aqaaedwdEAST aadaadaa-NORTH_EAST wqaqwawqaqwBBlunge3hexcasting.loot_hex.lungeEAST aadaa #SOUTH_EAST aqaawa!SOUTH_EAST waqaw)SOUTH_WEST awqqqwaqwsidestep9hexcasting.loot_hex.sidestepH NORTH_WEST eqqq#SOUTH_EAST aqaawdSOUTH_EAST e%NORTH_WEST qqqqqew%SOUTH_WEST eeeeeqwSOUTH_EAST awdd!NORTH_EAST wdedwNascend5hexcasting.loot_hex.ascend!SOUTH_EAST aqaae%WEST qqqqqawwawawdblink3hexcasting.loot_hex.blinkH "NORTH_WEST wddw!NORTH_EAST wqaqw!SOUTH_EAST aqaawn'SOUTH_WEST awqqqwaqblastoff9hexcasting.loot_hex.blastoffZ%SOUTH_EAST aqaawaaLNradar3hexcasting.loot_hex.radarWEST qqqHJ%SOUTH_WEST ewdqdweNORTH_EAST deEAST eee'SOUTH_EAST aqaaeaqq/SOUTH_EAST qqqqqwdeddwd!NORTH_EAST dadadbeckon5hexcasting.loot_hex.beckon EAST weaqaHEAST ddEAST aawddnHp`JLNdetonate9hexcasting.loot_hex.detonate>EAST ddwddwddshockwave;hexcasting.loot_hex.shockwave	z@)SOUTH_EAST aqawqadaq>EAST aawaawaaNORTH_EAST qqa$heat_wave;hexcasting.loot_hex.heat_wave
+€*†f)SOUTH_EAST qqqqqwded%SOUTH_WEST aaqwqaaSOUTH_EAST aŒwither_wave?hexcasting.loot_hex.wither_wave€fr1SOUTH_WEST qqqqqaewawawe†fŠ®°Œflight_zone?hexcasting.loot_hex.flight_zone!SOUTH_EAST aqaaq'SOUTH_WEST awawaawq

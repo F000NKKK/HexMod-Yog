@@ -1,15 +1,2 @@
-{
-  "id": "hexcasting:pride_colorizer_demigirl",
-  "type": "shaped",
-  "pattern": [
-    " D ",
-    "DCD",
-    " D "
-  ],
-  "key": {
-    "C": "@item:minecraft:raw_copper",
-    "D": "@item:hexcasting:amethyst_dust"
-  },
-  "result": "@item:hexcasting:pride_colorizer_demigirl",
-  "category": "misc"
-}
+YOGDidGhexcasting:pride_colorizer_demigirl	typeshapedpattern D DCD
+keyC5@item:minecraft:raw_copperD=@item:hexcasting:amethyst_dustresultS@item:hexcasting:pride_colorizer_demigirlcategory	misc

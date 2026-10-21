@@ -1,16 +1,1 @@
-{
-  "tags": ["edified_logs", "yog:logs", "yog:logs_that_burn"],
-  "name": "@Blocks.edified_wood",
-  "block": {
-    "hardness": 3,
-    "resistance": 4,
-    "sound": "wood",
-    "tool": "axe"
-  },
-  "model": {
-    "parent": "cube_all",
-    "textures": {
-      "all": "@texture:hexcasting:block/edified_log"
-    }
-  }
-}
+YOGD	tagsedified_logsyog:logs%yog:logs_that_burn	name)@Blocks.edified_woodblockhardnessresistancesound	wood	toolaxemodelparentcube_alltexturesallK@texture:hexcasting:block/edified_log

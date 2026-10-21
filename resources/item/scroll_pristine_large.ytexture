@@ -1,4 +1,1 @@
-{
-  image: "@ItemImages.item.scroll_pristine_large",
-  atlas: "minecraft:blocks",
-}
+YOGDimageM@ItemImages.item.scroll_pristine_largeatlas!minecraft:blocks

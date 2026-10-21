@@ -1,16 +1,2 @@
-{
-  "id": "hexcasting:akashic_bookshelf",
-  "type": "shaped",
-  "pattern": [
-    "LPL",
-    "CCC",
-    "LPL"
-  ],
-  "key": {
-    "C": "@item:minecraft:book",
-    "L": "@tag:item:hexcasting:edified_logs",
-    "P": "@tag:item:hexcasting:edified_planks"
-  },
-  "result": "@item:hexcasting:akashic_bookshelf",
-  "category": "redstone"
-}
+YOGDid9hexcasting:akashic_bookshelf	typeshapedpatternLPLCCC
+keyC)@item:minecraft:bookLC@tag:item:hexcasting:edified_logsPG@tag:item:hexcasting:edified_planksresultE@item:hexcasting:akashic_bookshelfcategoryredstone

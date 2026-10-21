@@ -1,18 +1,2 @@
-{
-  "id": "hexcasting:cypher",
-  "type": "shaped",
-  "pattern": [
-    " C ",
-    "CIC",
-    " C "
-  ],
-  "key": {
-    "C": [
-      "@item:minecraft:copper_ingot",
-      "@tag:item:yog:ingots/copper"
-    ],
-    "I": "@item:hexcasting:amethyst_dust"
-  },
-  "result": "@item:hexcasting:cypher",
-  "category": "equipment"
-}
+YOGDid#hexcasting:cypher	typeshapedpattern C CIC
+keyC9@item:minecraft:copper_ingot7@tag:item:yog:ingots/copperI=@item:hexcasting:amethyst_dustresult/@item:hexcasting:cyphercategoryequipment

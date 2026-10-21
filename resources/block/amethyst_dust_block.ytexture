@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.amethyst_dust_block",
-  atlas: "minecraft:blocks",
-}
+YOGDimageM@BlockImages.block.amethyst_dust_blockatlas!minecraft:blocks

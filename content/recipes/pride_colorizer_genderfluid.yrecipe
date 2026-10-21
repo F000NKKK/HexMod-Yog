@@ -1,15 +1,2 @@
-{
-  "id": "hexcasting:pride_colorizer_genderfluid",
-  "type": "shaped",
-  "pattern": [
-    " D ",
-    "DCD",
-    " D "
-  ],
-  "key": {
-    "C": "@item:minecraft:water_bucket",
-    "D": "@item:hexcasting:amethyst_dust"
-  },
-  "result": "@item:hexcasting:pride_colorizer_genderfluid",
-  "category": "misc"
-}
+YOGDidMhexcasting:pride_colorizer_genderfluid	typeshapedpattern D DCD
+keyC9@item:minecraft:water_bucketD=@item:hexcasting:amethyst_dustresultY@item:hexcasting:pride_colorizer_genderfluidcategory	misc

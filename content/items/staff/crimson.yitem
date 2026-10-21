@@ -1,15 +1,1 @@
-{
-  "tags": ["staves"],
-  "id": "staff/crimson",
-  "name": "@Items.staff.crimson",
-  "tooltip": "@Items.staff.crimson.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "handheld",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/staff/crimson"
-    }
-  }
-}
+YOGD	tagsstavesidstaff/crimson	name)@Items.staff.crimsontooltip3@Items.staff.crimson.desc	itemstack_sizemodelparenthandheldtextureslayer0M@texture:hexcasting:item/staff/crimson

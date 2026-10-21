@@ -1,17 +1,1 @@
-{
-  "tags": ["slate_blocks"],
-  "name": "@Blocks.slate_bricks",
-  "block": {
-    "hardness": 2,
-    "resistance": 4,
-    "sound": "stone",
-    "tool": "pickaxe",
-    "requires_tool": true
-  },
-  "model": {
-    "parent": "cube_all",
-    "textures": {
-      "all": "@texture:hexcasting:block/deco/slate_bricks"
-    }
-  }
-}
+YOGD	tagsslate_blocks	name)@Blocks.slate_bricksblockhardnessresistancesoundstone	toolpickaxerequires_toolmodelparentcube_alltexturesallW@texture:hexcasting:block/deco/slate_bricks

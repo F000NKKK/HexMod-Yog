@@ -1,13 +1,1 @@
-{
-  "id": "pride_colorizer_intersex",
-  "name": "@Items.pride_colorizer_intersex",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/pride_intersex"
-    }
-  }
-}
+YOGDid1pride_colorizer_intersex	name?@Items.pride_colorizer_intersex	itemstack_sizemodelparentgeneratedtextureslayer0c@texture:hexcasting:item/colorizer/pride_intersex

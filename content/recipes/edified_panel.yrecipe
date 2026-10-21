@@ -1,15 +1,3 @@
-{
-  "id": "hexcasting:edified_panel",
-  "type": "shaped",
-  "pattern": [
-    "WWW",
-    "WWW",
-    "WWW"
-  ],
-  "key": {
-    "W": "@tag:item:hexcasting:edified_planks"
-  },
-  "result": "@item:hexcasting:edified_panel",
-  "count": 9,
-  "category": "building"
-}
+YOGDid1hexcasting:edified_panel	typeshapedpatternWWW
+
+keyWG@tag:item:hexcasting:edified_planksresult=@item:hexcasting:edified_panelcountcategorybuilding

@@ -1,9 +1,1 @@
-{
-  "name": "@Items.quenched_allay_shard",
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/quenched_shard_0"
-    }
-  }
-}
+YOGD	name7@Items.quenched_allay_shardmodelparentgeneratedtextureslayer0S@texture:hexcasting:item/quenched_shard_0

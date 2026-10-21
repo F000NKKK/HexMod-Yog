@@ -1,13 +1,1 @@
-{
-  "id": "hexcasting:edified_slab",
-  "type": "shaped",
-  "pattern": [
-    "WWW"
-  ],
-  "key": {
-    "W": "@tag:item:hexcasting:edified_planks"
-  },
-  "result": "@item:hexcasting:edified_slab",
-  "count": 6,
-  "category": "building"
-}
+YOGDid/hexcasting:edified_slab	typeshapedpatternWWWkeyWG@tag:item:hexcasting:edified_planksresult;@item:hexcasting:edified_slabcountcategorybuilding

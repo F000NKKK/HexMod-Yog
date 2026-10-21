@@ -1,9 +1,2 @@
-// `hexcasting:random_cypher`: exactly one ancient cypher with one of the old
-// hexes — for `/loot` and other tables.
-{
-  "kind": "loot_table",
-  "id": "random_cypher",
-  "add": [
-    { "item": "@item:hexcasting:ancient_cypher", "function": "hexcasting:ancient_hex" }
-  ]
-}
+YOGDcomment�`hexcasting:random_cypher`: exactly one ancient cypher with one of the old
+hexes — for `/loot` and other tables.	kindloot_tableidrandom_cypheradd	item?@item:hexcasting:ancient_cypherfunction-hexcasting:ancient_hex

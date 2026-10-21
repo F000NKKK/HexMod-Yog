@@ -1,13 +1,1 @@
-{
-  "id": "pride_colorizer_gay",
-  "name": "@Items.pride_colorizer_gay",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/pride_gay"
-    }
-  }
-}
+YOGDid'pride_colorizer_gay	name5@Items.pride_colorizer_gay	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/colorizer/pride_gay

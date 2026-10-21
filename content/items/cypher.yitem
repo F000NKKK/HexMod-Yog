@@ -1,13 +1,1 @@
-{
-  "name": "@Items.cypher",
-  "tooltip": "@Items.cypher.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/cypher"
-    }
-  }
-}
+YOGD	name@Items.cyphertooltip%@Items.cypher.desc	itemstack_sizemodelparentgeneratedtextureslayer0?@texture:hexcasting:item/cypher

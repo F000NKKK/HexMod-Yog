@@ -1,6 +1,1 @@
-{
-  "id": "hexcasting:stonecutting/slate_pillar",
-  "type": "stonecutting",
-  "ingredient": "@tag:item:hexcasting:slate_blocks",
-  "result": "@item:hexcasting:slate_pillar"
-}
+YOGDidIhexcasting:stonecutting/slate_pillar	typestonecuttingingredientC@tag:item:hexcasting:slate_blocksresult;@item:hexcasting:slate_pillar

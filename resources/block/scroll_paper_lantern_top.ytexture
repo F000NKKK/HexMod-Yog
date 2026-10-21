@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.scroll_paper_lantern_top",
-  atlas: "minecraft:blocks",
-}
+YOGDimageW@BlockImages.block.scroll_paper_lantern_topatlas!minecraft:blocks

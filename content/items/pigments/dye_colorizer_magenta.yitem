@@ -1,13 +1,1 @@
-{
-  "id": "dye_colorizer_magenta",
-  "name": "@Items.dye_colorizer_magenta",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/dye_magenta"
-    }
-  }
-}
+YOGDid+dye_colorizer_magenta	name9@Items.dye_colorizer_magenta	itemstack_sizemodelparentgeneratedtextureslayer0]@texture:hexcasting:item/colorizer/dye_magenta

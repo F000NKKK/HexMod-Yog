@@ -1,9 +1,1 @@
-{
-  "id": "hexcasting:slate_bricks_small_from_slate_bricks",
-  "type": "shapeless",
-  "ingredients": [
-    "@item:hexcasting:slate_bricks"
-  ],
-  "result": "@item:hexcasting:slate_bricks_small",
-  "category": "building"
-}
+YOGDid_hexcasting:slate_bricks_small_from_slate_bricks	typeshapelessingredients;@item:hexcasting:slate_bricksresultG@item:hexcasting:slate_bricks_smallcategorybuilding

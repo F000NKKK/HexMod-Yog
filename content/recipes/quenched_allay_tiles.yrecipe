@@ -1,14 +1,2 @@
-{
-  "id": "hexcasting:quenched_allay_tiles",
-  "type": "shaped",
-  "pattern": [
-    "##",
-    "##"
-  ],
-  "key": {
-    "#": "@item:hexcasting:quenched_allay_bricks"
-  },
-  "result": "@item:hexcasting:quenched_allay_tiles",
-  "count": 4,
-  "category": "building"
-}
+YOGDid?hexcasting:quenched_allay_tiles	typeshapedpattern##
+key#M@item:hexcasting:quenched_allay_bricksresultK@item:hexcasting:quenched_allay_tilescountcategorybuilding

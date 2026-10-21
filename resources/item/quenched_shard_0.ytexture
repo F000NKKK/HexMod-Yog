@@ -1,4 +1,1 @@
-{
-  image: "@ItemImages.item.quenched_shard_0",
-  atlas: "minecraft:blocks",
-}
+YOGDimageC@ItemImages.item.quenched_shard_0atlas!minecraft:blocks

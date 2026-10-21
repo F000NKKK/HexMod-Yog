@@ -1,15 +1,2 @@
-{
-  "id": "hexcasting:dye_colorizer_red",
-  "type": "shaped",
-  "pattern": [
-    " D ",
-    "DCD",
-    " D "
-  ],
-  "key": {
-    "C": "@item:minecraft:red_dye",
-    "D": "@item:hexcasting:amethyst_dust"
-  },
-  "result": "@item:hexcasting:dye_colorizer_red",
-  "category": "misc"
-}
+YOGDid9hexcasting:dye_colorizer_red	typeshapedpattern D DCD
+keyC/@item:minecraft:red_dyeD=@item:hexcasting:amethyst_dustresultE@item:hexcasting:dye_colorizer_redcategory	misc

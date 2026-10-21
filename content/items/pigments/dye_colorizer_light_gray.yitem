@@ -1,13 +1,1 @@
-{
-  "id": "dye_colorizer_light_gray",
-  "name": "@Items.dye_colorizer_light_gray",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/dye_light_gray"
-    }
-  }
-}
+YOGDid1dye_colorizer_light_gray	name?@Items.dye_colorizer_light_gray	itemstack_sizemodelparentgeneratedtextureslayer0c@texture:hexcasting:item/colorizer/dye_light_gray

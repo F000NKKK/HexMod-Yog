@@ -1,20 +1,1 @@
-{
-  "kind": "stairs",
-  "tags": ["yog:stairs", "yog:wooden_stairs"],
-  "name": "@Blocks.edified_stairs",
-  "block": {
-    "hardness": 2,
-    "resistance": 2,
-    "sound": "wood",
-    "tool": "axe",
-    "occludes": false,
-    "base": "@block:hexcasting:edified_planks"
-  },
-  "model": {
-    "textures": {
-      "bottom": "@texture:hexcasting:block/edified_planks",
-      "top": "@texture:hexcasting:block/edified_planks",
-      "side": "@texture:hexcasting:block/edified_planks"
-    }
-  }
-}
+YOGD	kindstairs	tagsyog:stairs#yog:wooden_stairs	name-@Blocks.edified_stairsblockhardnessresistancesound	wood	toolaxeoccludes	baseA@block:hexcasting:edified_planksmodeltexturesbottomQ@texture:hexcasting:block/edified_plankstop(	side(

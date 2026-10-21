@@ -1,12 +1,1 @@
-{
-  "model": {
-    "parent": "minecraft:item/potion"
-  },
-  "item": {
-    "potion": {
-      "effects": [
-        { "effect": "@effect:hexcasting:shrink_grid", "duration": 3600 }
-      ]
-    }
-  }
-}
+YOGDmodelparent+minecraft:item/potion	itempotioneffectseffect=@effect:hexcasting:shrink_gridduration 8

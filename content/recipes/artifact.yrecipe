@@ -1,19 +1,1 @@
-{
-  "id": "hexcasting:artifact",
-  "type": "shaped",
-  "pattern": [
-    " F ",
-    "FAF",
-    " D "
-  ],
-  "key": {
-    "A": "@item:hexcasting:charged_amethyst",
-    "D": "@tag:item:yog:music_discs",
-    "F": [
-      "@item:minecraft:gold_ingot",
-      "@tag:item:yog:ingots/gold"
-    ]
-  },
-  "result": "@item:hexcasting:artifact",
-  "category": "equipment"
-}
+YOGDid'hexcasting:artifact	typeshapedpattern F FAF D keyAC@item:hexcasting:charged_amethystD3@tag:item:yog:music_discsF5@item:minecraft:gold_ingot3@tag:item:yog:ingots/goldresult3@item:hexcasting:artifactcategoryequipment

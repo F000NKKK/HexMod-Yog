@@ -1,13 +1,1 @@
-{
-  "id": "pride_colorizer_lesbian",
-  "name": "@Items.pride_colorizer_lesbian",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/pride_lesbian"
-    }
-  }
-}
+YOGDid/pride_colorizer_lesbian	name=@Items.pride_colorizer_lesbian	itemstack_sizemodelparentgeneratedtextureslayer0a@texture:hexcasting:item/colorizer/pride_lesbian

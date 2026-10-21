@@ -1,13 +1,1 @@
-{
-  "name": "@Items.battery",
-  "tooltip": "@Items.battery.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/phial/phial_small_0"
-    }
-  }
-}
+YOGD	name@Items.batterytooltip'@Items.battery.desc	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/phial/phial_small_0

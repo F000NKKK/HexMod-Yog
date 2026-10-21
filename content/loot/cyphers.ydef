@@ -1,17 +1,1 @@
-// Ancient cyphers, each with one of the old hexes (loot_hex.ydef).
-{
-  "kind": "loot_modifier",
-  "id": "cyphers",
-  "tables": [
-    "@loot_table:minecraft:chests/simple_dungeon",
-    "@loot_table:minecraft:chests/abandoned_mineshaft",
-    "@loot_table:minecraft:chests/stronghold_corridor",
-    "@loot_table:minecraft:chests/jungle_temple",
-    "@loot_table:minecraft:chests/desert_pyramid",
-    "@loot_table:minecraft:chests/ancient_city",
-    "@loot_table:minecraft:chests/nether_bridge"
-  ],
-  "add": [
-    { "item": "@item:hexcasting:ancient_cypher", "chance": 0.4, "function": "hexcasting:ancient_hex" }
-  ]
-}
+YOGDcommentAncient cyphers, each with one of the old hexes (loot_hex.ydef).	kindloot_modifieridcypherstablesW@loot_table:minecraft:chests/simple_dungeona@loot_table:minecraft:chests/abandoned_mineshafta@loot_table:minecraft:chests/stronghold_corridorU@loot_table:minecraft:chests/jungle_templeW@loot_table:minecraft:chests/desert_pyramidS@loot_table:minecraft:chests/ancient_cityU@loot_table:minecraft:chests/nether_bridgeadd	item?@item:hexcasting:ancient_cypherchanceš™™™™™Ù?function-hexcasting:ancient_hex

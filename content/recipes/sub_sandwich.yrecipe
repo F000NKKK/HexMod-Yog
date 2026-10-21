@@ -1,17 +1,1 @@
-{
-  "id": "hexcasting:sub_sandwich",
-  "type": "shaped",
-  "pattern": [
-    " SA",
-    " C ",
-    " B "
-  ],
-  "key": {
-    "A": "@item:minecraft:amethyst_shard",
-    "B": "@item:minecraft:bread",
-    "C": "@item:minecraft:cooked_beef",
-    "S": "@item:minecraft:stick"
-  },
-  "result": "@item:hexcasting:sub_sandwich",
-  "category": "misc"
-}
+YOGDid/hexcasting:sub_sandwich	typeshapedpattern SA C  B keyA=@item:minecraft:amethyst_shardB+@item:minecraft:breadC7@item:minecraft:cooked_beefS+@item:minecraft:stickresult;@item:hexcasting:sub_sandwichcategory	misc

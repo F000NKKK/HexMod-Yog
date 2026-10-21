@@ -1,13 +1,1 @@
-{
-  "name": "@Items.ancient_cypher",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/cad/0_ancient_cypher",
-      "layer1": "@texture:hexcasting:item/cad/0_ancient_cypher_overlay"
-    }
-  }
-}
+YOGD	name+@Items.ancient_cypher	itemstack_sizemodelparentgeneratedtextureslayer0[@texture:hexcasting:item/cad/0_ancient_cypherlayer1k@texture:hexcasting:item/cad/0_ancient_cypher_overlay

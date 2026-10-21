@@ -1,13 +1,1 @@
-{
-  "id": "pride_colorizer_plural",
-  "name": "@Items.pride_colorizer_plural",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/pride_plural"
-    }
-  }
-}
+YOGDid-pride_colorizer_plural	name;@Items.pride_colorizer_plural	itemstack_sizemodelparentgeneratedtextureslayer0_@texture:hexcasting:item/colorizer/pride_plural

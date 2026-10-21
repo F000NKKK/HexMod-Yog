@@ -1,14 +1,1 @@
-// Paid for a hex with health (the code grants it).
-{
-  "kind": "advancement",
-  "id": "opened_eyes",
-  "parent": "@advancement:hexcasting:y_u_no_cast_angy",
-  "icon": "@item:minecraft:ender_eye",
-  "title": "@Lang.advancement.hexcasting.opened_eyes",
-  "description": "@Lang.advancement.hexcasting.opened_eyes.desc",
-  "criteria": [
-    {
-      "granted": true
-    }
-  ]
-}
+YOGDcommentaPaid for a hex with health (the code grants it).	kindadvancementidopened_eyesparentQ@advancement:hexcasting:y_u_no_cast_angy	icon3@item:minecraft:ender_eyetitleQ@Lang.advancement.hexcasting.opened_eyesdescription[@Lang.advancement.hexcasting.opened_eyes.desccriteriagranted

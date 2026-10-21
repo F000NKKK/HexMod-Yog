@@ -1,17 +1,1 @@
-{
-  "name": "@Blocks.akashic_record",
-  "tooltip": "@Blocks.akashic_record.desc",
-  "block": {
-    "hardness": 3,
-    "resistance": 4,
-    "sound": "wood",
-    "tool": "axe",
-    "light": 15
-  },
-  "model": {
-    "parent": "cube_all",
-    "textures": {
-      "all": "@texture:hexcasting:block/akashic_record"
-    }
-  }
-}
+YOGD	name-@Blocks.akashic_recordtooltip7@Blocks.akashic_record.descblockhardnessresistancesound	wood	toolaxelightmodelparentcube_alltexturesallQ@texture:hexcasting:block/akashic_record

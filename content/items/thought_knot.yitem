@@ -1,13 +1,1 @@
-{
-  "name": "@Items.thought_knot",
-  "tooltip": "@Items.thought_knot.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/thought_knot"
-    }
-  }
-}
+YOGD	name'@Items.thought_knottooltip1@Items.thought_knot.desc	itemstack_sizemodelparentgeneratedtextureslayer0K@texture:hexcasting:item/thought_knot

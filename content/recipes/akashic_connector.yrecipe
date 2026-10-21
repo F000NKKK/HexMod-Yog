@@ -1,19 +1,2 @@
-{
-  "id": "hexcasting:akashic_connector",
-  "type": "shaped",
-  "pattern": [
-    "LPL",
-    "123",
-    "LPL"
-  ],
-  "key": {
-    "1": "@item:hexcasting:amethyst_dust",
-    "2": "@item:minecraft:amethyst_shard",
-    "3": "@item:hexcasting:charged_amethyst",
-    "L": "@tag:item:hexcasting:edified_logs",
-    "P": "@tag:item:hexcasting:edified_planks"
-  },
-  "result": "@item:hexcasting:akashic_connector",
-  "count": 4,
-  "category": "redstone"
-}
+YOGDid9hexcasting:akashic_connector	typeshapedpatternLPL123
+key1=@item:hexcasting:amethyst_dust2=@item:minecraft:amethyst_shard3C@item:hexcasting:charged_amethystLC@tag:item:hexcasting:edified_logsPG@tag:item:hexcasting:edified_planksresultE@item:hexcasting:akashic_connectorcountcategoryredstone

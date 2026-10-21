@@ -1,4 +1,1 @@
-{
-  image: "@ItemImages.item.spellbook_empty",
-  atlas: "minecraft:blocks",
-}
+YOGDimageA@ItemImages.item.spellbook_emptyatlas!minecraft:blocks

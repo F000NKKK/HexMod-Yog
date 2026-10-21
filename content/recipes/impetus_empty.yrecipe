@@ -1,17 +1,1 @@
-{
-  "id": "hexcasting:impetus/empty",
-  "type": "shaped",
-  "pattern": [
-    "PSS",
-    "BAB",
-    "SSP"
-  ],
-  "key": {
-    "A": "@item:hexcasting:charged_amethyst",
-    "B": "@item:minecraft:iron_bars",
-    "P": "@item:minecraft:purpur_block",
-    "S": "@item:hexcasting:slate_block"
-  },
-  "result": "@item:hexcasting:impetus/empty",
-  "category": "redstone"
-}
+YOGDid1hexcasting:impetus/empty	typeshapedpatternPSSBABSSPkeyAC@item:hexcasting:charged_amethystB3@item:minecraft:iron_barsP9@item:minecraft:purpur_blockS9@item:hexcasting:slate_blockresult=@item:hexcasting:impetus/emptycategoryredstone

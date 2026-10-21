@@ -1,11 +1,1 @@
-{
-  "id": "hexcasting:slate_amethyst_pillar",
-  "type": "shapeless",
-  "ingredients": [
-    "@item:hexcasting:slate_pillar",
-    "@item:hexcasting:amethyst_pillar"
-  ],
-  "result": "@item:hexcasting:slate_amethyst_pillar",
-  "count": 2,
-  "category": "building"
-}
+YOGDidAhexcasting:slate_amethyst_pillar	typeshapelessingredients;@item:hexcasting:slate_pillarA@item:hexcasting:amethyst_pillarresultM@item:hexcasting:slate_amethyst_pillarcountcategorybuilding

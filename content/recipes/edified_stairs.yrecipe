@@ -1,15 +1,1 @@
-{
-  "id": "hexcasting:edified_stairs",
-  "type": "shaped",
-  "pattern": [
-    "W  ",
-    "WW ",
-    "WWW"
-  ],
-  "key": {
-    "W": "@tag:item:hexcasting:edified_planks"
-  },
-  "result": "@item:hexcasting:edified_stairs",
-  "count": 4,
-  "category": "building"
-}
+YOGDid3hexcasting:edified_stairs	typeshapedpatternW  WW WWWkeyWG@tag:item:hexcasting:edified_planksresult?@item:hexcasting:edified_stairscountcategorybuilding

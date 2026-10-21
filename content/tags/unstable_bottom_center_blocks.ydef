@@ -1,8 +1,1 @@
-{
-  kind: "tag",
-  of: "block",
-  id: "yog:unstable_bottom_center",
-  values: [
-    "@block:hexcasting:edified_fence_gate"
-  ]
-}
+YOGD	kindtagofblockid5yog:unstable_bottom_centervaluesI@block:hexcasting:edified_fence_gate

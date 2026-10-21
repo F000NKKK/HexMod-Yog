@@ -1,15 +1,3 @@
-{
-  "id": "hexcasting:edified_door",
-  "type": "shaped",
-  "pattern": [
-    "WW",
-    "WW",
-    "WW"
-  ],
-  "key": {
-    "W": "@tag:item:hexcasting:edified_planks"
-  },
-  "result": "@item:hexcasting:edified_door",
-  "count": 3,
-  "category": "redstone"
-}
+YOGDid/hexcasting:edified_door	typeshapedpatternWW
+
+keyWG@tag:item:hexcasting:edified_planksresult;@item:hexcasting:edified_doorcountcategoryredstone

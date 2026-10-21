@@ -1,20 +1,2 @@
-{
-  "id": "hexcasting:spellbook",
-  "type": "shaped",
-  "pattern": [
-    "NBA",
-    "NFA",
-    "NBA"
-  ],
-  "key": {
-    "A": "@item:hexcasting:charged_amethyst",
-    "B": "@item:minecraft:writable_book",
-    "F": "@item:minecraft:chorus_fruit",
-    "N": [
-      "@item:minecraft:gold_nugget",
-      "@tag:item:yog:nuggets/gold"
-    ]
-  },
-  "result": "@item:hexcasting:spellbook",
-  "category": "equipment"
-}
+YOGDid)hexcasting:spellbook	typeshapedpatternNBANFA
+keyAC@item:hexcasting:charged_amethystB;@item:minecraft:writable_bookF9@item:minecraft:chorus_fruitN7@item:minecraft:gold_nugget5@tag:item:yog:nuggets/goldresult5@item:hexcasting:spellbookcategoryequipment

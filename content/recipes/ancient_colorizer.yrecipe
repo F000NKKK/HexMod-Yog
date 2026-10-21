@@ -1,15 +1,2 @@
-{
-  "id": "hexcasting:ancient_colorizer",
-  "type": "shaped",
-  "pattern": [
-    " C ",
-    "CIC",
-    " C "
-  ],
-  "key": {
-    "C": "@item:hexcasting:amethyst_dust",
-    "I": "@item:minecraft:copper_ingot"
-  },
-  "result": "@item:hexcasting:ancient_colorizer",
-  "category": "misc"
-}
+YOGDid9hexcasting:ancient_colorizer	typeshapedpattern C CIC
+keyC=@item:hexcasting:amethyst_dustI9@item:minecraft:copper_ingotresultE@item:hexcasting:ancient_colorizercategory	misc

@@ -1,6 +1,1 @@
-{
-  "type": "brewing",
-  "from": "@item:hexcasting:enlarge_grid",
-  "ingredient": "@item:minecraft:fermented_spider_eye",
-  "result": "@item:hexcasting:shrink_grid"
-}
+YOGD	typebrewing	from;@item:hexcasting:enlarge_gridingredientI@item:minecraft:fermented_spider_eyeresult9@item:hexcasting:shrink_grid

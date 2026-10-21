@@ -1,11 +1,1 @@
-{
-  "id": "hexcasting:decompose_quenched_shard/charged",
-  "type": "shapeless",
-  "ingredients": [
-    "@item:hexcasting:quenched_allay_shard",
-    "@item:hexcasting:charged_amethyst"
-  ],
-  "result": "@item:hexcasting:charged_amethyst",
-  "count": 4,
-  "category": "misc"
-}
+YOGDidWhexcasting:decompose_quenched_shard/charged	typeshapelessingredientsK@item:hexcasting:quenched_allay_shardC@item:hexcasting:charged_amethystresultcountcategory	misc

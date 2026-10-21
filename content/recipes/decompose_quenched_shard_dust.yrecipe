@@ -1,11 +1,1 @@
-{
-  "id": "hexcasting:decompose_quenched_shard/dust",
-  "type": "shapeless",
-  "ingredients": [
-    "@item:hexcasting:quenched_allay_shard",
-    "@item:hexcasting:amethyst_dust"
-  ],
-  "result": "@item:hexcasting:amethyst_dust",
-  "count": 31,
-  "category": "misc"
-}
+YOGDidQhexcasting:decompose_quenched_shard/dust	typeshapelessingredientsK@item:hexcasting:quenched_allay_shard=@item:hexcasting:amethyst_dustresultcount>category	misc

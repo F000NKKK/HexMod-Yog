@@ -1,15 +1,1 @@
-{
-  "tags": ["staves"],
-  "id": "staff/cherry",
-  "name": "@Items.staff.cherry",
-  "tooltip": "@Items.staff.cherry.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "handheld",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/staff/cherry"
-    }
-  }
-}
+YOGD	tagsstavesidstaff/cherry	name'@Items.staff.cherrytooltip1@Items.staff.cherry.desc	itemstack_sizemodelparenthandheldtextureslayer0K@texture:hexcasting:item/staff/cherry

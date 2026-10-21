@@ -1,14 +1,1 @@
-// A lot of media wasted in one cast (the code grants it).
-{
-  "kind": "advancement",
-  "id": "aaa_wasteful_cast",
-  "parent": "@advancement:hexcasting:root",
-  "icon": "@item:minecraft:glistering_melon_slice",
-  "title": "@Lang.advancement.hexcasting.wasteful_cast",
-  "description": "@Lang.advancement.hexcasting.wasteful_cast.desc",
-  "criteria": [
-    {
-      "granted": true
-    }
-  ]
-}
+YOGDcommentoA lot of media wasted in one cast (the code grants it).	kindadvancementid#aaa_wasteful_castparent9@advancement:hexcasting:root	iconM@item:minecraft:glistering_melon_slicetitleU@Lang.advancement.hexcasting.wasteful_castdescription_@Lang.advancement.hexcasting.wasteful_cast.desccriteriagranted

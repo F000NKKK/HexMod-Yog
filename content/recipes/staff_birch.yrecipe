@@ -1,16 +1,1 @@
-{
-  "id": "hexcasting:staff/birch",
-  "type": "shaped",
-  "pattern": [
-    " SA",
-    " WS",
-    "S  "
-  ],
-  "key": {
-    "A": "@item:hexcasting:charged_amethyst",
-    "S": "@item:minecraft:stick",
-    "W": "@item:minecraft:birch_planks"
-  },
-  "result": "@item:hexcasting:staff/birch",
-  "category": "equipment"
-}
+YOGDid-hexcasting:staff/birch	typeshapedpattern SA WSS  keyAC@item:hexcasting:charged_amethystS+@item:minecraft:stickW9@item:minecraft:birch_planksresult9@item:hexcasting:staff/birchcategoryequipment

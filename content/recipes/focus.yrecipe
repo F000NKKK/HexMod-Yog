@@ -1,20 +1,2 @@
-{
-  "id": "hexcasting:focus",
-  "type": "shaped",
-  "pattern": [
-    "GLG",
-    "PAP",
-    "GLG"
-  ],
-  "key": {
-    "A": "@item:hexcasting:charged_amethyst",
-    "G": [
-      "@item:minecraft:glowstone_dust",
-      "@tag:item:yog:dusts/glowstone"
-    ],
-    "L": "@item:minecraft:leather",
-    "P": "@item:minecraft:paper"
-  },
-  "result": "@item:hexcasting:focus",
-  "category": "equipment"
-}
+YOGDid!hexcasting:focus	typeshapedpatternGLGPAP
+keyAC@item:hexcasting:charged_amethystG=@item:minecraft:glowstone_dust;@tag:item:yog:dusts/glowstoneL/@item:minecraft:leatherP+@item:minecraft:paperresult-@item:hexcasting:focuscategoryequipment

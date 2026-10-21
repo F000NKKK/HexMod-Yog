@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.circle.directrix.redstone.back_dim_unpowered",
-  atlas: "minecraft:blocks",
-}
+YOGDimage@BlockImages.block.circle.directrix.redstone.back_dim_unpoweredatlas!minecraft:blocks

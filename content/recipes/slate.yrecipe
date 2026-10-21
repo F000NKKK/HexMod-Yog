@@ -1,15 +1,1 @@
-{
-  "id": "hexcasting:slate",
-  "type": "shaped",
-  "pattern": [
-    " A ",
-    "SSS"
-  ],
-  "key": {
-    "A": "@item:hexcasting:amethyst_dust",
-    "S": "@item:minecraft:deepslate"
-  },
-  "result": "@item:hexcasting:slate",
-  "count": 6,
-  "category": "misc"
-}
+YOGDid!hexcasting:slate	typeshapedpattern A SSSkeyA=@item:hexcasting:amethyst_dustS3@item:minecraft:deepslateresult-@item:hexcasting:slatecountcategory	misc

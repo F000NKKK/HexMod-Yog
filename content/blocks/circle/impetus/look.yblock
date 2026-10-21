@@ -1,66 +1,1 @@
-{
-  "tags": ["impeti"],
-  "id": "impetus/look",
-  "name": "@Blocks.impetus.look",
-  "block": {
-    "hardness": 4,
-    "resistance": 4,
-    "sound": "stone",
-    "tool": "pickaxe",
-    "requires_tool": true,
-    "comparator": "energized",
-    "accepts_items": true
-  },
-  "model": {
-    "parent": "cube",
-    "textures": {
-      "down": "@texture:hexcasting:block/circle/bottom",
-      "east": "@texture:hexcasting:block/circle/impetus/look/left_dim",
-      "north": "@texture:hexcasting:block/circle/impetus/look/front_dim",
-      "particle": "@texture:hexcasting:block/slate",
-      "south": "@texture:hexcasting:block/circle/impetus/back_dim",
-      "up": "@texture:hexcasting:block/circle/impetus/look/top_dim",
-      "west": "@texture:hexcasting:block/circle/impetus/look/right_dim"
-    }
-  },
-  "states": {
-    "facing": "all",
-    "placement": "away",
-    "properties": {
-      "energized": [
-        "false",
-        "true"
-      ]
-    },
-    "models": {
-      "dim": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/impetus/look/left_dim",
-          "north": "@texture:hexcasting:block/circle/impetus/look/front_dim",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/impetus/back_dim",
-          "up": "@texture:hexcasting:block/circle/impetus/look/top_dim",
-          "west": "@texture:hexcasting:block/circle/impetus/look/right_dim"
-        }
-      },
-      "lit": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/impetus/look/left_lit",
-          "north": "@texture:hexcasting:block/circle/impetus/look/front_lit",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/impetus/back_lit",
-          "up": "@texture:hexcasting:block/circle/impetus/look/top_lit",
-          "west": "@texture:hexcasting:block/circle/impetus/look/right_lit"
-        }
-      }
-    },
-    "variants": {
-      "energized=false": "dim",
-      "energized=true": "lit"
-    }
-  }
-}
+YOGD	tagsimpetiidimpetus/look	name)@Blocks.impetus.lookblockhardnessresistancesoundstone	toolpickaxerequires_toolcomparatorenergizedaccepts_itemsmodelparent	cubetextures	downO@texture:hexcasting:block/circle/bottom	eastm@texture:hexcasting:block/circle/impetus/look/left_dimnortho@texture:hexcasting:block/circle/impetus/look/front_dimparticle?@texture:hexcasting:block/slatesouthc@texture:hexcasting:block/circle/impetus/back_dimupk@texture:hexcasting:block/circle/impetus/look/top_dim	westo@texture:hexcasting:block/circle/impetus/look/right_dimstatesfacingallplacement	awaypropertiesfalse	truemodelsdim$&(*,.02468:<>@BDlit$&(*,.m@texture:hexcasting:block/circle/impetus/look/left_lit2o@texture:hexcasting:block/circle/impetus/look/front_lit68:c@texture:hexcasting:block/circle/impetus/back_lit>k@texture:hexcasting:block/circle/impetus/look/top_litBo@texture:hexcasting:block/circle/impetus/look/right_litvariantsenergized=falseXenergized=trueZ

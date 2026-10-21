@@ -1,13 +1,1 @@
-{
-  "name": "@Items.focus",
-  "tooltip": "@Items.focus.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/focus_empty"
-    }
-  }
-}
+YOGD	name@Items.focustooltip#@Items.focus.desc	itemstack_sizemodelparentgeneratedtextureslayer0I@texture:hexcasting:item/focus_empty

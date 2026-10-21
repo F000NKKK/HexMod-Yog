@@ -1,13 +1,1 @@
-{
-  "id": "dye_colorizer_black",
-  "name": "@Items.dye_colorizer_black",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/dye_black"
-    }
-  }
-}
+YOGDid'dye_colorizer_black	name5@Items.dye_colorizer_black	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/colorizer/dye_black

@@ -1,17 +1,1 @@
-// Mounts a teleported rider takes along.
-{
-  kind: "tag",
-  of: "entity",
-  id: "sticky_teleporters",
-  values: [
-    "@entity:minecraft:pig",
-    "@entity:minecraft:strider",
-    "@entity:minecraft:horse",
-    "@entity:minecraft:skeleton_horse",
-    "@entity:minecraft:zombie_horse",
-    "@entity:minecraft:mule",
-    "@entity:minecraft:donkey",
-    "@entity:minecraft:llama",
-    "@entity:minecraft:trader_llama"
-  ]
-}
+YOGDcommentMMounts a teleported rider takes along.	kindtagofentityid%sticky_teleportersvalues	+@entity:minecraft:pig3@entity:minecraft:strider/@entity:minecraft:horseA@entity:minecraft:skeleton_horse=@entity:minecraft:zombie_horse-@entity:minecraft:mule1@entity:minecraft:donkey/@entity:minecraft:llama=@entity:minecraft:trader_llama

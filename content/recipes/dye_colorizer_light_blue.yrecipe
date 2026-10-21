@@ -1,15 +1,2 @@
-{
-  "id": "hexcasting:dye_colorizer_light_blue",
-  "type": "shaped",
-  "pattern": [
-    " D ",
-    "DCD",
-    " D "
-  ],
-  "key": {
-    "C": "@item:minecraft:light_blue_dye",
-    "D": "@item:hexcasting:amethyst_dust"
-  },
-  "result": "@item:hexcasting:dye_colorizer_light_blue",
-  "category": "misc"
-}
+YOGDidGhexcasting:dye_colorizer_light_blue	typeshapedpattern D DCD
+keyC=@item:minecraft:light_blue_dyeD=@item:hexcasting:amethyst_dustresultS@item:hexcasting:dye_colorizer_light_bluecategory	misc

@@ -1,18 +1,2 @@
-{
-  "id": "hexcasting:trinket",
-  "type": "shaped",
-  "pattern": [
-    " C ",
-    "CIC",
-    " C "
-  ],
-  "key": {
-    "C": [
-      "@item:minecraft:iron_ingot",
-      "@tag:item:yog:ingots/iron"
-    ],
-    "I": "@item:minecraft:amethyst_shard"
-  },
-  "result": "@item:hexcasting:trinket",
-  "category": "equipment"
-}
+YOGDid%hexcasting:trinket	typeshapedpattern C CIC
+keyC5@item:minecraft:iron_ingot3@tag:item:yog:ingots/ironI=@item:minecraft:amethyst_shardresult1@item:hexcasting:trinketcategoryequipment

@@ -1,4 +1,1 @@
-{
-  image: "@ItemImages.item.lore_fragment",
-  atlas: "minecraft:blocks",
-}
+YOGDimage=@ItemImages.item.lore_fragmentatlas!minecraft:blocks

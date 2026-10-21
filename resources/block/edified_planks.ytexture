@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.edified_planks",
-  atlas: "minecraft:blocks",
-}
+YOGDimageC@BlockImages.block.edified_planksatlas!minecraft:blocks

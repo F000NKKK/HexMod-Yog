@@ -1,4 +1,1 @@
-{
-  image: "@BlockImages.block.akashic_bookshelf_horiz",
-  atlas: "minecraft:blocks",
-}
+YOGDimageU@BlockImages.block.akashic_bookshelf_horizatlas!minecraft:blocks

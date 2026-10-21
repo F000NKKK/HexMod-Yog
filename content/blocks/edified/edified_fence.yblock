@@ -1,17 +1,1 @@
-{
-  "kind": "fence",
-  "tags": ["yog:fences", "yog:wooden_fences"],
-  "name": "@Blocks.edified_fence",
-  "block": {
-    "hardness": 2,
-    "resistance": 2,
-    "sound": "wood",
-    "tool": "axe",
-    "occludes": false
-  },
-  "model": {
-    "textures": {
-      "texture": "@texture:hexcasting:block/edified_planks"
-    }
-  }
-}
+YOGD	kindfence	tagsyog:fences#yog:wooden_fences	name+@Blocks.edified_fenceblockhardnessresistancesound	wood	toolaxeoccludesmodeltexturestextureQ@texture:hexcasting:block/edified_planks

@@ -1,14 +1,1 @@
-{
-  "kind": "advancement",
-  "id": "lore/cardamom3",
-  "parent": "@advancement:hexcasting:lore",
-  "icon": "@item:hexcasting:lore_fragment",
-  "title": "@Lang.advancement.hexcasting.lore.cardamom3",
-  "description": "@Lang.advancement.hexcasting.lore.cardamom3.desc",
-  "hidden": true,
-  "criteria": [
-    {
-      "granted": true
-    }
-  ]
-}
+YOGD	kindadvancementidlore/cardamom3parent9@advancement:hexcasting:lore	icon=@item:hexcasting:lore_fragmenttitleW@Lang.advancement.hexcasting.lore.cardamom3descriptiona@Lang.advancement.hexcasting.lore.cardamom3.deschiddencriteriagranted

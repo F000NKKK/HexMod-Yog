@@ -1,26 +1,1 @@
-{
-  "id": "hexcasting:jeweler_hammer",
-  "type": "shaped",
-  "pattern": [
-    "IAN",
-    " S ",
-    " S "
-  ],
-  "key": {
-    "A": "@item:minecraft:amethyst_shard",
-    "I": [
-      "@item:minecraft:iron_ingot",
-      "@tag:item:yog:ingots/iron"
-    ],
-    "N": [
-      "@item:minecraft:iron_nugget",
-      "@tag:item:yog:nuggets/iron"
-    ],
-    "S": [
-      "@item:minecraft:stick",
-      "@tag:item:yog:rods/wooden"
-    ]
-  },
-  "result": "@item:hexcasting:jeweler_hammer",
-  "category": "equipment"
-}
+YOGDid3hexcasting:jeweler_hammer	typeshapedpatternIAN S keyA=@item:minecraft:amethyst_shardI5@item:minecraft:iron_ingot3@tag:item:yog:ingots/ironN7@item:minecraft:iron_nugget5@tag:item:yog:nuggets/ironS+@item:minecraft:stick3@tag:item:yog:rods/woodenresult?@item:hexcasting:jeweler_hammercategoryequipment

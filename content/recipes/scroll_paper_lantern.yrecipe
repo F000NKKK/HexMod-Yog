@@ -1,14 +1,2 @@
-{
-  "id": "hexcasting:scroll_paper_lantern",
-  "type": "shaped",
-  "pattern": [
-    "T",
-    "B"
-  ],
-  "key": {
-    "B": "@item:minecraft:torch",
-    "T": "@item:hexcasting:scroll_paper"
-  },
-  "result": "@item:hexcasting:scroll_paper_lantern",
-  "category": "misc"
-}
+YOGDid?hexcasting:scroll_paper_lantern	typeshapedpatternTBkey+@item:minecraft:torch
+;@item:hexcasting:scroll_paperresultK@item:hexcasting:scroll_paper_lanterncategory	misc

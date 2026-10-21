@@ -1,71 +1,1 @@
-{
-  "tags": ["impeti"],
-  "id": "impetus/redstone",
-  "name": "@Blocks.impetus.redstone",
-  "block": {
-    "hardness": 4,
-    "resistance": 4,
-    "sound": "stone",
-    "tool": "pickaxe",
-    "requires_tool": true,
-    "comparator": "energized",
-    "powered": "powered",
-    "accepts_items": true
-  },
-  "model": {
-    "parent": "cube",
-    "textures": {
-      "down": "@texture:hexcasting:block/circle/bottom",
-      "east": "@texture:hexcasting:block/circle/impetus/redstone/left_dim",
-      "north": "@texture:hexcasting:block/circle/impetus/redstone/front_dim",
-      "particle": "@texture:hexcasting:block/slate",
-      "south": "@texture:hexcasting:block/circle/impetus/back_dim",
-      "up": "@texture:hexcasting:block/circle/impetus/redstone/top_dim",
-      "west": "@texture:hexcasting:block/circle/impetus/redstone/right_dim"
-    }
-  },
-  "states": {
-    "facing": "all",
-    "placement": "away",
-    "properties": {
-      "energized": [
-        "false",
-        "true"
-      ],
-      "powered": [
-        "false",
-        "true"
-      ]
-    },
-    "models": {
-      "dim": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/impetus/redstone/left_dim",
-          "north": "@texture:hexcasting:block/circle/impetus/redstone/front_dim",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/impetus/back_dim",
-          "up": "@texture:hexcasting:block/circle/impetus/redstone/top_dim",
-          "west": "@texture:hexcasting:block/circle/impetus/redstone/right_dim"
-        }
-      },
-      "lit": {
-        "parent": "cube",
-        "textures": {
-          "down": "@texture:hexcasting:block/circle/bottom",
-          "east": "@texture:hexcasting:block/circle/impetus/redstone/left_lit",
-          "north": "@texture:hexcasting:block/circle/impetus/redstone/front_lit",
-          "particle": "@texture:hexcasting:block/slate",
-          "south": "@texture:hexcasting:block/circle/impetus/back_lit",
-          "up": "@texture:hexcasting:block/circle/impetus/redstone/top_lit",
-          "west": "@texture:hexcasting:block/circle/impetus/redstone/right_lit"
-        }
-      }
-    },
-    "variants": {
-      "energized=false": "dim",
-      "energized=true": "lit"
-    }
-  }
-}
+YOGD	tagsimpetiid!impetus/redstone	name1@Blocks.impetus.redstoneblockhardnessresistancesoundstone	toolpickaxerequires_toolcomparatorenergizedpowered accepts_itemsmodelparent	cubetextures	downO@texture:hexcasting:block/circle/bottom	eastu@texture:hexcasting:block/circle/impetus/redstone/left_dimnorthw@texture:hexcasting:block/circle/impetus/redstone/front_dimparticle?@texture:hexcasting:block/slatesouthc@texture:hexcasting:block/circle/impetus/back_dimups@texture:hexcasting:block/circle/impetus/redstone/top_dim	westw@texture:hexcasting:block/circle/impetus/redstone/right_dimstatesfacingallplacement	awaypropertiesfalse	true TVmodelsdim&(*,.02468:<>@BDFlit&(*,.0u@texture:hexcasting:block/circle/impetus/redstone/left_lit4w@texture:hexcasting:block/circle/impetus/redstone/front_lit8:<c@texture:hexcasting:block/circle/impetus/back_lit@s@texture:hexcasting:block/circle/impetus/redstone/top_litDw@texture:hexcasting:block/circle/impetus/redstone/right_litvariantsenergized=falseZenergized=true\

@@ -1,9 +1,1 @@
-{
-  kind: "tag",
-  of: "item",
-  id: "brainswept_circle_components",
-  values: [
-    "@tag:item:hexcasting:directrices",
-    "@tag:item:hexcasting:impeti"
-  ]
-}
+YOGD	kindtagof	itemid9brainswept_circle_componentsvaluesA@tag:item:hexcasting:directrices7@tag:item:hexcasting:impeti

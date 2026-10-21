@@ -1,15 +1,1 @@
-{
-  "name": "@Items.sub_sandwich",
-  "item": {
-    "food": {
-      "nutrition": 14,
-      "saturation": 1.2
-    }
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/sub_sandwich"
-    }
-  }
-}
+YOGD	name'@Items.sub_sandwich	item	foodnutritionsaturation333333ó?modelparentgeneratedtextureslayer0K@texture:hexcasting:item/sub_sandwich

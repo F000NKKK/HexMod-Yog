@@ -1,18 +1,1 @@
-{
-  "kind": "fence_gate",
-  "tags": ["yog:fence_gates"],
-  "name": "@Blocks.edified_fence_gate",
-  "block": {
-    "hardness": 2,
-    "resistance": 2,
-    "sound": "wood",
-    "tool": "axe",
-    "occludes": false,
-    "set": "dark_oak"
-  },
-  "model": {
-    "textures": {
-      "texture": "@texture:hexcasting:block/edified_planks"
-    }
-  }
-}
+YOGD	kindfence_gate	tagsyog:fence_gates	name5@Blocks.edified_fence_gateblockhardnessresistancesound	wood	toolaxeoccludessetdark_oakmodeltexturestextureQ@texture:hexcasting:block/edified_planks

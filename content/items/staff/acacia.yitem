@@ -1,15 +1,1 @@
-{
-  "tags": ["staves"],
-  "id": "staff/acacia",
-  "name": "@Items.staff.acacia",
-  "tooltip": "@Items.staff.acacia.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "handheld",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/staff/acacia"
-    }
-  }
-}
+YOGD	tagsstavesidstaff/acacia	name'@Items.staff.acaciatooltip1@Items.staff.acacia.desc	itemstack_sizemodelparenthandheldtextureslayer0K@texture:hexcasting:item/staff/acacia

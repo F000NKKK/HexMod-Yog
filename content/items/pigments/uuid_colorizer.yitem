@@ -1,14 +1,1 @@
-{
-  "id": "uuid_colorizer",
-  "name": "@Items.uuid_colorizer",
-  "tooltip": "@Items.uuid_colorizer.desc",
-  "item": {
-    "stack_size": 1
-  },
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/colorizer/uuid"
-    }
-  }
-}
+YOGDiduuid_colorizer	name+@Items.uuid_colorizertooltip5@Items.uuid_colorizer.desc	itemstack_sizemodelparentgeneratedtextureslayer0O@texture:hexcasting:item/colorizer/uuid

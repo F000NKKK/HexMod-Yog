@@ -1,17 +1,1 @@
-{
-  "tags": ["edified_logs", "yog:logs", "yog:logs_that_burn"],
-  "name": "@Blocks.edified_log_purple",
-  "block": {
-    "hardness": 3,
-    "resistance": 4,
-    "sound": "wood",
-    "tool": "axe"
-  },
-  "model": {
-    "parent": "cube_column",
-    "textures": {
-      "end": "@texture:hexcasting:block/edified_log_top",
-      "side": "@texture:hexcasting:block/deco/edified_log_purple"
-    }
-  }
-}
+YOGD	tagsedified_logsyog:logs%yog:logs_that_burn	name5@Blocks.edified_log_purpleblockhardnessresistancesound	wood	toolaxemodelparentcube_columntexturesendS@texture:hexcasting:block/edified_log_top	sidec@texture:hexcasting:block/deco/edified_log_purple

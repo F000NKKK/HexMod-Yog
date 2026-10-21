@@ -1,14 +1,2 @@
-{
-  "id": "hexcasting:slate_tiles",
-  "type": "shaped",
-  "pattern": [
-    "##",
-    "##"
-  ],
-  "key": {
-    "#": "@item:hexcasting:slate_bricks"
-  },
-  "result": "@item:hexcasting:slate_tiles",
-  "count": 4,
-  "category": "building"
-}
+YOGDid-hexcasting:slate_tiles	typeshapedpattern##
+key#;@item:hexcasting:slate_bricksresult9@item:hexcasting:slate_tilescountcategorybuilding

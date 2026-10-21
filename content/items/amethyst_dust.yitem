@@ -1,11 +1,1 @@
-{
-  "tags": ["grants_root_advancement"],
-  "name": "@Items.amethyst_dust",
-  "tooltip": "@Items.amethyst_dust.desc",
-  "model": {
-    "parent": "generated",
-    "textures": {
-      "layer0": "@texture:hexcasting:item/amethyst_dust"
-    }
-  }
-}
+YOGD	tags/grants_root_advancement	name)@Items.amethyst_dusttooltip3@Items.amethyst_dust.descmodelparentgeneratedtextureslayer0M@texture:hexcasting:item/amethyst_dust

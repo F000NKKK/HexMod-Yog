@@ -1,10 +1,1 @@
-{
-  "id": "hexcasting:edified_planks",
-  "type": "shapeless",
-  "ingredients": [
-    "@tag:item:hexcasting:edified_logs"
-  ],
-  "result": "@item:hexcasting:edified_planks",
-  "count": 4,
-  "category": "building"
-}
+YOGDid3hexcasting:edified_planks	typeshapelessingredientsC@tag:item:hexcasting:edified_logsresult?@item:hexcasting:edified_plankscountcategorybuilding
