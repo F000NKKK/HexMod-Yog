@@ -1,7 +1,7 @@
 //! Great spells (`casting/actions/spells/great/*`).
 
+use yog_api::Storage;
 use yog_api::vanilla;
-use yog_api::{Server, Storage};
 
 use crate::casting::actions::{Action, actions};
 use crate::casting::args::{Ent, ItemEnt, Living, Mob, Player, PosDouble};
@@ -32,7 +32,7 @@ pub fn actions() -> Vec<Action> {
                 count: 20,
             };
             Ok(Spell::new(3 * SHARD, vec![spray], move |env, _| {
-                env.srv.spawn_entity(vanilla::entities::LIGHTNING_BOLT, &env.dim, target.x, target.y, target.z);
+                yog_api::event::entity::spawn(vanilla::entities::LIGHTNING_BOLT, &env.dim, (target.x, target.y, target.z));
             }))
         };
         "flight" NW "eawwaeawawaa" => spell [env, img; p: Player] { altiora(env, p) };
@@ -72,10 +72,10 @@ pub fn actions() -> Vec<Action> {
 fn weather(rain: bool) -> MResult<Spell> {
     let cost = if rain { CRYSTAL } else { SHARD };
     Ok(Spell::new(cost, vec![], move |env, _| {
-        if env.srv.world_is_raining(&env.dim) != rain {
+        if yog_api::event::world::is_raining(&env.dim) != rain {
             let (min, max) = if rain { (30, 90) } else { (60, 180) };
             let minutes = min + (random() * (max - min) as f64) as i32;
-            env.srv.world_set_weather(&env.dim, rain, minutes * 20 * 60);
+            yog_api::event::world::set_weather(&env.dim, rain, minutes * 20 * 60);
         }
     }))
 }
@@ -83,9 +83,9 @@ fn weather(rain: bool) -> MResult<Spell> {
 // ── teleport ───────────────────────────────────────────────────────────────
 
 /// `OpTeleport`.
-fn teleport(env: &mut CastEnv<'_>, e: Ent, delta: Vec3) -> MResult<Spell> {
+fn teleport(env: &mut CastEnv, e: Ent, delta: Vec3) -> MResult<Spell> {
     e.in_range(env)?;
-    assert_teleportable(env, &e)?;
+    assert_teleportable(&e)?;
     let target = e.pos() + delta;
     env.assert_vec_in_world(target)?;
     if !env.is_vec_in_world(target - Vec3::new(0.0, 1.0, 0.0)) {
@@ -100,7 +100,7 @@ fn teleport(env: &mut CastEnv<'_>, e: Ent, delta: Vec3) -> MResult<Spell> {
         10 * CRYSTAL,
         vec![Spray::cloud(mid, 2.0), Spray::burst(mid + delta, 2.0)],
         move |env, _| {
-            teleport_by(env.srv, &env.dim, &uuid, delta);
+            teleport_by(&env.dim, &uuid, delta);
             if env.caster_uuid().as_deref() == Some(uuid.as_str()) {
                 splat_items(env, delta.length());
             }
@@ -114,7 +114,7 @@ fn splat_items(env: &CastEnv, distance: f64) {
     let Some(name) = env.caster_name() else {
         return;
     };
-    let Some(selected) = env.srv.player_info(name).map(|p| p.selected_slot) else {
+    let Some(selected) = yog_api::event::player::info(name).map(|p| p.selected_slot) else {
         return;
     };
     let base = distance / 10_000.0;
@@ -126,13 +126,13 @@ fn splat_items(env: &CastEnv, distance: f64) {
         let (f, g) = (random() * 0.5, random() * std::f64::consts::TAU);
         let vel = (-g.sin() * f, 0.2, g.cos() * f);
         let eye = info.eye_pos();
-        env.srv.spawn_item(
+        yog_api::event::item::spawn_item(
             &env.dim,
-            (eye.0, eye.1 - 0.3, eye.2),
+            (eye.x, eye.y - 0.3, eye.z),
             vel,
             &s.id,
             s.count,
-            &s.nbt.to_snbt(),
+            s.nbt.to_snbt(),
         );
         env.save(&Stack { count: 0, ..s });
     };
@@ -220,15 +220,14 @@ const RECIPES: [(&str, Sweepee, &str, i64); 8] = [
     ),
 ];
 
-fn sweepee_matches(srv: &dyn Server, mob: &Ent, want: &Sweepee) -> bool {
+fn sweepee_matches(mob: &Ent, want: &Sweepee) -> bool {
     match want {
         Sweepee::Entity(t) => mob.info.type_id == *t,
         Sweepee::Villager(profession, level) => {
             if mob.info.type_id != vanilla::entities::VILLAGER {
                 return false;
             }
-            let nbt = srv
-                .entity_get_nbt(mob.uuid())
+            let nbt = yog_api::event::entity::nbt(mob.uuid())
                 .map(|s| Nbt::parse(&s))
                 .unwrap_or_default();
             let Some(data) = nbt.get("VillagerData") else {
@@ -242,17 +241,25 @@ fn sweepee_matches(srv: &dyn Server, mob: &Ent, want: &Sweepee) -> bool {
 }
 
 /// `IXplatAbstractions.isBrainswept`.
-pub fn is_brainswept(srv: &dyn Server, uuid: &str) -> bool {
-    Storage::open_entity(&srv.world_dir(), MOD_ID, uuid)
-        .get_bool("brainswept")
-        .unwrap_or(false)
+pub fn is_brainswept(uuid: &str) -> bool {
+    Storage::open_entity(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+        uuid,
+    )
+    .get_bool("brainswept")
+    .unwrap_or(false)
 }
 
 /// `HexAPI.brainsweep`: the mob stays, but its mind is gone.
-fn mark_brainswept(srv: &dyn Server, uuid: &str) {
-    let mut s = Storage::open_entity(&srv.world_dir(), MOD_ID, uuid);
+fn mark_brainswept(uuid: &str) {
+    let mut s = Storage::open_entity(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+        uuid,
+    );
     s.set("brainswept", true);
-    srv.entity_set_nbt(uuid, "{NoAI:1b}");
+    yog_api::event::entity::set_nbt(uuid, "{NoAI:1b}");
 }
 
 /// `BrainsweepRecipe.copyProperties`: the result keeps the block's state
@@ -265,7 +272,7 @@ fn with_properties(state: &str, result: &str) -> String {
 }
 
 /// `OpBrainsweep`.
-fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
+fn brainsweep(env: &mut CastEnv, mob: Mob, v: Vec3) -> MResult<Spell> {
     let pos: BlockPos = v.block();
     env.assert_vec_in_range(v)?;
     mob.in_range(env)?;
@@ -275,35 +282,30 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
             kind: "forbidden",
         });
     }
-    if env
-        .srv
-        .has_entity_tag(&mob.info.type_id, crate::ids::tags::CANNOT_BRAINSWEEP)
-    {
+    if yog_api::event::tag::has_entity(mob.info.type_id, crate::ids::tags::CANNOT_BRAINSWEEP) {
         return Err(Mishap::BadBrainsweep {
             mob: mob.r.clone(),
             pos,
         });
     }
-    if is_brainswept(env.srv, mob.uuid()) {
+    if is_brainswept(mob.uuid()) {
         return Err(Mishap::AlreadyBrainswept {
             mob: mob.r.clone(),
             eye: mob.eye(),
         });
     }
-    let state = env
-        .srv
-        .block_info(&env.dim, to_ypos(pos))
+    let state = yog_api::event::block::info(&env.dim, to_ypos(pos))
         .map(|b| b.state)
         .unwrap_or_default();
     let block = state.split('[').next().unwrap_or_default();
     let (_, _, result, cost) = RECIPES
         .iter()
-        .find(|(b, want, ..)| *b == block && sweepee_matches(env.srv, &mob, want))
+        .find(|(b, want, ..)| *b == block && sweepee_matches(&mob, want))
         .ok_or_else(|| Mishap::BadBrainsweep {
             mob: mob.r.clone(),
             pos,
         })?;
-    let (uuid, type_id, at) = (mob.uuid().to_owned(), mob.info.type_id.clone(), mob.pos());
+    let (uuid, type_id, at) = (mob.uuid().to_owned(), mob.info.type_id, mob.pos());
     let target = with_properties(&state, result);
     let plain = result.to_string();
     let particles = vec![
@@ -311,19 +313,16 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
         Spray::burst_n(Vec3::center_of(pos), 0.3, 100),
     ];
     Ok(Spell::new(*cost, particles, move |env, _| {
-        if !env.srv.set_block(&env.dim, to_ypos(pos), &target) {
-            env.srv.set_block(&env.dim, to_ypos(pos), &plain);
+        if !yog_api::event::world::set_block(&env.dim, to_ypos(pos), &target) {
+            yog_api::event::world::set_block(&env.dim, to_ypos(pos), &plain);
         }
-        mark_brainswept(env.srv, &uuid);
+        mark_brainswept(&uuid);
         let path = type_id.split_once(':').map_or(type_id.as_str(), |(_, p)| p);
         let death = format!("minecraft:entity.{path}.death");
-        env.srv
-            .play_sound(&env.dim, at.x, at.y, at.z, &death, 0.8, 1.0);
-        env.srv.play_sound(
+        yog_api::event::sound::play(&env.dim, (at.x, at.y, at.z), &death, 0.8, 1.0);
+        yog_api::event::sound::play(
             &env.dim,
-            at.x,
-            at.y,
-            at.z,
+            (at.x, at.y, at.z),
             yog_api::vanilla::sounds::ENTITY_PLAYER_LEVELUP,
             0.5,
             0.8,
@@ -336,7 +335,7 @@ fn brainsweep(env: &mut CastEnv<'_>, mob: Mob, v: Vec3) -> MResult<Spell> {
 
 /// `OpAltiora`: the target is lofted into the air with wings (see
 /// [`crate::altiora`]).
-fn altiora(env: &mut CastEnv<'_>, p: Player) -> MResult<Spell> {
+fn altiora(env: &mut CastEnv, p: Player) -> MResult<Spell> {
     p.in_range(env)?;
     let particles = vec![
         Spray::burst(p.pos(), 0.5),
@@ -349,8 +348,8 @@ fn altiora(env: &mut CastEnv<'_>, p: Player) -> MResult<Spell> {
         },
     ];
     let uuid = p.uuid().to_owned();
-    Ok(Spell::new(CRYSTAL, particles, move |env, _| {
-        crate::altiora::give(env.srv, &uuid)
+    Ok(Spell::new(CRYSTAL, particles, move |_env, _| {
+        crate::altiora::give(&uuid)
     }))
 }
 

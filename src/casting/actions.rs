@@ -23,9 +23,9 @@ use crate::protocol::ResolvedType;
 use crate::text::{Text, fmt_double};
 
 /// `Action.operate`.
-pub type OpFn = fn(&mut CastEnv<'_>, Image, &Cont) -> MResult<OpResult>;
+pub type OpFn = fn(&mut CastEnv, Image, &Cont) -> MResult<OpResult>;
 /// `Action.operateInParens` (with the iota being executed).
-pub type ParenFn = fn(&mut CastEnv<'_>, Image, &Cont, &Iota) -> MResult<(OpResult, ResolvedType)>;
+pub type ParenFn = fn(&mut CastEnv, Image, &Cont, &Iota) -> MResult<(OpResult, ResolvedType)>;
 
 /// The start directions, as the tables write them.
 pub mod dir {
@@ -100,7 +100,7 @@ impl Action {
     /// `operateInParens`: by default, the pattern is just collected.
     pub fn operate_in_parens(
         &self,
-        env: &mut CastEnv<'_>,
+        env: &mut CastEnv,
         image: Image,
         cont: &Cont,
         this: &Iota,
@@ -122,13 +122,13 @@ pub const fn one(_: &str) -> usize {
 
 /// `ConstMediaAction.operate`: takes `argc` iotas (deepest first), pushes
 /// what `f` gives, and costs `cost`.
-pub fn const_op<'a>(
-    env: &mut CastEnv<'a>,
+pub fn const_op(
+    env: &mut CastEnv,
     mut image: Image,
     cont: &Cont,
     argc: usize,
     cost: i64,
-    f: impl FnOnce(Vec<Iota>, &mut CastEnv<'a>) -> MResult<Vec<Iota>>,
+    f: impl FnOnce(Vec<Iota>, &mut CastEnv) -> MResult<Vec<Iota>>,
 ) -> MResult<OpResult> {
     let len = image.stack.len();
     if argc > len {
@@ -150,12 +150,12 @@ pub fn const_op<'a>(
 }
 
 /// `SpellAction.operate`.
-pub fn spell_op<'a>(
-    env: &mut CastEnv<'a>,
+pub fn spell_op(
+    env: &mut CastEnv,
     mut image: Image,
     cont: &Cont,
     argc: usize,
-    f: impl FnOnce(Vec<Iota>, &mut CastEnv<'a>, &mut Image) -> MResult<Spell>,
+    f: impl FnOnce(Vec<Iota>, &mut CastEnv, &mut Image) -> MResult<Spell>,
 ) -> MResult<OpResult> {
     let len = image.stack.len();
     if argc > len {
@@ -229,7 +229,7 @@ macro_rules! action {
         [$env:ident $(, $arg:ident : $ty:ty)* $(,)?] $body:block) => {{
         #[allow(unused_variables, unused_mut, unused_assignments, clippy::unnecessary_cast)]
         fn op(
-            env: &mut $crate::casting::env::CastEnv<'_>,
+            env: &mut $crate::casting::env::CastEnv,
             image: $crate::casting::image::Image,
             cont: &$crate::casting::cont::Cont,
         ) -> $crate::casting::mishap::MResult<$crate::casting::vm::OpResult> {
@@ -251,7 +251,7 @@ macro_rules! action {
         [$env:ident, $img:ident $(; $($arg:ident : $ty:ty),* $(,)?)?] $body:block) => {{
         #[allow(unused_variables, unused_mut, unused_assignments)]
         fn op(
-            env: &mut $crate::casting::env::CastEnv<'_>,
+            env: &mut $crate::casting::env::CastEnv,
             image: $crate::casting::image::Image,
             cont: &$crate::casting::cont::Cont,
         ) -> $crate::casting::mishap::MResult<$crate::casting::vm::OpResult> {
@@ -269,7 +269,7 @@ macro_rules! action {
     }};
     (@arith ($id:literal, $dir:ident, $sig:literal) []) => {{
         fn op(
-            env: &mut $crate::casting::env::CastEnv<'_>,
+            env: &mut $crate::casting::env::CastEnv,
             image: $crate::casting::image::Image,
             cont: &$crate::casting::cont::Cont,
         ) -> $crate::casting::mishap::MResult<$crate::casting::vm::OpResult> {
@@ -342,13 +342,13 @@ pub enum Lookup {
 
 /// `PatternRegistryManifest.matchPattern`: normal actions, then this
 /// world's great spells, then the special handlers.
-pub fn lookup(pattern: &HexPattern, env: &CastEnv) -> Lookup {
+pub fn lookup(pattern: &HexPattern) -> Lookup {
     let sig = pattern.signature();
     let reg = registry();
     if let Some(&i) = reg.normal.get(sig.as_str()) {
         return Lookup::Action(&reg.all[i]);
     }
-    if let Some(a) = per_world(env.srv).get(&sig) {
+    if let Some(a) = per_world().get(&sig) {
         return Lookup::Action(a);
     }
     match Special::number(pattern).or_else(|| Special::mask(pattern)) {
@@ -377,9 +377,9 @@ impl PerWorld {
 
 /// This world's great spells. The seed is read (or made) once per world;
 /// lookups after that never touch the disk.
-pub fn per_world(srv: &dyn yog_api::Server) -> Arc<PerWorld> {
+pub fn per_world() -> Arc<PerWorld> {
     static CACHE: Mutex<Option<Arc<PerWorld>>> = Mutex::new(None);
-    let world_dir = srv.world_dir();
+    let world_dir = yog_api::event::game::world_dir().unwrap_or_default();
     let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
     if let Some(pw) = cache.as_ref()
         && pw.world_dir == world_dir
@@ -407,10 +407,10 @@ pub fn per_world(srv: &dyn yog_api::Server) -> Arc<PerWorld> {
 }
 
 /// How a great spell is drawn in this world (`getCanonicalStrokesPerWorld`).
-pub fn per_world_pattern(srv: &dyn yog_api::Server, id: &str) -> Option<HexPattern> {
+pub fn per_world_pattern(id: &str) -> Option<HexPattern> {
     let a = by_id(id)?;
     a.great()
-        .then(|| alt_drawing(&a.pattern(), per_world(srv).seed))
+        .then(|| alt_drawing(&a.pattern(), per_world().seed))
 }
 
 /// `EulerPathFinder.findAltDrawing`: another way to draw the same shape,
@@ -572,7 +572,7 @@ impl Special {
         }
     }
 
-    pub fn operate(&self, env: &mut CastEnv<'_>, image: Image, cont: &Cont) -> MResult<OpResult> {
+    pub fn operate(&self, env: &mut CastEnv, image: Image, cont: &Cont) -> MResult<OpResult> {
         match self {
             Special::Number(x) => {
                 const_op(env, image, cont, 0, 0, |_, _| Ok(vec![Iota::Double(*x)]))

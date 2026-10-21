@@ -22,9 +22,9 @@ pub use view::{ID, register};
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, MutexGuard, Once};
 
+use yog_api::GfxContext;
 use yog_api::client::{self, SoundHandle, ui_flags};
 use yog_api::ui::{Color, Pointer, Rect, Surface};
-use yog_api::{GfxContext, Server};
 use yog_kit::prelude::*;
 
 use super::render_lib::{
@@ -550,9 +550,7 @@ impl GridSurface {
                 client::play_sound(SOUND_ADD_SEGMENT, 0.25, 1.0 + (random() - 0.5) * 0.1, false);
             }
             Some(Effect::Send(msg)) => {
-                if let Some(srv) = yog_api::server() {
-                    srv.send_to_server(CH_NEW_PATTERN, &msg.encode());
-                }
+                yog_api::event::net::send_to_server(CH_NEW_PATTERN, msg.encode());
             }
         }
     }
@@ -565,7 +563,7 @@ impl Surface for GridSurface {
         grid.size = (rect.w, rect.h);
 
         // `tick`: the staff must stay in the hand the grid was opened with.
-        let held = client::held_item(grid.hand == Hand::Off);
+        let held = client::held_item(grid.hand == Hand::Off).map(|s| s.item.to_string());
         if !held.is_some_and(|id| crate::events::staff::is_staff(&id)) && !s.closing {
             s.closing = true;
             close();
@@ -637,9 +635,9 @@ impl Surface for GridSurface {
 fn shift_scroll(delta: f64) {
     let scrollable =
         |id: Option<String>| id.is_some_and(|id| id == Items::SPELLBOOK || id == Items::ABACUS);
-    let (main, off) = if scrollable(client::held_item(false)) {
+    let (main, off) = if scrollable(client::held_item(false).map(|s| s.item.to_string())) {
         (delta, 0.0)
-    } else if scrollable(client::held_item(true)) {
+    } else if scrollable(client::held_item(true).map(|s| s.item.to_string())) {
         (0.0, delta)
     } else {
         return;
@@ -647,9 +645,7 @@ fn shift_scroll(delta: f64) {
     let mut w = Writer::new();
     // The sprint key is Ctrl by default.
     w.num(main).num(off).int(client::control_down() as i64);
-    if let Some(srv) = yog_api::server() {
-        srv.send_to_server(CH_SCROLL, w.finish().as_bytes());
-    }
+    yog_api::event::net::send_to_server(CH_SCROLL, w.finish().as_bytes());
 }
 
 fn draw_desc(

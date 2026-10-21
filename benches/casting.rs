@@ -17,8 +17,7 @@ use hexcasting::item::holder;
 use hexcasting::math::{HexDir, HexPattern};
 use hexcasting::protocol::Hand;
 use hexcasting::snbt::Nbt;
-use yog_api::core::NullServer;
-use yog_api::world::dimension::OVERWORLD;
+use yog_api::yog_ids::game::OVERWORLD;
 
 /// The patterns the hexes are made of: signature and start direction.
 mod sig {
@@ -65,14 +64,8 @@ const PLAYER_NAME: &str = "Notch";
 /// The action looked up by id.
 const ACTION_ID: &str = "for_each";
 
-fn server() -> NullServer {
-    let dir = std::env::temp_dir().join("hexcasting-bench");
-    std::fs::create_dir_all(&dir).expect("the temp dir is writable");
-    NullServer::new(dir.to_string_lossy())
-}
-
-fn env(srv: &NullServer) -> CastEnv<'_> {
-    CastEnv::new(srv, None, Hand::Main, Source::Staff, OVERWORLD.into())
+fn env() -> CastEnv {
+    CastEnv::new(None, Hand::Main, Source::Staff, OVERWORLD.into())
 }
 
 fn pattern(sig: &str, d: HexDir) -> HexPattern {
@@ -167,8 +160,8 @@ fn thoth_hex() -> Hex {
 }
 
 /// The stack `patterns` leave, or why they didn't run.
-fn run(srv: &NullServer, patterns: Vec<Iota>) -> Result<Vec<Iota>, String> {
-    let mut vm = Vm::new(Image::default(), env(srv));
+fn run(patterns: Vec<Iota>) -> Result<Vec<Iota>, String> {
+    let mut vm = Vm::new(Image::default(), env());
     let kind = vm.queue_execute(patterns).kind;
     if kind.success() {
         Ok(vm.image.stack)
@@ -196,10 +189,9 @@ fn big_list() -> Iota {
 
 #[yog_api::bench]
 fn vm(c: &mut Criterion) {
-    let srv = server();
     for hex in [long_hex(), deep_stack_hex(), thoth_hex()] {
         assert_eq!(
-            run(&srv, hex.patterns.clone()).as_deref(),
+            run(hex.patterns.clone()).as_deref(),
             Ok(hex.leaves.as_slice()),
             "{}",
             hex.name
@@ -207,7 +199,7 @@ fn vm(c: &mut Criterion) {
         c.bench_function(hex.name, |b| {
             b.iter_batched(
                 || hex.patterns.clone(),
-                |h| run(&srv, h),
+                run,
                 BatchSize::SmallInput,
             )
         });
@@ -235,8 +227,6 @@ fn patterns(c: &mut Criterion) {
 
 #[yog_api::bench]
 fn registry(c: &mut Criterion) {
-    let srv = server();
-    let env = env(&srv);
     let lookups = [
         ("registry/lookup_action", pattern(sig::ADD, dir::NE), true),
         (
@@ -255,11 +245,11 @@ fn registry(c: &mut Criterion) {
     ];
     for (name, p, known) in lookups {
         assert_eq!(
-            !matches!(actions::lookup(&p, &env), Lookup::Nothing),
+            !matches!(actions::lookup(&p), Lookup::Nothing),
             known,
             "{name}"
         );
-        c.bench_function(name, |b| b.iter(|| actions::lookup(black_box(&p), &env)));
+        c.bench_function(name, |b| b.iter(|| actions::lookup(black_box(&p))));
     }
     assert!(
         actions::by_id(ACTION_ID).is_some(),

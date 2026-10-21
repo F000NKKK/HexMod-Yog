@@ -8,7 +8,7 @@
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 
-use yog_api::{EventPhase, Registry, Server, Storage};
+use yog_api::{EventPhase, Registry, Storage};
 
 use crate::casting::env::{MOD_ID, random, spawn_dust, to_ypos};
 use crate::casting::mishap::BlockPos;
@@ -24,11 +24,14 @@ static KNOWN: LazyLock<Mutex<HashMap<(String, BlockPos), (bool, Pigment)>>> =
     LazyLock::new(Default::default);
 static TICKS: Mutex<u64> = Mutex::new(0);
 
-fn global(srv: &dyn Server) -> Storage {
-    Storage::open(&srv.world_dir(), MOD_ID)
+fn global() -> Storage {
+    Storage::open(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+    )
 }
 
-fn save(srv: &dyn Server) {
+fn save() {
     let known = KNOWN.lock().unwrap();
     let lines: Vec<String> = known
         .iter()
@@ -39,11 +42,11 @@ fn save(srv: &dyn Server) {
             )
         })
         .collect();
-    global(srv).set(KEY, lines.join("\n"));
+    global().set(KEY, lines.join("\n"));
 }
 
-fn load(srv: &dyn Server) {
-    let text = global(srv).get_str(KEY).unwrap_or("").to_owned();
+fn load() {
+    let text = global().get_str(KEY).unwrap_or("").to_owned();
     let mut known = KNOWN.lock().unwrap();
     known.clear();
     for line in text.lines() {
@@ -69,12 +72,12 @@ fn load(srv: &dyn Server) {
 }
 
 /// `BlockConjured.setColor`: a block was conjured with `pigment`.
-pub fn conjured(srv: &dyn Server, dim: &str, pos: BlockPos, light: bool, pigment: Pigment) {
+pub fn conjured(dim: &str, pos: BlockPos, light: bool, pigment: Pigment) {
     KNOWN
         .lock()
         .unwrap()
         .insert((dim.to_owned(), pos), (light, pigment));
-    save(srv);
+    save();
 }
 
 fn color(p: &Pigment, time: f32, near: Vec3) -> u32 {
@@ -83,7 +86,7 @@ fn color(p: &Pigment, time: f32, near: Vec3) -> u32 {
 }
 
 /// `particleEffect` (each tick, the client's `animateTick`).
-fn sparkle(srv: &dyn Server, dim: &str, pos: BlockPos, light: bool, p: &Pigment) {
+fn sparkle(dim: &str, pos: BlockPos, light: bool, p: &Pigment) {
     let (x, y, z) = (pos.0 as f64, pos.1 as f64, pos.2 as f64);
     let c = color(p, (random() * 16384.0) as f32, Vec3::default());
     let r = |a: f64, b: f64| a + random() * (b - a);
@@ -95,7 +98,6 @@ fn sparkle(srv: &dyn Server, dim: &str, pos: BlockPos, light: bool, p: &Pigment)
                 z + 0.45 + random() * 0.1,
             );
             spawn_dust(
-                srv,
                 dim,
                 at,
                 Vec3::new(r(-0.005, 0.005), r(-0.002, 0.02), r(-0.005, 0.005)),
@@ -105,7 +107,6 @@ fn sparkle(srv: &dyn Server, dim: &str, pos: BlockPos, light: bool, p: &Pigment)
     } else if random() < 0.2 {
         let at = Vec3::new(x + random(), y + random(), z + random());
         spawn_dust(
-            srv,
             dim,
             at,
             Vec3::new(r(-0.02, 0.02), r(-0.02, 0.02), r(-0.02, 0.02)),
@@ -114,18 +115,17 @@ fn sparkle(srv: &dyn Server, dim: &str, pos: BlockPos, light: bool, p: &Pigment)
     }
 }
 
-fn tick(srv: &dyn Server) {
+fn tick() {
     let now = {
         let mut t = TICKS.lock().unwrap();
         *t += 1;
         *t
     };
-    let players: Vec<(String, Vec3)> = srv
-        .online_players()
+    let players: Vec<(String, Vec3)> = yog_api::event::player::online()
         .iter()
         .filter_map(|n| {
-            let e = srv.entity_info(&srv.player_info(n)?.uuid)?;
-            Some((e.dimension, Vec3::from_tuple(e.pos)))
+            let e = yog_api::event::entity::info(&yog_api::event::player::info(n)?.uuid)?;
+            Some((e.dimension.to_string(), Vec3::from_tuple(e.pos)))
         })
         .collect();
     let known: Vec<((String, BlockPos), (bool, Pigment))> = KNOWN
@@ -148,15 +148,13 @@ fn tick(srv: &dyn Server) {
             } else {
                 Blocks::CONJURED_BLOCK
             };
-            if srv
-                .block_info(&dim, to_ypos(pos))
-                .is_some_and(|b| b.block_id() != want)
+            if yog_api::event::block::info(&dim, to_ypos(pos)).is_some_and(|b| b.block_id() != want)
             {
                 gone.push((dim, pos));
                 continue;
             }
         }
-        sparkle(srv, &dim, pos, light, &pigment);
+        sparkle(&dim, pos, light, &pigment);
     }
     if !gone.is_empty() {
         let mut known = KNOWN.lock().unwrap();
@@ -164,15 +162,16 @@ fn tick(srv: &dyn Server) {
             known.remove(&k);
         }
         drop(known);
-        save(srv);
+        save();
     }
 }
 
 pub fn register(registry: &mut Registry) {
-    registry.on_server_started(load);
-    registry.on_tick(tick);
+    registry.on::<yog_api::event::server::life::Started, _>(|_, _| load());
+    registry.on::<yog_api::event::server::game::Tick, _>(|_, _| tick());
     // `stepOn` → `walkParticle`: sparks under the feet of whatever walks on it.
-    registry.on_player_move(|e, phase, srv| {
+    registry.on::<yog_api::event::player::action::Move, _>(|e, cx| {
+        let phase = cx.phase();
         if phase != EventPhase::Post {
             return true;
         }
@@ -203,7 +202,7 @@ pub fn register(registry: &mut Registry) {
                     random() * 0.02,
                     random() * 0.04 - 0.02,
                 );
-                spawn_dust(srv, &e.dimension, at, vel, c);
+                spawn_dust(&e.dimension, at, vel, c);
             }
         }
         true

@@ -1,8 +1,6 @@
 //! Right-clicking casting items (`ItemPackagedHex.use`) and scrolling the
 //! spellbook and abacus (`MsgShiftScrollC2S`).
 
-use yog_api::Server;
-
 use crate::casting::env::{CastEnv, Caster, Source, Spray, random};
 use crate::casting::vm::Vm;
 use crate::content::{Advancements, Items};
@@ -20,11 +18,11 @@ const SOUND_ABACUS: &str = "hexcasting:abacus";
 const SOUND_ABACUS_SHAKE: &str = crate::sounds::ABACUS_SHAKE;
 
 /// `ItemPackagedHex.use`, for the hand holding `item_id`.
-pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
-    let Some(caster) = Caster::by_name(srv, player) else {
+pub fn use_packaged(player: &str, item_id: &str) {
+    let Some(caster) = Caster::by_name(player) else {
         return;
     };
-    let Some(probe) = CastEnv::for_player(srv, caster.clone(), Hand::Main, Source::Packaged) else {
+    let Some(probe) = CastEnv::for_player(caster.clone(), Hand::Main, Source::Packaged) else {
         return;
     };
     let Some(hand) = [Hand::Main, Hand::Off]
@@ -39,13 +37,13 @@ pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
     let Some(instrs) = packaged::hex(&stack) else {
         return;
     };
-    let Some(env) = CastEnv::for_player(srv, caster, hand, Source::Packaged) else {
+    let Some(env) = CastEnv::for_player(caster, hand, Source::Packaged) else {
         return;
     };
     let mut vm = Vm::new(Default::default(), env);
     let view = vm.queue_execute(instrs);
     let env = vm.env;
-    srv.set_item_cooldown(player, item_id, media::cooldown(item_id));
+    yog_api::event::player::set_item_cooldown(player, item_id, media::cooldown(item_id) as i32);
 
     let Some(pos) = env.caster_pos() else { return };
     if view.kind.success() {
@@ -59,7 +57,7 @@ pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
         env.spray(&spray);
     }
     if let Some(id) = env.loudest.id() {
-        srv.play_sound(&env.dim, pos.x, pos.y, pos.z, id, 1.0, 1.0);
+        yog_api::event::sound::play(&env.dim, (pos.x, pos.y, pos.z), id, 1.0, 1.0);
     }
     if let Some(mut stack) = env.held(hand)
         && stack.id == item_id
@@ -68,11 +66,9 @@ pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
     {
         stack.count -= 1;
         env.save(&stack);
-        srv.play_sound(
+        yog_api::event::sound::play(
             &env.dim,
-            pos.x,
-            pos.y,
-            pos.z,
+            (pos.x, pos.y, pos.z),
             yog_api::vanilla::sounds::ENTITY_ITEM_BREAK,
             0.8,
             0.8 + random() as f32 * 0.4,
@@ -82,7 +78,7 @@ pub fn use_packaged(srv: &dyn Server, player: &str, item_id: &str) {
 
 /// `MsgShiftScrollC2S.handle`: `num` main-hand delta, `num` off-hand delta,
 /// `int` whether the sprint key is down.
-pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
+pub fn shift_scroll(player: &str, payload: &[u8]) {
     let Ok(s) = std::str::from_utf8(payload) else {
         return;
     };
@@ -90,10 +86,10 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
     let (Some(main), Some(off), Some(ctrl)) = (r.num(), r.num(), r.int()) else {
         return;
     };
-    let Some(caster) = Caster::by_name(srv, player) else {
+    let Some(caster) = Caster::by_name(player) else {
         return;
     };
-    let Some(env) = CastEnv::for_player(srv, caster, Hand::Main, Source::Staff) else {
+    let Some(env) = CastEnv::for_player(caster, Hand::Main, Source::Staff) else {
         return;
     };
     for (hand, delta) in [(Hand::Main, main), (Hand::Off, off)] {
@@ -108,7 +104,13 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
                 let pitch =
                     holder::abacus_scroll(&mut stack.nbt, delta, hand == Hand::Main, ctrl != 0);
                 let pos = env.caster_pos().unwrap_or_default();
-                srv.play_sound(&env.dim, pos.x, pos.y, pos.z, SOUND_ABACUS, 0.5, pitch);
+                yog_api::event::sound::play(
+                    &env.dim,
+                    (pos.x, pos.y, pos.z),
+                    SOUND_ABACUS,
+                    0.5,
+                    pitch,
+                );
                 let v = stack.nbt.get_f64("value").unwrap_or(0.0);
                 Text::key_args(Lang::TOOLTIP_ABACUS_KEY, vec![Text::num(v)])
                     .to_json_colored("green")
@@ -148,16 +150,16 @@ pub fn shift_scroll(srv: &dyn Server, player: &str, payload: &[u8]) {
             _ => continue,
         };
         env.save(&stack);
-        actionbar(srv, player, &msg);
+        actionbar(player, &msg);
     }
 }
 
 /// `ItemAbacus.use` while sneaking: back to zero.
-pub fn reset_abacus(srv: &dyn Server, player: &str) {
-    let Some(caster) = Caster::by_name(srv, player) else {
+pub fn reset_abacus(player: &str) {
+    let Some(caster) = Caster::by_name(player) else {
         return;
     };
-    let Some(env) = CastEnv::for_player(srv, caster, Hand::Main, Source::Staff) else {
+    let Some(env) = CastEnv::for_player(caster, Hand::Main, Source::Staff) else {
         return;
     };
     let Some((mut stack, _)) = [Hand::Main, Hand::Off]
@@ -173,13 +175,13 @@ pub fn reset_abacus(srv: &dyn Server, player: &str) {
         .and_then(|v| v.as_f64())
         .unwrap_or(0.0);
     env.save(&stack);
-    srv.play_sound_to_player(player, SOUND_ABACUS_SHAKE, 1.0, 1.0);
+    yog_api::event::sound::play_to_player(player, SOUND_ABACUS_SHAKE, 1.0, 1.0);
     let key = if old == 69.0 {
         Lang::TOOLTIP_ABACUS_RESET_NICE_KEY
     } else {
         Lang::TOOLTIP_ABACUS_RESET_KEY
     };
-    actionbar(srv, player, &Text::key(key).to_json());
+    actionbar(player, &Text::key(key).to_json());
 }
 
 /// The lore a fragment can tell (`ItemLoreFragment.NAMES`).
@@ -198,11 +200,11 @@ const LORE_FOUND_XP: i32 = 20;
 
 /// `ItemLoreFragment.use`: a piece of lore not read yet, picked at random
 /// — or, all of it read, some experience. The fragment is used up.
-pub fn read_lore(srv: &dyn Server, player: &str) {
-    let Some(caster) = Caster::by_name(srv, player) else {
+pub fn read_lore(player: &str) {
+    let Some(caster) = Caster::by_name(player) else {
         return;
     };
-    let Some(env) = CastEnv::for_player(srv, caster, Hand::Main, Source::Staff) else {
+    let Some(env) = CastEnv::for_player(caster, Hand::Main, Source::Staff) else {
         return;
     };
     let Some(mut stack) = [Hand::Main, Hand::Off]
@@ -212,18 +214,17 @@ pub fn read_lore(srv: &dyn Server, player: &str) {
     else {
         return;
     };
-    srv.play_sound_to_player(player, crate::sounds::LORE_FRAGMENT_READ, 1.0, 1.0);
+    yog_api::event::sound::play_to_player(player, crate::sounds::LORE_FRAGMENT_READ, 1.0, 1.0);
     let unread: Vec<&str> = LORE
         .into_iter()
         .filter(|id| !env.has_advancement(id))
         .collect();
     if unread.is_empty() {
         actionbar(
-            srv,
             player,
             &Text::key(res::Items::LORE_FRAGMENT_ALL_KEY).to_json(),
         );
-        srv.player_add_xp(player, LORE_FOUND_XP);
+        yog_api::event::player::add_xp(player, LORE_FOUND_XP);
     } else {
         let pick = ((random() * unread.len() as f64) as usize).min(unread.len() - 1);
         env.grant_advancement(Advancements::LORE);
@@ -234,6 +235,6 @@ pub fn read_lore(srv: &dyn Server, player: &str) {
 }
 
 /// `displayClientMessage(text, true)`.
-fn actionbar(srv: &dyn Server, player: &str, json: &str) {
-    srv.actionbar_json(player, json);
+fn actionbar(player: &str, json: &str) {
+    yog_api::event::chat::actionbar_json(player, json);
 }

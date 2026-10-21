@@ -8,7 +8,7 @@
 
 use std::collections::{HashSet, VecDeque};
 
-use yog_api::{Server, Storage};
+use yog_api::Storage;
 
 use crate::casting::env::{MOD_ID, random, to_ypos};
 use crate::casting::mishap::BlockPos;
@@ -23,8 +23,8 @@ pub const LIGATURE: &str = Blocks::AKASHIC_CONNECTOR;
 /// `AkashicFloodfiller.floodFillFor`'s default range.
 const MAX_RANGE: i64 = 128;
 
-fn block_id(srv: &dyn Server, dim: &str, pos: BlockPos) -> String {
-    srv.block_info(dim, to_ypos(pos))
+fn block_id(dim: &str, pos: BlockPos) -> String {
+    yog_api::event::block::info(dim, to_ypos(pos))
         .map(|b| b.block_id().to_owned())
         .unwrap_or_default()
 }
@@ -34,8 +34,14 @@ pub fn is_floodfiller(id: &str) -> bool {
     matches!(id, RECORD | BOOKSHELF | LIGATURE)
 }
 
-fn store(srv: &dyn Server, dim: &str, pos: BlockPos) -> Storage {
-    Storage::open_chunk(&srv.world_dir(), MOD_ID, dim, pos.0 >> 4, pos.2 >> 4)
+fn store(dim: &str, pos: BlockPos) -> Storage {
+    Storage::open_chunk(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+        dim,
+        pos.0 >> 4,
+        pos.2 >> 4,
+    )
 }
 
 const KEY_PREFIX: &str = "akashic.";
@@ -58,24 +64,19 @@ fn pos_of_key(key: &str) -> Option<BlockPos> {
 }
 
 /// A bookshelf's mapping: its pattern and iota.
-pub fn shelf(srv: &dyn Server, dim: &str, pos: BlockPos) -> Option<(HexPattern, Iota)> {
-    let s = store(srv, dim, pos);
+pub fn shelf(dim: &str, pos: BlockPos) -> Option<(HexPattern, Iota)> {
+    let s = store(dim, pos);
     let pattern = HexPattern::from_serialized(s.get_str(&key(pos, PATTERN))?)?;
     let iota = Iota::deserialize(s.get_str(&key(pos, IOTA)).unwrap_or(""));
     Some((pattern, iota))
 }
 
 /// `BlockEntityAkashicBookshelf.setNewMapping` (`None` clears it).
-pub fn set_shelf(
-    srv: &dyn Server,
-    dim: &str,
-    pos: BlockPos,
-    mapping: Option<(&HexPattern, &Iota)>,
-) {
-    let mut s = store(srv, dim, pos);
+pub fn set_shelf(dim: &str, pos: BlockPos, mapping: Option<(&HexPattern, &Iota)>) {
+    let mut s = store(dim, pos);
     match mapping {
         Some((p, i)) => {
-            forget_lost_shelves(srv, dim, &mut s);
+            forget_lost_shelves(dim, &mut s);
             s.set(key(pos, PATTERN), p.serialized_form());
             s.set(key(pos, IOTA), i.serialize());
         }
@@ -85,22 +86,22 @@ pub fn set_shelf(
         }
     }
     // `HAS_BOOKS`: the shelf shows books while it holds something.
-    if block_id(srv, dim, pos) == BOOKSHELF {
+    if block_id(dim, pos) == BOOKSHELF {
         let has = if mapping.is_some() { "true" } else { "false" };
-        srv.set_block_properties(dim, to_ypos(pos), &format!("has_books={has}"));
+        yog_api::event::block::set_properties(dim, to_ypos(pos), &format!("has_books={has}"));
     }
-    crate::render::shelf_changed(srv, dim, pos, mapping.map(|(p, _)| p));
+    crate::render::shelf_changed(dim, pos, mapping.map(|(p, _)| p));
 }
 
 /// Drops what shelves no longer there held: blown up, pushed away or
 /// replaced without a player (only player breaks and Break Block clear
 /// their entry as it happens).
-fn forget_lost_shelves(srv: &dyn Server, dim: &str, s: &mut Storage) {
+fn forget_lost_shelves(dim: &str, s: &mut Storage) {
     let lost: Vec<BlockPos> = s
         .iter()
         .filter_map(|(k, _)| pos_of_key(k))
         .filter(|&pos| {
-            srv.block_info(dim, to_ypos(pos))
+            yog_api::event::block::info(dim, to_ypos(pos))
                 .is_some_and(|b| b.block_id() != BOOKSHELF)
         })
         .collect();
@@ -114,7 +115,6 @@ fn forget_lost_shelves(srv: &dyn Server, dim: &str, s: &mut Storage) {
 /// from `start`; a target found may be skipped with `skip_chance`, in which
 /// case the first skipped one is the answer if nothing else is.
 fn flood_fill(
-    srv: &dyn Server,
     dim: &str,
     start: BlockPos,
     skip_chance: f64,
@@ -142,7 +142,7 @@ fn flood_fill(
             if dx * dx + dy * dy + dz * dz > MAX_RANGE * MAX_RANGE || !seen.insert(n) {
                 continue;
             }
-            let id = block_id(srv, dim, n);
+            let id = block_id(dim, n);
             if is_target(n, &id) {
                 if random() > skip_chance {
                     return Some(n);
@@ -157,38 +157,31 @@ fn flood_fill(
     skipped
 }
 
-fn holds(srv: &dyn Server, dim: &str, pos: BlockPos, id: &str, key: &HexPattern) -> bool {
-    id == BOOKSHELF && shelf(srv, dim, pos).is_some_and(|(p, _)| p.signature() == key.signature())
+fn holds(dim: &str, pos: BlockPos, id: &str, key: &HexPattern) -> bool {
+    id == BOOKSHELF && shelf(dim, pos).is_some_and(|(p, _)| p.signature() == key.signature())
 }
 
 /// `BlockAkashicRecord.lookupPattern`.
-pub fn lookup(srv: &dyn Server, dim: &str, record: BlockPos, key: &HexPattern) -> Option<Iota> {
-    let at = flood_fill(srv, dim, record, 0.0, |pos, id| {
-        holds(srv, dim, pos, id, key)
-    })?;
-    shelf(srv, dim, at).map(|(_, i)| i)
+pub fn lookup(dim: &str, record: BlockPos, key: &HexPattern) -> Option<Iota> {
+    let at = flood_fill(dim, record, 0.0, |pos, id| holds(dim, pos, id, key))?;
+    shelf(dim, at).map(|(_, i)| i)
 }
 
 /// `BlockAkashicRecord.addNewDatum`: where it was stored, or `None` if the
 /// key is taken or there's no empty shelf. Never overwrites.
 pub fn add_new_datum(
-    srv: &dyn Server,
     dim: &str,
     record: BlockPos,
     key: &HexPattern,
     datum: &Iota,
 ) -> Option<BlockPos> {
-    if flood_fill(srv, dim, record, 0.0, |pos, id| {
-        holds(srv, dim, pos, id, key)
-    })
-    .is_some()
-    {
+    if flood_fill(dim, record, 0.0, |pos, id| holds(dim, pos, id, key)).is_some() {
         return None;
     }
-    let open = flood_fill(srv, dim, record, 0.9, |pos, id| {
-        id == BOOKSHELF && shelf(srv, dim, pos).is_none()
+    let open = flood_fill(dim, record, 0.9, |pos, id| {
+        id == BOOKSHELF && shelf(dim, pos).is_none()
     })?;
-    set_shelf(srv, dim, open, Some((key, datum)));
+    set_shelf(dim, open, Some((key, datum)));
     Some(open)
 }
 

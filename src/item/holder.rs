@@ -200,14 +200,11 @@ impl EntityHolder {
 const CUSTOM_DATA: &str = "minecraft:custom_data";
 
 /// The item an entity holds, if it's one that may hold an iota.
-pub fn entity_stack(
-    srv: &dyn yog_api::Server,
-    uuid: &str,
-    type_id: &str,
-) -> Option<(Stack, EntityHolder)> {
+pub fn entity_stack(uuid: &str, type_id: &str) -> Option<(Stack, EntityHolder)> {
     match type_id {
         vanilla::entities::ITEM => {
-            let (id, count, snbt) = srv.item_entity_stack(uuid)?;
+            let (id, count, snbt) = yog_api::event::item::entity_stack(uuid)
+                .map(|s| (s.item.to_string(), s.count, s.snbt))?;
             Some((
                 Stack {
                     slot: 0,
@@ -219,7 +216,7 @@ pub fn entity_stack(
             ))
         }
         vanilla::entities::ITEM_FRAME | vanilla::entities::GLOW_ITEM_FRAME => {
-            let nbt = Nbt::parse(&srv.entity_get_nbt(uuid)?);
+            let nbt = Nbt::parse(&yog_api::event::entity::nbt(uuid)?);
             let item = nbt.get("Item")?;
             let id = item.get_str("id")?.to_owned();
             let modern = item.contains("count") || item.contains("components");
@@ -241,7 +238,7 @@ pub fn entity_stack(
             Some((stack, EntityHolder::Frame { modern }))
         }
         crate::content::Entities::WALL_SCROLL => {
-            let h = yog_api::entities::Hanging::get(srv, uuid)?;
+            let h = yog_api::entities::hanging(uuid)?;
             let stack = Stack {
                 slot: 0,
                 id: h.item,
@@ -256,11 +253,16 @@ pub fn entity_stack(
 
 /// Puts the (changed) item back into the entity. A dropped item no longer
 /// despawns, like the original.
-pub fn save_entity_stack(srv: &dyn yog_api::Server, uuid: &str, stack: &Stack, how: EntityHolder) {
+pub fn save_entity_stack(uuid: &str, stack: &Stack, how: EntityHolder) {
     match how {
         EntityHolder::Item => {
-            srv.item_entity_set_stack(uuid, &stack.id, stack.count, &stack.nbt.to_snbt());
-            srv.entity_set_nbt(uuid, "{Age:-32768s}");
+            yog_api::event::item::set_entity_stack(
+                uuid,
+                &stack.id,
+                stack.count,
+                stack.nbt.to_snbt(),
+            );
+            yog_api::event::entity::set_nbt(uuid, "{Age:-32768s}");
         }
         EntityHolder::Frame { modern } => {
             let mut item = Nbt::default();
@@ -275,7 +277,7 @@ pub fn save_entity_stack(srv: &dyn yog_api::Server, uuid: &str, stack: &Stack, h
             }
             let mut root = Nbt::default();
             root.set("Item", item);
-            srv.entity_set_nbt(uuid, &root.to_snbt());
+            yog_api::event::entity::set_nbt(uuid, root.to_snbt());
         }
         // It keeps its scroll as it was.
         EntityHolder::WallScroll => {}

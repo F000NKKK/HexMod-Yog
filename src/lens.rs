@@ -10,7 +10,7 @@ use std::sync::Mutex;
 
 use yog_api::ui::{Color, Vec2};
 use yog_api::vanilla;
-use yog_api::{GfxContext, Registry, Server, split_state};
+use yog_api::{GfxContext, Registry, split_state};
 
 use crate::akashic;
 use crate::casting::env::{SLOT_OFFHAND, Stack, from_ypos, look_vec, to_ypos};
@@ -159,24 +159,15 @@ fn dust_amount(v: f64) -> String {
 }
 
 /// `PoweredRailBlock`'s signal search, as the lens repeats it.
-fn powered_rail_strength(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> i32 {
-    if srv.redstone_power(dim, to_ypos(pos)).is_some_and(|p| p > 0) {
+fn powered_rail_strength(dim: &str, pos: (i32, i32, i32)) -> i32 {
+    if yog_api::event::block::redstone_power(dim, to_ypos(pos)).is_some_and(|p| p > 0) {
         return 9;
     }
-    let shape = srv
-        .block_property(dim, to_ypos(pos), "shape")
-        .unwrap_or_default();
-    rail_signal(srv, dim, pos, &shape, true, 0).max(rail_signal(srv, dim, pos, &shape, false, 0))
+    let shape = yog_api::event::block::property(dim, to_ypos(pos), "shape").unwrap_or_default();
+    rail_signal(dim, pos, &shape, true, 0).max(rail_signal(dim, pos, &shape, false, 0))
 }
 
-fn rail_signal(
-    srv: &dyn Server,
-    dim: &str,
-    pos: (i32, i32, i32),
-    shape: &str,
-    positive: bool,
-    depth: i32,
-) -> i32 {
+fn rail_signal(dim: &str, pos: (i32, i32, i32), shape: &str, positive: bool, depth: i32) -> i32 {
     if depth >= 8 {
         return 0;
     }
@@ -228,25 +219,18 @@ fn rail_signal(
         }
         _ => {}
     }
-    let power = rail_power(srv, dim, (x, y, z), positive, depth, &shape);
+    let power = rail_power(dim, (x, y, z), positive, depth, &shape);
     if power > 0 {
         power
     } else if descending {
-        rail_power(srv, dim, (x, y - 1, z), positive, depth, &shape)
+        rail_power(dim, (x, y - 1, z), positive, depth, &shape)
     } else {
         0
     }
 }
 
-fn rail_power(
-    srv: &dyn Server,
-    dim: &str,
-    pos: (i32, i32, i32),
-    positive: bool,
-    depth: i32,
-    shape: &str,
-) -> i32 {
-    let Some(state) = srv.get_block_state(dim, to_ypos(pos)) else {
+fn rail_power(dim: &str, pos: (i32, i32, i32), positive: bool, depth: i32, shape: &str) -> i32 {
+    let Some(state) = yog_api::event::block::state(dim, to_ypos(pos)) else {
         return 0;
     };
     let (id, props) = split_state(&state);
@@ -262,16 +246,16 @@ fn rail_power(
     if crosses || get("powered") != "true" {
         return 0;
     }
-    if srv.redstone_power(dim, to_ypos(pos)).is_some_and(|p| p > 0) {
+    if yog_api::event::block::redstone_power(dim, to_ypos(pos)).is_some_and(|p| p > 0) {
         8 - depth
     } else {
-        rail_signal(srv, dim, pos, other, positive, depth + 1)
+        rail_signal(dim, pos, other, positive, depth + 1)
     }
 }
 
 /// `ScryingLensOverlayRegistry.getLines` for the block at `pos`.
-pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
-    let Some(state) = srv.get_block_state(dim, to_ypos(pos)) else {
+pub fn lines(dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
+    let Some(state) = yog_api::event::block::state(dim, to_ypos(pos)) else {
         return Vec::new();
     };
     let (id, props) = split_state(&state);
@@ -280,7 +264,7 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
     match id {
         Blocks::IMPETUS_RIGHTCLICK | Blocks::IMPETUS_LOOK | Blocks::IMPETUS_REDSTONE => {
             // `BlockEntityAbstractImpetus.applyScryingLensOverlay`.
-            let imp = circle::impetus(srv, dim, pos);
+            let imp = circle::impetus(dim, pos);
             if imp.media < 0 {
                 out.push(line(
                     Items::AMETHYST_DUST,
@@ -336,13 +320,12 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
             out.push(colored(vanilla::items::NOTE_BLOCK, color, note.to_string()));
         }
         akashic::BOOKSHELF => {
-            if let Some((_, iota)) = akashic::shelf(srv, dim, pos) {
+            if let Some((_, iota)) = akashic::shelf(dim, pos) {
                 out.push(line(vanilla::items::BOOK, iota.display()));
             }
         }
         vanilla::items::COMPARATOR => {
-            let value = srv
-                .get_block_nbt(dim, to_ypos(pos))
+            let value = yog_api::event::block::nbt(dim, to_ypos(pos))
                 .and_then(|n| crate::snbt::Nbt::parse(&n).get_i64("OutputSignal"))
                 .unwrap_or(0) as i32;
             out.push(colored(
@@ -358,7 +341,7 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
             ));
         }
         vanilla::items::POWERED_RAIL => {
-            let power = powered_rail_strength(srv, dim, pos);
+            let power = powered_rail_strength(dim, pos);
             out.push(colored(
                 vanilla::items::POWERED_RAIL,
                 redstone_color(power, 9),
@@ -372,7 +355,7 @@ pub fn lines(srv: &dyn Server, dim: &str, pos: (i32, i32, i32)) -> Vec<Line> {
     }
     // Any redstone source (but a comparator): what it gives off, first.
     if id != vanilla::blocks::COMPARATOR
-        && let Some(signal) = srv.redstone_signal(dim, to_ypos(pos))
+        && let Some(signal) = yog_api::event::block::redstone_signal(dim, to_ypos(pos))
     {
         let s = signal as i32;
         out.insert(
@@ -394,14 +377,14 @@ static SENT: Mutex<Vec<(String, Vec<u8>)>> = Mutex::new(Vec::new());
 static TICKS: Mutex<u64> = Mutex::new(0);
 
 /// `SCRY_SIGHT`: a lens in either hand or on the head.
-fn has_lens(srv: &dyn Server, player: &str) -> bool {
-    let selected = srv.player_info(player).map_or(0, |p| p.selected_slot);
+fn has_lens(player: &str) -> bool {
+    let selected = yog_api::event::player::info(player).map_or(0, |p| p.selected_slot);
     [selected, SLOT_OFFHAND, HEAD_SLOT]
         .into_iter()
-        .any(|slot| Stack::read(srv, player, slot).id == Items::LENS)
+        .any(|slot| Stack::read(player, slot).id == Items::LENS)
 }
 
-pub fn tick(srv: &dyn Server) {
+pub fn tick() {
     let now = {
         let mut t = TICKS.lock().unwrap();
         *t += 1;
@@ -411,27 +394,29 @@ pub fn tick(srv: &dyn Server) {
         return;
     }
     let mut sent = SENT.lock().unwrap();
-    for name in srv.online_players() {
+    for name in yog_api::event::player::online() {
         let mut found = Vec::new();
-        if has_lens(srv, &name)
-            && let Some(p) = srv.player_info(&name)
-            && let Some(e) = srv.entity_info(&p.uuid)
+        if has_lens(&name)
+            && let Some(p) = yog_api::event::player::info(&name)
+            && let Some(e) = yog_api::event::entity::info(&p.uuid)
         {
-            let eye = Vec3::new(e.pos.0, e.pos.1 + e.eye_height, e.pos.2);
-            let end = eye + look_vec(srv, &p.uuid) * REACH;
-            if let Some(hit) = srv.raycast_block(&e.dimension, eye.tuple(), end.tuple()) {
-                found = lines(srv, &e.dimension, from_ypos(hit.pos));
+            let eye = Vec3::new(e.pos.x, e.pos.y + e.eye_height, e.pos.z);
+            let end = eye + look_vec(&p.uuid) * REACH;
+            if let Some(hit) =
+                yog_api::event::world::raycast_block(e.dimension, eye.tuple(), end.tuple())
+            {
+                found = lines(&e.dimension, from_ypos(hit.pos));
             }
         }
         let bytes = encode(&found);
         match sent.iter_mut().find(|(n, _)| *n == name) {
             Some((_, last)) if *last == bytes => {}
             Some((_, last)) => {
-                srv.send_to_player(&name, CH_LENS, &bytes);
+                yog_api::event::net::send_to_player(&name, CH_LENS, &bytes);
                 *last = bytes;
             }
             None => {
-                srv.send_to_player(&name, CH_LENS, &bytes);
+                yog_api::event::net::send_to_player(&name, CH_LENS, &bytes);
                 sent.push((name, bytes));
             }
         }
@@ -495,12 +480,12 @@ fn draw(gfx: &GfxContext) {
 }
 
 pub fn register(registry: &mut Registry) {
-    registry.on_tick(tick);
-    registry.on_player_leave(|e, _, _| {
+    registry.on::<yog_api::event::server::game::Tick, _>(|_, _| tick());
+    registry.on::<yog_api::event::player::session::Leave, _>(|e, _| {
         SENT.lock().unwrap().retain(|(n, _)| *n != e.player_name);
         true
     });
-    registry.on_client_packet(CH_LENS, |ev, _| {
+    registry.on_client_packet(CH_LENS, |ev| {
         if let Some(lines) = decode(&ev.payload) {
             *SHOWN.lock().unwrap() = lines;
         }

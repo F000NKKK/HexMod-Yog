@@ -11,7 +11,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::{LazyLock, Mutex};
 
 use yog_api::vanilla;
-use yog_api::{EventPhase, Registry, Server, Storage, split_state};
+use yog_api::{EventPhase, Registry, Storage, split_state};
 
 use crate::casting::env::{
     CastEnv, Caster, CircleRun, MOD_ID, Source, Spray, from_ypos, get_pigment, random, to_ypos,
@@ -140,8 +140,8 @@ struct Part {
 }
 
 impl Part {
-    fn at(srv: &dyn Server, dim: &str, pos: BlockPos) -> Option<Part> {
-        let state = srv.get_block_state(dim, to_ypos(pos))?;
+    fn at(dim: &str, pos: BlockPos) -> Option<Part> {
+        let state = yog_api::event::block::state(dim, to_ypos(pos))?;
         let (id, props) = split_state(&state);
         Some(Part {
             kind: kind(id)?,
@@ -174,7 +174,7 @@ impl Part {
     }
 
     /// `canEnterFromDirection`.
-    fn can_enter(&self, srv: &dyn Server, dim: &str, enter: Dir, pos: BlockPos) -> bool {
+    fn can_enter(&self, dim: &str, enter: Dir, pos: BlockPos) -> bool {
         let f = self.facing();
         match self.kind {
             // FACING is where media leaves: it can't come in that way.
@@ -182,30 +182,30 @@ impl Part {
             Kind::DirEmpty | Kind::DirRedstone | Kind::DirBoolean => {
                 enter != f.opposite() && enter != f
             }
-            Kind::Slate => enter != self.normal(srv, dim, pos, 16).opposite(),
+            Kind::Slate => enter != self.normal(dim, pos, 16).opposite(),
         }
     }
 
     /// `possibleExitDirections`.
-    fn exits(&self, srv: &dyn Server, dim: &str, pos: BlockPos) -> Vec<Dir> {
+    fn exits(&self, dim: &str, pos: BlockPos) -> Vec<Dir> {
         let f = self.facing();
         match self.kind {
             Kind::Impetus | Kind::EmptyImpetus => vec![f],
             Kind::DirEmpty | Kind::DirRedstone | Kind::DirBoolean => vec![f, f.opposite()],
             Kind::Slate => {
-                let normal = self.normal(srv, dim, pos, 16);
+                let normal = self.normal(dim, pos, 16);
                 Dir::ALL.into_iter().filter(|&d| d != normal).collect()
             }
         }
     }
 
     /// `normalDir`: which way is "up" for the particles here.
-    fn normal(&self, srv: &dyn Server, dim: &str, pos: BlockPos, left: i32) -> Dir {
+    fn normal(&self, dim: &str, pos: BlockPos, left: i32) -> Dir {
         match self.kind {
             Kind::Impetus | Kind::EmptyImpetus | Kind::DirBoolean => {
-                normal_of_other(srv, dim, relative(pos, self.facing()), left)
+                normal_of_other(dim, relative(pos, self.facing()), left)
             }
-            Kind::DirRedstone => normal_of_other(srv, dim, relative(pos, self.real_facing()), left),
+            Kind::DirRedstone => normal_of_other(dim, relative(pos, self.real_facing()), left),
             Kind::DirEmpty => Dir::Up,
             Kind::Slate => match self.prop("face") {
                 "floor" => Dir::Up,
@@ -226,12 +226,12 @@ impl Part {
 }
 
 /// `BlockCircleComponent.normalDirOfOther`.
-fn normal_of_other(srv: &dyn Server, dim: &str, other: BlockPos, left: i32) -> Dir {
+fn normal_of_other(dim: &str, other: BlockPos, left: i32) -> Dir {
     if left <= 0 {
         return Dir::Up;
     }
-    match Part::at(srv, dim, other) {
-        Some(p) => p.normal(srv, dim, other, left - 1),
+    match Part::at(dim, other) {
+        Some(p) => p.normal(dim, other, left - 1),
         None => Dir::Up,
     }
 }
@@ -243,18 +243,24 @@ enum Flow {
 }
 
 /// `startEnergized` / `endEnergized`.
-fn set_energized(srv: &dyn Server, dim: &str, pos: BlockPos, part: &Part, on: bool) {
+fn set_energized(dim: &str, pos: BlockPos, part: &Part, on: bool) {
     let mut props = format!("energized={on}");
     if !on && part.kind == Kind::DirBoolean {
         props.push_str(",state=neither");
     }
-    srv.set_block_properties(dim, to_ypos(pos), &props);
+    yog_api::event::block::set_properties(dim, to_ypos(pos), &props);
 }
 
 // ── an impetus' state (`BlockEntityAbstractImpetus`) ────────────────────────
 
-fn store(srv: &dyn Server, dim: &str, pos: BlockPos) -> Storage {
-    Storage::open_chunk(&srv.world_dir(), MOD_ID, dim, pos.0 >> 4, pos.2 >> 4)
+fn store(dim: &str, pos: BlockPos) -> Storage {
+    Storage::open_chunk(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+        dim,
+        pos.0 >> 4,
+        pos.2 >> 4,
+    )
 }
 
 fn key(what: &str, pos: BlockPos) -> String {
@@ -358,8 +364,8 @@ pub struct Impetus {
     pub player: Option<(String, String)>,
 }
 
-pub fn impetus(srv: &dyn Server, dim: &str, pos: BlockPos) -> Impetus {
-    let s = store(srv, dim, pos);
+pub fn impetus(dim: &str, pos: BlockPos) -> Impetus {
+    let s = store(dim, pos);
     let get = |what: &str| s.get_str(&key(what, pos)).map(str::to_owned);
     Impetus {
         media: s.get_int(&key("impetus.media", pos)).unwrap_or(0),
@@ -383,8 +389,8 @@ pub fn impetus(srv: &dyn Server, dim: &str, pos: BlockPos) -> Impetus {
     }
 }
 
-fn save_impetus(srv: &dyn Server, dim: &str, pos: BlockPos, i: &Impetus) {
-    let mut s = store(srv, dim, pos);
+fn save_impetus(dim: &str, pos: BlockPos, i: &Impetus) {
+    let mut s = store(dim, pos);
     s.set(key("impetus.media", pos), i.media);
     let mut put = |what: &str, v: Option<String>| match v {
         Some(v) => s.set(key(what, pos), v),
@@ -412,8 +418,8 @@ fn save_impetus(srv: &dyn Server, dim: &str, pos: BlockPos, i: &Impetus) {
     s.set(key("impetus.look", pos), i.look as i64);
 }
 
-fn forget_impetus(srv: &dyn Server, dim: &str, pos: BlockPos) {
-    let mut s = store(srv, dim, pos);
+fn forget_impetus(dim: &str, pos: BlockPos) {
+    let mut s = store(dim, pos);
     for what in [
         "impetus.media",
         "impetus.display",
@@ -478,21 +484,24 @@ static PLACING: LazyLock<Mutex<HashMap<String, Option<HexPattern>>>> =
 
 const KNOWN_KEY: &str = "circles.impetuses";
 
-fn global(srv: &dyn Server) -> Storage {
-    Storage::open(&srv.world_dir(), MOD_ID)
+fn global() -> Storage {
+    Storage::open(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+    )
 }
 
-fn save_known(srv: &dyn Server) {
+fn save_known() {
     let known = KNOWN.lock().unwrap();
     let list: Vec<String> = known
         .iter()
         .map(|((dim, p), k)| format!("{dim}|{}|{}", pos_str(*p), k.id))
         .collect();
-    global(srv).set(KNOWN_KEY, list.join("\n"));
+    global().set(KNOWN_KEY, list.join("\n"));
 }
 
-fn load_known(srv: &dyn Server) {
-    let text = global(srv).get_str(KNOWN_KEY).unwrap_or("").to_owned();
+fn load_known() {
+    let text = global().get_str(KNOWN_KEY).unwrap_or("").to_owned();
     let mut known = KNOWN.lock().unwrap();
     known.clear();
     for line in text.lines() {
@@ -502,8 +511,9 @@ fn load_known(srv: &dyn Server) {
         else {
             continue;
         };
-        let i = impetus(srv, dim, pos);
-        let powered = srv.block_property(dim, to_ypos(pos), "powered").as_deref() == Some("true");
+        let i = impetus(dim, pos);
+        let powered = yog_api::event::block::property(dim, to_ypos(pos), "powered").as_deref()
+            == Some("true");
         known.insert(
             (dim.to_owned(), pos),
             Known {
@@ -515,11 +525,15 @@ fn load_known(srv: &dyn Server) {
     }
 }
 
+/// The impetuses: the blocks that start a circle.
+const IMPETUSES: [&str; 3] = [
+    Blocks::IMPETUS_RIGHTCLICK,
+    Blocks::IMPETUS_LOOK,
+    Blocks::IMPETUS_REDSTONE,
+];
+
 fn is_impetus(id: &str) -> bool {
-    matches!(
-        id,
-        Blocks::IMPETUS_RIGHTCLICK | Blocks::IMPETUS_LOOK | Blocks::IMPETUS_REDSTONE
-    )
+    IMPETUSES.contains(&id)
 }
 
 // ── a run ───────────────────────────────────────────────────────────────────
@@ -528,7 +542,6 @@ fn is_impetus(id: &str) -> bool {
 /// impetus. `Err(None)`: nowhere to go; `Err(Some(pos))`: the media can't
 /// get back to the impetus, `pos` the last block it reached.
 fn create_run(
-    srv: &dyn Server,
     dim: &str,
     pos: BlockPos,
     dir: Dir,
@@ -538,17 +551,17 @@ fn create_run(
     let mut seen = HashSet::new();
     let (mut lo, mut hi, mut last) = (pos, pos, pos);
     while let Some((enter, here)) = todo.pop() {
-        let Some(part) = Part::at(srv, dim, here) else {
+        let Some(part) = Part::at(dim, here) else {
             continue;
         };
-        if !part.can_enter(srv, dim, enter, here) {
+        if !part.can_enter(dim, enter, here) {
             continue;
         }
         if seen.insert(here) {
             last = here;
             hi = (hi.0.max(here.0), hi.1.max(here.1), hi.2.max(here.2));
             lo = (lo.0.min(here.0), lo.1.min(here.1), lo.2.min(here.2));
-            for out in part.exits(srv, dim, here) {
+            for out in part.exits(dim, here) {
                 todo.push((out, relative(here, out)));
             }
         }
@@ -571,7 +584,7 @@ fn create_run(
         entered_from: dir,
         image: Image::default(),
         caster: caster.map(|c| c.uuid.clone()),
-        caster_pigment: caster.map(|c| get_pigment(srv, &c.uuid)),
+        caster_pigment: caster.map(|c| get_pigment(&c.uuid)),
         reached_slate: 0,
         min: lo,
         max: hi,
@@ -579,16 +592,10 @@ fn create_run(
 }
 
 /// `ICircleComponent.sfx`: particles and a sound where media moves (or fails).
-fn sfx(
-    srv: &dyn Server,
-    dim: &str,
-    pos: BlockPos,
-    imp: Option<(&Impetus, BlockPos)>,
-    success: bool,
-) {
-    let (center, out) = match Part::at(srv, dim, pos) {
+fn sfx(dim: &str, pos: BlockPos, imp: Option<(&Impetus, BlockPos)>, success: bool) {
+    let (center, out) = match Part::at(dim, pos) {
         Some(part) => {
-            let n = part.normal(srv, dim, pos, 16).step();
+            let n = part.normal(dim, pos, 16).step();
             let out = Vec3::new(n.0 as f64, n.1 as f64, n.2 as f64);
             (Vec3::center_of(pos) + out * part.particle_height(), out)
         }
@@ -611,19 +618,19 @@ fn sfx(
         spread: std::f64::consts::PI / if success { 4.0 } else { 2.0 },
         count: if success { 30 } else { 100 },
     };
-    spray.spawn(srv, dim, &pigment);
+    spray.spawn(dim, &pigment);
     let (mut sound, mut pitch) = (SOUND_FAIL, 1.0f32);
     if success && let Some((i, at)) = imp {
         sound = SOUND_FIND_BLOCK;
         let note = i.run.as_ref().map_or(0, |r| r.reached_slate - 1);
-        let semitone = semitone_from_scale(srv, dim, at, note);
+        let semitone = semitone_from_scale(dim, at, note);
         pitch = 2f32.powf((semitone as f32 - 8.0) / 12.0);
     }
-    srv.play_sound(dim, center.x, center.y, center.z, sound, 1.0, pitch);
+    yog_api::event::sound::play(dim, (center.x, center.y, center.z), sound, 1.0, pitch);
 }
 
 /// `semitoneFromScale`: the block under the impetus picks the scale.
-fn semitone_from_scale(srv: &dyn Server, dim: &str, impetus: BlockPos, note: i64) -> i32 {
+fn semitone_from_scale(dim: &str, impetus: BlockPos, note: i64) -> i32 {
     const MAJOR: &[i32] = &[0, 2, 4, 5, 7, 9, 11, 12];
     const MINOR: &[i32] = &[0, 2, 3, 5, 7, 8, 11, 12];
     const DORIAN: &[i32] = &[0, 2, 3, 5, 7, 9, 10, 12];
@@ -632,11 +639,10 @@ fn semitone_from_scale(srv: &dyn Server, dim: &str, impetus: BlockPos, note: i64
     const BAD_TIME: &[i32] = &[0, 0, 12, 7, 6, 5, 3, 0, 3, 5];
     const SUSSY_BAKA: &[i32] = &[5, 8, 10, 11, 10, 8, 5, 3, 7, 5];
     let below = (impetus.0, impetus.1 - 1, impetus.2);
-    let id = srv
-        .block_info(dim, to_ypos(below))
+    let id = yog_api::event::block::info(dim, to_ypos(below))
         .map(|b| b.block_id().to_owned())
         .unwrap_or_default();
-    let tagged = |tag: &str| srv.has_block_tag(&id, tag);
+    let tagged = |tag: &str| yog_api::event::tag::has_block(&id, tag);
     let scale = match id.as_str() {
         vanilla::blocks::CRYING_OBSIDIAN => MINOR,
         _ if tagged(vanilla::block_tags::DOORS) || tagged(vanilla::block_tags::TRAPDOORS) => DORIAN,
@@ -656,21 +662,21 @@ fn semitone_from_scale(srv: &dyn Server, dim: &str, impetus: BlockPos, note: i64
 }
 
 /// `BlockEntityAbstractImpetus.startExecution`.
-pub fn start(srv: &dyn Server, dim: &str, pos: BlockPos, caster: Option<Caster>) {
-    let Some(part) = Part::at(srv, dim, pos).filter(|p| p.kind == Kind::Impetus) else {
+pub fn start(dim: &str, pos: BlockPos, caster: Option<Caster>) {
+    let Some(part) = Part::at(dim, pos).filter(|p| p.kind == Kind::Impetus) else {
         return;
     };
-    let mut imp = impetus(srv, dim, pos);
+    let mut imp = impetus(dim, pos);
     if imp.run.is_some() {
         return;
     }
-    match create_run(srv, dim, pos, part.facing(), caster.as_ref()) {
+    match create_run(dim, pos, part.facing(), caster.as_ref()) {
         Err(None) => {
-            sfx(srv, dim, pos, None, false);
+            sfx(dim, pos, None, false);
             imp.post_no_exits(pos);
         }
         Err(Some(at)) => {
-            sfx(srv, dim, at, None, false);
+            sfx(dim, at, None, false);
             let shown = Text::lit(format!("{}, {}, {}", at.0, at.1, at.2));
             imp.post(
                 &Text::key_args(Lang::TOOLTIP_CIRCLE_NO_CLOSURE_KEY, vec![shown]),
@@ -681,22 +687,22 @@ pub fn start(srv: &dyn Server, dim: &str, pos: BlockPos, caster: Option<Caster>)
             let speed = run.tick_speed();
             imp.run = Some(run);
             imp.display = None;
-            set_energized(srv, dim, pos, &part, true);
+            set_energized(dim, pos, &part, true);
             if let Some(k) = KNOWN.lock().unwrap().get_mut(&(dim.to_owned(), pos)) {
                 k.due = Some(*TICKS.lock().unwrap() + speed);
             }
         }
     }
-    save_impetus(srv, dim, pos, &imp);
+    save_impetus(dim, pos, &imp);
 }
 
 /// `CircleExecutionState.tick`: one step of a run; whether to go on.
-fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
+fn step(dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
     let Some(run) = imp.run.clone() else {
         return false;
     };
     let caster = run.caster.as_ref().and_then(|uuid| {
-        let info = srv.entity_info(uuid)?;
+        let info = yog_api::event::entity::info(uuid)?;
         Some(Caster {
             name: info.name,
             uuid: uuid.clone(),
@@ -709,21 +715,15 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
         max: run.max,
         current: run.current,
     };
-    let mut env = CastEnv::new(
-        srv,
-        caster,
-        Hand::Off,
-        Source::Circle(circle),
-        dim.to_owned(),
-    );
+    let mut env = CastEnv::new(caster, Hand::Off, Source::Circle(circle), dim.to_owned());
     env.circle_media = if imp.media < 0 { i64::MAX } else { imp.media };
     env.circle_pigment = Some(imp.pigment());
 
-    let Some(part) = Part::at(srv, dim, run.current) else {
-        sfx(srv, dim, run.current, Some((imp, at)), false);
+    let Some(part) = Part::at(dim, run.current) else {
+        sfx(dim, run.current, Some((imp, at)), false);
         return false;
     };
-    set_energized(srv, dim, run.current, &part, true);
+    set_energized(dim, run.current, &part, true);
     let mut run = run;
     run.reached.insert(run.current);
     run.reached_slate += 1;
@@ -746,7 +746,7 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
     if let Some((msg, item)) = env.circle_posts.last() {
         imp.post(msg, item);
     }
-    if Part::at(srv, dim, at).is_none_or(|p| p.kind != Kind::Impetus) {
+    if Part::at(dim, at).is_none_or(|p| p.kind != Kind::Impetus) {
         return false; // the impetus is gone
     }
     match flow {
@@ -754,7 +754,7 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
         Flow::Continue(image, exits) => {
             let mut found: Option<(BlockPos, Dir)> = None;
             for (pos, dir) in exits {
-                let ok = Part::at(srv, dim, pos).is_some_and(|p| p.can_enter(srv, dim, dir, pos));
+                let ok = Part::at(dim, pos).is_some_and(|p| p.can_enter(dim, dir, pos));
                 if !ok {
                     continue;
                 }
@@ -767,19 +767,19 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
                         &Text::key_args(Lang::TOOLTIP_CIRCLE_MANY_EXITS_KEY, vec![shown]),
                         vanilla::items::COMPASS,
                     );
-                    sfx(srv, dim, run.current, Some((imp, at)), false);
+                    sfx(dim, run.current, Some((imp, at)), false);
                     return false;
                 }
                 found = Some((pos, dir));
             }
             match found {
                 None => {
-                    sfx(srv, dim, run.current, Some((imp, at)), false);
+                    sfx(dim, run.current, Some((imp, at)), false);
                     imp.post_no_exits(run.current);
                     false
                 }
                 Some((pos, dir)) => {
-                    sfx(srv, dim, run.current, Some((imp, at)), true);
+                    sfx(dim, run.current, Some((imp, at)), true);
                     let run = imp.run.as_mut().expect("running");
                     run.current = pos;
                     run.entered_from = dir;
@@ -793,8 +793,8 @@ fn step(srv: &dyn Server, dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
 }
 
 /// `acceptControlFlow`.
-fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: BlockPos) -> Flow {
-    let (srv, dim) = (env.srv, env.dim.clone());
+fn accept(part: &Part, image: Image, env: &mut CastEnv, enter: Dir, pos: BlockPos) -> Flow {
+    let dim = env.dim.clone();
     let exit = |d: Dir| (relative(pos, d), d);
     match part.kind {
         Kind::Impetus => Flow::Stop,
@@ -813,7 +813,7 @@ fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: Blo
             let mishap = match stack.pop() {
                 None => Some(Mishap::BoolDirectrixEmptyStack(pos)),
                 Some(Iota::Bool(b)) => {
-                    srv.set_block_properties(
+                    yog_api::event::block::set_properties(
                         &dim,
                         to_ypos(pos),
                         if b { "state=true" } else { "state=false" },
@@ -834,12 +834,12 @@ fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: Blo
         }
         Kind::Slate => {
             let exits: Vec<(BlockPos, Dir)> = part
-                .exits(srv, &dim, pos)
+                .exits(&dim, pos)
                 .into_iter()
                 .filter(|&d| d != enter.opposite())
                 .map(exit)
                 .collect();
-            let Some(pattern) = slate_pattern(srv, &dim, pos) else {
+            let Some(pattern) = slate_pattern(&dim, pos) else {
                 return Flow::Continue(image, exits);
             };
             // A slate's cast runs in its own env, one that shares the impetus' state.
@@ -847,7 +847,7 @@ fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: Blo
                 image,
                 std::mem::replace(
                     env,
-                    CastEnv::new(srv, None, Hand::Off, Source::Staff, dim.clone()),
+                    CastEnv::new(None, Hand::Off, Source::Staff, dim.clone()),
                 ),
             );
             let view = vm.queue_execute(vec![Iota::Pattern(pattern)]);
@@ -862,13 +862,7 @@ fn accept(part: &Part, image: Image, env: &mut CastEnv<'_>, enter: Dir, pos: Blo
 }
 
 /// `fakeThrowMishap`: a component's own mishap, named after the block.
-fn fake_throw_mishap(
-    part: &Part,
-    pos: BlockPos,
-    image: Image,
-    env: &mut CastEnv<'_>,
-    mishap: Mishap,
-) {
+fn fake_throw_mishap(part: &Part, pos: BlockPos, image: Image, env: &mut CastEnv, mishap: Mishap) {
     let (ns, path) = part.id.split_once(':').unwrap_or(("hexcasting", &part.id));
     let name = Text::Join(
         vec![
@@ -891,71 +885,65 @@ fn fake_throw_mishap(
 }
 
 /// `endExecution`: every block the run reached stops glowing.
-fn end(srv: &dyn Server, dim: &str, imp: &mut Impetus) {
+fn end(dim: &str, imp: &mut Impetus) {
     if let Some(run) = imp.run.take() {
         for pos in run.reached {
-            if let Some(part) = Part::at(srv, dim, pos) {
-                set_energized(srv, dim, pos, &part, false);
+            if let Some(part) = Part::at(dim, pos) {
+                set_energized(dim, pos, &part, false);
             }
         }
     }
 }
 
 /// `tickExecution`.
-fn tick_run(srv: &dyn Server, dim: &str, pos: BlockPos, now: u64) -> Option<u64> {
-    let mut imp = impetus(srv, dim, pos);
+fn tick_run(dim: &str, pos: BlockPos, now: u64) -> Option<u64> {
+    let mut imp = impetus(dim, pos);
     imp.run.as_ref()?;
-    let go_on = step(srv, dim, &mut imp, pos);
+    let go_on = step(dim, &mut imp, pos);
     let due = if go_on {
         Some(now + imp.run.as_ref().map_or(10, Run::tick_speed))
     } else {
-        end(srv, dim, &mut imp);
+        end(dim, &mut imp);
         None
     };
-    save_impetus(srv, dim, pos, &imp);
+    save_impetus(dim, pos, &imp);
     due
 }
 
 // ── the impetuses' triggers ─────────────────────────────────────────────────
 
 /// `BlockEntityLookingImpetus.serverTick`: someone staring at it fills it.
-fn tick_look(srv: &dyn Server, dim: &str, pos: BlockPos) {
-    if srv
-        .block_property(dim, to_ypos(pos), "energized")
-        .as_deref()
-        == Some("true")
-    {
+fn tick_look(dim: &str, pos: BlockPos) {
+    if yog_api::event::block::property(dim, to_ypos(pos), "energized").as_deref() == Some("true") {
         return;
     }
     let mut looker = None;
-    for name in srv.online_players() {
-        let Some(info) = srv
-            .player_info(&name)
-            .and_then(|p| Some((p.uuid.clone(), srv.entity_info(&p.uuid)?)))
+    for name in yog_api::event::player::online() {
+        let Some(info) = yog_api::event::player::info(&name)
+            .and_then(|p| Some((p.uuid.clone(), yog_api::event::entity::info(&p.uuid)?)))
         else {
             continue;
         };
         let (uuid, e) = info;
-        let eye = Vec3::new(e.pos.0, e.pos.1 + e.eye_height, e.pos.2);
+        let eye = Vec3::new(e.pos.x, e.pos.y + e.eye_height, e.pos.z);
         if e.dimension != dim
             || eye.distance_sqr(Vec3::center_of(pos)) > 3.0 * LOOK_RANGE * LOOK_RANGE
         {
             continue;
         }
         // A carved pumpkin on the head hides the gaze.
-        if crate::casting::env::Stack::read(srv, &name, 39).id == vanilla::items::CARVED_PUMPKIN {
+        if crate::casting::env::Stack::read(&name, 39).id == vanilla::items::CARVED_PUMPKIN {
             continue;
         }
-        let end = eye + crate::casting::env::look_vec(srv, &uuid) * (LOOK_RANGE / 1.5);
-        if srv
-            .raycast_block(dim, eye.tuple(), end.tuple())
+        let end = eye + crate::casting::env::look_vec(&uuid) * (LOOK_RANGE / 1.5);
+        if yog_api::event::world::raycast_block(dim, eye.tuple(), end.tuple())
             .is_some_and(|h| from_ypos(h.pos) == pos)
         {
-            looker = Caster::by_name(srv, &name);
+            looker = Caster::by_name(&name);
             break;
         }
     }
-    let mut imp = impetus(srv, dim, pos);
+    let mut imp = impetus(dim, pos);
     let prev = imp.look;
     let new = (prev + if looker.is_some() { 1 } else { -1 }).clamp(0, MAX_LOOK);
     if new == prev {
@@ -963,21 +951,21 @@ fn tick_look(srv: &dyn Server, dim: &str, pos: BlockPos) {
     }
     if new == MAX_LOOK {
         imp.look = 0;
-        save_impetus(srv, dim, pos, &imp);
-        start(srv, dim, pos, looker);
+        save_impetus(dim, pos, &imp);
+        start(dim, pos, looker);
     } else {
         if new % 5 == 1 {
             let t = new as f32 / MAX_LOOK as f32;
             let (pitch, volume) = (0.5 + (1.2 - 0.5) * t, 0.2 + (1.2 - 0.2) * t);
             let c = Vec3::center_of(pos);
-            srv.play_sound(dim, c.x, c.y, c.z, SOUND_LOOK_TICK, volume, pitch);
+            yog_api::event::sound::play(dim, (c.x, c.y, c.z), SOUND_LOOK_TICK, volume, pitch);
         }
         imp.look = new;
-        save_impetus(srv, dim, pos, &imp);
+        save_impetus(dim, pos, &imp);
     }
 }
 
-pub fn tick(srv: &dyn Server) {
+pub fn tick() {
     let now = {
         let mut t = TICKS.lock().unwrap();
         *t += 1;
@@ -993,36 +981,35 @@ pub fn tick(srv: &dyn Server) {
     for ((dim, pos), k) in known {
         // Gone some way a break didn't see (an explosion, a piston).
         if now.is_multiple_of(20)
-            && srv
-                .block_info(&dim, to_ypos(pos))
-                .is_some_and(|b| b.block_id() != k.id)
+            && yog_api::event::block::info(&dim, to_ypos(pos)).is_some_and(|b| b.block_id() != k.id)
         {
             KNOWN.lock().unwrap().remove(&(dim.clone(), pos));
-            forget_impetus(srv, &dim, pos);
+            forget_impetus(&dim, pos);
             changed = true;
             continue;
         }
         if k.due.is_some_and(|d| now >= d) {
-            let due = tick_run(srv, &dim, pos, now);
+            let due = tick_run(&dim, pos, now);
             if let Some(e) = KNOWN.lock().unwrap().get_mut(&(dim.clone(), pos)) {
                 e.due = due;
             }
         }
         match k.id.as_str() {
-            Blocks::IMPETUS_LOOK => tick_look(srv, &dim, pos),
+            Blocks::IMPETUS_LOOK => tick_look(&dim, pos),
             // `BlockRedstoneImpetus.neighborChanged`: power coming on starts it.
             Blocks::IMPETUS_REDSTONE => {
-                let powered =
-                    srv.block_property(&dim, to_ypos(pos), "powered").as_deref() == Some("true");
+                let powered = yog_api::event::block::property(&dim, to_ypos(pos), "powered")
+                    .as_deref()
+                    == Some("true");
                 if powered != k.powered {
                     if let Some(e) = KNOWN.lock().unwrap().get_mut(&(dim.clone(), pos)) {
                         e.powered = powered;
                     }
                     if powered {
-                        let player = impetus(srv, &dim, pos)
+                        let player = impetus(&dim, pos)
                             .player
-                            .and_then(|(_, name)| Caster::by_name(srv, &name));
-                        start(srv, &dim, pos, player);
+                            .and_then(|(_, name)| Caster::by_name(&name));
+                        start(&dim, pos, player);
                     }
                 }
             }
@@ -1030,19 +1017,19 @@ pub fn tick(srv: &dyn Server) {
         }
     }
     if changed {
-        save_known(srv);
+        save_known();
     }
 }
 
 // ── slates ──────────────────────────────────────────────────────────────────
 
 /// `BlockEntitySlate.pattern`.
-pub fn slate_pattern(srv: &dyn Server, dim: &str, pos: BlockPos) -> Option<HexPattern> {
-    HexPattern::from_serialized(store(srv, dim, pos).get_str(&key("slate", pos))?)
+pub fn slate_pattern(dim: &str, pos: BlockPos) -> Option<HexPattern> {
+    HexPattern::from_serialized(store(dim, pos).get_str(&key("slate", pos))?)
 }
 
-fn set_slate_pattern(srv: &dyn Server, dim: &str, pos: BlockPos, pattern: Option<&HexPattern>) {
-    let mut s = store(srv, dim, pos);
+fn set_slate_pattern(dim: &str, pos: BlockPos, pattern: Option<&HexPattern>) {
+    let mut s = store(dim, pos);
     match pattern {
         Some(p) => s.set(key("slate", pos), p.serialized_form()),
         None => {
@@ -1062,13 +1049,14 @@ fn slate_item_nbt(pattern: Option<&HexPattern>) -> String {
 // ── events ──────────────────────────────────────────────────────────────────
 
 pub fn register(registry: &mut Registry) {
-    registry.on_server_started(|srv| {
-        load_known(srv);
+    registry.on::<yog_api::event::server::life::Started, _>(|_, _| {
+        load_known();
         *TICKS.lock().unwrap() = 0;
     });
-    registry.on_tick(tick);
+    registry.on::<yog_api::event::server::game::Tick, _>(|_, _| tick());
 
-    registry.on_player_place_block(|ev, phase, srv| {
+    registry.on::<yog_api::event::block::Place, _>(|ev, cx| {
+        let phase = cx.phase();
         let pos = from_ypos(ev.pos);
         let Some(k) = kind(&ev.block_id) else {
             return true;
@@ -1077,12 +1065,11 @@ pub fn register(registry: &mut Registry) {
             EventPhase::Pre => {
                 if k == Kind::Slate {
                     // The item placing it is in a hand now; it may be used up after.
-                    let selected = srv
-                        .player_info(&ev.player_name)
+                    let selected = yog_api::event::player::info(&ev.player_name)
                         .map_or(0, |p| p.selected_slot);
                     let pattern = [selected, crate::casting::env::SLOT_OFFHAND]
                         .into_iter()
-                        .map(|slot| crate::casting::env::Stack::read(srv, &ev.player_name, slot))
+                        .map(|slot| crate::casting::env::Stack::read(&ev.player_name, slot))
                         .find(|s| s.id == Blocks::SLATE)
                         .and_then(|s| holder::written_pattern(&s.id, &s.nbt));
                     PLACING
@@ -1101,12 +1088,12 @@ pub fn register(registry: &mut Registry) {
                         | Kind::DirRedstone
                         | Kind::DirBoolean
                 ) && ev.sneaking
-                    && let Some(f) = srv
-                        .block_property(&ev.dimension, ev.pos, "facing")
-                        .as_deref()
-                        .and_then(Dir::parse)
+                    && let Some(f) =
+                        yog_api::event::block::property(&ev.dimension, ev.pos, "facing")
+                            .as_deref()
+                            .and_then(Dir::parse)
                 {
-                    srv.set_block_properties(
+                    yog_api::event::block::set_properties(
                         &ev.dimension,
                         ev.pos,
                         &format!("facing={}", f.opposite().name()),
@@ -1114,13 +1101,12 @@ pub fn register(registry: &mut Registry) {
                 }
                 if k == Kind::Slate {
                     let pattern = PLACING.lock().unwrap().remove(&ev.player_name).flatten();
-                    set_slate_pattern(srv, &ev.dimension, pos, pattern.as_ref());
-                    crate::render::slate_changed(srv, &ev.dimension, pos, pattern.as_ref());
+                    set_slate_pattern(&ev.dimension, pos, pattern.as_ref());
+                    crate::render::slate_changed(&ev.dimension, pos, pattern.as_ref());
                 }
                 if is_impetus(&ev.block_id) {
-                    forget_impetus(srv, &ev.dimension, pos);
-                    let powered = srv
-                        .block_property(&ev.dimension, ev.pos, "powered")
+                    forget_impetus(&ev.dimension, pos);
+                    let powered = yog_api::event::block::property(&ev.dimension, ev.pos, "powered")
                         .as_deref()
                         == Some("true");
                     KNOWN.lock().unwrap().insert(
@@ -1131,7 +1117,7 @@ pub fn register(registry: &mut Registry) {
                             powered,
                         },
                     );
-                    save_known(srv);
+                    save_known();
                 }
             }
         }
@@ -1140,75 +1126,75 @@ pub fn register(registry: &mut Registry) {
 
     // `BlockEntityAbstractImpetus` as a container: hoppers and droppers
     // feed it media (`insertMedia`); a creative unlocker makes it endless.
-    registry.on_item_insert(|ev, phase, srv| {
-        if !is_impetus(&ev.block_id) {
-            return false;
-        }
-        let pos = from_ypos(ev.pos);
-        let mut imp = impetus(srv, &ev.dimension, pos);
-        if imp.room() == 0 {
-            return false;
-        }
-        if ev.item_id == crate::content::Items::CREATIVE_UNLOCKER {
-            if phase == EventPhase::Post {
-                imp.media = -1;
-                save_impetus(srv, &ev.dimension, pos, &imp);
+    for id in IMPETUSES {
+        registry.provide_key::<yog_api::event::block::Insert>(id, |ev, _| {
+            let pos = from_ypos(ev.pos);
+            let mut imp = impetus(&ev.dimension, pos);
+            if imp.room() == 0 {
+                return false;
             }
-            return true;
-        }
-        let mut stack = crate::casting::env::Stack {
-            slot: 0,
-            id: ev.item_id.clone(),
-            count: ev.count,
-            nbt: crate::snbt::Nbt::parse(&ev.nbt),
-        };
-        let taken = crate::item::media::withdraw(&mut stack, imp.room(), phase == EventPhase::Pre);
-        if taken <= 0 {
-            return false;
-        }
-        if phase == EventPhase::Post {
-            imp.media = (imp.media + taken).min(MAX_MEDIA);
-            save_impetus(srv, &ev.dimension, pos, &imp);
-        }
-        true
-    });
+            if ev.item_id == crate::content::Items::CREATIVE_UNLOCKER {
+                if !ev.simulate {
+                    imp.media = -1;
+                    save_impetus(&ev.dimension, pos, &imp);
+                }
+                return true;
+            }
+            let mut stack = crate::casting::env::Stack {
+                slot: 0,
+                id: ev.item_id.clone(),
+                count: ev.count,
+                nbt: crate::snbt::Nbt::parse(&ev.nbt),
+            };
+            let taken = crate::item::media::withdraw(&mut stack, imp.room(), ev.simulate);
+            if taken <= 0 {
+                return false;
+            }
+            if !ev.simulate {
+                imp.media = (imp.media + taken).min(MAX_MEDIA);
+                save_impetus(&ev.dimension, pos, &imp);
+            }
+            true
+        });
+    }
 
-    registry.on_block_break(|ev, phase, srv| {
+    registry.on::<yog_api::event::block::Break, _>(|ev, cx| {
+        let phase = cx.phase();
         if phase != EventPhase::Post {
             return true;
         }
         let pos = from_ypos(ev.pos);
         if ev.block_id == Blocks::SLATE {
             // The slate keeps its pattern (the original's loot table copies it).
-            let pattern = slate_pattern(srv, &ev.dimension, pos);
-            set_slate_pattern(srv, &ev.dimension, pos, None);
-            crate::render::slate_changed(srv, &ev.dimension, pos, None);
-            let creative = srv
-                .player_info(&ev.player_name)
+            let pattern = slate_pattern(&ev.dimension, pos);
+            set_slate_pattern(&ev.dimension, pos, None);
+            crate::render::slate_changed(&ev.dimension, pos, None);
+            let creative = yog_api::event::player::info(&ev.player_name)
                 .is_some_and(|p| p.gamemode == "creative");
             if !creative {
                 let c = Vec3::center_of(pos);
-                srv.spawn_item(
+                yog_api::event::item::spawn_item(
                     &ev.dimension,
                     c.tuple(),
                     (0.0, 0.1, 0.0),
                     Blocks::SLATE,
                     1,
-                    &slate_item_nbt(pattern.as_ref()),
+                    slate_item_nbt(pattern.as_ref()),
                 );
             }
         }
         if is_impetus(&ev.block_id) {
-            let mut imp = impetus(srv, &ev.dimension, pos);
-            end(srv, &ev.dimension, &mut imp);
-            forget_impetus(srv, &ev.dimension, pos);
+            let mut imp = impetus(&ev.dimension, pos);
+            end(&ev.dimension, &mut imp);
+            forget_impetus(&ev.dimension, pos);
             KNOWN.lock().unwrap().remove(&(ev.dimension.clone(), pos));
-            save_known(srv);
+            save_known();
         }
         true
     });
 
-    registry.on_use_block(|ev, phase, srv| {
+    registry.on::<yog_api::event::block::Use, _>(|ev, cx| {
+        let phase = cx.phase();
         if phase != EventPhase::Pre {
             return true;
         }
@@ -1216,38 +1202,44 @@ pub fn register(registry: &mut Registry) {
         match ev.block_id.as_str() {
             // `BlockRightClickImpetus.use`.
             Blocks::IMPETUS_RIGHTCLICK if !ev.sneaking => {
-                start(
-                    srv,
-                    &ev.dimension,
-                    pos,
-                    Caster::by_name(srv, &ev.player_name),
-                );
+                start(&ev.dimension, pos, Caster::by_name(&ev.player_name));
                 false
             }
             // `BlockRedstoneImpetus.use`: bind the player a held iota names, or
             // (sneaking, empty-handed) unbind.
             Blocks::IMPETUS_REDSTONE => {
-                let selected = srv
-                    .player_info(&ev.player_name)
-                    .map_or(0, |p| p.selected_slot);
-                let held = crate::casting::env::Stack::read(srv, &ev.player_name, selected);
+                let selected =
+                    yog_api::event::player::info(&ev.player_name).map_or(0, |p| p.selected_slot);
+                let held = crate::casting::env::Stack::read(&ev.player_name, selected);
                 let c = Vec3::center_of(pos);
                 if held.is_empty() && ev.sneaking {
-                    let mut imp = impetus(srv, &ev.dimension, pos);
+                    let mut imp = impetus(&ev.dimension, pos);
                     imp.player = None;
-                    save_impetus(srv, &ev.dimension, pos, &imp);
-                    srv.play_sound(&ev.dimension, c.x, c.y, c.z, SOUND_REDSTONE_CLEAR, 1.0, 1.0);
+                    save_impetus(&ev.dimension, pos, &imp);
+                    yog_api::event::sound::play(
+                        &ev.dimension,
+                        (c.x, c.y, c.z),
+                        SOUND_REDSTONE_CLEAR,
+                        1.0,
+                        1.0,
+                    );
                     return false;
                 }
                 let iota = holder::read(&held);
                 if let Some(Iota::Entity(e)) = iota
-                    && let Some(info) = srv.entity_info(&e.uuid)
+                    && let Some(info) = yog_api::event::entity::info(&e.uuid)
                     && info.has(yog_api::core::entity_flags::PLAYER)
                 {
-                    let mut imp = impetus(srv, &ev.dimension, pos);
+                    let mut imp = impetus(&ev.dimension, pos);
                     imp.player = Some((e.uuid.clone(), info.name));
-                    save_impetus(srv, &ev.dimension, pos, &imp);
-                    srv.play_sound(&ev.dimension, c.x, c.y, c.z, SOUND_REDSTONE_DING, 1.0, 1.0);
+                    save_impetus(&ev.dimension, pos, &imp);
+                    yog_api::event::sound::play(
+                        &ev.dimension,
+                        (c.x, c.y, c.z),
+                        SOUND_REDSTONE_DING,
+                        1.0,
+                        1.0,
+                    );
                     return false;
                 }
                 true

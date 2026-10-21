@@ -36,13 +36,13 @@ const CRYSTAL_CHANCE: [f64; 5] = [0.25, 0.35, 0.5, 0.75, 1.0];
 const CRYSTAL_CHANCE_UNHARVESTED: f64 = 0.125;
 
 pub fn register(registry: &mut Registry) {
-    registry.loot_function("hexcasting:per_world_pattern", |srv, stack, _| {
-        per_world_scroll(srv, stack)
+    registry.loot_function("hexcasting:per_world_pattern", |stack, _| {
+        per_world_scroll(stack)
     });
-    registry.loot_function("hexcasting:ancient_hex", |_, stack, _| ancient_hex(stack));
-    registry.on_loot(|srv, loot| {
+    registry.loot_function("hexcasting:ancient_hex", |stack, _| ancient_hex(stack));
+    registry.change::<yog_api::event::world::loot::Roll>(|loot, _| {
         if loot.table == AMETHYST_CLUSTER {
-            amethyst_cluster(srv, loot);
+            amethyst_cluster(loot);
         }
     });
     // An ancient cypher is named after its hex.
@@ -65,13 +65,13 @@ fn below(n: u32) -> u32 {
 
 /// `AddPerWorldPatternToScrollFunc`: one of this world's great spells, its
 /// pattern as this world draws it.
-fn per_world_scroll(srv: &dyn yog_api::Server, stack: &mut LootStack) {
+fn per_world_scroll(stack: &mut LootStack) {
     let great: Vec<_> = all().iter().filter(|a| a.great()).collect();
     if great.is_empty() {
         return;
     }
     let action = great[below(great.len() as u32) as usize];
-    let Some(pattern) = per_world_pattern(srv, action.id) else {
+    let Some(pattern) = per_world_pattern(action.id) else {
         return;
     };
     let mut nbt = Nbt::parse(&stack.nbt);
@@ -117,7 +117,7 @@ fn parse_pattern(text: &str) -> Option<HexPattern> {
 /// `inject/amethyst_cluster`: amethyst dust and now and then a charged
 /// crystal — more of both for a cluster harvested whole, with fortune.
 /// Nothing besides with silk touch: the cluster drops itself.
-fn amethyst_cluster(srv: &dyn yog_api::Server, loot: &mut Loot) {
+fn amethyst_cluster(loot: &mut Loot) {
     if loot.enchantment(SILK_TOUCH) > 0 {
         return;
     }
@@ -125,7 +125,7 @@ fn amethyst_cluster(srv: &dyn yog_api::Server, loot: &mut Loot) {
     let harvested = loot
         .tool
         .as_ref()
-        .is_some_and(|t| srv.has_item_tag(&t.id, CLUSTER_HARVESTERS));
+        .is_some_and(|t| yog_api::event::tag::has_item(&t.id, CLUSTER_HARVESTERS));
     let (dust, crystal_chance) = if harvested {
         // 1–4, then the game's `ore_drops` fortune bonus.
         let base = 1 + below(4);

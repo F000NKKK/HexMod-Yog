@@ -2,7 +2,6 @@
 //! amethyst that's spent whole, and phials / casting items that hold an
 //! amount in their NBT.
 
-use yog_api::Server;
 use yog_api::vanilla;
 
 use crate::casting::env::{SLOT_OFFHAND, Stack};
@@ -173,11 +172,11 @@ pub fn withdraw(stack: &mut Stack, cost: i64, simulate: bool) -> i64 {
 }
 
 /// `scanPlayerForMediaStuff`: everything that can pay, most important first.
-pub fn scan_player(srv: &dyn Server, player: &str) -> Vec<Stack> {
+pub fn scan_player(player: &str) -> Vec<Stack> {
     let mut found: Vec<(i32, i64, Stack)> = (0..36u32)
         .chain(36..40)
         .chain([SLOT_OFFHAND])
-        .map(|slot| Stack::read(srv, player, slot))
+        .map(|slot| Stack::read(player, slot))
         .filter_map(|s| Some((priority(&s)?, media(&s), s)))
         .collect();
     // compareMediaItem, then reversed.

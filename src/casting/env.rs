@@ -4,9 +4,9 @@
 
 use std::sync::atomic::{AtomicU8, Ordering};
 
+use yog_api::Storage;
 use yog_api::core::{EntityInfo, entity_flags};
 use yog_api::vanilla;
-use yog_api::{Server, Storage};
 
 use crate::casting::mishap::{BlockPos, MResult, Mishap, ShownItem, item_name};
 use crate::casting::vm::Sound;
@@ -70,8 +70,12 @@ pub fn random() -> f64 {
 }
 
 /// A player's persistent state (flags, pigment, sentinel, staff grid).
-pub fn player_storage(srv: &dyn Server, uuid: &str) -> Storage {
-    Storage::open_player(&srv.world_dir(), MOD_ID, uuid)
+pub fn player_storage(uuid: &str) -> Storage {
+    Storage::open_player(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+        uuid,
+    )
 }
 
 /// The caster: a player, by name (for inventory calls) and uuid.
@@ -82,8 +86,8 @@ pub struct Caster {
 }
 
 impl Caster {
-    pub fn by_name(srv: &dyn Server, name: &str) -> Option<Self> {
-        let info = srv.player_info(name)?;
+    pub fn by_name(name: &str) -> Option<Self> {
+        let info = yog_api::event::player::info(name)?;
         Some(Caster {
             name: name.to_owned(),
             uuid: info.uuid,
@@ -101,8 +105,10 @@ pub struct Stack {
 }
 
 impl Stack {
-    pub fn read(srv: &dyn Server, player: &str, slot: u32) -> Stack {
-        match srv.get_slot_item(player, slot) {
+    pub fn read(player: &str, slot: u32) -> Stack {
+        match yog_api::event::player::slot_item(player, slot)
+            .map(|s| (s.item.to_string(), s.count, s.snbt))
+        {
             Some((id, count, snbt)) => Stack {
                 slot,
                 id,
@@ -132,9 +138,15 @@ impl Stack {
     }
 
     /// Writes the stack back to its slot.
-    pub fn save(&self, srv: &dyn Server, player: &str) {
+    pub fn save(&self, player: &str) {
         let count = if self.is_empty() { 0 } else { self.count };
-        srv.set_slot_item(player, self.slot, &self.id, count, &self.nbt.to_snbt());
+        yog_api::event::player::set_slot_item(
+            player,
+            self.slot,
+            &self.id,
+            count,
+            self.nbt.to_snbt(),
+        );
     }
 }
 
@@ -181,8 +193,8 @@ impl Spray {
 
     /// `MsgCastParticleS2C.handle`, done on the server with colored dust
     /// (Hex Casting's conjure particles are client-side).
-    pub fn spawn(&self, srv: &dyn Server, dim: &str, pigment: &Pigment) {
-        let time = srv.world_time(dim).unwrap_or(0) as f32;
+    pub fn spawn(&self, dim: &str, pigment: &Pigment) {
+        let time = yog_api::event::world::time(dim).unwrap_or(0) as f32;
         let speed = self.vel.length() / 20.0;
         let v = self.vel.normalize();
         let k = if v.x == 0.0 && v.y == 0.0 {
@@ -200,7 +212,7 @@ impl Spray {
                 + v.cross(k) * (phi.sin() * theta.sin());
             let vel = unlen * speed;
             let color = pigment.color(time, unlen);
-            spawn_dust(srv, dim, pos, vel, color);
+            spawn_dust(dim, pos, vel, color);
         }
     }
 }
@@ -216,7 +228,7 @@ fn random_on_sphere() -> Vec3 {
 static DUST_SYNTAX: AtomicU8 = AtomicU8::new(0);
 
 /// One colored dust particle moving along `vel`.
-pub fn spawn_dust(srv: &dyn Server, dim: &str, pos: Vec3, vel: Vec3, color: u32) {
+pub fn spawn_dust(dim: &str, pos: Vec3, vel: Vec3, color: u32) {
     let (r, g, b) = (
         ((color >> 16) & 0xff) as f64 / 255.0,
         ((color >> 8) & 0xff) as f64 / 255.0,
@@ -224,8 +236,16 @@ pub fn spawn_dust(srv: &dyn Server, dim: &str, pos: Vec3, vel: Vec3, color: u32)
     );
     let new = || format!("minecraft:dust{{color:[{r:.3}f,{g:.3}f,{b:.3}f],scale:1.0f}}");
     let old = || format!("minecraft:dust {r:.3} {g:.3} {b:.3} 1.0");
-    let send =
-        |ty: &str| srv.spawn_particles(dim, pos.x, pos.y, pos.z, ty, 0, vel.x, vel.y, vel.z, 1.0);
+    let send = |ty: &str| {
+        yog_api::event::particle::spawn_particles(
+            dim,
+            (pos.x, pos.y, pos.z),
+            ty,
+            0,
+            (vel.x, vel.y, vel.z),
+            1.0,
+        )
+    };
     match DUST_SYNTAX.load(Ordering::Relaxed) {
         1 => {
             send(&new());
@@ -273,8 +293,7 @@ pub enum Discovery {
     Extraction,
 }
 
-pub struct CastEnv<'a> {
-    pub srv: &'a dyn Server,
+pub struct CastEnv {
     pub dim: String,
     pub caster: Option<Caster>,
     pub hand: Hand,
@@ -292,16 +311,9 @@ pub struct CastEnv<'a> {
     pub circle_posts: Vec<(Text, &'static str)>,
 }
 
-impl<'a> CastEnv<'a> {
-    pub fn new(
-        srv: &'a dyn Server,
-        caster: Option<Caster>,
-        hand: Hand,
-        source: Source,
-        dim: String,
-    ) -> Self {
+impl CastEnv {
+    pub fn new(caster: Option<Caster>, hand: Hand, source: Source, dim: String) -> Self {
         CastEnv {
-            srv,
             dim,
             caster,
             hand,
@@ -315,14 +327,11 @@ impl<'a> CastEnv<'a> {
     }
 
     /// A player's env, in the dimension they're in.
-    pub fn for_player(
-        srv: &'a dyn Server,
-        caster: Caster,
-        hand: Hand,
-        source: Source,
-    ) -> Option<Self> {
-        let dim = srv.entity_info(&caster.uuid)?.dimension;
-        Some(Self::new(srv, Some(caster), hand, source, dim))
+    pub fn for_player(caster: Caster, hand: Hand, source: Source) -> Option<Self> {
+        let dim = yog_api::event::entity::info(&caster.uuid)?
+            .dimension
+            .to_string();
+        Some(Self::new(Some(caster), hand, source, dim))
     }
 
     // ── the caster ─────────────────────────────────────────────────────────
@@ -336,7 +345,7 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn caster_info(&self) -> Option<EntityInfo> {
-        self.srv.entity_info(&self.caster.as_ref()?.uuid)
+        yog_api::event::entity::info(&self.caster.as_ref()?.uuid)
     }
 
     pub fn caster_pos(&self) -> Option<Vec3> {
@@ -345,7 +354,7 @@ impl<'a> CastEnv<'a> {
 
     pub fn is_creative(&self) -> bool {
         self.caster_name()
-            .and_then(|n| self.srv.player_info(n))
+            .and_then(yog_api::event::player::info)
             .is_some_and(|p| p.gamemode == "creative")
     }
 
@@ -376,7 +385,7 @@ impl<'a> CastEnv<'a> {
         if matches!(self.source, Source::Circle(_)) {
             self.circle_posts.push((msg.clone(), vanilla::items::BOOK));
         } else if let Some(name) = self.caster_name() {
-            self.srv.tellraw(name, &msg.to_json());
+            yog_api::event::chat::tellraw(name, msg.to_json());
         }
     }
 
@@ -405,23 +414,19 @@ impl<'a> CastEnv<'a> {
             return p;
         }
         match &self.caster {
-            Some(c) => get_pigment(self.srv, &c.uuid),
+            Some(c) => get_pigment(&c.uuid),
             None => Pigment::default(),
         }
     }
 
     pub fn spray(&self, spray: &Spray) {
-        spray.spawn(self.srv, &self.dim, &self.pigment());
+        spray.spawn(&self.dim, &self.pigment());
     }
 
     /// The mishap's two sprays: its accent dye, then red.
     pub fn mishap_spray(&self, spray: &Spray, accent: u32) {
-        spray.spawn(self.srv, &self.dim, &dye_pigment(accent));
-        spray.spawn(
-            self.srv,
-            &self.dim,
-            &dye_pigment(crate::casting::mishap::dye::RED),
-        );
+        spray.spawn(&self.dim, &dye_pigment(accent));
+        spray.spawn(&self.dim, &dye_pigment(crate::casting::mishap::dye::RED));
     }
 
     /// `setPigment`: the caster's, or a circle's impetus'.
@@ -429,7 +434,7 @@ impl<'a> CastEnv<'a> {
         if matches!(self.source, Source::Circle(_)) {
             self.circle_pigment = Some(p);
         } else if let Some(uuid) = self.caster_uuid() {
-            set_pigment(self.srv, &uuid, &p);
+            set_pigment(&uuid, &p);
         }
     }
 
@@ -439,7 +444,7 @@ impl<'a> CastEnv<'a> {
         if let Source::Circle(c) = &self.source {
             if let Some(id) = sound.id() {
                 let p = Vec3::center_of(c.current);
-                self.srv.play_sound(&self.dim, p.x, p.y, p.z, id, 1.0, 1.0);
+                yog_api::event::sound::play(&self.dim, (p.x, p.y, p.z), id, 1.0, 1.0);
             }
             return;
         }
@@ -448,8 +453,7 @@ impl<'a> CastEnv<'a> {
                 if let (Some(id), Some(pos)) = (sound.id(), self.caster_pos())
                     && self.sounds_played < 100
                 {
-                    self.srv
-                        .play_sound(&self.dim, pos.x, pos.y, pos.z, id, 1.0, 1.0);
+                    yog_api::event::sound::play(&self.dim, (pos.x, pos.y, pos.z), id, 1.0, 1.0);
                     self.sounds_played += 1;
                 }
             }
@@ -461,9 +465,7 @@ impl<'a> CastEnv<'a> {
 
     /// The entity, if it's loaded in this dimension.
     pub fn entity(&self, e: &EntityRef) -> Option<EntityInfo> {
-        self.srv
-            .entity_info(&e.uuid)
-            .filter(|i| i.dimension == self.dim)
+        yog_api::event::entity::info(&e.uuid).filter(|i| i.dimension == self.dim)
     }
 
     pub fn entity_pos(&self, e: &EntityRef) -> Option<Vec3> {
@@ -471,14 +473,11 @@ impl<'a> CastEnv<'a> {
     }
 
     pub fn is_player(&self, uuid: &str) -> bool {
-        self.srv
-            .entity_info(uuid)
-            .is_some_and(|i| i.has(entity_flags::PLAYER))
+        yog_api::event::entity::info(uuid).is_some_and(|i| i.has(entity_flags::PLAYER))
     }
 
     pub fn block_id(&self, pos: BlockPos) -> String {
-        self.srv
-            .block_info(&self.dim, to_ypos(pos))
+        yog_api::event::block::info(&self.dim, to_ypos(pos))
             .map(|b| b.block_id().to_owned())
             .unwrap_or_else(|| vanilla::items::AIR.into())
     }
@@ -502,7 +501,7 @@ impl<'a> CastEnv<'a> {
     /// The caster's sentinel, if it lets them reach around it.
     fn sentinel_in_range(&self, v: Vec3) -> bool {
         let Some(c) = &self.caster else { return false };
-        match get_sentinel(self.srv, &c.uuid) {
+        match get_sentinel(&c.uuid) {
             Some(s) => {
                 s.great
                     && s.dim == self.dim
@@ -536,9 +535,7 @@ impl<'a> CastEnv<'a> {
 
     /// `isVecInWorld`: inside the build height (and the loaded world).
     pub fn is_vec_in_world(&self, v: Vec3) -> bool {
-        self.srv
-            .block_info(&self.dim, to_ypos(v.block()))
-            .is_some_and(|b| b.in_world)
+        yog_api::event::block::info(&self.dim, to_ypos(v.block())).is_some_and(|b| b.in_world)
     }
 
     /// `isEntityInRange` (players are always in range: `trueNameHasAmbit`).
@@ -580,7 +577,10 @@ impl<'a> CastEnv<'a> {
         if matches!(self.source, Source::Circle(_)) {
             return true;
         }
-        match self.caster_name().and_then(|n| self.srv.player_info(n)) {
+        match self
+            .caster_name()
+            .and_then(yog_api::event::player::info)
+        {
             Some(p) => p.gamemode != "adventure",
             None => matches!(self.source, Source::Circle(_)),
         }
@@ -623,14 +623,14 @@ impl<'a> CastEnv<'a> {
     pub fn hand_slot(&self, hand: Hand) -> Option<u32> {
         let name = self.caster_name()?;
         Some(match hand {
-            Hand::Main => self.srv.player_info(name)?.selected_slot,
+            Hand::Main => yog_api::event::player::info(name)?.selected_slot,
             Hand::Off => SLOT_OFFHAND,
         })
     }
 
     pub fn stack_at(&self, slot: u32) -> Stack {
         match self.caster_name() {
-            Some(n) => Stack::read(self.srv, n, slot),
+            Some(n) => Stack::read(n, slot),
             None => Stack {
                 slot,
                 ..Stack::default()
@@ -644,7 +644,7 @@ impl<'a> CastEnv<'a> {
 
     pub fn save(&self, stack: &Stack) {
         if let Some(n) = self.caster_name() {
-            stack.save(self.srv, n);
+            stack.save(n);
         }
     }
 
@@ -671,7 +671,7 @@ impl<'a> CastEnv<'a> {
             return Vec::new();
         };
         let circle = matches!(self.source, Source::Circle(_));
-        let selected = self.srv.player_info(name).map_or(0, |p| p.selected_slot);
+        let selected = yog_api::event::player::info(name).map_or(0, |p| p.selected_slot);
         let mut slots = Vec::new();
         match mode {
             // A circle casts with no hand: both hands, then the hotbar
@@ -762,7 +762,7 @@ impl<'a> CastEnv<'a> {
                 slot,
                 ..with.clone()
             };
-            s.save(self.srv, name);
+            s.save(name);
         };
         if let Some(h) = hand
             && let Some(s) = self.held(h)
@@ -771,7 +771,7 @@ impl<'a> CastEnv<'a> {
             put(s.slot);
             return true;
         }
-        let selected = self.srv.player_info(name).map_or(0, |p| p.selected_slot);
+        let selected = yog_api::event::player::info(name).map_or(0, |p| p.selected_slot);
         for i in (0..36).rev().filter(|&i| i != selected) {
             if ok(&self.stack_at(i)) {
                 put(i);
@@ -811,9 +811,7 @@ impl<'a> CastEnv<'a> {
     /// opened, and enlightenment for nearly all of it.
     fn overcast(&self, uuid: &str, used: f64, left: f64) {
         self.grant_advancement(Advancements::OPENED_EYES);
-        let max = self
-            .srv
-            .entity_attribute_value(uuid, MAX_HEALTH)
+        let max = yog_api::event::entity::attribute_value(uuid, MAX_HEALTH)
             .unwrap_or(20.0)
             .max(1.0);
         if used / max >= ENLIGHTENING_HEALTH_USED && left > 0.0 && left <= ENLIGHTENING_HEALTH_LEFT
@@ -871,10 +869,10 @@ impl<'a> CastEnv<'a> {
         let Some(name) = self.caster_name().map(str::to_owned) else {
             return left;
         };
-        for mut source in media::scan_player(self.srv, &name) {
+        for mut source in media::scan_player(&name) {
             let found = media::withdraw(&mut source, left, simulate);
             if !simulate {
-                source.save(self.srv, &name);
+                source.save(&name);
             }
             left -= found;
             if left <= 0 {
@@ -885,14 +883,18 @@ impl<'a> CastEnv<'a> {
             let Some(uuid) = self.caster_uuid() else {
                 return left;
             };
-            let health = self.srv.entity_health(&uuid).unwrap_or(0.0) as f64;
+            let health = yog_api::event::entity::health(&uuid)
+                .map(|h| h as f32)
+                .unwrap_or(0.0) as f64;
             let to_remove = (left as f64 / MEDIA_TO_HEALTH).max(0.5);
             if simulate {
                 left -= (health.min(to_remove) * MEDIA_TO_HEALTH).ceil() as i64;
             } else {
                 let able = health * MEDIA_TO_HEALTH;
                 self.truly_hurt(&uuid, to_remove as f32);
-                let after = self.srv.entity_health(&uuid).unwrap_or(0.0) as f64;
+                let after = yog_api::event::entity::health(&uuid)
+                    .map(|h| h as f32)
+                    .unwrap_or(0.0) as f64;
                 left -= (able - after * MEDIA_TO_HEALTH).ceil() as i64;
                 self.overcast(&uuid, health - after, after);
             }
@@ -904,17 +906,20 @@ impl<'a> CastEnv<'a> {
 
     /// `Mishap.trulyHurt`: damage that lands even through invulnerability.
     pub fn truly_hurt(&self, uuid: &str, amount: f32) {
-        let before = self.srv.entity_health(uuid).unwrap_or(0.0);
+        let before = yog_api::event::entity::health(uuid)
+            .map(|h| h as f32)
+            .unwrap_or(0.0);
         let attacker = self.caster_uuid().unwrap_or_default();
-        self.srv
-            .entity_damage(uuid, amount, crate::ids::damage::OVERCAST, &attacker);
-        let after = self.srv.entity_health(uuid).unwrap_or(0.0);
+        yog_api::event::entity::damage(uuid, amount, crate::ids::damage::OVERCAST, &attacker);
+        let after = yog_api::event::entity::health(uuid)
+            .map(|h| h as f32)
+            .unwrap_or(0.0);
         if before > 0.0 && after >= before {
             let target = before - amount;
             if target <= 0.0 {
-                self.srv.entity_kill(uuid);
+                yog_api::event::entity::kill(uuid);
             } else {
-                self.srv.entity_set_health(uuid, target);
+                yog_api::event::entity::set_health(uuid, f64::from(target));
             }
         }
     }
@@ -944,13 +949,13 @@ impl<'a> CastEnv<'a> {
             delta.y + (random() - 0.5) * 0.1,
             delta.z + (random() - 0.5) * 0.1,
         );
-        self.srv.spawn_item(
+        yog_api::event::item::spawn_item(
             &self.dim,
             (src.x, src.y + 1.0, src.z),
             vel.tuple(),
             &stack.id,
             stack.count,
-            &stack.nbt.to_snbt(),
+            stack.nbt.to_snbt(),
         );
     }
 
@@ -959,10 +964,7 @@ impl<'a> CastEnv<'a> {
             return; // `CircleMishapEnv`: the caster isn't touched
         }
         let Some(c) = self.caster_info() else { return };
-        let look = self
-            .caster_uuid()
-            .map(|u| look_vec(self.srv, &u))
-            .unwrap_or_default();
+        let look = self.caster_uuid().map(|u| look_vec(&u)).unwrap_or_default();
         self.yeet_held_items_towards(Vec3::from_tuple(c.pos) + look);
     }
 
@@ -983,17 +985,17 @@ impl<'a> CastEnv<'a> {
                 slot,
                 ..Stack::default()
             }
-            .save(self.srv, name);
+            .save(name);
             // `Player.drop(stack, dropAround = true)`.
             let (f, a) = (random() * 0.5, random() * std::f64::consts::TAU);
             let delta = Vec3::new(-a.sin() * f, 0.2, a.cos() * f);
-            self.srv.spawn_item(
+            yog_api::event::item::spawn_item(
                 &self.dim,
                 (pos.x, pos.y + 1.3, pos.z),
                 delta.tuple(),
                 &stack.id,
                 stack.count,
-                &stack.nbt.to_snbt(),
+                stack.nbt.to_snbt(),
             );
         }
     }
@@ -1004,7 +1006,9 @@ impl<'a> CastEnv<'a> {
             return; // `CircleMishapEnv`: the caster isn't touched
         }
         if let Some(uuid) = self.caster_uuid() {
-            let health = self.srv.entity_health(&uuid).unwrap_or(0.0);
+            let health = yog_api::event::entity::health(&uuid)
+                .map(|h| h as f32)
+                .unwrap_or(0.0);
             self.truly_hurt(&uuid, health * proportion);
         }
     }
@@ -1016,12 +1020,11 @@ impl<'a> CastEnv<'a> {
         let (Some(uuid), Some(name)) = (self.caster_uuid(), self.caster_name()) else {
             return;
         };
-        let air = self.srv.player_info(name).map_or(300, |p| p.air);
+        let air = yog_api::event::player::info(name).map_or(300, |p| p.air);
         if air < 200 {
-            self.srv
-                .entity_damage(&uuid, 2.0, vanilla::damage_types::DROWN, "");
+            yog_api::event::entity::damage(&uuid, 2.0, vanilla::damage_types::DROWN, "");
         }
-        self.srv.entity_set_nbt(&uuid, "{Air:0s}");
+        yog_api::event::entity::set_nbt(&uuid, "{Air:0s}");
     }
 
     pub fn remove_xp(&self, amount: i32) {
@@ -1029,7 +1032,7 @@ impl<'a> CastEnv<'a> {
             return; // `CircleMishapEnv`: the caster isn't touched
         }
         if let Some(name) = self.caster_name() {
-            self.srv.player_add_xp(name, -amount);
+            yog_api::event::player::add_xp(name, -amount);
         }
     }
 
@@ -1038,8 +1041,7 @@ impl<'a> CastEnv<'a> {
             return; // `CircleMishapEnv`: the caster isn't touched
         }
         if let Some(uuid) = self.caster_uuid() {
-            self.srv
-                .entity_add_effect(&uuid, vanilla::effects::BLINDNESS, ticks, 0, true);
+            yog_api::event::entity::add_effect(&uuid, vanilla::effects::BLINDNESS, ticks, 0, true);
         }
     }
 }
@@ -1064,8 +1066,9 @@ pub fn from_ypos(p: yog_api::BlockPos) -> BlockPos {
 }
 
 /// `Entity.getLookAngle`.
-pub fn look_vec(srv: &dyn Server, uuid: &str) -> Vec3 {
-    let Some((yaw, pitch)) = srv.entity_rotation(uuid) else {
+pub fn look_vec(uuid: &str) -> Vec3 {
+    let Some((yaw, pitch)) = yog_api::event::entity::rotation(uuid).map(|r| (r.yaw, r.pitch))
+    else {
         return Vec3::ZERO;
     };
     let (yaw, pitch) = ((yaw as f64).to_radians(), (pitch as f64).to_radians());
@@ -1078,8 +1081,8 @@ pub fn look_vec(srv: &dyn Server, uuid: &str) -> Vec3 {
 
 // ── per-player state ──────────────────────────────────────────────────────
 
-pub fn get_pigment(srv: &dyn Server, uuid: &str) -> Pigment {
-    let s = player_storage(srv, uuid);
+pub fn get_pigment(uuid: &str) -> Pigment {
+    let s = player_storage(uuid);
     match s.get_str("pigment.item") {
         Some(item) => Pigment {
             item: item.to_owned(),
@@ -1089,8 +1092,8 @@ pub fn get_pigment(srv: &dyn Server, uuid: &str) -> Pigment {
     }
 }
 
-pub fn set_pigment(srv: &dyn Server, uuid: &str, p: &Pigment) {
-    let mut s = player_storage(srv, uuid);
+pub fn set_pigment(uuid: &str, p: &Pigment) {
+    let mut s = player_storage(uuid);
     s.set("pigment.item", p.item.as_str());
     s.set("pigment.owner", p.owner.as_str());
 }
@@ -1104,8 +1107,8 @@ pub struct Sentinel {
     pub dim: String,
 }
 
-pub fn get_sentinel(srv: &dyn Server, uuid: &str) -> Option<Sentinel> {
-    let s = player_storage(srv, uuid);
+pub fn get_sentinel(uuid: &str) -> Option<Sentinel> {
+    let s = player_storage(uuid);
     Some(Sentinel {
         great: s.get_bool("sentinel.great").unwrap_or(false),
         pos: Vec3::new(
@@ -1117,8 +1120,8 @@ pub fn get_sentinel(srv: &dyn Server, uuid: &str) -> Option<Sentinel> {
     })
 }
 
-pub fn set_sentinel(srv: &dyn Server, uuid: &str, sentinel: Option<&Sentinel>) {
-    let mut s = player_storage(srv, uuid);
+pub fn set_sentinel(uuid: &str, sentinel: Option<&Sentinel>) {
+    let mut s = player_storage(uuid);
     match sentinel {
         Some(t) => {
             s.set("sentinel.great", t.great);

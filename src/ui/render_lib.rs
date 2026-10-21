@@ -11,7 +11,7 @@ use std::time::Instant;
 
 use yog_api::GfxContext;
 use yog_api::gfx_core::{DataType, DrawMode, blend};
-use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
+use yog_api::gfx_gl::{Attrib, Buffer, ShaderProgram, VertexArray};
 
 use super::noise::get_noise;
 use crate::math::{HexCoord, HexPattern};
@@ -269,7 +269,7 @@ impl Mesh {
         // SAFETY: `f32`s are plain data.
         unsafe { gl.vbo.upload(gfx, &self.verts, true) };
         let (sw, sh) = gfx.screen_size();
-        gl.prog.uniform_2f(gfx, "uScreen", sw as f32, sh as f32);
+        gl.prog.uniform_2f(gfx, "uScreen", [sw as f32, sh as f32]);
         gfx.draw_arrays(
             &gl.vao,
             &gl.prog,
@@ -305,13 +305,27 @@ struct Gl {
     vbo: Buffer,
 }
 
+/// Vertex attribute `index`: `components` floats, `at` floats into a
+/// vertex of `floats` floats.
+pub(crate) fn attrib(index: u32, components: u8, at: u32, floats: u32) -> Attrib {
+    let size = std::mem::size_of::<f32>() as u32;
+    Attrib {
+        index,
+        components,
+        dtype: DataType::F32,
+        normalized: false,
+        stride: floats * size,
+        offset: at * size,
+    }
+}
+
 impl Gl {
     fn new(gfx: &GfxContext) -> Option<Self> {
         let prog = gfx.create_shader(VERT, FRAG).ok()?;
         let vbo = gfx.create_buffer();
         let vao = gfx.create_vao();
-        vao.attrib(gfx, &vbo, 0, 2, DataType::F32, false, 24, 0);
-        vao.attrib(gfx, &vbo, 1, 4, DataType::F32, false, 24, 8);
+        vao.attrib(gfx, &vbo, attrib(0, 2, 0, 6));
+        vao.attrib(gfx, &vbo, attrib(1, 4, 2, 6));
         Some(Gl { prog, vao, vbo })
     }
 }

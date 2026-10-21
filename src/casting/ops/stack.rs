@@ -30,14 +30,14 @@ pub fn actions() -> Vec<Action> {
 }
 
 /// `OpStackSize`.
-fn stack_len(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn stack_len(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     image.stack.push(Iota::Double(image.stack.len() as f64));
     Ok(OpResult::new(image.with_used_op(), cont))
 }
 
 /// `OpFisherman`: moves the iota `n` down to the top (or, negative, the
 /// top down to `-n`).
-fn fisherman(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn fisherman(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     if stack.len() < 2 {
         return Err(Mishap::NotEnoughArgs {
@@ -60,7 +60,7 @@ fn fisherman(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpRe
 }
 
 /// `OpFishermanButItCopies`.
-fn fisherman_copy(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn fisherman_copy(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     if stack.len() < 2 {
         return Err(Mishap::NotEnoughArgs {
@@ -84,7 +84,7 @@ fn fisherman_copy(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult
 
 /// `OpAlwinfyHasAscendedToABeingOfPureMath`: permutes the top of the stack
 /// by the permutation numbered `code` (in the factorial number system).
-fn swizzle(env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn swizzle(env: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     let Some(top) = stack.last() else {
         return Err(Mishap::NotEnoughArgs {

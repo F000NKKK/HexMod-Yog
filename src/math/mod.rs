@@ -259,7 +259,9 @@ impl Vec3 {
         (self.x, self.y, self.z)
     }
 
-    pub fn from_tuple((x, y, z): (f64, f64, f64)) -> Self {
+    /// A point as a tuple, an array or the game's `Point`.
+    pub fn from_tuple(p: impl Into<[f64; 3]>) -> Self {
+        let [x, y, z] = p.into();
         Vec3::new(x, y, z)
     }
 

@@ -180,7 +180,9 @@ impl Mishap {
     /// `MishapBadEntity.of` (an item entity gets `MishapBadItem`).
     pub fn bad_entity(env: &CastEnv, entity: &EntityRef, stub: &str) -> Self {
         let wanted = Text::key(format!("hexcasting.mishap.bad_item.{stub}"));
-        if let Some((id, count, _)) = env.srv.item_entity_stack(&entity.uuid) {
+        if let Some((id, count, _)) = yog_api::event::item::entity_stack(&entity.uuid)
+            .map(|s| (s.item.to_string(), s.count, s.snbt))
+        {
             let item = (count > 0).then(|| ShownItem {
                 count,
                 name: item_name(&id),
@@ -279,14 +281,20 @@ impl Mishap {
     pub fn execute(&self, env: &mut CastEnv, ctx: &Context, stack: &mut Vec<Iota>) {
         match self {
             Mishap::AlreadyBrainswept { mob, .. } => {
-                let health = env.srv.entity_health(&mob.uuid).unwrap_or(0.0);
+                let health = yog_api::event::entity::health(&mob.uuid)
+                    .map(|h| h as f32)
+                    .unwrap_or(0.0);
                 let caster = env.caster_uuid().unwrap_or_default();
-                env.srv
-                    .entity_damage(&mob.uuid, health, crate::ids::damage::OVERCAST, &caster);
+                yog_api::event::entity::damage(
+                    &mob.uuid,
+                    health,
+                    crate::ids::damage::OVERCAST,
+                    &caster,
+                );
             }
             Mishap::BadBlock { pos, .. } => {
                 let p = Vec3::center_of(*pos);
-                env.srv.explode(&env.dim, p.x, p.y, p.z, 0.25, false, "");
+                yog_api::event::world::explode(&env.dim, (p.x, p.y, p.z), 0.25, false, "");
             }
             Mishap::BadBrainsweep { mob, .. } => env.truly_hurt(&mob.uuid, 1.0),
             Mishap::BadCaster | Mishap::Unescaped(_) => {}
@@ -296,11 +304,9 @@ impl Mishap {
             Mishap::BadLocation { pos, .. } => env.yeet_held_items_towards(*pos),
             Mishap::BadItem { entity, .. } => {
                 let r = crate::casting::env::random();
-                env.srv.entity_add_velocity(
+                yog_api::event::entity::add_velocity(
                     &entity.uuid,
-                    (r - 0.5) * 0.05,
-                    0.75,
-                    (r * 7.0 % 1.0 - 0.5) * 0.05,
+                    ((r - 0.5) * 0.05, 0.75, (r * 7.0 % 1.0 - 0.5) * 0.05),
                 );
             }
             Mishap::BadOffhandItem { .. } | Mishap::LackingHotbarItem(_) => env.drop_held_items(),
@@ -330,7 +336,7 @@ impl Mishap {
             Mishap::NoAkashicRecord(_) => env.remove_xp(100),
             // The directrix breaks.
             Mishap::BoolDirectrixEmptyStack(pos) | Mishap::BoolDirectrixNotBool(_, pos) => {
-                env.srv.break_block(&env.dim, to_ypos(*pos), true, "");
+                yog_api::event::block::destroy(&env.dim, to_ypos(*pos), true, "");
             }
             Mishap::NoSpellCircle => env.drop_everything(),
             Mishap::NotEnoughArgs { expected, got } => {
@@ -353,11 +359,9 @@ impl Mishap {
                 env.drop_held_items();
                 env.print_message(&Text::key(Lang::MESSAGE_CANT_GREAT_SPELL_KEY));
                 let p = env.mishap_spray_pos();
-                env.srv.play_sound(
+                yog_api::event::sound::play(
                     &env.dim,
-                    p.x,
-                    p.y,
-                    p.z,
+                    (p.x, p.y, p.z),
                     yog_api::vanilla::sounds::BLOCK_GLASS_BREAK,
                     0.5,
                     0.7,

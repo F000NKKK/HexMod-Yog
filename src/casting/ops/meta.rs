@@ -35,28 +35,28 @@ pub fn actions() -> Vec<Action> {
     }
 }
 
-fn needs_parens(_: &mut CastEnv<'_>, _: Image, _: &Cont) -> MResult<OpResult> {
+fn needs_parens(_: &mut CastEnv, _: Image, _: &Cont) -> MResult<OpResult> {
     Err(Mishap::NeedsParens)
 }
 
 /// `OpEscape` / `OpRuntimeEscape`.
-fn escape(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn escape(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     image.escape_next = true;
     Ok(OpResult::new(image.with_used_op(), cont))
 }
 
-fn escape_in_parens(env: &mut CastEnv<'_>, image: Image, cont: &Cont, _: &Iota) -> ParenResult {
+fn escape_in_parens(env: &mut CastEnv, image: Image, cont: &Cont, _: &Iota) -> ParenResult {
     Ok((escape(env, image, cont)?, ResolvedType::Evaluated))
 }
 
 /// `OpOpenParen`.
-fn open_paren(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn open_paren(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     image.paren_count += 1;
     Ok(OpResult::new(image.with_used_op(), cont))
 }
 
 fn open_paren_in_parens(
-    _: &mut CastEnv<'_>,
+    _: &mut CastEnv,
     mut image: Image,
     cont: &Cont,
     this: &Iota,
@@ -70,7 +70,7 @@ fn open_paren_in_parens(
 }
 
 /// `OpCloseParen`.
-fn close_paren(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont, this: &Iota) -> ParenResult {
+fn close_paren(_: &mut CastEnv, mut image: Image, cont: &Cont, this: &Iota) -> ParenResult {
     image.paren_count -= 1;
     if image.paren_count == 0 {
         let list = std::mem::take(&mut image.parenthesized)
@@ -92,7 +92,7 @@ fn close_paren(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont, this: &Iota) 
 }
 
 /// `OpOpenNParens`.
-fn open_n_parens(env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn open_n_parens(env: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let Some(top) = image.stack.last() else {
         return Err(Mishap::NotEnoughArgs {
             expected: 1,
@@ -106,7 +106,7 @@ fn open_n_parens(env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResul
 }
 
 /// `OpCloseAllParens`.
-fn close_all_parens(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont, _: &Iota) -> ParenResult {
+fn close_all_parens(_: &mut CastEnv, mut image: Image, cont: &Cont, _: &Iota) -> ParenResult {
     image.stack.push(Iota::Double(image.paren_count as f64));
     let list = std::mem::take(&mut image.parenthesized)
         .into_iter()
@@ -121,7 +121,7 @@ fn close_all_parens(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont, _: &Iota
 }
 
 /// `OpReadIntoParens`: what the held item holds, escaped into the parens.
-fn read_into_parens(env: &mut CastEnv<'_>, image: Image, cont: &Cont, _: &Iota) -> ParenResult {
+fn read_into_parens(env: &mut CastEnv, image: Image, cont: &Cont, _: &Iota) -> ParenResult {
     let datum = super::rw::read_held(env)?;
     Ok((
         OpResult::new(
@@ -133,7 +133,7 @@ fn read_into_parens(env: &mut CastEnv<'_>, image: Image, cont: &Cont, _: &Iota) 
 }
 
 /// `OpUndo`: takes back the last pattern drawn inside the parens.
-fn undo(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont, _: &Iota) -> ParenResult {
+fn undo(_: &mut CastEnv, mut image: Image, cont: &Cont, _: &Iota) -> ParenResult {
     match image.parenthesized.pop() {
         None => image.paren_count = 0,
         Some(ParenIota {
@@ -171,7 +171,7 @@ fn exec(image: Image, cont: &Cont, iota: &Iota) -> MResult<OpResult> {
 }
 
 /// `OpEval` (Hermes' Gambit).
-fn eval(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn eval(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let iota = image.stack.pop().ok_or(Mishap::NotEnoughArgs {
         expected: 1,
         got: 0,
@@ -180,7 +180,7 @@ fn eval(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult>
 }
 
 /// `OpEvalBreakable` (Iris' Gambit): the rest of the hex goes on the stack.
-fn eval_cc(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn eval_cc(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let iota = image.stack.pop().ok_or(Mishap::NotEnoughArgs {
         expected: 1,
         got: 0,
@@ -190,7 +190,7 @@ fn eval_cc(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResu
 }
 
 /// `OpHalt` (Charon's Gambit).
-fn halt(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn halt(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let mut stack = std::mem::take(&mut image.stack);
     let mut done = false;
     let mut cont = cont.clone();
@@ -209,7 +209,7 @@ fn halt(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult>
 }
 
 /// `OpForEach` (Thoth's Gambit).
-fn for_each(env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn for_each(env: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let n = image.stack.len();
     if n < 2 {
         return Err(Mishap::NotEnoughArgs {
@@ -231,7 +231,7 @@ fn for_each(env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpR
 }
 
 /// `OpThanos`: how many more operations the hex may take.
-fn thanatos(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn thanatos(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     image
         .stack
         .push(Iota::Double((MAX_OP_COUNT - image.ops_consumed) as f64));
@@ -239,7 +239,7 @@ fn thanatos(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpRes
 }
 
 /// `OpPeekLocal`.
-fn read_local(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn read_local(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     image
         .stack
         .push(image.ravenmind.clone().unwrap_or(Iota::Null));
@@ -247,7 +247,7 @@ fn read_local(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpR
 }
 
 /// `OpPushLocal`.
-fn write_local(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn write_local(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let iota = image.stack.pop().ok_or(Mishap::NotEnoughArgs {
         expected: 1,
         got: 0,

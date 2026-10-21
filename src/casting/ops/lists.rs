@@ -29,7 +29,7 @@ pub fn actions() -> Vec<Action> {
 }
 
 /// `OpLastNToList` (Flock's Gambit).
-fn last_n_list(_: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+fn last_n_list(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
     let Some(top) = stack.last() else {
         return Err(Mishap::NotEnoughArgs {

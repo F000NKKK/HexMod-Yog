@@ -27,7 +27,7 @@ pub fn arity(op: &str) -> usize {
 }
 
 /// `ArithmeticEngine.run`.
-pub fn run(op: &str, _env: &mut CastEnv<'_>, mut image: Image, cont: &Cont) -> MResult<OpResult> {
+pub fn run(op: &str, _env: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let n = arity(op);
     let len = image.stack.len();
     if len < n {

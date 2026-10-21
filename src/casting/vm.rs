@@ -41,7 +41,7 @@ impl Sound {
 }
 
 /// What a spell does when it goes off (`RenderedSpell.cast`).
-pub type SpellFn = Box<dyn FnOnce(&mut CastEnv<'_>, &mut Image)>;
+pub type SpellFn = Box<dyn FnOnce(&mut CastEnv, &mut Image)>;
 
 /// `OperatorSideEffect`: what happens after an action, in order.
 pub enum SideEffect {
@@ -65,7 +65,7 @@ impl Spell {
     pub fn new(
         cost: i64,
         particles: Vec<Spray>,
-        effect: impl FnOnce(&mut CastEnv<'_>, &mut Image) + 'static,
+        effect: impl FnOnce(&mut CastEnv, &mut Image) + 'static,
     ) -> Self {
         Spell {
             cost,
@@ -138,13 +138,13 @@ pub struct ClientView {
     pub ravenmind: Option<Iota>,
 }
 
-pub struct Vm<'a> {
+pub struct Vm {
     pub image: Image,
-    pub env: CastEnv<'a>,
+    pub env: CastEnv,
 }
 
-impl<'a> Vm<'a> {
-    pub fn new(image: Image, env: CastEnv<'a>) -> Self {
+impl Vm {
+    pub fn new(image: Image, env: CastEnv) -> Self {
         Vm { image, env }
     }
 
@@ -411,7 +411,7 @@ impl<'a> Vm<'a> {
         in_parens: bool,
     ) -> Result<CastResult, (Mishap, Option<Text>)> {
         let image = self.image.clone();
-        let (result, kind) = match actions::lookup(pattern, &self.env) {
+        let (result, kind) = match actions::lookup(pattern) {
             Lookup::Action(action) => {
                 let named = |m| (m, Some(action.name()));
                 // REQUIRES_ENLIGHTENMENT_IN_PARENS is empty.

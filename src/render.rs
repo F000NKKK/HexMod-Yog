@@ -8,9 +8,9 @@
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 
-use yog_api::gfx_core::{DataType, DrawMode, blend};
+use yog_api::gfx_core::{DrawMode, blend};
 use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
-use yog_api::{GfxContext, Registry, Server, Storage, split_state};
+use yog_api::{GfxContext, Registry, Storage, split_state};
 
 use crate::casting::env::{MOD_ID, get_pigment, get_sentinel, to_ypos};
 use crate::item::pigment::Pigment;
@@ -52,21 +52,24 @@ static SLATES: LazyLock<Mutex<HashMap<(String, (i32, i32, i32)), HexPattern>>> =
     LazyLock::new(Default::default);
 const SLATES_KEY: &str = "render.slates";
 
-fn global(srv: &dyn Server) -> Storage {
-    Storage::open(&srv.world_dir(), MOD_ID)
+fn global() -> Storage {
+    Storage::open(
+        &yog_api::event::game::world_dir().unwrap_or_default(),
+        MOD_ID,
+    )
 }
 
-fn save_slates(srv: &dyn Server) {
+fn save_slates() {
     let slates = SLATES.lock().unwrap();
     let lines: Vec<String> = slates
         .iter()
         .map(|((dim, p), pat)| format!("{dim}|{},{},{}|{}", p.0, p.1, p.2, pat.serialized_form()))
         .collect();
-    global(srv).set(SLATES_KEY, lines.join("\n"));
+    global().set(SLATES_KEY, lines.join("\n"));
 }
 
-fn load_slates(srv: &dyn Server) {
-    let text = global(srv).get_str(SLATES_KEY).unwrap_or("").to_owned();
+fn load_slates() {
+    let text = global().get_str(SLATES_KEY).unwrap_or("").to_owned();
     let mut slates = SLATES.lock().unwrap();
     slates.clear();
     for line in text.lines() {
@@ -85,22 +88,12 @@ fn load_slates(srv: &dyn Server) {
 }
 
 /// A bookshelf got a pattern, or lost it (`None`): drawn on its front.
-pub fn shelf_changed(
-    srv: &dyn Server,
-    dim: &str,
-    pos: (i32, i32, i32),
-    pattern: Option<&HexPattern>,
-) {
-    slate_changed(srv, dim, pos, pattern);
+pub fn shelf_changed(dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPattern>) {
+    slate_changed(dim, pos, pattern);
 }
 
 /// A slate was placed with `pattern`, or broken (`None`).
-pub fn slate_changed(
-    srv: &dyn Server,
-    dim: &str,
-    pos: (i32, i32, i32),
-    pattern: Option<&HexPattern>,
-) {
+pub fn slate_changed(dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPattern>) {
     {
         let mut slates = SLATES.lock().unwrap();
         match pattern {
@@ -108,7 +101,7 @@ pub fn slate_changed(
             None => slates.remove(&(dim.to_owned(), pos)),
         };
     }
-    save_slates(srv);
+    save_slates();
 }
 
 fn encode_slates(dim: &str, slates: &[Slate]) -> Vec<u8> {
@@ -203,7 +196,7 @@ fn decode_sentinel(b: &[u8]) -> Option<Option<Shown>> {
 static SENT: LazyLock<Mutex<HashMap<String, (Vec<u8>, Vec<u8>)>>> = LazyLock::new(Default::default);
 static TICKS: Mutex<u64> = Mutex::new(0);
 
-fn tick(srv: &dyn Server) {
+fn tick() {
     let now = {
         let mut t = TICKS.lock().unwrap();
         *t += 1;
@@ -214,11 +207,11 @@ fn tick(srv: &dyn Server) {
     }
     let slates = SLATES.lock().unwrap().clone();
     let mut sent = SENT.lock().unwrap();
-    for name in srv.online_players() {
-        let Some(p) = srv.player_info(&name) else {
+    for name in yog_api::event::player::online() {
+        let Some(p) = yog_api::event::player::info(&name) else {
             continue;
         };
-        let Some(e) = srv.entity_info(&p.uuid) else {
+        let Some(e) = yog_api::event::entity::info(&p.uuid) else {
             continue;
         };
         let here = Vec3::from_tuple(e.pos);
@@ -229,7 +222,7 @@ fn tick(srv: &dyn Server) {
                     && Vec3::center_of(*pos).distance_sqr(here) <= SLATE_RANGE * SLATE_RANGE
             })
             .filter_map(|((dim, pos), pattern)| {
-                let state = srv.get_block_state(dim, to_ypos(*pos))?;
+                let state = yog_api::event::block::state(dim, to_ypos(*pos))?;
                 let (_, props) = split_state(&state);
                 let get = |k: &str| {
                     props
@@ -241,7 +234,7 @@ fn tick(srv: &dyn Server) {
                 let face = get("face");
                 // `IotaType.getColor`: what a bookshelf holds tints its books.
                 let tint = if face.is_empty() {
-                    crate::akashic::shelf(srv, dim, *pos)
+                    crate::akashic::shelf(dim, *pos)
                         .map(|(_, iota)| iota.kind().color() & 0xFF_FFFF)
                 } else {
                     None
@@ -256,12 +249,12 @@ fn tick(srv: &dyn Server) {
                 })
             })
             .collect();
-        let sentinel = get_sentinel(srv, &p.uuid)
+        let sentinel = get_sentinel(&p.uuid)
             .filter(|s| s.dim == e.dimension)
             .map(|s| Shown {
                 pos: s.pos,
                 great: s.great,
-                pigment: get_pigment(srv, &p.uuid),
+                pigment: get_pigment(&p.uuid),
             });
         let (a, b) = (
             encode_slates(&e.dimension, &near),
@@ -269,11 +262,11 @@ fn tick(srv: &dyn Server) {
         );
         let last = sent.entry(name.clone()).or_default();
         if last.0 != a {
-            srv.send_to_player(&name, CH_SLATES, &a);
+            yog_api::event::net::send_to_player(&name, CH_SLATES, &a);
             last.0 = a;
         }
         if last.1 != b {
-            srv.send_to_player(&name, CH_SENTINEL, &b);
+            yog_api::event::net::send_to_player(&name, CH_SENTINEL, &b);
             last.1 = b;
         }
     }
@@ -477,8 +470,8 @@ fn draw(gfx: &GfxContext) {
         };
         let vbo = gfx.create_buffer();
         let vao = gfx.create_vao();
-        vao.attrib(gfx, &vbo, 0, 3, DataType::F32, false, 28, 0);
-        vao.attrib(gfx, &vbo, 1, 4, DataType::F32, false, 28, 12);
+        vao.attrib(gfx, &vbo, crate::ui::render_lib::attrib(0, 3, 0, 7));
+        vao.attrib(gfx, &vbo, crate::ui::render_lib::attrib(1, 4, 3, 7));
         *gl = Some(Gl { prog, vao, vbo });
     }
     let Some(gl) = gl.as_ref() else { return };
@@ -489,9 +482,7 @@ fn draw(gfx: &GfxContext) {
     gl.prog.uniform_3f(
         gfx,
         "uCamera",
-        cam[0] - base[0],
-        cam[1] - base[1],
-        cam[2] - base[2],
+        [cam[0] - base[0], cam[1] - base[1], cam[2] - base[2]],
     );
     let local = |v: &[f32]| -> Vec<f32> {
         v.chunks_exact(7)
@@ -541,13 +532,13 @@ fn draw(gfx: &GfxContext) {
 }
 
 pub fn register(registry: &mut Registry) {
-    registry.on_server_started(load_slates);
-    registry.on_tick(tick);
-    registry.on_player_leave(|e, _, _| {
+    registry.on::<yog_api::event::server::life::Started, _>(|_, _| load_slates());
+    registry.on::<yog_api::event::server::game::Tick, _>(|_, _| tick());
+    registry.on::<yog_api::event::player::session::Leave, _>(|e, _| {
         SENT.lock().unwrap().remove(&e.player_name);
         true
     });
-    registry.on_client_packet(CH_SLATES, |ev, _| {
+    registry.on_client_packet(CH_SLATES, |ev| {
         if let Some((dim, slates)) = decode_slates(&ev.payload) {
             let mut seen = SEEN.lock().unwrap();
             let mut mesh = Vec::new();
@@ -571,7 +562,7 @@ pub fn register(registry: &mut Registry) {
             seen.slate_mesh = mesh;
         }
     });
-    registry.on_client_packet(CH_SENTINEL, |ev, _| {
+    registry.on_client_packet(CH_SENTINEL, |ev| {
         if let Some(s) = decode_sentinel(&ev.payload) {
             SEEN.lock().unwrap().sentinel = s;
         }

@@ -8,9 +8,10 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::{LazyLock, Mutex};
 
-use yog_api::body::{self, Anchor, Frame, Mode, Ops, Quad};
+use yog_api::Registry;
+use yog_api::body::{self, Anchor, Color, Frame, Look, Mode, Ops, Quad};
 use yog_api::entities::Hanging;
-use yog_api::{EntityInteractEvent, EventPhase, Registry, Server};
+use yog_api::event::player::action::Interact;
 
 use crate::casting::env::{SLOT_OFFHAND, Stack};
 use crate::content::{Entities, Items};
@@ -44,9 +45,7 @@ const WHITE: &str = "hexcasting:textures/entity/white.png";
 const PLAIN: u32 = 0xFF_FFFFFF;
 
 pub fn register(registry: &mut Registry) {
-    registry.on_entity_interact(|ev, phase, srv| {
-        phase != EventPhase::Pre || ev.entity_type != Entities::WALL_SCROLL || !dust(srv, ev)
-    });
+    registry.before::<Interact, _>(|ev, _| ev.entity_type != Entities::WALL_SCROLL || !dust(ev));
     body::track_type(Entities::WALL_SCROLL, true);
     registry.on_body(draw);
 }
@@ -58,11 +57,11 @@ fn shows_stroke_order(data: Option<&[u8]>) -> bool {
 /// `EntityWallScroll.interactAt`: amethyst dust on a scroll that doesn't show
 /// its stroke order yet makes it show it, using up the dust (not in
 /// creative). `true` if it did.
-fn dust(srv: &dyn Server, ev: &EntityInteractEvent) -> bool {
-    if shows_stroke_order(srv.entity_data(&ev.entity_uuid, STROKE_ORDER).as_deref()) {
+fn dust(ev: &Interact) -> bool {
+    if shows_stroke_order(yog_api::event::entity::data(&ev.entity_uuid, STROKE_ORDER).as_deref()) {
         return false;
     }
-    let Some(player) = srv.player_info(&ev.player_name) else {
+    let Some(player) = yog_api::event::player::info(&ev.player_name) else {
         return false;
     };
     let slot = if ev.hand == OFF_HAND {
@@ -70,21 +69,19 @@ fn dust(srv: &dyn Server, ev: &EntityInteractEvent) -> bool {
     } else {
         player.selected_slot
     };
-    let mut stack = Stack::read(srv, &ev.player_name, slot);
+    let mut stack = Stack::read(&ev.player_name, slot);
     if !stack.is(Items::AMETHYST_DUST) {
         return false;
     }
     if player.gamemode != "creative" {
         stack.count -= 1;
-        stack.save(srv, &ev.player_name);
+        stack.save(&ev.player_name);
     }
-    srv.set_entity_data(&ev.entity_uuid, STROKE_ORDER, Some(&[1]), true);
-    if let Some(e) = srv.entity_info(&ev.entity_uuid) {
-        srv.play_sound(
-            &e.dimension,
-            e.pos.0,
-            e.pos.1,
-            e.pos.2,
+    yog_api::event::entity::set_data(&ev.entity_uuid, STROKE_ORDER, Some(&[1]), true);
+    if let Some(e) = yog_api::event::entity::info(&ev.entity_uuid) {
+        yog_api::event::sound::play(
+            e.dimension,
+            (e.pos.x, e.pos.y, e.pos.z),
             crate::sounds::SCROLL_DUST,
             1.0,
             1.0,
@@ -112,7 +109,9 @@ fn draw(f: &Frame, ops: &mut Ops) {
     if f.entity_type != Entities::WALL_SCROLL {
         return;
     }
-    let Some(h) = Hanging::of(f) else { return };
+    let Some(h) = yog_api::entities::hanging_of(f) else {
+        return;
+    };
     let size = h.width.max(1);
     let readable = shows_stroke_order(f.data(STROKE_ORDER));
     let seed = seed(f.pos, &h);
@@ -125,16 +124,14 @@ fn draw(f: &Frame, ops: &mut Ops) {
         drawn.insert(f.uuid.clone(), build(&h, readable, seed, key));
     }
     let d = &drawn[&f.uuid];
-    ops.mesh(
-        &Anchor::Entity,
-        d.paper,
-        Mode::Cutout,
-        false,
-        PLAIN,
-        &d.paper_quads,
-    );
+    let look = |tint: u32| Look {
+        mode: Mode::Cutout,
+        glint: false,
+        tint: Color(tint),
+    };
+    ops.mesh(&Anchor::Entity, d.paper, look(PLAIN), &d.paper_quads);
     for (color, quads) in &d.pattern {
-        ops.mesh(&Anchor::Entity, WHITE, Mode::Cutout, false, *color, quads);
+        ops.mesh(&Anchor::Entity, WHITE, look(*color), quads);
     }
 }
 

@@ -17,7 +17,7 @@ pub fn actions() -> Vec<Action> {
         "read" E "aqqqqq" => konst [env] { read_held(env)? };
         "read/entity" E "wawqwqwqwqwqw" => konst [env, e: Ent] {
             e.in_range(env)?;
-            entity_holder(env, &e)
+            entity_holder(&e)
                 .and_then(|(s, _)| holder::read(&s))
                 .ok_or_else(|| Mishap::bad_entity(env, &e.r, "iota.read"))?
         };
@@ -28,20 +28,20 @@ pub fn actions() -> Vec<Action> {
         };
         "readable/entity" E "wawqwqwqwqwqwew" => konst [env, e: Ent] {
             e.in_range(env)?;
-            entity_holder(env, &e).is_some_and(|(s, _)| holder::read(&s).is_some())
+            entity_holder(&e).is_some_and(|(s, _)| holder::read(&s).is_some())
         };
         "writable" E "deeeeeq" => konst [env] {
             env.held_item_to_operate_on(holder::is_holder).is_some_and(|(s, _)| holder::writeable(&s))
         };
         "writable/entity" E "wdwewewewewewqw" => konst [env, e: Ent] {
             e.in_range(env)?;
-            entity_holder(env, &e).is_some_and(|(s, how)| how.writeable() && holder::writeable(&s))
+            entity_holder(&e).is_some_and(|(s, how)| how.writeable() && holder::writeable(&s))
         };
         "akashic/read" W "qqqwqqqqqaq" => konst(DUST) [env, pos: Block, key: HexPattern] {
             if env.block_id(pos.0) != akashic::RECORD {
                 return Err(Mishap::NoAkashicRecord(pos.0));
             }
-            akashic::lookup(env.srv, &env.dim, pos.0, &key)
+            akashic::lookup(&env.dim, pos.0, &key)
         };
         "akashic/write" E "eeeweeeeede" => spell [env, img; pos: Block, key: HexPattern, datum: Iota] {
             let pos = pos.0;
@@ -51,9 +51,9 @@ pub fn actions() -> Vec<Action> {
             }
             others_name(env, &datum, env.caster_uuid().as_deref())?;
             Ok(Spell::new(DUST, vec![], move |env, _| {
-                akashic::add_new_datum(env.srv, &env.dim, pos, &key, &datum);
+                akashic::add_new_datum(&env.dim, pos, &key, &datum);
                 let c = Vec3::center_of(pos);
-                env.srv.play_sound(&env.dim, c.x, c.y, c.z, crate::sounds::SCROLL_SCRIBBLE, 1.0, 0.8);
+                yog_api::event::sound::play(&env.dim, (c.x, c.y, c.z), crate::sounds::SCROLL_SCRIBBLE, 1.0, 0.8);
             }))
         };
     }
@@ -110,15 +110,15 @@ fn write_held(env: &mut CastEnv, datum: Iota) -> MResult<Spell> {
     }))
 }
 
-fn entity_holder(env: &CastEnv, e: &Ent) -> Option<(Stack, EntityHolder)> {
-    holder::entity_stack(env.srv, e.uuid(), &e.info.type_id).filter(|(s, _)| holder::is_holder(s))
+fn entity_holder(e: &Ent) -> Option<(Stack, EntityHolder)> {
+    holder::entity_stack(e.uuid(), &e.info.type_id).filter(|(s, _)| holder::is_holder(s))
 }
 
 /// `OpTheCoolerWrite`.
 fn write_entity(env: &mut CastEnv, e: Ent, datum: Iota) -> MResult<Spell> {
     e.in_range(env)?;
     let bad = || Mishap::bad_entity(env, &e.r, "iota.write");
-    let (stack, how) = entity_holder(env, &e).ok_or_else(bad)?;
+    let (stack, how) = entity_holder(&e).ok_or_else(bad)?;
     if !how.writeable() || !can_write(&stack, &datum) {
         return Err(bad());
     }
@@ -137,12 +137,12 @@ fn write_entity(env: &mut CastEnv, e: Ent, datum: Iota) -> MResult<Spell> {
         count: 40,
     };
     let uuid = e.uuid().to_owned();
-    let type_id = e.info.type_id.clone();
-    Ok(Spell::new(0, vec![spray], move |env, _| {
-        if let Some((mut s, how)) = holder::entity_stack(env.srv, &uuid, &type_id)
+    let type_id = e.info.type_id;
+    Ok(Spell::new(0, vec![spray], move |_env, _| {
+        if let Some((mut s, how)) = holder::entity_stack(&uuid, &type_id)
             && holder::write(&mut s, Some(&datum), false)
         {
-            holder::save_entity_stack(env.srv, &uuid, &s, how);
+            holder::save_entity_stack(&uuid, &s, how);
         }
     }))
 }

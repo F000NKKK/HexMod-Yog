@@ -229,16 +229,9 @@ impl Ent {
     }
 }
 
-fn entity(
-    iota: &Iota,
-    rev: usize,
-    env: &CastEnv,
-    flags: u32,
-    deny: u32,
-    name: &str,
-) -> MResult<Ent> {
+fn entity(iota: &Iota, rev: usize, flags: u32, deny: u32, name: &str) -> MResult<Ent> {
     if let Iota::Entity(r) = iota
-        && let Some(info) = env.srv.entity_info(&r.uuid)
+        && let Some(info) = yog_api::event::entity::info(&r.uuid)
         && info.flags & flags == flags
         && info.flags & deny == 0
     {
@@ -253,8 +246,8 @@ fn entity(
 }
 
 impl Arg for Ent {
-    fn get(iota: &Iota, rev: usize, env: &CastEnv) -> MResult<Self> {
-        entity(iota, rev, env, 0, 0, "entity")
+    fn get(iota: &Iota, rev: usize, _env: &CastEnv) -> MResult<Self> {
+        entity(iota, rev, 0, 0, "entity")
     }
 }
 
@@ -264,8 +257,8 @@ macro_rules! entity_kind {
         pub struct $name(pub Ent);
 
         impl Arg for $name {
-            fn get(iota: &Iota, rev: usize, env: &CastEnv) -> MResult<Self> {
-                entity(iota, rev, env, $flags, $deny, $class).map($name)
+            fn get(iota: &Iota, rev: usize, _env: &CastEnv) -> MResult<Self> {
+                entity(iota, rev, $flags, $deny, $class).map($name)
             }
         }
 

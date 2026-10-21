@@ -5,7 +5,6 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use yog_api::Server;
 use yog_api::core::{EntityInfo, entity_flags as ef};
 use yog_api::vanilla;
 
@@ -34,9 +33,9 @@ pub fn actions() -> Vec<Action> {
         };
         "entity_pos/eye" E "aa" => konst [env, e: Ent] { e.in_range(env)?; e.eye() };
         "entity_pos/foot" NE "dd" => konst [env, e: Ent] { e.in_range(env)?; e.pos() };
-        "get_entity_look" E "wa" => konst [env, e: Ent] { e.in_range(env)?; look_vec(env.srv, e.uuid()) };
+        "get_entity_look" E "wa" => konst [env, e: Ent] { e.in_range(env)?; look_vec(e.uuid()) };
         "get_entity_height" NE "awq" => konst [env, e: Ent] { e.in_range(env)?; e.info.height };
-        "get_entity_velocity" E "wq" => konst [env, e: Ent] { e.in_range(env)?; velocity(env.srv, &e.info, e.uuid()) };
+        "get_entity_velocity" E "wq" => konst [env, e: Ent] { e.in_range(env)?; velocity(&e.info, e.uuid()) };
         "raycast" E "wqaawdd" => konst(DUST / 100) [env, origin: Vec3, look: Vec3] {
             env.assert_vec_in_range(origin)?;
             block_hit(env, origin, look).map(|(pos, _)| block_center(pos))
@@ -49,9 +48,8 @@ pub fn actions() -> Vec<Action> {
             env.assert_vec_in_range(origin)?;
             let end = raycast_end(origin, look);
             let exclude = env.caster_uuid().unwrap_or_default();
-            env.srv
-                .raycast_entity(&env.dim, origin.tuple(), end.tuple(), &exclude)
-                .and_then(|u| Some((env.srv.entity_info(&u)?, u)))
+            yog_api::event::world::raycast_entity(&env.dim, origin.tuple(), end.tuple(), &exclude)
+                .and_then(|u| Some((yog_api::event::entity::info(&u)?, u)))
                 .filter(|(info, _)| env.is_entity_in_range(info))
                 .map(|(info, uuid)| Iota::Entity(EntityRef { uuid, name: info.name }))
         };
@@ -100,7 +98,7 @@ pub fn actions() -> Vec<Action> {
         "compare_block/strict" NW "qwawqwadadwewdwe" => konst [env, a: Block, b: Block] {
             env.assert_pos_in_range(a.0)?;
             env.assert_pos_in_range(b.0)?;
-            let state = |p| env.srv.block_info(&env.dim, to_ypos(p)).map(|b| b.state);
+            let state = |p| yog_api::event::block::info(&env.dim, to_ypos(p)).map(|b| b.state);
             state(a.0) == state(b.0)
         };
         "compare_entity" NW "aqaeqded" => konst [env, a: Ent, b: Ent] {
@@ -125,7 +123,7 @@ pub fn actions() -> Vec<Action> {
         };
         "flight/can_fly" NE "dwdwdeweaqa" => konst [env, p: Player] {
             p.in_range(env)?;
-            super::spells::flight_of(env.srv, p.uuid()).is_some()
+            super::spells::flight_of(p.uuid()).is_some()
         };
     }
 }
@@ -138,9 +136,11 @@ type BlockPos = (i32, i32, i32);
 
 /// The block hit (and its face's normal), if it's in range.
 fn block_hit(env: &CastEnv, origin: Vec3, look: Vec3) -> Option<(BlockPos, BlockPos)> {
-    let hit = env
-        .srv
-        .raycast_block(&env.dim, origin.tuple(), raycast_end(origin, look).tuple())?;
+    let hit = yog_api::event::world::raycast_block(
+        &env.dim,
+        origin.tuple(),
+        raycast_end(origin, look).tuple(),
+    )?;
     let pos = (hit.pos.x, hit.pos.y, hit.pos.z);
     env.is_vec_in_range(Vec3::center_of(pos))
         .then(|| (pos, hit.face.normal()))
@@ -156,7 +156,7 @@ fn circle(env: &CastEnv) -> MResult<crate::casting::env::CircleRun> {
 /// `OpGetSentinelPos`: `None` without a sentinel.
 fn sentinel(env: &CastEnv) -> MResult<Option<Vec3>> {
     let uuid = env.caster_uuid().ok_or(Mishap::BadCaster)?;
-    match get_sentinel(env.srv, &uuid) {
+    match get_sentinel(&uuid) {
         None => Ok(None),
         Some(s) if s.dim != env.dim => Err(Mishap::WrongDimension(s.dim)),
         Some(s) => Ok(Some(s.pos)),
@@ -196,24 +196,23 @@ fn selectable(env: &CastEnv, i: &EntityInfo) -> bool {
 /// The selectable entities touching the box around `pos`, nearest first.
 fn around(env: &CastEnv, pos: Vec3, r: f64, ok: impl Fn(&EntityInfo) -> bool) -> Vec<(f64, Iota)> {
     let d = Vec3::splat(r);
-    let mut got: Vec<(f64, Iota)> = env
-        .srv
-        .entities_in_box(&env.dim, (pos - d).tuple(), (pos + d).tuple())
-        .into_iter()
-        .filter_map(|uuid| {
-            let info = env.srv.entity_info(&uuid)?;
-            (selectable(env, &info) && ok(&info)).then(|| {
-                let dist = Vec3::from_tuple(info.pos).distance_sqr(pos);
-                (
-                    dist,
-                    Iota::Entity(EntityRef {
-                        uuid,
-                        name: info.name,
-                    }),
-                )
+    let mut got: Vec<(f64, Iota)> =
+        yog_api::event::world::entities_in_box(&env.dim, (pos - d).tuple(), (pos + d).tuple())
+            .into_iter()
+            .filter_map(|uuid| {
+                let info = yog_api::event::entity::info(&uuid)?;
+                (selectable(env, &info) && ok(&info)).then(|| {
+                    let dist = Vec3::from_tuple(info.pos).distance_sqr(pos);
+                    (
+                        dist,
+                        Iota::Entity(EntityRef {
+                            uuid,
+                            name: info.name,
+                        }),
+                    )
+                })
             })
-        })
-        .collect();
+            .collect();
     got.sort_by(|a, b| a.0.total_cmp(&b.0));
     got
 }
@@ -246,17 +245,17 @@ fn zone(
 fn held_item(env: &CastEnv, e: &Ent, rev: usize) -> MResult<Stack> {
     e.in_range(env)?;
     let stack = if e.is(ef::PLAYER) {
-        let p = env.srv.player_info(&e.info.name);
+        let p = yog_api::event::player::info(&e.info.name);
         p.map(|p| {
-            let main = Stack::read(env.srv, &e.info.name, p.selected_slot);
+            let main = Stack::read(&e.info.name, p.selected_slot);
             if main.is_empty() {
-                Stack::read(env.srv, &e.info.name, crate::casting::env::SLOT_OFFHAND)
+                Stack::read(&e.info.name, crate::casting::env::SLOT_OFFHAND)
             } else {
                 main
             }
         })
     } else {
-        crate::item::holder::entity_stack(env.srv, e.uuid(), &e.info.type_id).map(|(s, _)| s)
+        crate::item::holder::entity_stack(e.uuid(), &e.info.type_id).map(|(s, _)| s)
     };
     stack
         .filter(|s| !s.is_empty())
@@ -271,15 +270,15 @@ type Positions = HashMap<String, (Vec3, Option<Vec3>)>;
 static PLAYER_POSITIONS: Mutex<Option<Positions>> = Mutex::new(None);
 
 /// `PlayerPositionRecorder.updateAllPlayers`, every server tick.
-pub fn record_players(srv: &dyn Server) {
+pub fn record_players() {
     let mut map = PLAYER_POSITIONS.lock().unwrap_or_else(|e| e.into_inner());
     let map = map.get_or_insert_with(HashMap::new);
     let mut seen = HashMap::new();
-    for name in srv.online_players() {
-        let Some(p) = srv.player_info(&name) else {
+    for name in yog_api::event::player::online() {
+        let Some(p) = yog_api::event::player::info(&name) else {
             continue;
         };
-        let Some(pos) = srv.entity_position(&p.uuid) else {
+        let Some(pos) = yog_api::event::entity::position(&p.uuid).map(|p| (p.x, p.y, p.z)) else {
             continue;
         };
         let prev = map.get(&p.uuid).map(|(last, _)| *last);
@@ -288,7 +287,7 @@ pub fn record_players(srv: &dyn Server) {
     *map = seen;
 }
 
-fn velocity(srv: &dyn Server, info: &EntityInfo, uuid: &str) -> Vec3 {
+fn velocity(info: &EntityInfo, uuid: &str) -> Vec3 {
     if info.has(ef::PLAYER) {
         let map = PLAYER_POSITIONS.lock().unwrap_or_else(|e| e.into_inner());
         return match map.as_ref().and_then(|m| m.get(uuid)) {
@@ -297,12 +296,12 @@ fn velocity(srv: &dyn Server, info: &EntityInfo, uuid: &str) -> Vec3 {
             Some((last, Some(prev))) => *last - *prev,
         };
     }
-    let v = srv
-        .entity_velocity(uuid)
+    let v = yog_api::event::entity::velocity(uuid)
+        .map(|v| (v.x, v.y, v.z))
         .map(Vec3::from_tuple)
         .unwrap_or_default();
     let nbt = || {
-        srv.entity_get_nbt(uuid)
+        yog_api::event::entity::nbt(uuid)
             .map(|s| crate::snbt::Nbt::parse(&s))
             .unwrap_or_default()
     };

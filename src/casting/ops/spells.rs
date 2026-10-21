@@ -4,7 +4,6 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64::consts::PI;
 use std::sync::Mutex;
 
-use yog_api::Server;
 use yog_api::core::Face;
 use yog_api::vanilla;
 
@@ -53,7 +52,7 @@ pub fn actions() -> Vec<Action> {
             };
             let uuid = e.uuid().to_owned();
             Ok(Spell::new(non_zero(for_cost * DUST as f64), vec![spray], move |env, _| {
-                env.srv.entity_add_velocity(&uuid, motion.x, motion.y, motion.z);
+                yog_api::event::entity::add_velocity(&uuid, (motion.x, motion.y, motion.z));
             }))
         };
         "blink" SW "awqqqwaq" => spell [env, img; e: Ent, delta: f64] { blink(env, e, delta) };
@@ -80,7 +79,7 @@ pub fn actions() -> Vec<Action> {
             env.assert_pos_in_range_for_editing(pos)?;
             Ok(Spell::new((DUST as f64 * 1.125) as i64, vec![Spray::burst(Vec3::center_of(pos), 1.0)], move |env, _| {
                 let player = env.caster_name().unwrap_or_default().to_owned();
-                env.srv.use_item_on_block(&env.dim, to_ypos(pos), Face::Up, vanilla::items::BONE_MEAL, &player);
+                yog_api::event::block::use_item(&env.dim, to_ypos(pos), Face::Up as u8, vanilla::items::BONE_MEAL, &player);
             }))
         };
         "recharge" NW "qqqqqwaeaeaeaeaea" => spell [env, img; e: ItemEnt] { recharge(env, e) };
@@ -122,7 +121,7 @@ pub fn actions() -> Vec<Action> {
         "sentinel/create" E "waeawae" => spell [env, img; target: Vec3] { create_sentinel(env, target, false) };
         "sentinel/destroy" NE "qdwdqdw" => spell [env, img] {
             let uuid = env.caster_uuid().ok_or(Mishap::BadCaster)?;
-            let current = get_sentinel(env.srv, &uuid);
+            let current = get_sentinel(&uuid);
             let mut particles = Vec::new();
             if let Some(s) = &current {
                 if s.dim != env.dim {
@@ -130,7 +129,7 @@ pub fn actions() -> Vec<Action> {
                 }
                 particles.push(Spray::cloud(s.pos, 2.0));
             }
-            Ok(Spell::new(DUST / 10, particles, move |env, _| set_sentinel(env.srv, &uuid, None)))
+            Ok(Spell::new(DUST / 10, particles, move |env, _| set_sentinel(&uuid, None)))
         };
     }
 }
@@ -149,7 +148,7 @@ pub fn non_zero(x: f64) -> i64 {
 }
 
 /// `OpPrint`: shows the top iota to the caster, leaving it there.
-fn print(_: &mut CastEnv<'_>, image: Image, cont: &Cont) -> MResult<OpResult> {
+fn print(_: &mut CastEnv, image: Image, cont: &Cont) -> MResult<OpResult> {
     let Some(datum) = image.stack.last().cloned() else {
         return Err(Mishap::NotEnoughArgs {
             expected: 1,
@@ -157,7 +156,7 @@ fn print(_: &mut CastEnv<'_>, image: Image, cont: &Cont) -> MResult<OpResult> {
         });
     };
     let effect =
-        Box::new(move |env: &mut CastEnv<'_>, _: &mut Image| env.print_message(&datum.display()));
+        Box::new(move |env: &mut CastEnv, _: &mut Image| env.print_message(&datum.display()));
     Ok(OpResult {
         image: image.with_used_op(),
         effects: vec![SideEffect::AttemptSpell(effect)],
@@ -169,8 +168,9 @@ fn print(_: &mut CastEnv<'_>, image: Image, cont: &Cont) -> MResult<OpResult> {
 // ── item entities ──────────────────────────────────────────────────────────
 
 /// The stack in a dropped item entity.
-fn item_entity_stack(srv: &dyn Server, uuid: &str) -> Option<Stack> {
-    let (id, count, snbt) = srv.item_entity_stack(uuid)?;
+fn item_entity_stack(uuid: &str) -> Option<Stack> {
+    let (id, count, snbt) =
+        yog_api::event::item::entity_stack(uuid).map(|s| (s.item.to_string(), s.count, s.snbt))?;
     Some(Stack {
         slot: 0,
         id,
@@ -180,15 +180,15 @@ fn item_entity_stack(srv: &dyn Server, uuid: &str) -> Option<Stack> {
 }
 
 /// Puts the stack back (an empty stack removes the entity).
-fn set_item_entity_stack(srv: &dyn Server, uuid: &str, stack: &Stack) {
+fn set_item_entity_stack(uuid: &str, stack: &Stack) {
     let count = if stack.is_empty() { 0 } else { stack.count };
-    srv.item_entity_set_stack(uuid, &stack.id, count, &stack.nbt.to_snbt());
+    yog_api::event::item::set_entity_stack(uuid, &stack.id, count, stack.nbt.to_snbt());
 }
 
 /// `isMediaItem(e) && extractMedia(e, drainForBatteries = true) > 0`, or
 /// `MishapBadItem("media_for_battery")`.
 fn assert_battery_media(env: &CastEnv, e: &Ent) -> MResult<()> {
-    let ok = item_entity_stack(env.srv, e.uuid()).is_some_and(|mut s| {
+    let ok = item_entity_stack(e.uuid()).is_some_and(|mut s| {
         media::is_media_item(&s) && media::extract_for_battery(&mut s, true) > 0
     });
     if ok {
@@ -201,11 +201,8 @@ fn assert_battery_media(env: &CastEnv, e: &Ent) -> MResult<()> {
 // ── teleports ──────────────────────────────────────────────────────────────
 
 /// `HexTags.Entities.CANNOT_TELEPORT`.
-pub fn assert_teleportable(env: &CastEnv, e: &Ent) -> MResult<()> {
-    if env
-        .srv
-        .has_entity_tag(&e.info.type_id, crate::ids::tags::CANNOT_TELEPORT)
-    {
+pub fn assert_teleportable(e: &Ent) -> MResult<()> {
+    if yog_api::event::tag::has_entity(e.info.type_id, crate::ids::tags::CANNOT_TELEPORT) {
         Err(Mishap::ImmuneEntity {
             entity: e.r.clone(),
             pos: e.pos(),
@@ -216,10 +213,10 @@ pub fn assert_teleportable(env: &CastEnv, e: &Ent) -> MResult<()> {
 }
 
 /// `OpBlink`.
-fn blink(env: &mut CastEnv<'_>, e: Ent, delta: f64) -> MResult<Spell> {
+fn blink(env: &mut CastEnv, e: Ent, delta: f64) -> MResult<Spell> {
     e.in_range(env)?;
-    assert_teleportable(env, &e)?;
-    let dvec = look_vec(env.srv, e.uuid()) * delta;
+    assert_teleportable(&e)?;
+    let dvec = look_vec(e.uuid()) * delta;
     let end = e.pos() + dvec;
     env.assert_vec_in_range(e.pos())?;
     env.assert_vec_in_range(end)?;
@@ -237,37 +234,37 @@ fn blink(env: &mut CastEnv<'_>, e: Ent, delta: f64) -> MResult<Spell> {
             Spray::cloud_n(mid, 2.0, 50),
             Spray::burst_n(mid + dvec, 2.0, 100),
         ],
-        move |env, _| teleport_by(env.srv, &env.dim, &uuid, dvec),
+        move |env, _| teleport_by(&env.dim, &uuid, dvec),
     ))
 }
 
 /// `teleportRespectSticky`.
-pub fn teleport_by(srv: &dyn Server, dim: &str, uuid: &str, delta: Vec3) {
+pub fn teleport_by(dim: &str, uuid: &str, delta: Vec3) {
     if DIM_TP_DENYLIST.contains(&dim) {
         return;
     }
-    let Some(p) = srv.entity_position(uuid) else {
+    let Some(p) = yog_api::event::entity::position(uuid).map(|p| (p.x, p.y, p.z)) else {
         return;
     };
     let to = Vec3::from_tuple(p) + delta;
     // A "sticky" entity teleports itself and its riders. A teleport takes
     // the riders along, so they get off one that isn't.
-    srv.entity_dismount(uuid);
-    let sticky = srv
-        .entity_info(uuid)
-        .is_some_and(|i| srv.has_entity_tag(&i.type_id, crate::ids::tags::STICKY_TELEPORTERS));
+    yog_api::event::entity::dismount(uuid);
+    let sticky = yog_api::event::entity::info(uuid).is_some_and(|i| {
+        yog_api::event::tag::has_entity(i.type_id, crate::ids::tags::STICKY_TELEPORTERS)
+    });
     if !sticky {
-        for rider in srv.entity_passengers(uuid) {
-            srv.entity_dismount(&rider);
+        for rider in yog_api::event::entity::passengers(uuid) {
+            yog_api::event::entity::dismount(&rider);
         }
     }
-    srv.entity_teleport(uuid, to.x, to.y, to.z);
+    yog_api::event::entity::teleport(uuid, (to.x, to.y, to.z));
 }
 
 // ── explosions ─────────────────────────────────────────────────────────────
 
 /// `OpExplode`.
-fn explode(env: &mut CastEnv<'_>, mut pos: Vec3, strength: &Iota, fire: bool) -> MResult<Spell> {
+fn explode(env: &mut CastEnv, mut pos: Vec3, strength: &Iota, fire: bool) -> MResult<Spell> {
     let strength = match strength {
         Iota::Double(d) if (0.0..=10.0).contains(d) => *d,
         other => {
@@ -282,12 +279,11 @@ fn explode(env: &mut CastEnv<'_>, mut pos: Vec3, strength: &Iota, fire: bool) ->
     env.assert_vec_in_range(pos)?;
     // Explosions exactly at an entity's eyes don't hurt it.
     let eps = Vec3::splat(0.01);
-    let too_close = env
-        .srv
-        .entities_in_box(&env.dim, (pos - eps).tuple(), (pos + eps).tuple())
-        .iter()
-        .filter_map(|u| env.srv.entity_info(u))
-        .any(|i| Vec3::from_tuple(i.eye_pos()).distance_sqr(pos) == 0.0);
+    let too_close =
+        yog_api::event::world::entities_in_box(&env.dim, (pos - eps).tuple(), (pos + eps).tuple())
+            .iter()
+            .filter_map(yog_api::event::entity::info)
+            .any(|i| Vec3::from_tuple(i.eye_pos()).distance_sqr(pos) == 0.0);
     if too_close {
         pos = pos + Vec3::new(0.0, 0.000001, 0.0);
     }
@@ -298,11 +294,9 @@ fn explode(env: &mut CastEnv<'_>, mut pos: Vec3, strength: &Iota, fire: bool) ->
         move |env, _| {
             if env.can_edit_block_at(pos.block()) {
                 let source = env.caster_uuid().unwrap_or_default();
-                env.srv.explode(
+                yog_api::event::world::explode(
                     &env.dim,
-                    pos.x,
-                    pos.y,
-                    pos.z,
+                    (pos.x, pos.y, pos.z),
                     strength as f32,
                     fire,
                     &source,
@@ -315,13 +309,10 @@ fn explode(env: &mut CastEnv<'_>, mut pos: Vec3, strength: &Iota, fire: bool) ->
 // ── blocks ─────────────────────────────────────────────────────────────────
 
 /// `OpBreakBlock`.
-fn break_block(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
+fn break_block(env: &mut CastEnv, pos: BlockPos) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     let id = env.block_id(pos);
-    let cost = if env
-        .srv
-        .has_block_tag(&id, crate::ids::tags::CHEAP_TO_BREAK_BLOCK)
-    {
+    let cost = if yog_api::event::tag::has_block(&id, crate::ids::tags::CHEAP_TO_BREAK_BLOCK) {
         DUST / 100
     } else {
         DUST / 8
@@ -330,39 +321,34 @@ fn break_block(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
         cost,
         vec![Spray::burst(Vec3::center_of(pos), 1.0)],
         move |env, _| {
-            let Some(info) = env.srv.block_info(&env.dim, to_ypos(pos)) else {
+            let Some(info) = yog_api::event::block::info(&env.dim, to_ypos(pos)) else {
                 return;
             };
             if info.air || info.hardness < 0.0 {
                 return;
             }
             let breaker = env.caster_name().unwrap_or_default().to_owned();
-            if env.srv.break_block(&env.dim, to_ypos(pos), true, &breaker)
+            if yog_api::event::block::destroy(&env.dim, to_ypos(pos), true, &breaker)
                 && info.block_id() == akashic::BOOKSHELF
             {
-                akashic::set_shelf(env.srv, &env.dim, pos, None);
+                akashic::set_shelf(&env.dim, pos, None);
             }
         },
     ))
 }
 
-fn is_block_item(env: &CastEnv, s: &Stack) -> bool {
-    env.srv.item_block(&s.id).is_some()
+fn is_block_item(s: &Stack) -> bool {
+    yog_api::event::item::block(&s.id).is_some()
 }
 
 fn replaceable(env: &CastEnv, pos: BlockPos) -> bool {
-    env.srv
-        .block_info(&env.dim, to_ypos(pos))
-        .is_some_and(|b| b.replaceable)
+    yog_api::event::block::info(&env.dim, to_ypos(pos)).is_some_and(|b| b.replaceable)
 }
 
 /// `OpPlaceBlock`.
-fn place_block(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
+fn place_block(env: &mut CastEnv, pos: BlockPos) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
-    if env
-        .query_for_matching_stack(|s| is_block_item(env, s))
-        .is_none()
-    {
+    if env.query_for_matching_stack(is_block_item).is_none() {
         return Err(Mishap::lacking_hotbar("placeable"));
     }
     if !replaceable(env, pos) {
@@ -375,19 +361,23 @@ fn place_block(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
             let Some(name) = env.caster_name().map(str::to_owned) else {
                 return;
             };
-            let Some(stack) = env.query_for_matching_stack(|s| is_block_item(env, s)) else {
+            let Some(stack) = env.query_for_matching_stack(is_block_item) else {
                 return;
             };
             if replaceable(env, pos) {
-                env.srv
-                    .place_block_from_slot(&name, stack.slot, &env.dim, to_ypos(pos));
+                yog_api::event::player::place_block_from_slot(
+                    &name,
+                    stack.slot,
+                    &env.dim,
+                    to_ypos(pos),
+                );
             }
         },
     ))
 }
 
 /// `OpCreateFluid` (water, or lava for the great spell).
-pub fn create_fluid(env: &mut CastEnv<'_>, pos: BlockPos, lava: bool) -> MResult<Spell> {
+pub fn create_fluid(env: &mut CastEnv, pos: BlockPos, lava: bool) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     let cost = if lava { CRYSTAL } else { DUST };
     Ok(Spell::new(
@@ -400,14 +390,14 @@ pub fn create_fluid(env: &mut CastEnv<'_>, pos: BlockPos, lava: bool) -> MResult
                 } else {
                     "minecraft:water_cauldron[level=3]"
                 };
-                env.srv.set_block(&env.dim, to_ypos(pos), full);
+                yog_api::event::world::set_block(&env.dim, to_ypos(pos), full);
             } else {
                 let bucket = if lava {
                     vanilla::items::LAVA_BUCKET
                 } else {
                     vanilla::items::WATER_BUCKET
                 };
-                env.srv.pour_fluid(&env.dim, to_ypos(pos), bucket);
+                yog_api::event::block::pour_fluid(&env.dim, to_ypos(pos), bucket);
             }
         },
     ))
@@ -429,26 +419,25 @@ fn offset(p: BlockPos, d: (i32, i32, i32)) -> BlockPos {
 
 fn smoke(env: &CastEnv, here: BlockPos) {
     let j = || 0.5 + random() * 0.4 - 0.2;
-    env.srv.spawn_particles(
+    yog_api::event::particle::spawn_particles(
         &env.dim,
-        here.0 as f64 + j(),
-        here.1 as f64 + j(),
-        here.2 as f64 + j(),
+        (
+            here.0 as f64 + j(),
+            here.1 as f64 + j(),
+            here.2 as f64 + j(),
+        ),
         vanilla::particles::SMOKE,
         2,
-        0.0,
-        0.05,
-        0.0,
+        (0.0, 0.05, 0.0),
         0.0,
     );
 }
 
 /// `OpDestroyFluid`: drains a cauldron, or soaks up fluid like a sponge.
-fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
+fn destroy_fluid(env: &mut CastEnv, base: BlockPos) {
     let id = env.block_id(base);
     if id != vanilla::blocks::CAULDRON && id.starts_with("minecraft:") && id.ends_with("cauldron") {
-        env.srv
-            .set_block(&env.dim, to_ypos(base), vanilla::blocks::CAULDRON);
+        yog_api::event::world::set_block(&env.dim, to_ypos(base), vanilla::blocks::CAULDRON);
         return;
     }
     let mut todo = VecDeque::new();
@@ -466,7 +455,7 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
         if !env.can_edit_block_at(here) || !seen.insert(here) {
             continue;
         }
-        let Some(info) = env.srv.block_info(&env.dim, to_ypos(here)) else {
+        let Some(info) = yog_api::event::block::info(&env.dim, to_ypos(here)) else {
             continue;
         };
         if info.fluid.is_none() {
@@ -475,23 +464,20 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
         let at = to_ypos(here);
         let success = if info.state.contains("waterlogged=true") {
             // BucketPickup on a waterlogged block.
-            env.srv.set_block(
+            yog_api::event::world::set_block(
                 &env.dim,
                 at,
-                &info.state.replace("waterlogged=true", "waterlogged=false"),
+                info.state.replace("waterlogged=true", "waterlogged=false"),
             )
         } else if matches!(
             info.block_id(),
             vanilla::blocks::WATER | vanilla::blocks::LAVA
         ) || info.block_id() == info.fluid.as_deref().unwrap_or_default()
         {
-            env.srv.set_block(&env.dim, at, vanilla::blocks::AIR)
-        } else if env
-            .srv
-            .has_block_tag(info.block_id(), crate::ids::tags::WATER_PLANTS)
-        {
-            env.srv.break_block(&env.dim, at, true, "");
-            env.srv.set_block(&env.dim, at, vanilla::blocks::AIR);
+            yog_api::event::world::set_block(&env.dim, at, vanilla::blocks::AIR)
+        } else if yog_api::event::tag::has_block(info.block_id(), crate::ids::tags::WATER_PLANTS) {
+            yog_api::event::block::destroy(&env.dim, at, true, "");
+            yog_api::event::world::set_block(&env.dim, at, vanilla::blocks::AIR);
             true
         } else {
             false
@@ -504,11 +490,9 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
     }
     if successes > 0 {
         let c = Vec3::center_of(base);
-        env.srv.play_sound(
+        yog_api::event::sound::play(
             &env.dim,
-            c.x,
-            c.y,
-            c.z,
+            (c.x, c.y, c.z),
             yog_api::vanilla::sounds::BLOCK_FIRE_EXTINGUISH,
             1.0,
             0.95,
@@ -517,7 +501,7 @@ fn destroy_fluid(env: &mut CastEnv<'_>, base: BlockPos) {
 }
 
 /// `OpExtinguish`.
-fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
+fn extinguish(env: &mut CastEnv, target: BlockPos) {
     let mut todo = VecDeque::from([target]);
     let mut seen = HashSet::new();
     let mut successes = 0;
@@ -529,31 +513,35 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
             continue;
         }
         let at = to_ypos(here);
-        let state = env
-            .srv
-            .block_info(&env.dim, at)
+        let state = yog_api::event::block::info(&env.dim, at)
             .map(|b| b.state)
             .unwrap_or_default();
         let id = state.split('[').next().unwrap_or_default();
         let lit = state.contains("lit=true");
         let success = match id {
             vanilla::blocks::FIRE | vanilla::blocks::SOUL_FIRE | vanilla::blocks::NETHER_PORTAL => {
-                env.srv.set_block(&env.dim, at, vanilla::blocks::AIR)
+                yog_api::event::world::set_block(&env.dim, at, vanilla::blocks::AIR)
             }
-            vanilla::blocks::CAMPFIRE | vanilla::blocks::SOUL_CAMPFIRE if lit => env
-                .srv
-                .use_item_on_block(&env.dim, at, Face::Up, vanilla::items::WOODEN_SHOVEL, ""),
+            vanilla::blocks::CAMPFIRE | vanilla::blocks::SOUL_CAMPFIRE if lit => {
+                yog_api::event::block::use_item(
+                    &env.dim,
+                    at,
+                    Face::Up as u8,
+                    vanilla::items::WOODEN_SHOVEL,
+                    "",
+                )
+            }
             _ if lit && (id.ends_with("candle") || id.ends_with("candle_cake")) => {
-                let ok = env
-                    .srv
-                    .set_block(&env.dim, at, &state.replace("lit=true", "lit=false"));
+                let ok = yog_api::event::world::set_block(
+                    &env.dim,
+                    at,
+                    state.replace("lit=true", "lit=false"),
+                );
                 if ok {
                     let c = Vec3::center_of(here);
-                    env.srv.play_sound(
+                    yog_api::event::sound::play(
                         &env.dim,
-                        c.x,
-                        c.y,
-                        c.z,
+                        (c.x, c.y, c.z),
                         yog_api::vanilla::sounds::BLOCK_CANDLE_EXTINGUISH,
                         1.0,
                         1.0,
@@ -570,11 +558,9 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
         todo.extend(NEIGHBOURS.iter().map(|d| offset(here, *d)));
     }
     if successes > 0 {
-        env.srv.play_sound(
+        yog_api::event::sound::play(
             &env.dim,
-            target.0 as f64,
-            target.1 as f64,
-            target.2 as f64,
+            (target.0 as f64, target.1 as f64, target.2 as f64),
             yog_api::vanilla::sounds::BLOCK_FIRE_EXTINGUISH,
             1.0,
             0.95,
@@ -583,7 +569,7 @@ fn extinguish(env: &mut CastEnv<'_>, target: BlockPos) {
 }
 
 /// `OpIgnite`.
-fn ignite(env: &mut CastEnv<'_>, target: &Iota) -> MResult<Spell> {
+fn ignite(env: &mut CastEnv, target: &Iota) -> MResult<Spell> {
     match target {
         Iota::Entity(_) => {
             let e = Ent::get(target, 0, env)?;
@@ -592,8 +578,8 @@ fn ignite(env: &mut CastEnv<'_>, target: &Iota) -> MResult<Spell> {
             Ok(Spell::new(
                 DUST,
                 vec![Spray::burst(e.pos(), 1.0)],
-                move |env, _| {
-                    env.srv.entity_set_fire_ticks(&uuid, 8 * 20);
+                move |_env, _| {
+                    yog_api::event::entity::set_fire_ticks(&uuid, 8 * 20);
                 },
             ))
         }
@@ -605,17 +591,17 @@ fn ignite(env: &mut CastEnv<'_>, target: &Iota) -> MResult<Spell> {
                 vec![Spray::burst(Vec3::center_of(pos), 1.0)],
                 move |env, _| {
                     let at = to_ypos(pos);
-                    if !env.srv.use_item_on_block(
+                    if !yog_api::event::block::use_item(
                         &env.dim,
                         at,
-                        Face::Up,
+                        Face::Up as u8,
                         vanilla::items::FIRE_CHARGE,
                         "",
                     ) {
-                        env.srv.use_item_on_block(
+                        yog_api::event::block::use_item(
                             &env.dim,
                             at,
-                            Face::Up,
+                            Face::Up as u8,
                             vanilla::items::FLINT_AND_STEEL,
                             "",
                         );
@@ -629,7 +615,7 @@ fn ignite(env: &mut CastEnv<'_>, target: &Iota) -> MResult<Spell> {
 
 /// `OpConjureBlock`: the block sparkles in the caster's pigment
 /// (`BlockConjured.setColor`, [`crate::conjured`]).
-fn conjure(env: &mut CastEnv<'_>, pos: BlockPos, light: bool) -> MResult<Spell> {
+fn conjure(env: &mut CastEnv, pos: BlockPos, light: bool) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     if !replaceable(env, pos) {
         return Err(Mishap::bad_block(pos, "replaceable"));
@@ -644,8 +630,8 @@ fn conjure(env: &mut CastEnv<'_>, pos: BlockPos, light: bool) -> MResult<Spell> 
                 } else {
                     Blocks::CONJURED_BLOCK
                 };
-                env.srv.set_block(&env.dim, to_ypos(pos), block);
-                crate::conjured::conjured(env.srv, &env.dim, pos, light, env.pigment());
+                yog_api::event::world::set_block(&env.dim, to_ypos(pos), block);
+                crate::conjured::conjured(&env.dim, pos, light, env.pigment());
             }
         },
     ))
@@ -659,10 +645,10 @@ const EDIFIED_TREES: [&str; 3] = [
 ];
 
 /// `OpEdifySapling`.
-fn edify(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
+fn edify(env: &mut CastEnv, pos: BlockPos) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     let id = env.block_id(pos);
-    if !env.srv.has_block_tag(&id, vanilla::block_tags::SAPLINGS) {
+    if !yog_api::event::tag::has_block(&id, vanilla::block_tags::SAPLINGS) {
         return Err(Mishap::bad_block(pos, "sapling"));
     }
     let spray = Spray {
@@ -677,19 +663,19 @@ fn edify(env: &mut CastEnv<'_>, pos: BlockPos) -> MResult<Spell> {
             return;
         }
         let at = to_ypos(pos);
-        let Some(sapling) = env.srv.block_info(&env.dim, at).map(|b| b.state) else {
+        let Some(sapling) = yog_api::event::block::info(&env.dim, at).map(|b| b.state) else {
             return;
         };
         // AbstractTreeGrower.growTree: clear the sapling, put it back if
         // no tree fits.
         for _ in 0..8 {
-            env.srv.set_block(&env.dim, at, vanilla::blocks::AIR);
+            yog_api::event::world::set_block(&env.dim, at, vanilla::blocks::AIR);
             let tree = EDIFIED_TREES
                 [(random() * EDIFIED_TREES.len() as f64) as usize % EDIFIED_TREES.len()];
-            if env.srv.place_feature(&env.dim, at, tree) {
+            if yog_api::event::world::place_feature(&env.dim, at, tree) {
                 return;
             }
-            env.srv.set_block(&env.dim, at, &sapling);
+            yog_api::event::world::set_block(&env.dim, at, sapling);
         }
     }))
 }
@@ -722,21 +708,16 @@ const INSTRUMENTS: [&str; 23] = [
 ];
 
 /// `MsgBeepS2C.handle`, from the server.
-fn beep(env: &mut CastEnv<'_>, at: Vec3, instrument: usize, note: i64) {
+fn beep(env: &mut CastEnv, at: Vec3, instrument: usize, note: i64) {
     let pitch = 2f64.powf((note - 12) as f64 / 12.0) as f32;
     let sound = format!("minecraft:{}", INSTRUMENTS[instrument]);
-    env.srv
-        .play_sound(&env.dim, at.x, at.y, at.z, &sound, 3.0, pitch);
-    env.srv.spawn_particles(
+    yog_api::event::sound::play(&env.dim, (at.x, at.y, at.z), &sound, 3.0, pitch);
+    yog_api::event::particle::spawn_particles(
         &env.dim,
-        at.x,
-        at.y + 0.2,
-        at.z,
+        (at.x, at.y + 0.2, at.z),
         vanilla::particles::NOTE,
         0,
-        note as f64 / 24.0,
-        0.0,
-        0.0,
+        (note as f64 / 24.0, 0.0, 0.0),
         1.0,
     );
 }
@@ -744,7 +725,7 @@ fn beep(env: &mut CastEnv<'_>, at: Vec3, instrument: usize, note: i64) {
 // ── items ──────────────────────────────────────────────────────────────────
 
 /// `OpColorize`.
-fn colorize(env: &mut CastEnv<'_>) -> MResult<Spell> {
+fn colorize(env: &mut CastEnv) -> MResult<Spell> {
     let (stack, _) = env
         .held_item_to_operate_on(|s| is_pigment(&s.id))
         .ok_or_else(|| Mishap::bad_offhand(None, "colorizer", vec![]))?;
@@ -778,7 +759,7 @@ fn variants(id: &str) -> Option<i64> {
 }
 
 /// `OpCycleVariant`.
-fn cycle_variant(env: &mut CastEnv<'_>) -> MResult<Spell> {
+fn cycle_variant(env: &mut CastEnv) -> MResult<Spell> {
     let (stack, _) = env
         .held_item_to_operate_on(|s| variants(&s.id).is_some())
         .ok_or_else(|| Mishap::bad_offhand(None, "variant", vec![]))?;
@@ -795,14 +776,14 @@ fn cycle_variant(env: &mut CastEnv<'_>) -> MResult<Spell> {
 }
 
 /// `OpRecharge`.
-fn recharge(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
+fn recharge(env: &mut CastEnv, e: ItemEnt) -> MResult<Spell> {
     let (held, _) = env
         .held_item_to_operate_on(|s| {
             media::can_recharge(&s.id) && media::insert_media(&mut s.clone(), -1, true) != 0
         })
         .ok_or_else(|| Mishap::bad_offhand(None, "rechargable", vec![]))?;
     e.in_range(env)?;
-    if !item_entity_stack(env.srv, e.uuid()).is_some_and(|s| media::is_media_item(&s)) {
+    if !item_entity_stack(e.uuid()).is_some_and(|s| media::is_media_item(&s)) {
         return Err(Mishap::bad_entity(env, &e.r, "media"));
     }
     let uuid = e.uuid().to_owned();
@@ -811,7 +792,7 @@ fn recharge(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
         vec![Spray::burst(e.pos(), 0.5)],
         move |env, _| {
             let mut target = env.stack_at(held.slot);
-            let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
+            let Some(mut source) = item_entity_stack(&uuid) else {
                 return;
             };
             if target.id != held.id || source.is_empty() {
@@ -821,13 +802,13 @@ fn recharge(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
             let amount = media::withdraw(&mut source, room, false);
             media::insert_media(&mut target, amount, false);
             env.save(&target);
-            set_item_entity_stack(env.srv, &uuid, &source);
+            set_item_entity_stack(&uuid, &source);
         },
     ))
 }
 
 /// `OpErase`.
-fn erase(env: &mut CastEnv<'_>) -> MResult<Spell> {
+fn erase(env: &mut CastEnv) -> MResult<Spell> {
     let erasable = |s: &Stack| packaged::has_hex(s) || holder::write(&mut s.clone(), None, true);
     let (stack, _) = env
         .held_item_to_operate_on(erasable)
@@ -853,7 +834,7 @@ fn erase(env: &mut CastEnv<'_>) -> MResult<Spell> {
 
 /// `OpMakePackagedSpell`.
 fn craft_packaged(
-    env: &mut CastEnv<'_>,
+    env: &mut CastEnv,
     e: ItemEnt,
     hex: Vec<Iota>,
     item: &'static str,
@@ -875,7 +856,7 @@ fn craft_packaged(
         vec![Spray::burst(e.pos(), 0.5)],
         move |env, _| {
             let mut target = env.stack_at(held.slot);
-            let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
+            let Some(mut source) = item_entity_stack(&uuid) else {
                 return;
             };
             if !target.is(item) || packaged::has_hex(&target) {
@@ -886,18 +867,18 @@ fn craft_packaged(
                 packaged::write_hex(&mut target, &hex, Some(&env.pigment()), amount);
                 env.save(&target);
             }
-            set_item_entity_stack(env.srv, &uuid, &source);
+            set_item_entity_stack(&uuid, &source);
         },
     ))
 }
 
 /// `OpMakeBattery`.
-pub fn craft_battery(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
-    let phial_base = |env: &CastEnv, s: &Stack| {
-        !s.is_empty() && env.srv.has_item_tag(&s.id, crate::ids::tags::PHIAL_BASE)
+pub fn craft_battery(env: &mut CastEnv, e: ItemEnt) -> MResult<Spell> {
+    let phial_base = |s: &Stack| {
+        !s.is_empty() && yog_api::event::tag::has_item(&s.id, crate::ids::tags::PHIAL_BASE)
     };
     let (held, hand) = env
-        .held_item_to_operate_on(|s| phial_base(env, s))
+        .held_item_to_operate_on(|s| phial_base(s))
         .ok_or_else(|| Mishap::bad_offhand(None, "bottle", vec![]))?;
     if held.count != 1 {
         return Err(Mishap::bad_offhand(held.shown(), "only_one", vec![]));
@@ -909,7 +890,7 @@ pub fn craft_battery(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
         CRYSTAL,
         vec![Spray::burst(e.pos(), 0.5)],
         move |env, _| {
-            let Some(mut source) = item_entity_stack(env.srv, &uuid) else {
+            let Some(mut source) = item_entity_stack(&uuid) else {
                 return;
             };
             let amount = media::extract_for_battery(&mut source, false);
@@ -927,7 +908,7 @@ pub fn craft_battery(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
                     return;
                 }
             }
-            set_item_entity_stack(env.srv, &uuid, &source);
+            set_item_entity_stack(&uuid, &source);
         },
     ))
 }
@@ -936,7 +917,7 @@ pub fn craft_battery(env: &mut CastEnv<'_>, e: ItemEnt) -> MResult<Spell> {
 
 /// `OpPotionEffect`.
 pub fn potion(
-    env: &mut CastEnv<'_>,
+    env: &mut CastEnv,
     e: Living,
     duration: f64,
     potency: Option<&Iota>,
@@ -957,17 +938,22 @@ pub fn potion(
     let cost = base as f64 * duration * scale;
     let spray = Spray::cloud(e.pos() + Vec3::new(0.0, e.info.eye_height / 2.0, 0.0), 1.0);
     let uuid = e.uuid().to_owned();
-    Ok(Spell::new(non_zero(cost), vec![spray], move |env, _| {
+    Ok(Spell::new(non_zero(cost), vec![spray], move |_env, _| {
         if duration >= 1.0 / 20.0 {
             let amplifier = (potency as i64 - 1).clamp(0, 255) as u8;
-            env.srv
-                .entity_add_effect(&uuid, effect, (duration * 20.0) as i32, amplifier, true);
+            yog_api::event::entity::add_effect(
+                &uuid,
+                effect,
+                (duration * 20.0) as i32,
+                amplifier,
+                true,
+            );
         }
     }))
 }
 
 /// `OpCreateSentinel`.
-pub fn create_sentinel(env: &mut CastEnv<'_>, target: Vec3, great: bool) -> MResult<Spell> {
+pub fn create_sentinel(env: &mut CastEnv, target: Vec3, great: bool) -> MResult<Spell> {
     let uuid = env.caster_uuid().ok_or(Mishap::BadCaster)?;
     env.assert_vec_in_range(target)?;
     let cost = if great { 2 * DUST } else { DUST };
@@ -980,7 +966,7 @@ pub fn create_sentinel(env: &mut CastEnv<'_>, target: Vec3, great: bool) -> MRes
                 pos: target,
                 dim: env.dim.clone(),
             };
-            set_sentinel(env.srv, &uuid, Some(&s));
+            set_sentinel(&uuid, Some(&s));
         },
     ))
 }
@@ -1001,8 +987,8 @@ pub struct FlightAbility {
 /// Loaded flights, by player uuid (`None`: known not to fly).
 static FLIGHTS: Mutex<Option<HashMap<String, Option<FlightAbility>>>> = Mutex::new(None);
 
-fn load_flight(srv: &dyn Server, uuid: &str) -> Option<FlightAbility> {
-    let s = player_storage(srv, uuid);
+fn load_flight(uuid: &str) -> Option<FlightAbility> {
+    let s = player_storage(uuid);
     Some(FlightAbility {
         time_left: s.get_int("flight.time")?,
         dim: s.get_str("flight.dim")?.to_owned(),
@@ -1015,8 +1001,8 @@ fn load_flight(srv: &dyn Server, uuid: &str) -> Option<FlightAbility> {
     })
 }
 
-fn store_flight(srv: &dyn Server, uuid: &str, f: Option<&FlightAbility>) {
-    let mut s = player_storage(srv, uuid);
+fn store_flight(uuid: &str, f: Option<&FlightAbility>) {
+    let mut s = player_storage(uuid);
     match f {
         Some(f) => {
             s.set("flight.time", f.time_left);
@@ -1042,18 +1028,18 @@ fn store_flight(srv: &dyn Server, uuid: &str, f: Option<&FlightAbility>) {
 }
 
 /// The flight a player was granted, if any.
-pub fn flight_of(srv: &dyn Server, uuid: &str) -> Option<FlightAbility> {
+pub fn flight_of(uuid: &str) -> Option<FlightAbility> {
     let mut map = FLIGHTS.lock().unwrap_or_else(|e| e.into_inner());
     let map = map.get_or_insert_with(HashMap::new);
     map.entry(uuid.to_owned())
-        .or_insert_with(|| load_flight(srv, uuid))
+        .or_insert_with(|| load_flight(uuid))
         .clone()
 }
 
 /// `setFlight`; `persist` also writes it to disk.
-fn set_flight(srv: &dyn Server, uuid: &str, f: Option<FlightAbility>, persist: bool) {
+fn set_flight(uuid: &str, f: Option<FlightAbility>, persist: bool) {
     if persist {
-        store_flight(srv, uuid, f.as_ref());
+        store_flight(uuid, f.as_ref());
     }
     let mut map = FLIGHTS.lock().unwrap_or_else(|e| e.into_inner());
     map.get_or_insert_with(HashMap::new)
@@ -1061,7 +1047,7 @@ fn set_flight(srv: &dyn Server, uuid: &str, f: Option<FlightAbility>, persist: b
 }
 
 /// `OpFlight`.
-fn flight(env: &mut CastEnv<'_>, p: Player, arg: f64, range: bool) -> MResult<Spell> {
+fn flight(env: &mut CastEnv, p: Player, arg: f64, range: bool) -> MResult<Spell> {
     p.in_range(env)?;
     let unit = 2 * DUST;
     let mut cost = non_zero(arg * unit as f64);
@@ -1076,31 +1062,31 @@ fn flight(env: &mut CastEnv<'_>, p: Player, arg: f64, range: bool) -> MResult<Sp
         count: 20,
     };
     let (uuid, name) = (p.uuid().to_owned(), p.info.name.clone());
-    Ok(Spell::new(cost, vec![spray], move |env, _| {
-        if env.srv.player_info(&name).is_none_or(|i| i.may_fly) {
+    Ok(Spell::new(cost, vec![spray], move |_env, _| {
+        if yog_api::event::player::info(&name).is_none_or(|i| i.may_fly) {
             return; // don't clobber someone else's flight
         }
-        let Some(info) = env.srv.entity_info(&uuid) else {
+        let Some(info) = yog_api::event::entity::info(&uuid) else {
             return;
         };
         let origin = Vec3::from_tuple(info.pos);
         let f = if range {
             FlightAbility {
                 time_left: -1,
-                dim: info.dimension,
+                dim: info.dimension.to_string(),
                 origin,
                 radius: arg,
             }
         } else {
             FlightAbility {
                 time_left: (arg * 20.0).round() as i64,
-                dim: info.dimension,
+                dim: info.dimension.to_string(),
                 origin,
                 radius: -1.0,
             }
         };
-        set_flight(env.srv, &uuid, Some(f), true);
-        env.srv.player_set_may_fly(&name, true);
+        set_flight(&uuid, Some(f), true);
+        yog_api::event::player::set_may_fly(&name, true);
     }))
 }
 
@@ -1142,30 +1128,28 @@ fn danger(dim: &str, pos: Vec3, f: &FlightAbility) -> f64 {
 }
 
 /// `OpFlight.tickDownFlight`, for every player, every tick.
-pub fn tick_flight(srv: &dyn Server) {
-    for name in srv.online_players() {
-        let Some(p) = srv.player_info(&name) else {
+pub fn tick_flight() {
+    for name in yog_api::event::player::online() {
+        let Some(p) = yog_api::event::player::info(&name) else {
             continue;
         };
-        let Some(f) = flight_of(srv, &p.uuid) else {
+        let Some(f) = flight_of(&p.uuid) else {
             continue;
         };
-        let Some(info) = srv.entity_info(&p.uuid) else {
+        let Some(info) = yog_api::event::entity::info(&p.uuid) else {
             continue;
         };
         let pos = Vec3::from_tuple(info.pos);
         let dim = info.dimension.as_str();
         let d = danger(dim, pos, &f);
         if d >= 1.0 {
-            set_flight(srv, &p.uuid, None, true);
+            set_flight(&p.uuid, None, true);
             if p.gamemode != "creative" && p.gamemode != "spectator" {
-                srv.player_set_may_fly(&name, false);
+                yog_api::event::player::set_may_fly(&name, false);
             }
-            srv.play_sound(
+            yog_api::event::sound::play(
                 dim,
-                pos.x,
-                pos.y,
-                pos.z,
+                (pos.x, pos.y, pos.z),
                 crate::sounds::FLIGHT_FINISH,
                 2.0,
                 1.0,
@@ -1177,12 +1161,12 @@ pub fn tick_flight(srv: &dyn Server) {
                 spread: 0.4,
                 count: 20,
             };
-            spray.spawn(srv, dim, &dye_pigment(dye::RED));
-            spray.spawn(srv, dim, &dye_pigment(dye::BLACK));
+            spray.spawn(dim, &dye_pigment(dye::RED));
+            spray.spawn(dim, &dye_pigment(dye::BLACK));
             continue;
         }
         if !p.may_fly {
-            srv.player_set_may_fly(&name, true);
+            yog_api::event::player::set_may_fly(&name, true);
         }
         let time_left = if f.time_left >= 0 {
             f.time_left - 1
@@ -1192,7 +1176,6 @@ pub fn tick_flight(srv: &dyn Server) {
         // Kept on disk once a second, not every tick.
         let persist = time_left >= 0 && time_left % 20 == 0;
         set_flight(
-            srv,
             &p.uuid,
             Some(FlightAbility {
                 time_left,
@@ -1204,7 +1187,7 @@ pub fn tick_flight(srv: &dyn Server) {
         let count = 5;
         let danger_count = (count as f64 * d).round() as u32;
         let one_danger = danger_count.div_ceil(2);
-        let color = get_pigment(srv, &p.uuid);
+        let color = get_pigment(&p.uuid);
         Spray {
             pos,
             vel: Vec3::new(0.0, -0.6, 0.0),
@@ -1212,7 +1195,7 @@ pub fn tick_flight(srv: &dyn Server) {
             spread: PI * 0.3,
             count: count - danger_count,
         }
-        .spawn(srv, dim, &color);
+        .spawn(dim, &color);
         let danger_spray = Spray {
             pos,
             vel: Vec3::new(0.0, 1.0, 0.0),
@@ -1220,14 +1203,12 @@ pub fn tick_flight(srv: &dyn Server) {
             spread: PI * 0.75,
             count: one_danger,
         };
-        danger_spray.spawn(srv, dim, &dye_pigment(dye::BLACK));
-        danger_spray.spawn(srv, dim, &dye_pigment(dye::RED));
+        danger_spray.spawn(dim, &dye_pigment(dye::BLACK));
+        danger_spray.spawn(dim, &dye_pigment(dye::RED));
         if random() < 0.02 {
-            srv.play_sound(
+            yog_api::event::sound::play(
                 dim,
-                pos.x,
-                pos.y,
-                pos.z,
+                (pos.x, pos.y, pos.z),
                 crate::sounds::FLIGHT_AMBIENCE,
                 0.2,
                 1.0,
@@ -1242,7 +1223,7 @@ pub fn tick_flight(srv: &dyn Server) {
                 spread: PI * 0.1,
                 count: 5,
             }
-            .spawn(srv, dim, &color);
+            .spawn(dim, &color);
             Spray {
                 pos: origin,
                 vel: Vec3::new(0.0, -1.0, 0.0),
@@ -1250,7 +1231,7 @@ pub fn tick_flight(srv: &dyn Server) {
                 spread: PI * 0.25,
                 count: 5,
             }
-            .spawn(srv, dim, &color);
+            .spawn(dim, &color);
         }
     }
 }
