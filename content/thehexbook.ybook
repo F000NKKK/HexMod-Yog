@@ -46,7 +46,7 @@
       "name": "@Book.category.interop",
       "sortnum": 9900,
       "description": "@Book.category.interop.desc",
-      "icon": "@item:minecraft:chain"
+      "icon": "@item:minecraft:iron_chain"
     },
     {
       "id": "hexcasting:patterns",
@@ -776,7 +776,7 @@
       "id": "hexcasting:interop/interop",
       "name": "@Book.entry.interop",
       "category": "@category:hexcasting:interop",
-      "icon": "@item:minecraft:chain",
+      "icon": "@item:minecraft:iron_chain",
       "priority": 0,
       "pages": [
         {
