@@ -2,8 +2,8 @@
 //! Pehkui's size of entities (`interop/pehkui`, `OpGetScale`, `OpSetScale`),
 //! there only when Pehkui is loaded — its API reached by nanites.
 
-use yog_api::nanite::Nanite;
 use yog_api::nanite;
+use yog_api::nanite::Nanite;
 
 use crate::casting::actions::{Action, actions};
 use crate::casting::args::{Ent, double_between};

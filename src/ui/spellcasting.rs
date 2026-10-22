@@ -32,18 +32,11 @@ use super::render_lib::{
     draw_pattern_from_points, draw_spot, find_dup_indices, positions_from, px_to_coord,
     range_around, ticks, to_lines,
 };
-use crate::content::Items;
 use crate::iota::Iota;
 use crate::math::{HexAngle, HexCoord, HexDir, HexPattern};
 use crate::protocol::{
     CH_NEW_PATTERN, Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType,
 };
-use crate::wire::Writer;
-
-/// `MsgShiftScrollC2S` (client → server): `num` main-hand delta, `num`
-/// off-hand delta, `int` 1 when the sprint key is down. Scrolls the
-/// spellbook page or the abacus in that hand.
-pub const CH_SCROLL: &str = "hexcasting:scroll";
 
 const SURFACE_ID: &str = "hexcasting:spellcasting_grid";
 
@@ -624,28 +617,10 @@ impl Surface for GridSurface {
     fn scroll(&self, dy: f32, _size: (f32, f32)) -> bool {
         let notch = session().grid.as_mut().is_some_and(|g| g.scroll(dy as f64));
         if notch {
-            shift_scroll(dy as f64);
+            super::shift_scroll::scroll(dy as f64, false);
         }
         true
     }
-}
-
-/// `ShiftScrollListener.onScroll(delta, needsSneaking = false)`: scrolls the
-/// spellbook or abacus in the main hand, else in the off hand.
-fn shift_scroll(delta: f64) {
-    let scrollable =
-        |id: Option<String>| id.is_some_and(|id| id == Items::SPELLBOOK || id == Items::ABACUS);
-    let (main, off) = if scrollable(client::held_item(false).map(|s| s.item.to_string())) {
-        (delta, 0.0)
-    } else if scrollable(client::held_item(true).map(|s| s.item.to_string())) {
-        (0.0, delta)
-    } else {
-        return;
-    };
-    let mut w = Writer::new();
-    // The sprint key is Ctrl by default.
-    w.num(main).num(off).int(client::control_down() as i64);
-    yog_api::event::net::send_to_server(CH_SCROLL, w.finish().as_bytes());
 }
 
 fn draw_desc(

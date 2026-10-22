@@ -10,8 +10,8 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::{LazyLock, Mutex};
 
-use yog_api::vanilla;
 use yog_api::storage::Store;
+use yog_api::vanilla;
 use yog_api::{EventPhase, Registry, split_state};
 
 use crate::casting::env::{
@@ -424,7 +424,9 @@ fn save_impetus(dim: &str, pos: BlockPos, i: &Impetus) {
 
 fn forget_impetus(dim: &str, pos: BlockPos) {
     if let Some(s) = store(dim, pos) {
-        s.update(IMPETUS_KEY, |all: &mut Vec<KeptImpetus>| all.retain(|k| k.pos != pos));
+        s.update(IMPETUS_KEY, |all: &mut Vec<KeptImpetus>| {
+            all.retain(|k| k.pos != pos)
+        });
     }
 }
 

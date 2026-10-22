@@ -15,8 +15,8 @@ use crate::casting::args::{
 };
 use crate::casting::cont::Cont;
 use crate::casting::env::{
-    CastEnv, DIM_TP_DENYLIST, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec,
-    random, set_sentinel, to_ypos,
+    CastEnv, DIM_TP_DENYLIST, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec, random,
+    set_sentinel, to_ypos,
 };
 use crate::casting::image::Image;
 use crate::casting::mishap::{BlockPos, MResult, Mishap, dye, item_name};

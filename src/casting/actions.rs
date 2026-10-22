@@ -9,7 +9,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, OnceLock};
 
-
 use crate::casting::cont::Cont;
 use crate::casting::env::{CastEnv, MOD_ID, random};
 use crate::casting::image::Image;
@@ -385,13 +384,17 @@ pub fn per_world() -> Arc<PerWorld> {
         return pw.clone();
     }
     let store = yog_api::storage::world();
-    let seed = store.as_ref().and_then(|s| s.get::<i64>(SEED_KEY)).unwrap_or_else(|| {
-        let s = (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
-        if let Some(store) = &store {
-            store.set(SEED_KEY, &s);
-        }
-        s
-    });
+    let seed = store
+        .as_ref()
+        .and_then(|s| s.get::<i64>(SEED_KEY))
+        .unwrap_or_else(|| {
+            let s =
+                (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
+            if let Some(store) = &store {
+                store.set(SEED_KEY, &s);
+            }
+            s
+        });
     let by_sig = all()
         .iter()
         .filter(|a| a.great())

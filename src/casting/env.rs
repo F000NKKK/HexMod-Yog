@@ -567,10 +567,7 @@ impl CastEnv {
         if matches!(self.source, Source::Circle(_)) {
             return true;
         }
-        match self
-            .caster_name()
-            .and_then(yog_api::event::player::info)
-        {
+        match self.caster_name().and_then(yog_api::event::player::info) {
             Some(p) => p.gamemode != "adventure",
             None => matches!(self.source, Source::Circle(_)),
         }

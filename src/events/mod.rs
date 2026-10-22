@@ -14,7 +14,8 @@ use crate::content::Items;
 use crate::item::holder::ABACUS;
 use crate::item::media;
 use crate::protocol::{CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT, OpenGui, PatternResult};
-use crate::ui::spellcasting::{self, CH_SCROLL};
+use crate::ui::shift_scroll::CH_SCROLL;
+use crate::ui::spellcasting;
 
 pub fn register(registry: &mut Registry) {
     // The Hexbook and a staff on first join.

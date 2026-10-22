@@ -41,6 +41,8 @@ impl Mod for HexMod {
         // The staff's casting grid; the book's pattern pages.
         ui::spellcasting::register(registry);
         ui::book_page::register(registry);
+        // The wheel on a held spellbook or abacus.
+        ui::shift_scroll::register(registry);
         // Scrolls and slates show their pattern under the tooltip.
         ui::pattern_render::register(registry);
 
