@@ -2,7 +2,7 @@
 //! `StaffCastEnv.handleNewPatternOnServer`): the grid's patterns and the
 //! VM's image live on the server, per player, between casts.
 
-use crate::casting::env::{CastEnv, Caster, Source, player_storage};
+use crate::casting::env::{CastEnv, Caster, Source};
 use crate::casting::image::Image;
 use crate::casting::vm::Vm;
 use crate::iota::Iota;
@@ -12,8 +12,15 @@ use crate::protocol::{
 };
 use crate::wire::{Reader, Writer};
 
-const KEY_IMAGE: &str = "staff.image";
-const KEY_PATTERNS: &str = "staff.patterns";
+/// A player's staff grid as they left it (its image and drawn patterns,
+/// in the casting's own text forms), kept with the world.
+#[derive(Default, yog_api::Schema)]
+struct Grid {
+    image: Option<String>,
+    patterns: Option<String>,
+}
+
+static GRID: yog_api::storage::PlayerData<Grid> = yog_api::storage::PlayerData::new("staff");
 
 pub fn is_staff(id: &str) -> bool {
     id.starts_with(crate::ids::prefixes::STAFF)
@@ -21,35 +28,30 @@ pub fn is_staff(id: &str) -> bool {
 
 /// `getStaffcastVM`'s image.
 pub fn image(uuid: &str) -> Image {
-    player_storage(uuid)
-        .get_str(KEY_IMAGE)
-        .map(Image::decode)
+    GRID.with(uuid, |g| g.image.as_deref().map(Image::decode))
         .unwrap_or_default()
 }
 
 /// `getPatternsSavedInUi`.
 pub fn patterns(uuid: &str) -> Vec<ResolvedPattern> {
-    let s = player_storage(uuid);
-    s.get_str(KEY_PATTERNS)
-        .and_then(|p| read_patterns(&mut Reader::new(p)))
-        .unwrap_or_default()
+    GRID.with(uuid, |g| {
+        g.patterns
+            .as_deref()
+            .and_then(|p| read_patterns(&mut Reader::new(p)))
+    })
+    .unwrap_or_default()
 }
 
 fn save(uuid: &str, image: Option<&Image>, pats: &[ResolvedPattern]) {
-    let mut s = player_storage(uuid);
-    match image {
-        Some(img) => s.set(KEY_IMAGE, img.encode()),
-        None => {
-            s.remove(KEY_IMAGE);
-        }
-    }
-    if pats.is_empty() {
-        s.remove(KEY_PATTERNS);
-    } else {
+    let patterns = (!pats.is_empty()).then(|| {
         let mut w = Writer::new();
         write_patterns(&mut w, pats);
-        s.set(KEY_PATTERNS, w.finish());
-    }
+        w.finish()
+    });
+    GRID.with_mut(uuid, |g| {
+        g.image = image.map(Image::encode);
+        g.patterns = patterns;
+    });
 }
 
 /// `clearCastingData`.

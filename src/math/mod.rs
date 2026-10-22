@@ -233,7 +233,7 @@ impl HexPattern {
 }
 
 /// A 3-D vector (Minecraft's `Vec3`).
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default, yog_api::Schema)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,

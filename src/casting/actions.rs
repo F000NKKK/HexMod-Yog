@@ -9,7 +9,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, OnceLock};
 
-use yog_api::Storage;
 
 use crate::casting::cont::Cont;
 use crate::casting::env::{CastEnv, MOD_ID, random};
@@ -360,7 +359,6 @@ pub fn lookup(pattern: &HexPattern) -> Lookup {
 // ── great spells: drawn differently in every world ────────────────────────
 
 const SEED_KEY: &str = "scrungled_patterns.seed";
-const SEED_DIMENSION: &str = yog_api::vanilla::dimensions::OVERWORLD;
 
 /// This world's great spells, by the signature they're drawn with here.
 pub struct PerWorld {
@@ -386,10 +384,12 @@ pub fn per_world() -> Arc<PerWorld> {
     {
         return pw.clone();
     }
-    let mut store = Storage::open_world(&world_dir, MOD_ID, SEED_DIMENSION);
-    let seed = store.get_int(SEED_KEY).unwrap_or_else(|| {
+    let store = yog_api::storage::world();
+    let seed = store.as_ref().and_then(|s| s.get::<i64>(SEED_KEY)).unwrap_or_else(|| {
         let s = (random() * (1u64 << 52) as f64) as i64 ^ (random() * (1u64 << 52) as f64) as i64;
-        store.set(SEED_KEY, s);
+        if let Some(store) = &store {
+            store.set(SEED_KEY, &s);
+        }
         s
     });
     let by_sig = all()

@@ -8,9 +8,9 @@
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 
-use yog_api::{EventPhase, Registry, Storage};
+use yog_api::{EventPhase, Registry};
 
-use crate::casting::env::{MOD_ID, random, spawn_dust, to_ypos};
+use crate::casting::env::{random, spawn_dust, to_ypos};
 use crate::casting::mishap::BlockPos;
 use crate::content::Blocks;
 use crate::item::pigment::Pigment;
@@ -24,51 +24,40 @@ static KNOWN: LazyLock<Mutex<HashMap<(String, BlockPos), (bool, Pigment)>>> =
     LazyLock::new(Default::default);
 static TICKS: Mutex<u64> = Mutex::new(0);
 
-fn global() -> Storage {
-    Storage::open(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-    )
+/// A conjured block, as it's kept with the world.
+#[derive(yog_api::Schema)]
+struct Kept {
+    dim: String,
+    pos: BlockPos,
+    light: bool,
+    pigment: Pigment,
 }
 
 fn save() {
-    let known = KNOWN.lock().unwrap();
-    let lines: Vec<String> = known
+    let known: Vec<Kept> = KNOWN
+        .lock()
+        .unwrap()
         .iter()
-        .map(|((dim, p), (light, pig))| {
-            format!(
-                "{dim}|{},{},{}|{}|{}|{}",
-                p.0, p.1, p.2, *light as u8, pig.item, pig.owner
-            )
+        .map(|((dim, pos), (light, pigment))| Kept {
+            dim: dim.clone(),
+            pos: *pos,
+            light: *light,
+            pigment: pigment.clone(),
         })
         .collect();
-    global().set(KEY, lines.join("\n"));
+    if let Some(store) = yog_api::storage::world() {
+        store.set(KEY, &known);
+    }
 }
 
 fn load() {
-    let text = global().get_str(KEY).unwrap_or("").to_owned();
-    let mut known = KNOWN.lock().unwrap();
-    known.clear();
-    for line in text.lines() {
-        let f: Vec<&str> = line.split('|').collect();
-        let [dim, pos, light, item, owner] = f[..] else {
-            continue;
-        };
-        let mut n = pos.split(',').filter_map(|v| v.parse().ok());
-        let (Some(x), Some(y), Some(z)) = (n.next(), n.next(), n.next()) else {
-            continue;
-        };
-        known.insert(
-            (dim.to_owned(), (x, y, z)),
-            (
-                light == "1",
-                Pigment {
-                    item: item.into(),
-                    owner: owner.into(),
-                },
-            ),
-        );
-    }
+    let kept: Vec<Kept> = yog_api::storage::world()
+        .map(|s| s.get_or_default(KEY))
+        .unwrap_or_default();
+    *KNOWN.lock().unwrap() = kept
+        .into_iter()
+        .map(|k| ((k.dim, k.pos), (k.light, k.pigment)))
+        .collect();
 }
 
 /// `BlockConjured.setColor`: a block was conjured with `pigment`.

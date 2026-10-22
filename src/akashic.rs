@@ -8,9 +8,9 @@
 
 use std::collections::{HashSet, VecDeque};
 
-use yog_api::Storage;
+use yog_api::storage::Store;
 
-use crate::casting::env::{MOD_ID, random, to_ypos};
+use crate::casting::env::{random, to_ypos};
 use crate::casting::mishap::BlockPos;
 use crate::content::Blocks;
 use crate::iota::Iota;
@@ -34,56 +34,45 @@ pub fn is_floodfiller(id: &str) -> bool {
     matches!(id, RECORD | BOOKSHELF | LIGATURE)
 }
 
-fn store(dim: &str, pos: BlockPos) -> Storage {
-    Storage::open_chunk(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-        dim,
-        pos.0 >> 4,
-        pos.2 >> 4,
-    )
+/// The chunk's store `pos` is in, with a world open.
+fn store(dim: &str, pos: BlockPos) -> Option<Store> {
+    yog_api::storage::chunk(dim, pos.0 >> 4, pos.2 >> 4)
 }
 
-const KEY_PREFIX: &str = "akashic.";
-const PATTERN: &str = "pattern";
-const IOTA: &str = "iota";
+/// Where a chunk's shelves are kept in its store.
+const SHELVES_KEY: &str = "akashic";
 
-fn key(pos: BlockPos, what: &str) -> String {
-    format!("{KEY_PREFIX}{}.{}.{}.{what}", pos.0, pos.1, pos.2)
-}
-
-/// The shelf a `pattern` key belongs to.
-fn pos_of_key(key: &str) -> Option<BlockPos> {
-    let rest = key
-        .strip_prefix(KEY_PREFIX)?
-        .strip_suffix(PATTERN)?
-        .strip_suffix('.')?;
-    let mut it = rest.split('.').map(str::parse);
-    let pos = (it.next()?.ok()?, it.next()?.ok()?, it.next()?.ok()?);
-    it.next().is_none().then_some(pos)
+/// A bookshelf's mapping, kept with its chunk: its pattern and iota, in
+/// the casting's own text forms.
+#[derive(Clone, yog_api::Schema)]
+struct Shelf {
+    pos: BlockPos,
+    pattern: String,
+    iota: String,
 }
 
 /// A bookshelf's mapping: its pattern and iota.
 pub fn shelf(dim: &str, pos: BlockPos) -> Option<(HexPattern, Iota)> {
-    let s = store(dim, pos);
-    let pattern = HexPattern::from_serialized(s.get_str(&key(pos, PATTERN))?)?;
-    let iota = Iota::deserialize(s.get_str(&key(pos, IOTA)).unwrap_or(""));
-    Some((pattern, iota))
+    let shelves: Vec<Shelf> = store(dim, pos)?.get_or_default(SHELVES_KEY);
+    let found = shelves.into_iter().find(|s| s.pos == pos)?;
+    let pattern = HexPattern::from_serialized(&found.pattern)?;
+    Some((pattern, Iota::deserialize(&found.iota)))
 }
 
 /// `BlockEntityAkashicBookshelf.setNewMapping` (`None` clears it).
 pub fn set_shelf(dim: &str, pos: BlockPos, mapping: Option<(&HexPattern, &Iota)>) {
-    let mut s = store(dim, pos);
-    match mapping {
-        Some((p, i)) => {
-            forget_lost_shelves(dim, &mut s);
-            s.set(key(pos, PATTERN), p.serialized_form());
-            s.set(key(pos, IOTA), i.serialize());
-        }
-        None => {
-            s.remove(&key(pos, PATTERN));
-            s.remove(&key(pos, IOTA));
-        }
+    if let Some(s) = store(dim, pos) {
+        s.update(SHELVES_KEY, |shelves: &mut Vec<Shelf>| {
+            shelves.retain(|s| s.pos != pos);
+            if let Some((p, i)) = mapping {
+                forget_lost_shelves(dim, shelves);
+                shelves.push(Shelf {
+                    pos,
+                    pattern: p.serialized_form(),
+                    iota: i.serialize(),
+                });
+            }
+        });
     }
     // `HAS_BOOKS`: the shelf shows books while it holds something.
     if block_id(dim, pos) == BOOKSHELF {
@@ -96,19 +85,10 @@ pub fn set_shelf(dim: &str, pos: BlockPos, mapping: Option<(&HexPattern, &Iota)>
 /// Drops what shelves no longer there held: blown up, pushed away or
 /// replaced without a player (only player breaks and Break Block clear
 /// their entry as it happens).
-fn forget_lost_shelves(dim: &str, s: &mut Storage) {
-    let lost: Vec<BlockPos> = s
-        .iter()
-        .filter_map(|(k, _)| pos_of_key(k))
-        .filter(|&pos| {
-            yog_api::event::block::info(dim, to_ypos(pos))
-                .is_some_and(|b| b.block_id() != BOOKSHELF)
-        })
-        .collect();
-    for pos in lost {
-        s.remove(&key(pos, PATTERN));
-        s.remove(&key(pos, IOTA));
-    }
+fn forget_lost_shelves(dim: &str, shelves: &mut Vec<Shelf>) {
+    shelves.retain(|s| {
+        yog_api::event::block::info(dim, to_ypos(s.pos)).is_none_or(|b| b.block_id() == BOOKSHELF)
+    });
 }
 
 /// `AkashicFloodfiller.floodFillFor`: breadth-first through the library
@@ -183,17 +163,4 @@ pub fn add_new_datum(
     })?;
     set_shelf(dim, open, Some((key, datum)));
     Some(open)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn keys_name_their_shelf() {
-        let pos = (-3, 64, 17);
-        assert_eq!(pos_of_key(&key(pos, PATTERN)), Some(pos));
-        assert_eq!(pos_of_key(&key(pos, IOTA)), None);
-        assert_eq!(pos_of_key("akashic.1.2.pattern"), None);
-    }
 }

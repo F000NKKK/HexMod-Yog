@@ -11,10 +11,11 @@ use std::collections::{HashMap, HashSet};
 use std::sync::{LazyLock, Mutex};
 
 use yog_api::vanilla;
-use yog_api::{EventPhase, Registry, Storage, split_state};
+use yog_api::storage::Store;
+use yog_api::{EventPhase, Registry, split_state};
 
 use crate::casting::env::{
-    CastEnv, Caster, CircleRun, MOD_ID, Source, Spray, from_ypos, get_pigment, random, to_ypos,
+    CastEnv, Caster, CircleRun, Source, Spray, from_ypos, get_pigment, random, to_ypos,
 };
 use crate::casting::image::Image;
 use crate::casting::mishap::{BlockPos, Context, Mishap, dye};
@@ -253,18 +254,35 @@ fn set_energized(dim: &str, pos: BlockPos, part: &Part, on: bool) {
 
 // ── an impetus' state (`BlockEntityAbstractImpetus`) ────────────────────────
 
-fn store(dim: &str, pos: BlockPos) -> Storage {
-    Storage::open_chunk(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-        dim,
-        pos.0 >> 4,
-        pos.2 >> 4,
-    )
+/// The chunk's store `pos` is in, with a world open.
+fn store(dim: &str, pos: BlockPos) -> Option<Store> {
+    yog_api::storage::chunk(dim, pos.0 >> 4, pos.2 >> 4)
 }
 
-fn key(what: &str, pos: BlockPos) -> String {
-    format!("{what}.{}.{}.{}", pos.0, pos.1, pos.2)
+/// Where a chunk's impetuses and slates are kept in its store.
+const IMPETUS_KEY: &str = "impetus";
+const SLATES_KEY: &str = "slates";
+
+/// What an impetus keeps, as it's kept with its chunk (its message and
+/// run in the casting's own text forms).
+#[derive(Default, yog_api::Schema)]
+struct KeptImpetus {
+    pos: BlockPos,
+    media: i64,
+    /// The item beside its message, and the message.
+    display: Option<(String, String)>,
+    pigment: Option<Pigment>,
+    run: Option<String>,
+    look: i32,
+    /// The cleric impetus' player: uuid and name.
+    player: Option<(String, String)>,
+}
+
+/// A slate's pattern, kept with its chunk.
+#[derive(yog_api::Schema)]
+struct KeptSlate {
+    pos: BlockPos,
+    pattern: String,
 }
 
 /// `CircleExecutionState`.
@@ -365,70 +383,48 @@ pub struct Impetus {
 }
 
 pub fn impetus(dim: &str, pos: BlockPos) -> Impetus {
-    let s = store(dim, pos);
-    let get = |what: &str| s.get_str(&key(what, pos)).map(str::to_owned);
+    let all: Vec<KeptImpetus> = store(dim, pos)
+        .map(|s| s.get_or_default(IMPETUS_KEY))
+        .unwrap_or_default();
+    let Some(k) = all.into_iter().find(|k| k.pos == pos) else {
+        return Impetus::default();
+    };
     Impetus {
-        media: s.get_int(&key("impetus.media", pos)).unwrap_or(0),
-        display: get("impetus.display").and_then(|d| {
-            let (item, text) = d.split_once('\t')?;
-            Some((Text::decode(text)?, item.to_owned()))
-        }),
-        pigment: get("impetus.pigment").and_then(|p| {
-            let (item, owner) = p.split_once('\t')?;
-            Some(Pigment {
-                item: item.into(),
-                owner: owner.into(),
-            })
-        }),
-        run: get("impetus.run").and_then(|r| Run::decode(&r)),
-        look: s.get_int(&key("impetus.look", pos)).unwrap_or(0) as i32,
-        player: get("impetus.player").and_then(|p| {
-            let (uuid, name) = p.split_once('\t')?;
-            Some((uuid.into(), name.into()))
-        }),
+        media: k.media,
+        display: k
+            .display
+            .and_then(|(item, text)| Some((Text::decode(&text)?, item))),
+        pigment: k.pigment,
+        run: k.run.and_then(|r| Run::decode(&r)),
+        look: k.look,
+        player: k.player,
     }
 }
 
 fn save_impetus(dim: &str, pos: BlockPos, i: &Impetus) {
-    let mut s = store(dim, pos);
-    s.set(key("impetus.media", pos), i.media);
-    let mut put = |what: &str, v: Option<String>| match v {
-        Some(v) => s.set(key(what, pos), v),
-        None => {
-            s.remove(&key(what, pos));
-        }
+    let kept = KeptImpetus {
+        pos,
+        media: i.media,
+        display: i
+            .display
+            .as_ref()
+            .map(|(text, item)| (item.clone(), text.encode())),
+        pigment: i.pigment.clone(),
+        run: i.run.as_ref().map(Run::encode),
+        look: i.look,
+        player: i.player.clone(),
     };
-    put(
-        "impetus.display",
-        i.display
-            .as_ref()
-            .map(|(text, item)| format!("{item}\t{}", text.encode())),
-    );
-    put(
-        "impetus.pigment",
-        i.pigment
-            .as_ref()
-            .map(|p| format!("{}\t{}", p.item, p.owner)),
-    );
-    put("impetus.run", i.run.as_ref().map(Run::encode));
-    put(
-        "impetus.player",
-        i.player.as_ref().map(|(u, n)| format!("{u}\t{n}")),
-    );
-    s.set(key("impetus.look", pos), i.look as i64);
+    if let Some(s) = store(dim, pos) {
+        s.update(IMPETUS_KEY, |all: &mut Vec<KeptImpetus>| {
+            all.retain(|k| k.pos != pos);
+            all.push(kept);
+        });
+    }
 }
 
 fn forget_impetus(dim: &str, pos: BlockPos) {
-    let mut s = store(dim, pos);
-    for what in [
-        "impetus.media",
-        "impetus.display",
-        "impetus.pigment",
-        "impetus.run",
-        "impetus.player",
-        "impetus.look",
-    ] {
-        s.remove(&key(what, pos));
+    if let Some(s) = store(dim, pos) {
+        s.update(IMPETUS_KEY, |all: &mut Vec<KeptImpetus>| all.retain(|k| k.pos != pos));
     }
 }
 
@@ -482,42 +478,47 @@ static TICKS: Mutex<u64> = Mutex::new(0);
 static PLACING: LazyLock<Mutex<HashMap<String, Option<HexPattern>>>> =
     LazyLock::new(Default::default);
 
-const KNOWN_KEY: &str = "circles.impetuses";
+/// Where the impetuses there are, are kept in the world store.
+const KNOWN_KEY: &str = "circles";
 
-fn global() -> Storage {
-    Storage::open(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-    )
+/// An impetus there is, as it's kept with the world.
+#[derive(yog_api::Schema)]
+struct KeptKnown {
+    dim: String,
+    pos: BlockPos,
+    id: String,
 }
 
 fn save_known() {
-    let known = KNOWN.lock().unwrap();
-    let list: Vec<String> = known
+    let known: Vec<KeptKnown> = KNOWN
+        .lock()
+        .unwrap()
         .iter()
-        .map(|((dim, p), k)| format!("{dim}|{}|{}", pos_str(*p), k.id))
+        .map(|((dim, pos), k)| KeptKnown {
+            dim: dim.clone(),
+            pos: *pos,
+            id: k.id.clone(),
+        })
         .collect();
-    global().set(KNOWN_KEY, list.join("\n"));
+    if let Some(store) = yog_api::storage::world() {
+        store.set(KNOWN_KEY, &known);
+    }
 }
 
 fn load_known() {
-    let text = global().get_str(KNOWN_KEY).unwrap_or("").to_owned();
+    let kept: Vec<KeptKnown> = yog_api::storage::world()
+        .map(|s| s.get_or_default(KNOWN_KEY))
+        .unwrap_or_default();
     let mut known = KNOWN.lock().unwrap();
     known.clear();
-    for line in text.lines() {
-        let mut it = line.split('|');
-        let (Some(dim), Some(pos), Some(id)) =
-            (it.next(), it.next().and_then(parse_pos), it.next())
-        else {
-            continue;
-        };
-        let i = impetus(dim, pos);
-        let powered = yog_api::event::block::property(dim, to_ypos(pos), "powered").as_deref()
+    for KeptKnown { dim, pos, id } in kept {
+        let i = impetus(&dim, pos);
+        let powered = yog_api::event::block::property(&dim, to_ypos(pos), "powered").as_deref()
             == Some("true");
         known.insert(
-            (dim.to_owned(), pos),
+            (dim, pos),
             Known {
-                id: id.to_owned(),
+                id,
                 due: i.run.as_ref().map(|_| 1),
                 powered,
             },
@@ -1025,17 +1026,24 @@ pub fn tick() {
 
 /// `BlockEntitySlate.pattern`.
 pub fn slate_pattern(dim: &str, pos: BlockPos) -> Option<HexPattern> {
-    HexPattern::from_serialized(store(dim, pos).get_str(&key("slate", pos))?)
+    let slates: Vec<KeptSlate> = store(dim, pos)?.get_or_default(SLATES_KEY);
+    let slate = slates.into_iter().find(|s| s.pos == pos)?;
+    HexPattern::from_serialized(&slate.pattern)
 }
 
 fn set_slate_pattern(dim: &str, pos: BlockPos, pattern: Option<&HexPattern>) {
-    let mut s = store(dim, pos);
-    match pattern {
-        Some(p) => s.set(key("slate", pos), p.serialized_form()),
-        None => {
-            s.remove(&key("slate", pos));
+    let Some(s) = store(dim, pos) else {
+        return;
+    };
+    s.update(SLATES_KEY, |slates: &mut Vec<KeptSlate>| {
+        slates.retain(|s| s.pos != pos);
+        if let Some(p) = pattern {
+            slates.push(KeptSlate {
+                pos,
+                pattern: p.serialized_form(),
+            });
         }
-    }
+    });
 }
 
 /// The slate item, written with `pattern` if it has one.

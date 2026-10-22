@@ -16,7 +16,7 @@ use crate::casting::args::{
 use crate::casting::cont::Cont;
 use crate::casting::env::{
     CastEnv, DIM_TP_DENYLIST, Sentinel, Spray, Stack, get_pigment, get_sentinel, look_vec,
-    player_storage, random, set_sentinel, to_ypos,
+    random, set_sentinel, to_ypos,
 };
 use crate::casting::image::Image;
 use crate::casting::mishap::{BlockPos, MResult, Mishap, dye, item_name};
@@ -974,7 +974,7 @@ pub fn create_sentinel(env: &mut CastEnv, target: Vec3, great: bool) -> MResult<
 // ── flight ─────────────────────────────────────────────────────────────────
 
 /// `FlightAbility`: what Anchorite's / Wayfarer's Flight granted a player.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, yog_api::Schema)]
 pub struct FlightAbility {
     /// Ticks left, or -1 for no limit.
     pub time_left: i64,
@@ -987,44 +987,16 @@ pub struct FlightAbility {
 /// Loaded flights, by player uuid (`None`: known not to fly).
 static FLIGHTS: Mutex<Option<HashMap<String, Option<FlightAbility>>>> = Mutex::new(None);
 
+/// Each player's flight, kept with the world.
+static FLIGHT: yog_api::storage::PlayerData<Option<FlightAbility>> =
+    yog_api::storage::PlayerData::new("flight");
+
 fn load_flight(uuid: &str) -> Option<FlightAbility> {
-    let s = player_storage(uuid);
-    Some(FlightAbility {
-        time_left: s.get_int("flight.time")?,
-        dim: s.get_str("flight.dim")?.to_owned(),
-        origin: Vec3::new(
-            s.get_float("flight.x")?,
-            s.get_float("flight.y")?,
-            s.get_float("flight.z")?,
-        ),
-        radius: s.get_float("flight.radius")?,
-    })
+    FLIGHT.with(uuid, Clone::clone)
 }
 
 fn store_flight(uuid: &str, f: Option<&FlightAbility>) {
-    let mut s = player_storage(uuid);
-    match f {
-        Some(f) => {
-            s.set("flight.time", f.time_left);
-            s.set("flight.dim", f.dim.as_str());
-            s.set("flight.x", f.origin.x);
-            s.set("flight.y", f.origin.y);
-            s.set("flight.z", f.origin.z);
-            s.set("flight.radius", f.radius);
-        }
-        None => {
-            for k in [
-                "flight.time",
-                "flight.dim",
-                "flight.x",
-                "flight.y",
-                "flight.z",
-                "flight.radius",
-            ] {
-                s.remove(k);
-            }
-        }
-    }
+    FLIGHT.with_mut(uuid, |kept| *kept = f.cloned());
 }
 
 /// The flight a player was granted, if any.

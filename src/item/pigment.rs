@@ -6,7 +6,7 @@ use crate::content::Items;
 use crate::math::Vec3;
 
 /// A pigment item and its owner, as the original freezes it.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, yog_api::Schema)]
 pub struct Pigment {
     pub item: String,
     pub owner: String,

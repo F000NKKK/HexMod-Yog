@@ -1,11 +1,10 @@
 //! Great spells (`casting/actions/spells/great/*`).
 
-use yog_api::Storage;
 use yog_api::vanilla;
 
 use crate::casting::actions::{Action, actions};
 use crate::casting::args::{Ent, ItemEnt, Living, Mob, Player, PosDouble};
-use crate::casting::env::{CastEnv, MOD_ID, Spray, Stack, random, to_ypos};
+use crate::casting::env::{CastEnv, Spray, Stack, random, to_ypos};
 use crate::casting::mishap::{BlockPos, MResult, Mishap};
 use crate::casting::ops::spells::{
     assert_teleportable, craft_battery, create_fluid, create_sentinel, potion, teleport_by,
@@ -240,25 +239,17 @@ fn sweepee_matches(mob: &Ent, want: &Sweepee) -> bool {
     }
 }
 
+/// What a brainswept mob keeps on itself (saved with it): it's there or not.
+const BRAINSWEPT: &str = "hexcasting:brainswept";
+
 /// `IXplatAbstractions.isBrainswept`.
 pub fn is_brainswept(uuid: &str) -> bool {
-    Storage::open_entity(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-        uuid,
-    )
-    .get_bool("brainswept")
-    .unwrap_or(false)
+    yog_api::event::entity::data(uuid, BRAINSWEPT).is_some()
 }
 
 /// `HexAPI.brainsweep`: the mob stays, but its mind is gone.
 fn mark_brainswept(uuid: &str) {
-    let mut s = Storage::open_entity(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-        uuid,
-    );
-    s.set("brainswept", true);
+    yog_api::event::entity::set_data(uuid, BRAINSWEPT, Some(&[]), true);
     yog_api::event::entity::set_nbt(uuid, "{NoAI:1b}");
 }
 

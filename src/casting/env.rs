@@ -4,7 +4,6 @@
 
 use std::sync::atomic::{AtomicU8, Ordering};
 
-use yog_api::Storage;
 use yog_api::core::{EntityInfo, entity_flags};
 use yog_api::vanilla;
 
@@ -67,15 +66,6 @@ pub fn random() -> f64 {
         s.set(x);
         (x >> 11) as f64 / (1u64 << 53) as f64
     })
-}
-
-/// A player's persistent state (flags, pigment, sentinel, staff grid).
-pub fn player_storage(uuid: &str) -> Storage {
-    Storage::open_player(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-        uuid,
-    )
 }
 
 /// The caster: a player, by name (for inventory calls) and uuid.
@@ -1081,25 +1071,20 @@ pub fn look_vec(uuid: &str) -> Vec3 {
 
 // ── per-player state ──────────────────────────────────────────────────────
 
+/// Each player's pigment, kept with the world.
+static PIGMENT: yog_api::storage::PlayerData<Option<Pigment>> =
+    yog_api::storage::PlayerData::new("pigment");
+
 pub fn get_pigment(uuid: &str) -> Pigment {
-    let s = player_storage(uuid);
-    match s.get_str("pigment.item") {
-        Some(item) => Pigment {
-            item: item.to_owned(),
-            owner: s.get_str("pigment.owner").unwrap_or(uuid).to_owned(),
-        },
-        None => Pigment::default(),
-    }
+    PIGMENT.with(uuid, Clone::clone).unwrap_or_default()
 }
 
 pub fn set_pigment(uuid: &str, p: &Pigment) {
-    let mut s = player_storage(uuid);
-    s.set("pigment.item", p.item.as_str());
-    s.set("pigment.owner", p.owner.as_str());
+    PIGMENT.with_mut(uuid, |kept| *kept = Some(p.clone()));
 }
 
 /// A player's sentinel (`Sentinel`).
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, yog_api::Schema)]
 pub struct Sentinel {
     /// Greater Sentinels extend the caster's ambit.
     pub great: bool,
@@ -1107,39 +1092,14 @@ pub struct Sentinel {
     pub dim: String,
 }
 
+/// Each player's sentinel, kept with the world.
+static SENTINEL: yog_api::storage::PlayerData<Option<Sentinel>> =
+    yog_api::storage::PlayerData::new("sentinel");
+
 pub fn get_sentinel(uuid: &str) -> Option<Sentinel> {
-    let s = player_storage(uuid);
-    Some(Sentinel {
-        great: s.get_bool("sentinel.great").unwrap_or(false),
-        pos: Vec3::new(
-            s.get_float("sentinel.x")?,
-            s.get_float("sentinel.y")?,
-            s.get_float("sentinel.z")?,
-        ),
-        dim: s.get_str("sentinel.dim")?.to_owned(),
-    })
+    SENTINEL.with(uuid, Clone::clone)
 }
 
 pub fn set_sentinel(uuid: &str, sentinel: Option<&Sentinel>) {
-    let mut s = player_storage(uuid);
-    match sentinel {
-        Some(t) => {
-            s.set("sentinel.great", t.great);
-            s.set("sentinel.x", t.pos.x);
-            s.set("sentinel.y", t.pos.y);
-            s.set("sentinel.z", t.pos.z);
-            s.set("sentinel.dim", t.dim.as_str());
-        }
-        None => {
-            for k in [
-                "sentinel.great",
-                "sentinel.x",
-                "sentinel.y",
-                "sentinel.z",
-                "sentinel.dim",
-            ] {
-                s.remove(k);
-            }
-        }
-    }
+    SENTINEL.with_mut(uuid, |kept| *kept = sentinel.cloned());
 }

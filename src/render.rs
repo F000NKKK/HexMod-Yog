@@ -10,9 +10,9 @@ use std::sync::{LazyLock, Mutex};
 
 use yog_api::gfx_core::{DrawMode, blend};
 use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
-use yog_api::{GfxContext, Registry, Storage, split_state};
+use yog_api::{GfxContext, Registry, split_state};
 
-use crate::casting::env::{MOD_ID, get_pigment, get_sentinel, to_ypos};
+use crate::casting::env::{get_pigment, get_sentinel, to_ypos};
 use crate::item::pigment::Pigment;
 use crate::math::{HexPattern, Vec3};
 use crate::ui::render_lib::{Mesh, Vec2, draw_line_seq, get_centered_pattern, screen_col};
@@ -50,41 +50,41 @@ struct Slate {
 /// Every slate with a pattern, by dimension and position (the server's).
 static SLATES: LazyLock<Mutex<HashMap<(String, (i32, i32, i32)), HexPattern>>> =
     LazyLock::new(Default::default);
-const SLATES_KEY: &str = "render.slates";
+/// Where they're kept in the world store.
+const SLATES_KEY: &str = "render_slates";
 
-fn global() -> Storage {
-    Storage::open(
-        &yog_api::event::game::world_dir().unwrap_or_default(),
-        MOD_ID,
-    )
+/// A slate with a pattern, as it's kept with the world.
+#[derive(yog_api::Schema)]
+struct KeptSlate {
+    dim: String,
+    pos: (i32, i32, i32),
+    pattern: String,
 }
 
 fn save_slates() {
-    let slates = SLATES.lock().unwrap();
-    let lines: Vec<String> = slates
+    let slates: Vec<KeptSlate> = SLATES
+        .lock()
+        .unwrap()
         .iter()
-        .map(|((dim, p), pat)| format!("{dim}|{},{},{}|{}", p.0, p.1, p.2, pat.serialized_form()))
+        .map(|((dim, pos), p)| KeptSlate {
+            dim: dim.clone(),
+            pos: *pos,
+            pattern: p.serialized_form(),
+        })
         .collect();
-    global().set(SLATES_KEY, lines.join("\n"));
+    if let Some(store) = yog_api::storage::world() {
+        store.set(SLATES_KEY, &slates);
+    }
 }
 
 fn load_slates() {
-    let text = global().get_str(SLATES_KEY).unwrap_or("").to_owned();
-    let mut slates = SLATES.lock().unwrap();
-    slates.clear();
-    for line in text.lines() {
-        let mut it = line.splitn(3, '|');
-        let (Some(dim), Some(pos), Some(pat)) = (it.next(), it.next(), it.next()) else {
-            continue;
-        };
-        let mut n = pos.split(',').filter_map(|v| v.parse().ok());
-        let (Some(x), Some(y), Some(z)) = (n.next(), n.next(), n.next()) else {
-            continue;
-        };
-        if let Some(p) = HexPattern::from_serialized(pat) {
-            slates.insert((dim.to_owned(), (x, y, z)), p);
-        }
-    }
+    let kept: Vec<KeptSlate> = yog_api::storage::world()
+        .map(|s| s.get_or_default(SLATES_KEY))
+        .unwrap_or_default();
+    *SLATES.lock().unwrap() = kept
+        .into_iter()
+        .filter_map(|k| Some(((k.dim, k.pos), HexPattern::from_serialized(&k.pattern)?)))
+        .collect();
 }
 
 /// A bookshelf got a pattern, or lost it (`None`): drawn on its front.
