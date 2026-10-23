@@ -8,6 +8,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::time::Instant;
 use yog_api::sync::OnceLock;
+use yog_api::yog_ids::time::TICKS_PER_SECOND;
 
 use crate::math::{HexCoord, HexPattern};
 
@@ -26,6 +27,16 @@ pub use zappy::{
 };
 
 pub const SQRT_3: f32 = 1.732_050_8;
+/// A grid row's height, in points' spacings; a third and two thirds, as
+/// the original rounds them.
+const ROW_STEP: f32 = 1.5;
+const THIRD: f32 = 0.33333;
+const SQRT_3_THIRD: f32 = SQRT_3 / 3.0;
+const TWO_THIRDS: f32 = 0.66666;
+/// A color channel's full value, as a float.
+pub const CHANNEL: f32 = u8::MAX as f32;
+/// `dodge`: how much of a channel a spot's color keeps.
+const DODGE: f32 = 0.9;
 pub(super) const TAU: f64 = std::f64::consts::TAU;
 pub(super) const PI: f32 = std::f32::consts::PI;
 /// Degrees between the triangles of a line's round caps and joins.
@@ -68,7 +79,7 @@ pub fn round_to_int(v: f32) -> i32 {
 pub fn coord_to_px(coord: HexCoord, size: f32, offset: Vec2) -> Vec2 {
     Vec2::new(
         SQRT_3 * coord.0 as f32 + SQRT_3 / 2.0 * coord.1 as f32,
-        1.5 * coord.1 as f32,
+        ROW_STEP * coord.1 as f32,
     ) * size
         + offset
 }
@@ -76,8 +87,8 @@ pub fn coord_to_px(coord: HexCoord, size: f32, offset: Vec2) -> Vec2 {
 /// The grid point nearest to pixel `px`.
 pub fn px_to_coord(px: Vec2, size: f32, offset: Vec2) -> HexCoord {
     let o = px - offset;
-    let mut qf = (SQRT_3 / 3.0 * o.x - 0.33333 * o.y) / size;
-    let mut rf = (0.66666 * o.y) / size;
+    let mut qf = (SQRT_3_THIRD * o.x - THIRD * o.y) / size;
+    let mut rf = (TWO_THIRDS * o.y) / size;
     let q = round_to_int(qf);
     let r = round_to_int(rf);
     qf -= q as f32;
@@ -134,7 +145,7 @@ pub fn find_dup_indices<T: Eq + Hash>(pts: impl IntoIterator<Item = T>) -> HashS
 /// call, with the fraction.
 pub fn ticks() -> f64 {
     static START: OnceLock<Instant> = OnceLock::new();
-    START.get_or_init(Instant::now).elapsed().as_secs_f64() * 20.0
+    START.get_or_init(Instant::now).elapsed().as_secs_f64() * f64::from(TICKS_PER_SECOND)
 }
 
 // ── colors (`FastColor.ARGB32`) ─────────────────────────────────────────────
@@ -160,12 +171,8 @@ pub fn argb(a: i32, r: i32, g: i32, b: i32) -> u32 {
 
 /// A color from 0..1 components (`drawSpot`'s float overload).
 pub fn argb_f(a: f32, r: f32, g: f32, b: f32) -> u32 {
-    argb(
-        (a * 255.0) as i32,
-        (r * 255.0) as i32,
-        (g * 255.0) as i32,
-        (b * 255.0) as i32,
-    )
+    let full = |v: f32| (v * CHANNEL) as i32;
+    argb(full(a), full(r), full(g), full(b))
 }
 
 pub(super) fn screen(n: i32) -> i32 {
@@ -178,7 +185,7 @@ pub fn screen_col(n: u32) -> u32 {
 }
 
 pub fn dodge(n: i32) -> f32 {
-    n as f32 * 0.9
+    n as f32 * DODGE
 }
 
 pub(super) fn lerp(t: f32, a: f32, b: f32) -> f32 {

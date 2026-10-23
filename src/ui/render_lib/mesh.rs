@@ -1,6 +1,7 @@
 //! The mesh of colored triangles patterns are drawn as, and the GPU
 //! program that draws it.
 
+use super::CHANNEL;
 use super::{Vec2, alpha, blue, green, red};
 use yog_api::GfxContext;
 use yog_api::gfx_core::{DataType, DrawMode, blend};
@@ -48,10 +49,10 @@ impl Mesh {
         self.verts.extend_from_slice(&[
             p.x,
             p.y,
-            red(color) as f32 / 255.0,
-            green(color) as f32 / 255.0,
-            blue(color) as f32 / 255.0,
-            alpha(color) as f32 / 255.0,
+            red(color) as f32 / CHANNEL,
+            green(color) as f32 / CHANNEL,
+            blue(color) as f32 / CHANNEL,
+            alpha(color) as f32 / CHANNEL,
         ]);
     }
 

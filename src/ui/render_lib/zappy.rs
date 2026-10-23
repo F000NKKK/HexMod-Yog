@@ -1,6 +1,7 @@
 //! Patterns' zappy lines and where they're drawn.
 
 use super::super::noise::get_noise;
+use super::CHANNEL;
 use super::McVec2;
 use super::lines::{Line, draw_line_seq, draw_spot};
 use super::mesh::Mesh;
@@ -66,10 +67,10 @@ pub fn draw_pattern_from_points(
     draw_line_seq(mesh, &zappy, inner);
     let h = style.head;
     let spot = argb_f(
-        alpha(h) as f32 / 255.0,
-        dodge(red(h)) / 255.0,
-        dodge(green(h)) / 255.0,
-        dodge(blue(h)) / 255.0,
+        alpha(h) as f32 / CHANNEL,
+        dodge(red(h)) / CHANNEL,
+        dodge(green(h)) / CHANNEL,
+        dodge(blue(h)) / CHANNEL,
     );
     for &node in nodes {
         draw_spot(mesh, node, GUI_SPOT, spot);
@@ -127,6 +128,16 @@ pub fn static_zappy(dots: &[Vec2], dups: &HashSet<usize>, readable: bool, seed: 
     make_zappy(dots, Some(dups), &zap)
 }
 
+/// `makeZappy`'s shaking: how fast a hop's stray ramps up from its ends,
+/// how many turns its direction spans, and the noise rows its direction
+/// and distance are read from.
+const VARIANCE_RAMP: f64 = 8.0;
+const THETA_TURNS: f64 = 3.0;
+const THETA_NOISE: f64 = 1337.0;
+const RADIUS_NOISE: f64 = 69420.0;
+/// `getCenteredPattern` fits the pattern in a third of the box.
+const FIT_SHARE: f32 = 3.0;
+
 /// `makeZappy`: each segment split into `hops` jittered sub-points that
 /// shake over time (`ticks`). Points in `dup_indices` (visited twice) are
 /// pulled `readability_offset` of the way into their segments so crossing
@@ -140,53 +151,9 @@ pub fn make_zappy(
     if bare_points.is_empty() {
         return Vec::new();
     }
-    let Zappy {
-        hops,
-        variance,
-        speed,
-        flow_irregular,
-        readability_offset,
-        last_segment_len_prop,
-        seed,
-        ticks,
-    } = *z;
-    let zappify = |points: &[Vec2], truncate_last: bool| -> Vec<Vec2> {
-        let scale_variance = |it: f64| 1f64.min(8.0 * (0.5 - (0.5 - it).abs()));
-        let z_seed = ticks * speed as f64;
-        let mut out = Vec::with_capacity(points.len() * hops as usize);
-        out.push(points[0]);
-        for (i, pair) in points.windows(2).enumerate() {
-            let (src, target) = (pair[0], pair[1]);
-            let delta = target - src;
-            let hop_dist = src.distance_to_sqr(target).sqrt() / hops as f32;
-            let max_variance = hop_dist * variance;
-            let max_j = if truncate_last && i == points.len() - 2 {
-                round_to_int(last_segment_len_prop * hops as f32)
-            } else {
-                hops
-            };
-            for j in 1..=max_j {
-                let progress = j as f64 / (hops + 1) as f64;
-                let pos = src + delta * progress as f32;
-                let minor_perturb =
-                    get_noise(i as f64, j as f64, z_seed.sin()) * flow_irregular as f64;
-                let theta = (3.0
-                    * get_noise(i as f64 + progress + minor_perturb - z_seed, 1337.0, seed)
-                    * TAU) as f32;
-                let r = (get_noise(i as f64 + progress - z_seed, 69420.0, seed)
-                    * max_variance as f64
-                    * scale_variance(progress)) as f32;
-                out.push(pos + Vec2::new(r * theta.cos(), r * theta.sin()));
-                if j == hops {
-                    out.push(target);
-                }
-            }
-        }
-        out
-    };
-
+    let readability_offset = z.readability_offset;
     let Some(dups) = dup_indices else {
-        return zappify(bare_points, true);
+        return zappify(bare_points, true, z);
     };
     let mut points = Vec::new();
     let mut daisy_chain = Vec::new();
@@ -200,14 +167,50 @@ pub fn make_zappy(
         }
         if i == bare_points.len() - 2 {
             daisy_chain.push(tail);
-            points.extend(zappify(&daisy_chain, true));
+            points.extend(zappify(&daisy_chain, true, z));
         } else if dups.contains(&(i + 1)) {
             daisy_chain.push(tail - tangent);
-            points.extend(zappify(&daisy_chain, false));
+            points.extend(zappify(&daisy_chain, false, z));
             daisy_chain.clear();
         }
     }
     points
+}
+
+/// `points` with each segment split into jittered hops; the last segment
+/// cut to its share when `truncate_last`.
+fn zappify(points: &[Vec2], truncate_last: bool, z: &Zappy) -> Vec<Vec2> {
+    let hops = z.hops;
+    let scale_variance = |it: f64| 1f64.min(VARIANCE_RAMP * (0.5 - (0.5 - it).abs()));
+    let z_seed = z.ticks * z.speed as f64;
+    let mut out = Vec::with_capacity(points.len() * hops as usize);
+    out.push(points[0]);
+    for (i, pair) in points.windows(2).enumerate() {
+        let (src, target) = (pair[0], pair[1]);
+        let delta = target - src;
+        let hop_dist = src.distance_to_sqr(target).sqrt() / hops as f32;
+        let max_variance = hop_dist * z.variance;
+        let max_j = if truncate_last && i == points.len() - 2 {
+            round_to_int(z.last_segment_len_prop * hops as f32)
+        } else {
+            hops
+        };
+        for j in 1..=max_j {
+            let progress = j as f64 / (hops + 1) as f64;
+            let pos = src + delta * progress as f32;
+            let minor_perturb =
+                get_noise(i as f64, j as f64, z_seed.sin()) * z.flow_irregular as f64;
+            let turn_at = i as f64 + progress + minor_perturb - z_seed;
+            let theta = (THETA_TURNS * get_noise(turn_at, THETA_NOISE, z.seed) * TAU) as f32;
+            let stray = get_noise(i as f64 + progress - z_seed, RADIUS_NOISE, z.seed);
+            let r = (stray * max_variance as f64 * scale_variance(progress)) as f32;
+            out.push(pos + Vec2::new(r * theta.cos(), r * theta.sin()));
+            if j == hops {
+                out.push(target);
+            }
+        }
+    }
+    out
 }
 
 /// `findCenter`: the middle of the points' bounding box.
@@ -242,7 +245,7 @@ pub fn get_centered_pattern(
         max_dx = max_dx.max((dot.x - com1.x).abs());
         max_dy = max_dy.max((dot.y - com1.y).abs());
     }
-    let scale = min_size.min((width / 3.0 / max_dx).min(height / 3.0 / max_dy));
+    let scale = min_size.min((width / FIT_SHARE / max_dx).min(height / FIT_SHARE / max_dy));
     let com2 = find_center(&to_lines(pattern, scale, Vec2::ZERO));
     (scale, to_lines(pattern, scale, -com2))
 }
