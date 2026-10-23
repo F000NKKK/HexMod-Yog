@@ -13,10 +13,10 @@ use crate::casting::ops::spells::{
 };
 use crate::casting::vm::Spell;
 use crate::content::Blocks;
+use crate::encoding::snbt::Nbt;
 use crate::iota::Iota;
 use crate::item::media::{CRYSTAL, DUST, SHARD};
 use crate::math::Vec3;
-use crate::snbt::Nbt;
 
 /// The sprays of summoned lightning and of Altiora's lift.
 const LIGHTNING: Spray = Spray::look((0.0, -1.0, 0.0), 0.5, 0.1, 20);
@@ -317,7 +317,7 @@ fn brainsweep(env: &mut CastEnv, mob: Mob, v: Vec3) -> MResult<Spell> {
 // ── Altiora ────────────────────────────────────────────────────────────────
 
 /// `OpAltiora`: the target is lofted into the air with wings (see
-/// [`crate::altiora`]).
+/// [`crate::things::altiora`]).
 fn altiora(env: &mut CastEnv, p: Player) -> MResult<Spell> {
     p.in_range(env)?;
     let particles = vec![
@@ -329,7 +329,7 @@ fn altiora(env: &mut CastEnv, p: Player) -> MResult<Spell> {
     ];
     let uuid = p.uuid().to_owned();
     Ok(Spell::new(CRYSTAL, particles, move |_env, _| {
-        crate::altiora::give(&uuid)
+        crate::things::altiora::give(&uuid)
     }))
 }
 

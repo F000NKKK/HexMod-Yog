@@ -11,12 +11,12 @@ use crate::casting::env::{
 use crate::casting::image::Image;
 use crate::casting::mishap::{BlockPos, Context, Mishap, dye};
 use crate::casting::vm::Vm;
+use crate::client::text::Text;
+use crate::encoding::protocol::Hand;
 use crate::iota::Iota;
 use crate::item::pigment::{Pigment, dye_pigment};
 use crate::math::Vec3;
-use crate::protocol::Hand;
 use crate::res::Lang;
-use crate::text::Text;
 use std::collections::HashSet;
 use yog_api::vanilla;
 

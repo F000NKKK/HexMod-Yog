@@ -3,13 +3,13 @@
 
 use crate::casting::env::{CastEnv, Caster, Source, Spray, random};
 use crate::casting::vm::Vm;
+use crate::client::text::Text;
 use crate::content::{Advancements, Items};
+use crate::encoding::protocol::Hand;
+use crate::encoding::wire::Reader;
 use crate::item::holder::{self, ABACUS, SPELLBOOK};
 use crate::item::{media, packaged};
-use crate::protocol::Hand;
 use crate::res::{self, Lang};
-use crate::text::Text;
-use crate::wire::Reader;
 
 /// The abacus' click.
 const SOUND_ABACUS: &str = crate::res::SoundEvents::ABACUS;

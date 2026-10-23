@@ -90,7 +90,7 @@ fn placed(ev: &Place, k: Kind) {
     if k == Kind::Slate {
         let pattern = PLACING.lock().remove(&ev.player_name).flatten();
         set_slate_pattern(&ev.dimension, pos, pattern.as_ref());
-        crate::render::slate_changed(&ev.dimension, pos, pattern.as_ref());
+        crate::client::render::slate_changed(&ev.dimension, pos, pattern.as_ref());
     }
     if is_impetus(&ev.block_id) {
         forget_impetus(&ev.dimension, pos);
@@ -124,7 +124,7 @@ fn insert(ev: &Insert) -> bool {
         slot: 0,
         id: ev.item_id.clone(),
         count: ev.count,
-        nbt: crate::snbt::Nbt::parse(&ev.nbt),
+        nbt: crate::encoding::snbt::Nbt::parse(&ev.nbt),
     };
     let taken = crate::item::media::withdraw(&mut stack, imp.room(), ev.simulate);
     if taken <= 0 {
@@ -144,7 +144,7 @@ fn broken(ev: &Break) {
     if ev.block_id == Blocks::SLATE {
         let pattern = slate_pattern(&ev.dimension, pos);
         set_slate_pattern(&ev.dimension, pos, None);
-        crate::render::slate_changed(&ev.dimension, pos, None);
+        crate::client::render::slate_changed(&ev.dimension, pos, None);
         let creative = yog_api::event::player::info(&ev.player_name)
             .is_some_and(|p| p.gamemode == gamemode::CREATIVE);
         if !creative {

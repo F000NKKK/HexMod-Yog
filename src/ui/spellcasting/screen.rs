@@ -10,7 +10,7 @@ use super::draw::{draw_desc, lerp, ravenmind_origin};
 use super::grid::{Effect, Grid};
 use super::view::ID;
 use super::{SOUND_ADD_SEGMENT, SOUND_AMBIANCE, SOUND_START, SURFACE_ID, close};
-use crate::protocol::{CH_NEW_PATTERN, Hand, OpenGui, PatternResult};
+use crate::encoding::protocol::{CH_NEW_PATTERN, Hand, OpenGui, PatternResult};
 use crate::ui::render_lib::{Vec2, ticks};
 use yog_api::client::{SoundHandle, ui_flags};
 use yog_api::sync::{Arc, Mutex, MutexGuard, Once};

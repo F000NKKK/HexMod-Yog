@@ -7,11 +7,11 @@ use crate::casting::mishap::{MResult, Mishap, item_name};
 use crate::casting::ops::rw::others_name;
 use crate::casting::vm::Spell;
 use crate::content::Items;
+use crate::encoding::snbt::Nbt;
 use crate::iota::Iota;
 use crate::item::media::{CRYSTAL, DUST, SHARD};
 use crate::item::pigment::{Pigment, is_pigment};
 use crate::item::{holder, media, packaged};
-use crate::snbt::Nbt;
 
 // ── items ──────────────────────────────────────────────────────────────────
 

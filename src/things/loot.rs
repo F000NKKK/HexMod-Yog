@@ -11,12 +11,12 @@ use yog_api::loot::{Loot, LootStack, random};
 use crate::casting::actions::{all, per_world_pattern};
 use crate::casting::env::{MOD_ID, Stack};
 use crate::content::{Items, LootHex};
+use crate::encoding::snbt::Nbt;
 use crate::iota::Iota;
 use crate::item::media::SHARD;
 use crate::item::packaged;
 use crate::item::pigment::Pigment;
 use crate::math::{HexDir, HexPattern};
-use crate::snbt::Nbt;
 
 /// The loot table amethyst clusters drop from.
 const AMETHYST_CLUSTER: &str = "minecraft:blocks/amethyst_cluster";

@@ -3,9 +3,9 @@
 use super::player::{get_sentinel, to_ypos};
 use super::{AMBIT_RADIUS, CastEnv, SENTINEL_RADIUS, Source};
 use crate::casting::mishap::{BlockPos, MResult, Mishap};
+use crate::client::text::Text;
 use crate::iota::EntityRef;
 use crate::math::Vec3;
-use crate::text::Text;
 use yog_api::core::{EntityInfo, entity_flags};
 use yog_api::vanilla;
 

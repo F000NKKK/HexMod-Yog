@@ -8,7 +8,7 @@ use yog_api::event::EventPhase;
 use yog_api::event::client::input::Scroll;
 
 use crate::content::Items;
-use crate::wire::Writer;
+use crate::encoding::wire::Writer;
 
 /// `MsgShiftScrollC2S` (client → server): `num` main-hand delta, `num`
 /// off-hand delta, `int` 1 when the sprint key is down. Scrolls the

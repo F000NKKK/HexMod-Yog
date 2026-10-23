@@ -2,13 +2,13 @@
 //! spellbooks, thought-knots, scrolls, slates, the abacus — and the
 //! entities that delegate to the item they hold (dropped items, frames).
 //!
-//! Iotas are kept in the item's NBT as [`crate::wire`] strings.
+//! Iotas are kept in the item's NBT as [`crate::encoding::wire`] strings.
 
 use crate::casting::env::Stack;
 use crate::content::{Blocks, Items};
+use crate::encoding::snbt::Nbt;
 use crate::iota::Iota;
 use crate::math::HexPattern;
-use crate::snbt::Nbt;
 use yog_api::vanilla;
 
 pub const FOCUS: &str = Items::FOCUS;

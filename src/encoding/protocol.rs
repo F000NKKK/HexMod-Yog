@@ -8,12 +8,12 @@
 //! * `hexcasting:cgui` (server → client, `MsgOpenSpellGuiS2C`): an
 //!   [`OpenGui`] — open the grid with the saved patterns and stack.
 //!
-//! Iotas travel whole ([`crate::wire`]); the client words them in its own
+//! Iotas travel whole ([`crate::encoding::wire`]); the client words them in its own
 //! language, as the original sends iota tags and lets the client render.
 
+use crate::encoding::wire::{Reader, Writer};
 use crate::iota::{Iota, read_stack, write_stack};
 use crate::math::{HexCoord, HexPattern};
-use crate::wire::{Reader, Writer};
 
 pub const CH_NEW_PATTERN: &str = "hexcasting:pat_cs";
 pub const CH_PATTERN_RESULT: &str = "hexcasting:pat_sc";

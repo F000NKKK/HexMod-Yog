@@ -14,11 +14,11 @@ use crate::casting::env::{CastEnv, MOD_ID, random};
 use crate::casting::image::Image;
 use crate::casting::mishap::{MResult, Mishap};
 use crate::casting::vm::{OpResult, SideEffect, Sound, Spell};
+use crate::client::text::{Text, fmt_double};
+use crate::encoding::protocol::ResolvedType;
 use crate::iota::Iota;
 use crate::item::pigment::JavaRandom;
 use crate::math::{HexAngle, HexCoord, HexDir, HexPattern};
-use crate::protocol::ResolvedType;
-use crate::text::{Text, fmt_double};
 
 /// `Action.operate`.
 pub type OpFn = fn(&mut CastEnv, Image, &Cont) -> MResult<OpResult>;

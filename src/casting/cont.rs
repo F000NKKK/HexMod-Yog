@@ -4,8 +4,8 @@
 
 use yog_api::sync::Arc;
 
+use crate::encoding::wire::{Reader, Writer};
 use crate::iota::{Iota, read_stack, write_stack};
-use crate::wire::{Reader, Writer};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Frame {

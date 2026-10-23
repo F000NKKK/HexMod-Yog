@@ -14,10 +14,10 @@ use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
 use yog_api::{GfxContext, Registry, split_state};
 
 use crate::casting::env::{get_pigment, get_sentinel, to_ypos};
+use crate::encoding::wire::{Reader, Writer};
 use crate::item::pigment::Pigment;
 use crate::math::{HexPattern, Vec3};
 use crate::ui::render_lib::{Line, Mesh, Vec2, draw_line_seq, get_centered_pattern, screen_col};
-use crate::wire::{Reader, Writer};
 
 /// Server → client: the slates near the player.
 const CH_SLATES: &str = "hexcasting:slates";
@@ -238,7 +238,7 @@ fn tick() {
                 let face = get("face");
                 // `IotaType.getColor`: what a bookshelf holds tints its books.
                 let tint = if face.is_empty() {
-                    crate::akashic::shelf(dim, *pos)
+                    crate::things::akashic::shelf(dim, *pos)
                         .map(|(_, iota)| iota.kind().color() & 0xFF_FFFF)
                 } else {
                     None

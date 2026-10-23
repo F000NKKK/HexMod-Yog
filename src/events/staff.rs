@@ -5,12 +5,12 @@
 use crate::casting::env::{CastEnv, Caster, Source};
 use crate::casting::image::Image;
 use crate::casting::vm::Vm;
-use crate::iota::Iota;
-use crate::protocol::{
+use crate::encoding::protocol::{
     CH_OPEN_GUI, CH_PATTERN_RESULT, Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern,
     read_patterns, write_patterns,
 };
-use crate::wire::{Reader, Writer};
+use crate::encoding::wire::{Reader, Writer};
+use crate::iota::Iota;
 
 /// A player's staff grid as they left it (its image and drawn patterns,
 /// in the casting's own text forms), kept with the world.

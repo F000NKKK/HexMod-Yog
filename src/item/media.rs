@@ -6,7 +6,7 @@ use yog_api::vanilla;
 
 use crate::casting::env::{SLOT_OFFHAND, Stack};
 use crate::content::{Blocks, Items};
-use crate::snbt::Nbt;
+use crate::encoding::snbt::Nbt;
 
 /// `MediaConstants`.
 pub const DUST: i64 = 10_000;

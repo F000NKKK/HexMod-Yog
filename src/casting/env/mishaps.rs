@@ -2,8 +2,8 @@
 
 use super::player::look_vec;
 use super::{CastEnv, SLOT_OFFHAND, Source, Stack, random};
+use crate::encoding::protocol::Hand;
 use crate::math::Vec3;
-use crate::protocol::Hand;
 use yog_api::vanilla;
 
 /// A player's armor slots.

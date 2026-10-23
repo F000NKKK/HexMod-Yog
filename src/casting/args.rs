@@ -122,7 +122,10 @@ pub fn int_between(iota: &Iota, rev: usize, min: i64, max: i64) -> MResult<i64> 
                 iota,
                 rev,
                 "int.between",
-                vec![crate::text::Text::int(min), crate::text::Text::int(max)],
+                vec![
+                    crate::client::text::Text::int(min),
+                    crate::client::text::Text::int(max),
+                ],
             )
         })
 }
@@ -136,7 +139,7 @@ pub fn pos_int_under(iota: &Iota, rev: usize, max: i64) -> MResult<i64> {
                 iota,
                 rev,
                 "int.positive.less",
-                vec![crate::text::Text::int(max)],
+                vec![crate::client::text::Text::int(max)],
             )
         })
 }
@@ -150,7 +153,7 @@ pub fn pos_int_under_incl(iota: &Iota, rev: usize, max: i64) -> MResult<i64> {
                 iota,
                 rev,
                 "int.positive.less.equal",
-                vec![crate::text::Text::int(max)],
+                vec![crate::client::text::Text::int(max)],
             )
         })
 }
@@ -163,7 +166,10 @@ pub fn double_between(iota: &Iota, rev: usize, min: f64, max: f64) -> MResult<f6
             iota,
             rev,
             "double.between",
-            vec![crate::text::Text::num(min), crate::text::Text::num(max)],
+            vec![
+                crate::client::text::Text::num(min),
+                crate::client::text::Text::num(max),
+            ],
         )),
     }
 }

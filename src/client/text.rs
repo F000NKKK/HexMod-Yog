@@ -182,7 +182,7 @@ impl Text {
 
     /// [`to_json`](Self::to_json) in a color (`"gray"`, `"#RRGGBB"`, …).
     /// Into the wire format (for packets and storage).
-    pub fn write(&self, w: &mut crate::wire::Writer) {
+    pub fn write(&self, w: &mut crate::encoding::wire::Writer) {
         match self {
             Text::Lit(v) => {
                 w.tag('L').str(v);
@@ -205,7 +205,7 @@ impl Text {
         }
     }
 
-    pub fn read(r: &mut crate::wire::Reader) -> Option<Text> {
+    pub fn read(r: &mut crate::encoding::wire::Reader) -> Option<Text> {
         match r.tag()? {
             'L' => Some(Text::Lit(r.str()?.to_owned())),
             'K' => {
@@ -226,13 +226,13 @@ impl Text {
     }
 
     pub fn encode(&self) -> String {
-        let mut w = crate::wire::Writer::new();
+        let mut w = crate::encoding::wire::Writer::new();
         self.write(&mut w);
         w.finish()
     }
 
     pub fn decode(s: &str) -> Option<Text> {
-        Text::read(&mut crate::wire::Reader::new(s))
+        Text::read(&mut crate::encoding::wire::Reader::new(s))
     }
 
     pub fn to_json_colored(&self, color: &str) -> String {

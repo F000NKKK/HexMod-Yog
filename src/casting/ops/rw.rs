@@ -1,7 +1,6 @@
 //! Reading and writing iotas in items, entities and the akashic library
 //! (`casting/actions/{rw,akashic}`).
 
-use crate::akashic;
 use crate::casting::actions::{Action, actions};
 use crate::casting::args::{Block, Ent};
 use crate::casting::env::{CastEnv, Spray, Stack};
@@ -11,6 +10,7 @@ use crate::iota::Iota;
 use crate::item::holder::{self, EntityHolder};
 use crate::item::media::DUST;
 use crate::math::{HexPattern, Vec3};
+use crate::things::akashic;
 
 /// The pitch of a record's scribble; how far above an item entity it's
 /// drawn; the spray of writing into an entity.

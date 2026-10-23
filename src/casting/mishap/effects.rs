@@ -4,10 +4,10 @@ use yog_api::yog_ids::time::TICKS_PER_SECOND;
 
 use super::{Context, Mishap};
 use crate::casting::env::{CastEnv, to_ypos};
+use crate::client::text::Text;
 use crate::iota::Iota;
 use crate::math::Vec3;
 use crate::res::Lang;
-use crate::text::Text;
 
 /// A bad block's little explosion.
 const BAD_BLOCK_BLAST: f32 = 0.25;

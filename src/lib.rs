@@ -6,27 +6,24 @@
 // `OpResult` itself is bigger (184 bytes).
 #![allow(clippy::result_large_err)]
 
+mod client;
+mod encoding;
+mod things;
+
+pub use client::{lens, render, text};
+pub use encoding::{protocol, snbt, wire};
+pub use things::{akashic, altiora, conjured, loot, wall_scroll};
+
 use yog_api::{Mod, Registry, info};
 
-pub mod akashic;
-pub mod altiora;
 pub mod casting;
 pub mod circle;
-pub mod conjured;
 pub mod events;
 pub mod ids;
 pub mod iota;
 pub mod item;
-pub mod lens;
-pub mod loot;
 pub mod math;
-pub mod protocol;
-pub mod render;
-pub mod snbt;
-pub mod text;
 pub mod ui;
-pub mod wall_scroll;
-pub mod wire;
 
 // `crate::res` — typed accessors for resources/*.yres.
 yog_api::resources!();
@@ -47,11 +44,11 @@ impl Mod for HexMod {
 
         events::register(registry);
         circle::register(registry);
-        lens::register(registry);
-        render::register(registry);
-        wall_scroll::register(registry);
-        conjured::register(registry);
-        loot::register(registry);
+        client::lens::register(registry);
+        client::render::register(registry);
+        things::wall_scroll::register(registry);
+        things::conjured::register(registry);
+        things::loot::register(registry);
 
         info!("[hexcasting-yog] gate opened. The book is ready.");
     }

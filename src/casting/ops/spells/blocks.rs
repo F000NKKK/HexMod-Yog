@@ -3,7 +3,6 @@
 
 use crate::casting::args::{pos_int_under, pos_int_under_incl};
 
-use crate::akashic;
 use crate::casting::args::Arg;
 use crate::casting::args::Ent;
 use crate::casting::env::{CastEnv, Spray, Stack, random, to_ypos};
@@ -13,6 +12,7 @@ use crate::content::Blocks;
 use crate::iota::Iota;
 use crate::item::media::{CRYSTAL, DUST};
 use crate::math::Vec3;
+use crate::things::akashic;
 use std::collections::{HashSet, VecDeque};
 use std::f64::consts::PI;
 use yog_api::core::Face;
@@ -340,7 +340,7 @@ pub(super) fn ignite(env: &mut CastEnv, target: &Iota) -> MResult<Spell> {
 }
 
 /// `OpConjureBlock`: the block sparkles in the caster's pigment
-/// (`BlockConjured.setColor`, [`crate::conjured`]).
+/// (`BlockConjured.setColor`, [`crate::things::conjured`]).
 pub(super) fn conjure(env: &mut CastEnv, pos: BlockPos, light: bool) -> MResult<Spell> {
     env.assert_pos_in_range_for_editing(pos)?;
     if !replaceable(env, pos) {
@@ -357,7 +357,7 @@ pub(super) fn conjure(env: &mut CastEnv, pos: BlockPos, light: bool) -> MResult<
                     Blocks::CONJURED_BLOCK
                 };
                 yog_api::event::world::set_block(&env.dim, to_ypos(pos), block);
-                crate::conjured::conjured(&env.dim, pos, light, env.pigment());
+                crate::things::conjured::conjured(&env.dim, pos, light, env.pigment());
             }
         },
     ))

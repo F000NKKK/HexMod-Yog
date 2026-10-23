@@ -12,9 +12,9 @@ use crate::casting::env::CastEnv;
 use crate::casting::image::Image;
 use crate::casting::mishap::{MResult, Mishap};
 use crate::casting::vm::OpResult;
+use crate::client::text::Text;
 use crate::iota::{Iota, TOLERANCE};
 use crate::math::Vec3;
-use crate::text::Text;
 
 /// How many iotas each operator takes.
 pub fn arity(op: &str) -> usize {

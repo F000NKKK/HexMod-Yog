@@ -1,7 +1,9 @@
 use super::grid::{DrawState, Effect, Grid};
+use crate::encoding::protocol::{
+    Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType,
+};
 use crate::iota::Iota;
 use crate::math::{HexCoord, HexDir, HexPattern};
-use crate::protocol::{Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType};
 use crate::ui::render_lib::Vec2;
 
 const SIZE: (f32, f32) = (427.0, 240.0);

@@ -15,9 +15,9 @@ use yog_api::event::player::action::Interact;
 
 use crate::casting::env::{SLOT_OFFHAND, Stack};
 use crate::content::{Entities, Items};
+use crate::encoding::snbt::Nbt;
 use crate::item::holder::{self, TAG_OP_ID};
 use crate::math::HexPattern;
-use crate::snbt::Nbt;
 use crate::ui::pattern_render::{INNER_COLOR, OUTER_COLOR, STARTING_DOT};
 use crate::ui::render_lib::{
     INNER_SHARE, Line, Mesh, Vec2, draw_line_seq, draw_spot, find_dup_indices, static_zappy,

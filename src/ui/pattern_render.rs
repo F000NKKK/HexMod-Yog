@@ -8,8 +8,8 @@ use yog_api::ui::Rect;
 use yog_api::{GfxContext, Registry};
 
 use crate::content::Items;
+use crate::encoding::snbt::Nbt;
 use crate::item::holder;
-use crate::snbt::Nbt;
 
 use super::render_lib::{Line, Mesh, Vec2, draw_line_seq, draw_spot, get_centered_pattern};
 use super::rune_text::Ink;
@@ -111,7 +111,7 @@ fn approx_width(text: &str) -> f32 {
 fn hex_lines(
     snbt: &str,
     width_of: &dyn Fn(&str) -> f32,
-) -> Option<(Vec<Vec<crate::text::Segment>>, u32)> {
+) -> Option<(Vec<Vec<crate::client::text::Segment>>, u32)> {
     let program = crate::iota::Iota::deserialize(
         Nbt::parse(snbt).get_str(crate::item::packaged::TAG_PROGRAM)?,
     );
@@ -277,7 +277,7 @@ mod tests {
             lines
                 .iter()
                 .flatten()
-                .any(|s| matches!(s, crate::text::Segment::Rune(r) if *r == p))
+                .any(|s| matches!(s, crate::client::text::Segment::Rune(r) if *r == p))
         );
         assert!(
             hex_lines("{}", &approx_width).is_none(),

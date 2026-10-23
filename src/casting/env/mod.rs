@@ -7,12 +7,12 @@ use yog_api::vanilla;
 
 use crate::casting::mishap::{BlockPos, ShownItem, item_name};
 use crate::casting::vm::Sound;
+use crate::client::text::Text;
 use crate::content::Advancements;
+use crate::encoding::protocol::Hand;
+use crate::encoding::snbt::Nbt;
 use crate::item::pigment::{Pigment, dye_pigment};
 use crate::math::Vec3;
-use crate::protocol::Hand;
-use crate::snbt::Nbt;
-use crate::text::Text;
 
 mod items;
 mod mishaps;

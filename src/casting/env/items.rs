@@ -2,7 +2,7 @@
 
 use super::player::other_hand;
 use super::{CastEnv, Discovery, SLOT_OFFHAND, Source, Stack};
-use crate::protocol::Hand;
+use crate::encoding::protocol::Hand;
 
 impl CastEnv {
     // ── items ──────────────────────────────────────────────────────────────

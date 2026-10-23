@@ -2,9 +2,11 @@
 
 use super::UNDOABLE_EVALUATED;
 use super::draw::grid_zoom;
+use crate::encoding::protocol::{
+    Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType,
+};
 use crate::iota::Iota;
 use crate::math::{HexAngle, HexCoord, HexDir, HexPattern};
-use crate::protocol::{Hand, NewPattern, OpenGui, PatternResult, ResolvedPattern, ResolvedType};
 use crate::ui::render_lib::McVec2;
 use crate::ui::render_lib::{Vec2, coord_to_px, positions_from, px_to_coord};
 use std::collections::HashSet;
@@ -42,7 +44,7 @@ const DIRS: i32 = 6;
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct Desc {
     /// Its words and runes, cut to fit.
-    pub(super) segs: Vec<crate::text::Segment>,
+    pub(super) segs: Vec<crate::client::text::Segment>,
     pub(super) cut: bool,
     pub(super) color: u32,
 }

@@ -81,7 +81,7 @@ pub fn set_shelf(dim: &str, pos: BlockPos, mapping: Option<(&HexPattern, &Iota)>
         let has = if mapping.is_some() { "true" } else { "false" };
         yog_api::event::block::set_properties(dim, to_ypos(pos), &format!("has_books={has}"));
     }
-    crate::render::shelf_changed(dim, pos, mapping.map(|(p, _)| p));
+    crate::client::render::shelf_changed(dim, pos, mapping.map(|(p, _)| p));
 }
 
 /// Drops what shelves no longer there held: blown up, pushed away or

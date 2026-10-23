@@ -7,13 +7,15 @@ pub mod staff;
 use yog_api::content::StartupGrant;
 use yog_api::{EventPhase, Registry};
 
-use crate::akashic;
 use crate::casting::env::from_ypos;
 use crate::casting::ops::{query, spells};
 use crate::content::Items;
+use crate::encoding::protocol::{
+    CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT, OpenGui, PatternResult,
+};
 use crate::item::holder::ABACUS;
 use crate::item::media;
-use crate::protocol::{CH_NEW_PATTERN, CH_OPEN_GUI, CH_PATTERN_RESULT, OpenGui, PatternResult};
+use crate::things::akashic;
 use crate::ui::shift_scroll::CH_SCROLL;
 use crate::ui::spellcasting;
 
@@ -61,7 +63,7 @@ pub fn register(registry: &mut Registry) {
 
     registry.on::<yog_api::event::server::game::Tick, _>(|_, _| query::record_players());
     registry.on::<yog_api::event::server::game::Tick, _>(|_, _| spells::tick_flight());
-    crate::altiora::register(registry);
+    crate::things::altiora::register(registry);
 
     // A bookshelf forgets what it held when it's broken or replaced.
     registry.on::<yog_api::event::block::Break, _>(|ev, cx| {

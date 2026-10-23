@@ -8,10 +8,10 @@ use crate::casting::cont::{Cont, Frame};
 use crate::casting::env::{CastEnv, MAX_OP_COUNT, Spray};
 use crate::casting::image::Image;
 use crate::casting::mishap::{Context, Mishap};
+use crate::client::text::Text;
+use crate::encoding::protocol::ResolvedType;
 use crate::iota::Iota;
 use crate::math::{HexDir, HexPattern};
-use crate::protocol::ResolvedType;
-use crate::text::Text;
 
 /// `HexEvalSounds`, in priority order (a cast keeps the loudest).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]

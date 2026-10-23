@@ -1,7 +1,7 @@
 //! The VM's state between patterns (Hex Casting's `CastingImage`).
 
+use crate::encoding::wire::{Reader, Writer};
 use crate::iota::{Iota, read_stack, write_stack};
-use crate::wire::{Reader, Writer};
 
 /// An iota collected inside Introspection–Retrospection, and whether it
 /// was escaped (escaped parens don't count towards the nesting).

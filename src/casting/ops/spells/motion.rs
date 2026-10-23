@@ -8,12 +8,12 @@ use crate::casting::args::Ent;
 use crate::casting::env::{CastEnv, DIM_TP_DENYLIST, Spray, Stack, look_vec};
 use crate::casting::mishap::{MResult, Mishap};
 use crate::casting::vm::Spell;
+use crate::client::text::Text;
+use crate::encoding::snbt::Nbt;
 use crate::iota::Iota;
 use crate::item::media;
 use crate::item::media::{DUST, SHARD};
 use crate::math::Vec3;
-use crate::snbt::Nbt;
-use crate::text::Text;
 
 // ── item entities ──────────────────────────────────────────────────────────
 

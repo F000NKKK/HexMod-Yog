@@ -1,11 +1,11 @@
 //! Iotas — the values on a hex's stack (Hex Casting's `Iota` types).
 
 use crate::casting::cont::Cont;
+use crate::client::text::{Text, fmt_double};
+use crate::encoding::wire::{Reader, Writer};
 use crate::math::{HexPattern, Vec3};
 use crate::res::Colors;
 use crate::res::Lang;
-use crate::text::{Text, fmt_double};
-use crate::wire::{Reader, Writer};
 
 /// How close two numbers (or vectors) must be to count as equal.
 pub const TOLERANCE: f64 = 0.0001;
@@ -261,7 +261,7 @@ impl Iota {
         })
     }
 
-    /// The iota as a self-contained string ([`crate::wire`]).
+    /// The iota as a self-contained string ([`crate::encoding::wire`]).
     pub fn serialize(&self) -> String {
         let mut w = Writer::new();
         self.write(&mut w);

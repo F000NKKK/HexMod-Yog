@@ -7,7 +7,7 @@ use yog_api::ui::{Color, Vec2};
 
 use super::pattern_render::{mesh_rune, rune_width};
 use super::render_lib::Mesh;
-use crate::text::Segment;
+use crate::client::text::Segment;
 
 /// A rune's height: the font's line.
 pub const RUNE_HEIGHT: f32 = 8.0;

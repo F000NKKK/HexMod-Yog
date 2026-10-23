@@ -2,9 +2,9 @@
 //! pigment and sentinel.
 
 use crate::casting::mishap::BlockPos;
+use crate::encoding::protocol::Hand;
 use crate::item::pigment::Pigment;
 use crate::math::Vec3;
-use crate::protocol::Hand;
 
 pub fn other_hand(h: Hand) -> Hand {
     match h {

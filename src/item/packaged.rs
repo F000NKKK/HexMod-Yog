@@ -3,10 +3,10 @@
 //! item holds.
 
 use crate::casting::env::Stack;
+use crate::encoding::snbt::Nbt;
 use crate::iota::Iota;
 use crate::item::media;
 use crate::item::pigment::Pigment;
-use crate::snbt::Nbt;
 
 /// `ItemPackagedHex.TAG_PROGRAM` / `TAG_PIGMENT`.
 pub const TAG_PROGRAM: &str = "patterns";

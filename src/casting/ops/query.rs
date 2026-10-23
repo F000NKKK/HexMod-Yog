@@ -337,7 +337,7 @@ fn velocity(info: &EntityInfo, uuid: &str) -> Vec3 {
         .unwrap_or_default();
     let nbt = || {
         yog_api::event::entity::nbt(uuid)
-            .map(|s| crate::snbt::Nbt::parse(&s))
+            .map(|s| crate::encoding::snbt::Nbt::parse(&s))
             .unwrap_or_default()
     };
     match info.type_id.as_str() {

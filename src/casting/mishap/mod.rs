@@ -2,11 +2,11 @@
 //! (Hex Casting's `api/casting/mishaps/*`).
 
 use crate::casting::env::{CastEnv, Spray};
+use crate::client::text::Text;
+use crate::encoding::protocol::ResolvedType;
 use crate::iota::{EntityRef, Iota};
 use crate::math::{HexPattern, Vec3};
-use crate::protocol::ResolvedType;
 use crate::res::Lang;
-use crate::text::Text;
 
 mod effects;
 mod message;

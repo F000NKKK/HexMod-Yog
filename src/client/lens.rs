@@ -14,14 +14,14 @@ use yog_api::ui::{Color, Vec2};
 use yog_api::vanilla;
 use yog_api::{GfxContext, Registry, split_state};
 
-use crate::akashic;
 use crate::casting::env::{SLOT_OFFHAND, Stack, from_ypos, look_vec, to_ypos};
 use crate::circle;
+use crate::client::text::Text;
 use crate::content::{Blocks, Items};
+use crate::encoding::wire::{Reader, Writer};
 use crate::item::media::DUST;
 use crate::math::Vec3;
-use crate::text::Text;
-use crate::wire::{Reader, Writer};
+use crate::things::akashic;
 
 /// Server → client: the lines to show (none: nothing).
 pub const CH_LENS: &str = "hexcasting:lens";
@@ -386,7 +386,7 @@ fn note_lines(note: i32, instrument: &str) -> Vec<Line> {
 /// A comparator's output, and whether it compares or subtracts.
 fn comparator_lines(dim: &str, pos: (i32, i32, i32), compare: bool) -> Vec<Line> {
     let value = yog_api::event::block::nbt(dim, to_ypos(pos))
-        .and_then(|n| crate::snbt::Nbt::parse(&n).get_i64("OutputSignal"))
+        .and_then(|n| crate::encoding::snbt::Nbt::parse(&n).get_i64("OutputSignal"))
         .unwrap_or(0) as i32;
     let mode = redstone_color(if compare { 0 } else { REDSTONE_MAX }, REDSTONE_MAX);
     vec![

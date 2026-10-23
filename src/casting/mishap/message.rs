@@ -2,9 +2,9 @@
 
 use super::{Mishap, entity_name, error, pos_text, vec_text};
 use crate::casting::env::CastEnv;
+use crate::client::text::Text;
 use crate::iota::Iota;
 use crate::res::Lang;
-use crate::text::Text;
 
 impl Mishap {
     /// The message, without the action's name.

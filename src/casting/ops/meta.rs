@@ -10,8 +10,8 @@ use crate::casting::env::{CastEnv, MAX_OP_COUNT};
 use crate::casting::image::{Image, ParenIota};
 use crate::casting::mishap::{MResult, Mishap};
 use crate::casting::vm::{OpResult, Sound};
+use crate::encoding::protocol::ResolvedType;
 use crate::iota::Iota;
-use crate::protocol::ResolvedType;
 
 type ParenResult = MResult<(OpResult, ResolvedType)>;
 
