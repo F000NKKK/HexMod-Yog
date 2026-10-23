@@ -1,3 +1,3 @@
-YOGDcomment‡Hex Casting's conjured particle (ConjureParticle): the pigment's coloured
+YOGDcomment‡Hex Casting's conjured particle (ConjureParticle): the pigment's coloured
 cloud spells and casting spray â€” faint, glowing over what's behind it,
-floating up a little while it shrinks and fades.textures3hexcasting:particle/cloudframe_speedlifetimemin€maxª	sizeÍÌÌÌÌÌì?size_per_tick¸…ëQ¸î?alpha333333Ó?	fadefriction¸…ëQ¸î?gravity{®Gáz„¿%slide_when_blockedrandom_rollrenderblendadditivedepth_write
+floating up a little while it shrinks and fades.textures3hexcasting:particle/cloudframe_speedframe_settlelifetimemin€maxª	sizeÍÌÌÌÌÌì?size_per_tick¸…ëQ¸î?alpha333333Ó?	fadefriction¸…ëQ¸î?gravity{®Gáz„¿)gravity_needs_motion%slide_when_blockedrandom_rollrenderblendadditivedepth_write
