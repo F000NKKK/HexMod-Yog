@@ -3,12 +3,35 @@
 use super::grid::{Desc, DrawState, Grid};
 use super::{BOX_COLOR, ELLIPSIS_COLOR, LHS_IOTAS_ALLOCATION, RHS_IOTAS_ALLOCATION};
 use crate::iota::Iota;
+use crate::res::Colors;
 use crate::ui::render_lib::{
     DEFAULT_READABILITY_OFFSET, Mesh, PatternStyle, Vec2, draw_pattern_from_points, draw_spot,
     find_dup_indices, positions_from, range_around, to_lines,
 };
 use yog_api::ui::Color;
 use yog_api::{GfxContext, client};
+
+/// The guide dots: their size, and their red, green and blue at the full
+/// radius and on the cursor.
+const GUIDE_DOT: f32 = 2.0;
+const GUIDE_RED: (f32, f32) = (0.4, 0.5);
+const GUIDE_GREEN: (f32, f32) = (0.8, 1.0);
+const GUIDE_BLUE: (f32, f32) = (0.7, 0.9);
+/// Drawn patterns' alpha, and how irregularly a pattern that worked and
+/// one that failed zap; the pattern being drawn's.
+const DRAWN_ALPHA: u32 = 0xC8;
+const CALM: f32 = 0.2;
+const WILD: f32 = 0.9;
+const DRAWING_FLOW: f32 = 0.1;
+/// The boxes: the margin from the screen's corner, a line's height, the
+/// padding, the ravenmind's height, the inner box's inset.
+pub(super) const MARGIN: f32 = 10.0;
+pub(super) const LINE: f32 = 10.0;
+pub(super) const PAD: f32 = 5.0;
+const RAVENMIND_HEIGHT: f32 = 15.0;
+const INSET: f32 = 2.5;
+/// A color's alpha byte.
+pub(super) const ALPHA_MASK: u32 = 0xFF00_0000;
 
 impl Grid {
     /// Builds the dots, the patterns and the stroke being drawn.
@@ -27,13 +50,10 @@ impl Grid {
             // 1 on the cursor, 0 at the full radius (no popping in and out),
             // with a little island of full brightness around the cursor.
             let d = (1.0 - (delta - size) / (radius as f32 * size)).clamp(0.0, 1.0);
-            let color = crate::ui::render_lib::argb_f(
-                d,
-                lerp(d, 0.4, 0.5),
-                lerp(d, 0.8, 1.0),
-                lerp(d, 0.7, 0.9),
-            );
-            draw_spot(&mut mesh, px, d * 2.0, color);
+            let mix = |(far, near): (f32, f32)| lerp(d, far, near);
+            let color =
+                crate::ui::render_lib::argb_f(d, mix(GUIDE_RED), mix(GUIDE_GREEN), mix(GUIDE_BLUE));
+            draw_spot(&mut mesh, px, d * GUIDE_DOT, color);
         }
 
         for (idx, p) in self.patterns.iter().enumerate() {
@@ -46,9 +66,9 @@ impl Grid {
                 Some(&dups),
                 true,
                 PatternStyle {
-                    tail: color | 0xC8 << 24,
-                    head: fade | 0xC8 << 24,
-                    flow_irregular: if p.kind.success() { 0.2 } else { 0.9 },
+                    tail: color | DRAWN_ALPHA << 24,
+                    head: fade | DRAWN_ALPHA << 24,
+                    flow_irregular: if p.kind.success() { CALM } else { WILD },
                     readability_offset: DEFAULT_READABILITY_OFFSET,
                     last_segment_len_prop: 1.0,
                     seed: idx as f64,
@@ -76,9 +96,9 @@ impl Grid {
             dups.as_ref(),
             false,
             PatternStyle {
-                tail: 0xff_64c8ff,
-                head: 0xff_fecbe6,
-                flow_irregular: 0.1,
+                tail: Colors::DRAWING_TAIL,
+                head: Colors::DRAWING_HEAD,
+                flow_irregular: DRAWING_FLOW,
                 readability_offset: DEFAULT_READABILITY_OFFSET,
                 last_segment_len_prop: 1.0,
                 // The number of patterns, so the zaps don't jump when this
@@ -126,12 +146,13 @@ impl Grid {
         let w = self.size.0;
         let rows = self.stack_descs(width_of).len();
         if rows > 0 {
+            let height = (rows as f32 + 1.0) * LINE;
             draw_box(
                 &mut mesh,
-                10.0,
-                10.0,
-                w * LHS_IOTAS_ALLOCATION + 5.0,
-                (rows as f32 + 1.0) * 10.0,
+                MARGIN,
+                MARGIN,
+                w * LHS_IOTAS_ALLOCATION + PAD,
+                height,
             );
         }
         if self.ravenmind_desc(width_of).is_some() {
@@ -141,7 +162,7 @@ impl Grid {
                 x,
                 y,
                 w * RHS_IOTAS_ALLOCATION * RAVENMIND_SCALE,
-                15.0 * RAVENMIND_SCALE,
+                RAVENMIND_HEIGHT * RAVENMIND_SCALE,
             );
         }
         mesh
@@ -153,8 +174,8 @@ pub(super) const RAVENMIND_SCALE: f32 = 1.5;
 
 pub(super) fn ravenmind_origin(w: f32) -> (f32, f32) {
     (
-        w * (1.0 - RHS_IOTAS_ALLOCATION * RAVENMIND_SCALE) - 10.0,
-        10.0,
+        w * (1.0 - RHS_IOTAS_ALLOCATION * RAVENMIND_SCALE) - MARGIN,
+        MARGIN,
     )
 }
 
@@ -164,13 +185,12 @@ pub(super) fn lerp(t: f32, a: f32, b: f32) -> f32 {
 
 /// `GuiSpellcasting.drawBox`: two translucent rectangles, one inset.
 pub(super) fn draw_box(mesh: &mut Mesh, x: f32, y: f32, w: f32, h: f32) {
-    let left_margin = 2.5;
     mesh.quad(x, y, w, h, BOX_COLOR);
     mesh.quad(
-        x + left_margin,
-        y + 2.5,
-        w - left_margin - 2.5,
-        h - 5.0,
+        x + INSET,
+        y + INSET,
+        w - 2.0 * INSET,
+        h - 2.0 * INSET,
         BOX_COLOR,
     );
 }
@@ -213,12 +233,12 @@ pub(super) fn draw_desc(
     };
     crate::ui::rune_text::draw(gfx, &desc.segs, Vec2::new(x, y), ink);
     if desc.cut {
-        let alpha = color & 0xFF00_0000;
+        let alpha = color & ALPHA_MASK;
         let end = x + crate::ui::rune_text::width(&desc.segs, width_of);
         gfx.draw2d().text(
             "...",
             Vec2::new(end, y),
-            Color((ELLIPSIS_COLOR & 0x00FF_FFFF) | alpha),
+            Color((ELLIPSIS_COLOR & !ALPHA_MASK) | alpha),
             true,
         );
     }

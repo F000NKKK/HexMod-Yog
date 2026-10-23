@@ -33,6 +33,11 @@ pub(super) enum Effect {
     Send(NewPattern),
 }
 
+/// How many hexes' area the grid's dots are spaced to fill on any screen,
+/// and the directions out of a dot.
+const GRID_HEXES: f64 = 512.0;
+const DIRS: i32 = 6;
+
 /// An iota as shown in a box: its text cut to fit, and its color.
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct Desc {
@@ -89,7 +94,7 @@ impl Grid {
     /// Distance between neighbouring dots: 512 hexes' worth of area on
     /// any screen.
     pub(super) fn hex_size(&self) -> f32 {
-        let base = (self.size.0 as f64 * self.size.1 as f64 / 512.0).sqrt();
+        let base = (self.size.0 as f64 * self.size.1 as f64 / GRID_HEXES).sqrt();
         (base / grid_zoom()) as f32
     }
 
@@ -138,10 +143,9 @@ impl Grid {
         let delta = mouse - anchor;
         let angle = delta.y.atan2(delta.x);
         // 0 is right, increases clockwise.
-        let snapped = (angle / std::f32::consts::TAU).rem_euclid(6.0);
-        let new_dir = HexDir::from_ordinal(
-            (crate::ui::render_lib::round_to_int(snapped * 6.0) + 1).rem_euclid(6) as u8,
-        );
+        let snapped = (angle / std::f32::consts::TAU).rem_euclid(DIRS as f32);
+        let sixth = crate::ui::render_lib::round_to_int(snapped * DIRS as f32);
+        let new_dir = HexDir::from_ordinal((sixth + 1).rem_euclid(DIRS) as u8);
         // A lousy aim still lands on the ideal next dot.
         let ideal_next = anchor_coord + new_dir.as_delta();
         if self.used_spots.contains(&ideal_next) {

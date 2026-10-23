@@ -1,6 +1,8 @@
 //! The screen: the open session, the surface that draws the grid and
 //! takes the pointer, and the view model.
 
+use super::draw::{ALPHA_MASK, LINE, MARGIN, PAD};
+
 use yog_api::ui::Surface;
 use yog_kit::prelude::*;
 
@@ -37,15 +39,25 @@ pub(super) fn session() -> MutexGuard<'static, Session> {
 /// Draws the grid and takes the pointer — see the [module docs](self).
 pub(super) struct GridSurface;
 
+/// The stroke sounds' volume, and how far a segment's pitch strays.
+const STROKE_VOLUME: f32 = 0.25;
+const SEGMENT_PITCH_SPREAD: f32 = 0.1;
+/// The stack's first line, below the box's top.
+const STACK_TOP: f32 = 7.0;
+/// The ravenmind's text pulses: how fast, between what opacities.
+const PULSE_SPEED: f64 = 0.2;
+const PULSE_OPACITY: (f32, f32) = (150.0, 255.0);
+
 impl GridSurface {
     pub(super) fn apply(effect: Option<Effect>) {
         match effect {
             None => {}
             Some(Effect::StartSound) => {
-                client::play_sound(SOUND_START, 0.25, 1.0, false);
+                client::play_sound(SOUND_START, STROKE_VOLUME, 1.0, false);
             }
             Some(Effect::SegmentSound) => {
-                client::play_sound(SOUND_ADD_SEGMENT, 0.25, 1.0 + (random() - 0.5) * 0.1, false);
+                let pitch = 1.0 + (random() - 0.5) * SEGMENT_PITCH_SPREAD;
+                client::play_sound(SOUND_ADD_SEGMENT, STROKE_VOLUME, pitch, false);
             }
             Some(Effect::Send(msg)) => {
                 yog_api::event::net::send_to_server(CH_NEW_PATTERN, msg.encode());
@@ -77,17 +89,18 @@ impl Surface for GridSurface {
 
         let (ox, oy) = (rect.x, rect.y);
         let w = grid.size.0;
-        let mut y = oy + 10.0 + 7.0;
+        let mut y = oy + MARGIN + STACK_TOP;
         for desc in grid.stack_descs(&width_of) {
-            draw_desc(gfx, &width_of, desc, ox + 10.0 + 5.0, y, desc.color);
-            y += 10.0;
+            draw_desc(gfx, &width_of, desc, ox + MARGIN + PAD, y, desc.color);
+            y += LINE;
         }
         if let Some(desc) = grid.ravenmind_desc(&width_of) {
             let (x, y) = ravenmind_origin(w);
-            let opacity = lerp(((ticks() * 0.2).sin() as f32 + 1.0) / 2.0, 150.0, 255.0) as u32;
-            let color = (desc.color & 0x00FF_FFFF) | opacity << 24;
+            let pulse = ((ticks() * PULSE_SPEED).sin() as f32 + 1.0) / 2.0;
+            let opacity = lerp(pulse, PULSE_OPACITY.0, PULSE_OPACITY.1) as u32;
+            let color = (desc.color & !ALPHA_MASK) | opacity << 24;
             // The original draws this 1.5× larger; Draw2D has no text scale.
-            draw_desc(gfx, &width_of, desc, ox + x + 5.0, oy + y + 5.0, color);
+            draw_desc(gfx, &width_of, desc, ox + x + PAD, oy + y + PAD, color);
         }
     }
 
