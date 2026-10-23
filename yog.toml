@@ -8,6 +8,6 @@ authors     = ["F000NK", "Yog Team", "gamma-delta (original Hex Casting)", "Fall
 license     = "MIT"
 
 [dependencies]
-yog-api = "0.103.1"
-yog-kit = "0.14.0"
+yog-api = "0.104.1"
+yog-kit = "0.15.0"
 uuid = "1.23.3"
