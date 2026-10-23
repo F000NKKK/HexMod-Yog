@@ -43,6 +43,15 @@ const ANCIENT: [&str; 3] = [
 const WHITE: &str = "hexcasting:textures/entity/white.png";
 /// Untinted.
 const PLAIN: u32 = 0xFF_FFFFFF;
+/// The paper: its back's gap from the wall, its thickness, the sliver of
+/// its texture on the edges.
+const OFF_WALL: f32 = 1.0 / 32.0;
+const PAPER: f32 = 1.0 / 16.0;
+const EDGE_MARGIN: f32 = 1.0 / 48.0;
+/// A pattern drawn on it, smaller than the base by this.
+const PATTERN_SHRINK: f64 = 1.5;
+/// From a block's middle to the wall it hangs on (15/32).
+const TO_WALL: f64 = 0.46875;
 
 pub fn register(registry: &mut Registry) {
     registry.before::<Interact, _>(|ev, _| ev.entity_type != Entities::WALL_SCROLL || !dust(ev));
@@ -158,13 +167,13 @@ fn build(h: &Hanging, readable: bool, seed: i32, key: (String, bool, u32, i32)) 
 /// z into the wall, the origin at the scroll's corner (it hangs `size`
 /// blocks square, its back 1/32 off the wall) — in entity space, blocks.
 fn place(size: f32, x: f32, y: f32, z: f32) -> body::Vec3 {
-    body::Vec3::new(size / 2.0 - x, size / 2.0 - y, z + 1.0 / 32.0)
+    body::Vec3::new(size / 2.0 - x, size / 2.0 - y, z + OFF_WALL)
 }
 
 /// The paper: a 1/16-thick slab, the texture on its faces, a sliver of it on the edges.
 fn paper_quads(size: f32) -> Vec<Quad> {
-    let (dx, dy, dz) = (size, size, -1.0 / 16.0);
-    let margin = 1.0 / 48.0;
+    let (dx, dy, dz) = (size, size, -PAPER);
+    let margin = EDGE_MARGIN;
     // Corners (x, y, z, u, v) and the face's normal, as the original's vertices.
     let faces: [([[f32; 5]; 4], [f32; 3]); 6] = [
         (
@@ -287,7 +296,7 @@ fn fitted_points(pattern: &HexPattern, readable: bool, seed: f64) -> (Vec<Vec2>,
         min_y = min_y.min(p.y as f64);
         max_y = max_y.max(p.y as f64);
     }
-    let base = BASE_SCALE / 1.5;
+    let base = BASE_SCALE / PATTERN_SHRINK;
     let (base_w, base_h) = ((max_x - min_x) * base, (max_y - min_y) * base);
     // No minimum size: only fit it in, never past 1.
     let fit = |extent: f64| (1.0 - 2.0 * PAD - OUTER_WIDTH) / extent;
@@ -384,9 +393,9 @@ fn seed(center: [f64; 3], h: &Hanging) -> i32 {
     let (cx, cz) = (fz, -fx);
     let even = |n: u32| if n.is_multiple_of(2) { 0.5 } else { 0.0 };
     let (w, hh) = (even(h.width), even(h.height));
-    let x = (center[0] + 0.46875 * fx - w * cx - 0.5).round() as i32;
+    let x = (center[0] + TO_WALL * fx - w * cx - 0.5).round() as i32;
     let y = (center[1] - hh - 0.5).round() as i32;
-    let z = (center[2] + 0.46875 * fz - w * cz - 0.5).round() as i32;
+    let z = (center[2] + TO_WALL * fz - w * cz - 0.5).round() as i32;
     (y.wrapping_add(z.wrapping_mul(31)))
         .wrapping_mul(31)
         .wrapping_add(x)

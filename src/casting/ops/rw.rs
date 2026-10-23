@@ -12,6 +12,12 @@ use crate::item::holder::{self, EntityHolder};
 use crate::item::media::DUST;
 use crate::math::{HexPattern, Vec3};
 
+/// The pitch of a record's scribble; how far above an item entity it's
+/// drawn; the spray of writing into an entity.
+const SCRIBBLE_PITCH: f32 = 0.8;
+const ITEM_DRAWN_ABOVE: f64 = 3.0 / 8.0;
+const WRITE_SPRAY: Spray = Spray::look((1.0, 0.0, 0.0), 0.25, std::f64::consts::PI, 40);
+
 pub fn actions() -> Vec<Action> {
     actions! {
         "read" E "aqqqqq" => konst [env] { read_held(env)? };
@@ -53,7 +59,7 @@ pub fn actions() -> Vec<Action> {
             Ok(Spell::new(DUST, vec![], move |env, _| {
                 akashic::add_new_datum(&env.dim, pos, &key, &datum);
                 let c = Vec3::center_of(pos);
-                yog_api::event::sound::play(&env.dim, (c.x, c.y, c.z), crate::res::SoundEvents::SCROLL_SCRIBBLE, 1.0, 0.8);
+                yog_api::event::sound::play(&env.dim, (c.x, c.y, c.z), crate::res::SoundEvents::SCROLL_SCRIBBLE, 1.0, SCRIBBLE_PITCH);
             }))
         };
     }
@@ -127,14 +133,11 @@ fn write_entity(env: &mut CastEnv, e: Ent, datum: Iota) -> MResult<Spell> {
     let mut burst = e.pos();
     if e.is(yog_api::core::entity_flags::ITEM) {
         // The item is drawn well above the entity's position.
-        burst.y += 3.0 / 8.0;
+        burst.y += ITEM_DRAWN_ABOVE;
     }
     let spray = Spray {
         pos: burst,
-        vel: Vec3::new(1.0, 0.0, 0.0),
-        fuzziness: 0.25,
-        spread: std::f64::consts::PI,
-        count: 40,
+        ..WRITE_SPRAY
     };
     let uuid = e.uuid().to_owned();
     let type_id = e.info.type_id;

@@ -154,6 +154,18 @@ pub struct Spray {
 }
 
 impl Spray {
+    /// A spray's look — its velocity, fuzziness, spread and count — to be
+    /// placed where it goes (`Spray { pos, ..LOOK }`).
+    pub const fn look((x, y, z): (f64, f64, f64), fuzziness: f64, spread: f64, count: u32) -> Self {
+        Spray {
+            pos: Vec3::new(0.0, 0.0, 0.0),
+            vel: Vec3::new(x, y, z),
+            fuzziness,
+            spread,
+            count,
+        }
+    }
+
     pub fn burst(pos: Vec3, size: f64) -> Self {
         Self::burst_n(pos, size, 20)
     }

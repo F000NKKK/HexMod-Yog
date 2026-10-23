@@ -231,25 +231,14 @@ fn trail(uuid: &str, dim: &str, pos: Vec3, d: f64) {
 
 /// How the sprays of flight look (each placed where it goes): the start,
 /// running out, the trail and its danger, the range's middle up and down.
-const FLY: Spray = spray((0.0, 2.0, 0.0), 0.0, 0.1, 20);
-const LANDED: Spray = spray((0.0, 1.0, 0.0), PI, 0.4, 20);
-const TRAIL: Spray = spray((0.0, -0.6, 0.0), 0.6, PI * 0.3, 5);
-const DANGER: Spray = spray((0.0, 1.0, 0.0), 0.3, PI * 0.75, 0);
-const ORIGIN_UP: Spray = spray((0.0, 1.0, 0.0), 0.5, PI * 0.1, 5);
-const ORIGIN_DOWN: Spray = spray((0.0, -1.0, 0.0), 1.5, PI * 0.25, 5);
+const FLY: Spray = Spray::look((0.0, 2.0, 0.0), 0.0, 0.1, 20);
+const LANDED: Spray = Spray::look((0.0, 1.0, 0.0), PI, 0.4, 20);
+const TRAIL: Spray = Spray::look((0.0, -0.6, 0.0), 0.6, PI * 0.3, 5);
+const DANGER: Spray = Spray::look((0.0, 1.0, 0.0), 0.3, PI * 0.75, 0);
+const ORIGIN_UP: Spray = Spray::look((0.0, 1.0, 0.0), 0.5, PI * 0.1, 5);
+const ORIGIN_DOWN: Spray = Spray::look((0.0, -1.0, 0.0), 1.5, PI * 0.25, 5);
 /// How loud running out is, how often (a chance a tick) and how loud the
 /// wind is.
 const FINISH_VOLUME: f32 = 2.0;
 const AMBIENCE_CHANCE: f64 = 0.02;
 const AMBIENCE_VOLUME: f32 = 0.2;
-
-/// A spray's look, wherever it goes.
-const fn spray((x, y, z): (f64, f64, f64), fuzziness: f64, spread: f64, count: u32) -> Spray {
-    Spray {
-        pos: Vec3::new(0.0, 0.0, 0.0),
-        vel: Vec3::new(x, y, z),
-        fuzziness,
-        spread,
-        count,
-    }
-}

@@ -6,7 +6,6 @@ use crate::casting::vm::Vm;
 use crate::content::{Advancements, Items};
 use crate::item::holder::{self, ABACUS, SPELLBOOK};
 use crate::item::{media, packaged};
-use crate::math::Vec3;
 use crate::protocol::Hand;
 use crate::res::{self, Lang};
 use crate::text::Text;
@@ -47,13 +46,7 @@ pub fn use_packaged(player: &str, item_id: &str) {
 
     let Some(pos) = env.caster_pos() else { return };
     if view.kind.success() {
-        let spray = Spray {
-            pos,
-            vel: Vec3::new(0.0, 1.5, 0.0),
-            fuzziness: 0.4,
-            spread: std::f64::consts::PI / 3.0,
-            count: 30,
-        };
+        let spray = Spray { pos, ..CAST_SPRAY };
         env.spray(&spray);
     }
     if let Some(id) = env.loudest.id() {
@@ -70,8 +63,8 @@ pub fn use_packaged(player: &str, item_id: &str) {
             &env.dim,
             (pos.x, pos.y, pos.z),
             yog_api::vanilla::sounds::ENTITY_ITEM_BREAK,
-            0.8,
-            0.8 + random() as f32 * 0.4,
+            BREAK_SOUND.0,
+            BREAK_SOUND.1 + random() as f32 * BREAK_SOUND.2,
         );
     }
 }
@@ -176,7 +169,7 @@ pub fn reset_abacus(player: &str) {
         .unwrap_or(0.0);
     env.save(&stack);
     yog_api::event::sound::play_to_player(player, SOUND_ABACUS_SHAKE, 1.0, 1.0);
-    let key = if old == 69.0 {
+    let key = if old == NICE {
         Lang::TOOLTIP_ABACUS_RESET_NICE_KEY
     } else {
         Lang::TOOLTIP_ABACUS_RESET_KEY
@@ -197,6 +190,12 @@ const LORE: [&str; 8] = [
 ];
 /// What a fragment gives once all the lore is found (`giveExperiencePoints`).
 const LORE_FOUND_XP: i32 = 20;
+/// The spray of a cast from an item, the sound of one used up (its
+/// volume, its pitch and how much higher it may go), and the abacus'
+/// nicest number.
+const CAST_SPRAY: Spray = Spray::look((0.0, 1.5, 0.0), 0.4, std::f64::consts::PI / 3.0, 30);
+const BREAK_SOUND: (f32, f32, f32) = (0.8, 0.8, 0.4);
+const NICE: f64 = 69.0;
 
 /// `ItemLoreFragment.use`: a piece of lore not read yet, picked at random
 /// — or, all of it read, some experience. The fragment is used up.

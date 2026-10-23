@@ -22,6 +22,8 @@ pub const LIGATURE: &str = Blocks::AKASHIC_CONNECTOR;
 
 /// `AkashicFloodfiller.floodFillFor`'s default range.
 const MAX_RANGE: i64 = 128;
+/// How likely the search for an empty shelf goes past a full one.
+const FIND_OPEN_SHELF: f64 = 0.9;
 
 fn block_id(dim: &str, pos: BlockPos) -> String {
     yog_api::event::block::info(dim, to_ypos(pos))
@@ -158,7 +160,7 @@ pub fn add_new_datum(
     if flood_fill(dim, record, 0.0, |pos, id| holds(dim, pos, id, key)).is_some() {
         return None;
     }
-    let open = flood_fill(dim, record, 0.9, |pos, id| {
+    let open = flood_fill(dim, record, FIND_OPEN_SHELF, |pos, id| {
         id == BOOKSHELF && shelf(dim, pos).is_none()
     })?;
     set_shelf(dim, open, Some((key, datum)));

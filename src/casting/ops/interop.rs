@@ -56,6 +56,10 @@ fn base_scale(uuid: &str) -> Option<ScaleData> {
     ScaleTypes::base()?.scale_data(&entity)
 }
 
+/// Pehkui's smallest and largest scale a spell sets.
+const MIN_SCALE: f64 = 1.0 / 32.0;
+const MAX_SCALE: f64 = 8.0;
+
 pub fn actions() -> Vec<Action> {
     if yog_api::mod_loaded(PEHKUI) {
         pehkui()
@@ -72,7 +76,7 @@ pub fn pehkui() -> Vec<Action> {
             base_scale(e.uuid()).map_or(1.0, |s| f64::from(s.scale()))
         };
         "interop/pehkui/set" NE "ddwdwwdwwd" => spell [env, img; e: Ent, scale: Iota] {
-            let scale = double_between(&scale, 0, 1.0 / 32.0, 8.0)?;
+            let scale = double_between(&scale, 0, MIN_SCALE, MAX_SCALE)?;
             e.in_range(env)?;
             let uuid = e.uuid().to_owned();
             Ok(Spell::new(50_000, vec![Spray::burst_n(e.pos(), scale, 40)], move |_, _| {

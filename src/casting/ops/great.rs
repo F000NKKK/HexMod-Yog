@@ -16,6 +16,21 @@ use crate::item::media::{CRYSTAL, DUST, SHARD};
 use crate::math::Vec3;
 use crate::snbt::Nbt;
 
+/// The sprays of summoned lightning and of Altiora's lift.
+const LIGHTNING: Spray = Spray::look((0.0, -1.0, 0.0), 0.5, 0.1, 20);
+const LOFT: Spray = Spray::look((0.0, 2.0, 0.0), 0.0, 0.1, 20);
+/// Items flung off a far teleport: how high they're tossed, from how far
+/// below the eyes, and the share of the distance's chance each armor
+/// piece has.
+const DROP_UP: f64 = 0.2;
+const DROP_BELOW_EYES: f64 = 0.3;
+const ARMOR_DROP_SHARE: f64 = 0.25;
+/// A brainsweep: its burst (size, count), the mob's death (volume) and
+/// the level-up after (volume, pitch).
+const BRAINSWEEP_BURST: (f64, u32) = (0.3, 100);
+const DEATH_VOLUME: f32 = 0.8;
+const LEVELUP: (f32, f32) = (0.5, 0.8);
+
 pub fn actions() -> Vec<Action> {
     actions! {
         "lightning" E "waadwawdaaweewq" => spell [env, img; target: Vec3] {
@@ -23,13 +38,7 @@ pub fn actions() -> Vec<Action> {
             if !env.can_edit_block_at(target.block()) {
                 return Err(Mishap::BadLocation { pos: target, kind: "forbidden" });
             }
-            let spray = Spray {
-                pos: target + Vec3::new(0.0, 2.0, 0.0),
-                vel: Vec3::new(0.0, -1.0, 0.0),
-                fuzziness: 0.5,
-                spread: 0.1,
-                count: 20,
-            };
+            let spray = Spray { pos: target + Vec3::new(0.0, 2.0, 0.0), ..LIGHTNING };
             Ok(Spell::new(3 * SHARD, vec![spray], move |env, _| {
                 yog_api::event::entity::spawn(vanilla::entities::LIGHTNING_BOLT, &env.dim, (target.x, target.y, target.z));
             }))
@@ -123,11 +132,11 @@ fn splat_items(env: &CastEnv, distance: f64) {
         };
         // Player.drop(stack, dropAround = true)
         let (f, g) = (random() * 0.5, random() * std::f64::consts::TAU);
-        let vel = (-g.sin() * f, 0.2, g.cos() * f);
+        let vel = (-g.sin() * f, DROP_UP, g.cos() * f);
         let eye = info.eye_pos();
         yog_api::event::item::spawn_item(
             &env.dim,
-            (eye.x, eye.y - 0.3, eye.z),
+            (eye.x, eye.y - DROP_BELOW_EYES, eye.z),
             vel,
             &s.id,
             s.count,
@@ -144,7 +153,7 @@ fn splat_items(env: &CastEnv, distance: f64) {
         {
             continue;
         }
-        if random() < base * 0.25 {
+        if random() < base * ARMOR_DROP_SHARE {
             drop(s);
         }
     }
@@ -301,23 +310,19 @@ fn brainsweep(env: &mut CastEnv, mob: Mob, v: Vec3) -> MResult<Spell> {
     let plain = result.to_string();
     let particles = vec![
         Spray::cloud(mob.pos(), 1.0),
-        Spray::burst_n(Vec3::center_of(pos), 0.3, 100),
+        Spray::burst_n(Vec3::center_of(pos), BRAINSWEEP_BURST.0, BRAINSWEEP_BURST.1),
     ];
     Ok(Spell::new(*cost, particles, move |env, _| {
         if !yog_api::event::world::set_block(&env.dim, to_ypos(pos), &target) {
             yog_api::event::world::set_block(&env.dim, to_ypos(pos), &plain);
         }
         mark_brainswept(&uuid);
-        let path = type_id.split_once(':').map_or(type_id.as_str(), |(_, p)| p);
-        let death = format!("minecraft:entity.{path}.death");
-        yog_api::event::sound::play(&env.dim, (at.x, at.y, at.z), &death, 0.8, 1.0);
-        yog_api::event::sound::play(
-            &env.dim,
-            (at.x, at.y, at.z),
-            yog_api::vanilla::sounds::ENTITY_PLAYER_LEVELUP,
-            0.5,
-            0.8,
-        );
+        // The mob's death sound, as the game names them.
+        let (ns, path) = yog_api::yog_ids::split(&type_id);
+        let death = yog_api::yog_ids::join(ns, &format!("entity.{path}.death"));
+        yog_api::event::sound::play(&env.dim, (at.x, at.y, at.z), &death, DEATH_VOLUME, 1.0);
+        let levelup = yog_api::vanilla::sounds::ENTITY_PLAYER_LEVELUP;
+        yog_api::event::sound::play(&env.dim, (at.x, at.y, at.z), levelup, LEVELUP.0, LEVELUP.1);
     })
     .mute())
 }
@@ -332,10 +337,7 @@ fn altiora(env: &mut CastEnv, p: Player) -> MResult<Spell> {
         Spray::burst(p.pos(), 0.5),
         Spray {
             pos: p.pos(),
-            vel: Vec3::new(0.0, 2.0, 0.0),
-            fuzziness: 0.0,
-            spread: 0.1,
-            count: 20,
+            ..LOFT
         },
     ];
     let uuid = p.uuid().to_owned();
