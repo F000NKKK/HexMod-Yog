@@ -364,6 +364,17 @@ pub fn set_page_sealed(nbt: &mut Nbt, sealed: bool) {
     }
 }
 
+/// The abacus: what a notch counts and the click's pitch — main hand,
+/// main hand with the sprint key, off hand, off hand with it — the pitch
+/// up or down with the count, and how much it strays.
+const ABACUS_MAIN: (f64, f32) = (1.0, 0.9);
+const ABACUS_MAIN_FAST: (f64, f32) = (10.0, 0.7);
+const ABACUS_OFF: (f64, f32) = (0.1, 1.0);
+const ABACUS_OFF_FAST: (f64, f32) = (0.01, 1.3);
+const ABACUS_UP: f32 = 1.05;
+const ABACUS_DOWN: f32 = 0.95;
+const ABACUS_JITTER: f64 = 0.1;
+
 /// `MsgShiftScrollC2S.abacus`: the main hand counts by 1 (10 with the
 /// sprint key), the off hand by 0.1 (0.01). Returns the click's pitch.
 pub fn abacus_scroll(nbt: &mut Nbt, delta: f64, main_hand: bool, ctrl: bool) -> f32 {
@@ -371,16 +382,16 @@ pub fn abacus_scroll(nbt: &mut Nbt, delta: f64, main_hand: bool, ctrl: bool) -> 
     nbt.remove("page_names");
     let increase = delta < 0.0;
     let (shift, mut pitch) = match (main_hand, ctrl) {
-        (true, true) => (10.0, 0.7f32),
-        (true, false) => (1.0, 0.9),
-        (false, true) => (0.01, 1.3),
-        (false, false) => (0.1, 1.0),
+        (true, true) => ABACUS_MAIN_FAST,
+        (true, false) => ABACUS_MAIN,
+        (false, true) => ABACUS_OFF_FAST,
+        (false, false) => ABACUS_OFF,
     };
     let scale = (delta.abs().floor() as i64).max(1) as f64;
     let v = nbt.get_f64("value").unwrap_or(0.0) + scale * shift * if increase { 1.0 } else { -1.0 };
     nbt.set("value", Nbt::double(v));
-    pitch *= if increase { 1.05 } else { 0.95 };
-    pitch + ((crate::casting::env::random() - 0.5) * 0.1) as f32
+    pitch *= if increase { ABACUS_UP } else { ABACUS_DOWN };
+    pitch + ((crate::casting::env::random() - 0.5) * ABACUS_JITTER) as f32
 }
 
 /// `ItemSpellbook.inventoryTick`, done before a page turn: the current page

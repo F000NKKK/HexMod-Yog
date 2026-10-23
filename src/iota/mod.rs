@@ -2,6 +2,7 @@
 
 use crate::casting::cont::Cont;
 use crate::math::{HexPattern, Vec3};
+use crate::res::Colors;
 use crate::res::Lang;
 use crate::text::{Text, fmt_double};
 use crate::wire::{Reader, Writer};
@@ -81,15 +82,15 @@ impl IotaType {
     /// Hex Casting's display color (ARGB).
     pub fn color(self) -> u32 {
         match self {
-            IotaType::Null => 0xFF_AAAAAA,
-            IotaType::Garbage => 0xFF_505050,
-            IotaType::Bool => 0xFF_AAFF55,
-            IotaType::Double => 0xFF_55FF55,
-            IotaType::Vec3 => 0xFF_FF3030,
-            IotaType::Entity => 0xFF_55FFFF,
-            IotaType::List => 0xFF_AAAAAA,
-            IotaType::Pattern => 0xFF_FFAA00,
-            IotaType::Continuation => 0xFF_CC0000,
+            IotaType::Null => Colors::IOTA_NULL,
+            IotaType::Garbage => Colors::IOTA_GARBAGE,
+            IotaType::Bool => Colors::IOTA_BOOL,
+            IotaType::Double => Colors::IOTA_DOUBLE,
+            IotaType::Vec3 => Colors::IOTA_VEC3,
+            IotaType::Entity => Colors::IOTA_ENTITY,
+            IotaType::List => Colors::IOTA_LIST,
+            IotaType::Pattern => Colors::IOTA_PATTERN,
+            IotaType::Continuation => Colors::IOTA_CONTINUATION,
         }
     }
 }

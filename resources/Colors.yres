@@ -1,2 +1,3 @@
-YOGDdrawing.tail	typecolorvalue#FF64C8FFcommentkThe pattern being drawn on the staff's grid: its taildrawing.head#FFFECBE6
-!… and its head
+YOGDdrawing.tail	typecolorvalue#FF64C8FFcommentkThe pattern being drawn on the staff's grid: its taildrawing.head#FFFECBE6
+!… and its headiota.null#FFAAAAAA
+[Iotas' colors, as Hex Casting shows each typeiota.garbage#FF505050iota.bool#FFAAFF55iota.double#FF55FF55iota.vec3#FFFF3030iota.entity#FF55FFFFiota.listiota.pattern#FFFFAA00#iota.continuation#FFCC0000

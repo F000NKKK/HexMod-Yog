@@ -509,6 +509,10 @@ pub enum Special {
     Mask(Vec<bool>),
 }
 
+/// Numerical Reflection: what a `q` and an `e` add (a `w` adds 1).
+const NUMBER_Q: f64 = 5.0;
+const NUMBER_E: f64 = 10.0;
+
 impl Special {
     /// `SpecialHandlerNumberLiteral.Factory.tryMatch`.
     pub fn number(p: &HexPattern) -> Option<Self> {
@@ -521,8 +525,8 @@ impl Special {
         for c in sig[4..].chars() {
             match c {
                 'w' => acc += 1.0,
-                'q' => acc += 5.0,
-                'e' => acc += 10.0,
+                'q' => acc += NUMBER_Q,
+                'e' => acc += NUMBER_E,
                 'a' => acc *= 2.0,
                 'd' => acc /= 2.0,
                 _ => {}

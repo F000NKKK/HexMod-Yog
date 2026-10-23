@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 use yog_api::sync::{LazyLock, Mutex};
+use yog_api::yog_ids::time::TICKS_PER_SECOND;
 
 use yog_api::gfx_core::{DrawMode, blend};
 use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
@@ -315,7 +316,7 @@ fn slate_plane(s: &Slate) -> (Vec3, Vec3, Vec3) {
     let right = Vec3::new(f.z, 0.0, -f.x);
     match s.face.as_str() {
         // An akashic bookshelf: on its front, a hair out.
-        "" => (c + f * 0.502, right, Vec3::new(0.0, 1.0, 0.0)),
+        "" => (c + f * SHELF_FRONT, right, Vec3::new(0.0, 1.0, 0.0)),
         "floor" => (c + Vec3::new(0.0, OUT - 0.5, 0.0), right, f * -1.0),
         "ceiling" => (c + Vec3::new(0.0, 0.5 - OUT, 0.0), right * -1.0, f * -1.0),
         _ => (c - f * (0.5 - OUT), right, Vec3::new(0.0, 1.0, 0.0)),
@@ -331,7 +332,7 @@ fn slate_triangles(s: &Slate, out: &mut Vec<f32>) {
     const UNIT: f32 = 256.0;
     let mut mesh = Mesh::new();
     let size = (1.0 - 2.0 * PAD) * UNIT;
-    let (_, pts) = get_centered_pattern(&s.pattern, size, size, size / 4.0);
+    let (_, pts) = get_centered_pattern(&s.pattern, size, size, size / SLATE_MIN_SCALE);
     let center = Vec2::new(UNIT / 2.0, UNIT / 2.0);
     let pts: Vec<Vec2> = pts.into_iter().map(|p| p + center).collect();
     let (inner, outer) = if s.energized {
@@ -350,12 +351,25 @@ fn slate_triangles(s: &Slate, out: &mut Vec<f32>) {
     }
 }
 
+/// An akashic bookshelf's pattern sits this far out of the block's middle
+/// (a hair past its face); a slate's pattern is at least a quarter of it.
+const SHELF_FRONT: f64 = 0.502;
+const SLATE_MIN_SCALE: f32 = 4.0;
+/// An icosahedron's rings: five vertices each.
+const RING: usize = 5;
+/// A sentinel bobs (ticks a period, blocks high), spins (ticks a turn),
+/// and a greater one tumbles this much slower than it spins.
+const BOB_PERIOD: f32 = 20.0;
+const BOB_HEIGHT: f32 = 0.1;
+const SPIN_PERIOD: f32 = 30.0;
+const TUMBLE_SLOWER: f32 = 8.0;
+
 /// The icosahedron in the unit sphere (`Icos`): apexes and rings.
 fn icosahedron() -> Vec<([f32; 3], [f32; 3])> {
     let ring = |y: f32, start: f32| -> Vec<[f32; 3]> {
-        (0..5)
+        (0..RING)
             .map(|i| {
-                let a = start + i as f32 * std::f32::consts::TAU / 5.0;
+                let a = start + i as f32 * std::f32::consts::TAU / RING as f32;
                 let rad = (1.0 - y * y).sqrt();
                 [rad * a.cos(), y, rad * a.sin()]
             })
@@ -363,9 +377,9 @@ fn icosahedron() -> Vec<([f32; 3], [f32; 3])> {
     };
     let (top, bottom) = ([0.0, 1.0, 0.0], [0.0, -1.0, 0.0]);
     // The rings sit at ±1/√5.
-    let y = 1.0 / 5f32.sqrt();
+    let y = 1.0 / (RING as f32).sqrt();
     let top_ring = ring(y, 0.0);
-    let bottom_ring = ring(-y, std::f32::consts::PI / 5.0);
+    let bottom_ring = ring(-y, std::f32::consts::PI / RING as f32);
     let mut edges = Vec::new();
     for (apex, ring) in [(bottom, &bottom_ring), (top, &top_ring)] {
         for i in 0..5 {
@@ -388,9 +402,9 @@ fn icosahedron() -> Vec<([f32; 3], [f32; 3])> {
 /// walls; its lines as thin quads facing the camera.
 fn sentinel_triangles(s: &Shown, ticks: f32, cam: Vec3, out: &mut Vec<f32>) {
     let time = ticks / 2.0;
-    let bob = (time / 20.0).sin() * 0.1;
-    let spin = time / 30.0;
-    let tumble = if s.great { spin / 8.0 } else { 0.0 };
+    let bob = (time / BOB_PERIOD).sin() * BOB_HEIGHT;
+    let spin = time / SPIN_PERIOD;
+    let tumble = if s.great { spin / TUMBLE_SLOWER } else { 0.0 };
     let place = |p: [f32; 3]| -> Vec3 {
         let (x, y, z) = (p[0] * 0.5, p[1] * 0.5, p[2] * 0.5);
         let (sy, cy) = spin.sin_cos();
@@ -409,12 +423,9 @@ fn sentinel_triangles(s: &Shown, ticks: f32, cam: Vec3, out: &mut Vec<f32>) {
             let c = s
                 .pigment
                 .color(time, Vec3::new(p[0] as f64, p[1] as f64, p[2] as f64));
-            [
-                ((c >> 16) & 255) as f32 / 255.0,
-                ((c >> 8) & 255) as f32 / 255.0,
-                (c & 255) as f32 / 255.0,
-                1.0,
-            ]
+            let [_, r, g, b] = c.to_be_bytes();
+            let full = |v: u8| f32::from(v) / f32::from(u8::MAX);
+            [full(r), full(g), full(b), 1.0]
         };
         let (ca, cb) = (color(a), color(b));
         let quad = [
@@ -459,7 +470,7 @@ static GL: Mutex<Option<Gl>> = Mutex::new(None);
 /// The client's clock for the sentinel's spin, in ticks.
 fn client_ticks() -> f32 {
     static START: LazyLock<std::time::Instant> = LazyLock::new(std::time::Instant::now);
-    START.elapsed().as_secs_f32() * 20.0
+    START.elapsed().as_secs_f32() * TICKS_PER_SECOND as f32
 }
 
 fn draw(gfx: &GfxContext) {
