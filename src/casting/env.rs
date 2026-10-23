@@ -45,6 +45,8 @@ pub const ARTIFACT_COOLDOWN: u32 = 3;
 pub const DIM_TP_DENYLIST: &[&str] = &["twilightforest:twilight_forest"];
 /// Inventory slot of the off hand (0–35 main, 36–39 armour).
 pub const SLOT_OFFHAND: u32 = 40;
+/// The head's armor slot in a player's inventory.
+pub const SLOT_HEAD: u32 = 39;
 
 /// A uniform random number in `[0, 1)`.
 pub fn random() -> f64 {

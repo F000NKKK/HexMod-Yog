@@ -197,11 +197,7 @@ fn vm(c: &mut Criterion) {
             hex.name
         );
         c.bench_function(hex.name, |b| {
-            b.iter_batched(
-                || hex.patterns.clone(),
-                run,
-                BatchSize::SmallInput,
-            )
+            b.iter_batched(|| hex.patterns.clone(), run, BatchSize::SmallInput)
         });
     }
 }
