@@ -1,5 +1,7 @@
 //! Great spells (`casting/actions/spells/great/*`).
 
+use crate::casting::env::{ARMOR_SLOTS, bound};
+
 use yog_api::vanilla;
 
 use crate::casting::actions::{Action, actions};
@@ -19,12 +21,11 @@ use crate::snbt::Nbt;
 /// The sprays of summoned lightning and of Altiora's lift.
 const LIGHTNING: Spray = Spray::look((0.0, -1.0, 0.0), 0.5, 0.1, 20);
 const LOFT: Spray = Spray::look((0.0, 2.0, 0.0), 0.0, 0.1, 20);
-/// Items flung off a far teleport: how high they're tossed, from how far
-/// below the eyes, and the share of the distance's chance each armor
-/// piece has.
-const DROP_UP: f64 = 0.2;
-const DROP_BELOW_EYES: f64 = 0.3;
+/// The share of a far teleport's chance to fling an item each armor piece has.
 const ARMOR_DROP_SHARE: f64 = 0.25;
+/// The hotbar's slots, and the share of the chance an item there has.
+const HOTBAR: u32 = 9;
+const HOTBAR_SHARE: f64 = 0.5;
 /// A brainsweep: its burst (size, count), the mob's death (volume) and
 /// the level-up after (volume, pitch).
 const BRAINSWEEP_BURST: (f64, u32) = (0.3, 100);
@@ -127,39 +128,25 @@ fn splat_items(env: &CastEnv, distance: f64) {
     };
     let base = distance / 10_000.0;
     let drop = |s: Stack| {
-        let Some(info) = env.caster_info() else {
-            return;
-        };
-        // Player.drop(stack, dropAround = true)
-        let (f, g) = (random() * 0.5, random() * std::f64::consts::TAU);
-        let vel = (-g.sin() * f, DROP_UP, g.cos() * f);
-        let eye = info.eye_pos();
-        yog_api::event::item::spawn_item(
-            &env.dim,
-            (eye.x, eye.y - DROP_BELOW_EYES, eye.z),
-            vel,
-            &s.id,
-            s.count,
-            s.nbt.to_snbt(),
-        );
+        env.drop_from_eyes(&s);
         env.save(&Stack { count: 0, ..s });
     };
-    for slot in 36..40 {
+    for slot in ARMOR_SLOTS {
         let s = env.stack_at(slot);
-        if s.is_empty()
-            || s.nbt
-                .to_snbt()
-                .contains(vanilla::enchantments::BINDING_CURSE)
-        {
+        if s.is_empty() || bound(&s) {
             continue;
         }
         if random() < base * ARMOR_DROP_SHARE {
             drop(s);
         }
     }
-    for slot in (0..36).filter(|&i| i != selected) {
+    for slot in (0..ARMOR_SLOTS.start).filter(|&i| i != selected) {
         let s = env.stack_at(slot);
-        let chance = if slot < 9 { base * 0.5 } else { base };
+        let chance = if slot < HOTBAR {
+            base * HOTBAR_SHARE
+        } else {
+            base
+        };
         if !s.is_empty() && random() < chance {
             drop(s);
         }
