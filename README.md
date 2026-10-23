@@ -197,7 +197,7 @@ automatically.
 ```bash
 git clone https://github.com/F000NKKK/HexMod-Yog.git
 cd HexMod-Yog
-yog build                               # every platform → artifacts/HexMod-Yog.yog
+yog build                               # every platform → bin/HexMod-Yog.yog
 YOG_TARGETS=linux-x86_64 yog build      # host only, faster
 yog run fabric 1.21.1                   # build and launch a dev client (yog run --list)
 ```

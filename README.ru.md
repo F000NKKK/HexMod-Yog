@@ -222,7 +222,7 @@
 ```bash
 git clone https://github.com/F000NKKK/HexMod-Yog.git
 cd HexMod-Yog
-yog build                               # все платформы → artifacts/HexMod-Yog.yog
+yog build                               # все платформы → bin/HexMod-Yog.yog
 YOG_TARGETS=linux-x86_64 yog build      # только текущая платформа, быстрее
 yog run fabric 1.21.1                   # собрать и запустить dev-клиент (yog run --list)
 ```
