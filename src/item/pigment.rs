@@ -100,18 +100,42 @@ enum Provider {
     Morph(Vec<u32>, f32),
 }
 
+/// How many ticks the ancient and the pride (and uuid) pigments take to
+/// go round their colors; the dark wheel's.
+const ANCIENT_PERIOD: f32 = 600.0;
+const PRIDE_PERIOD: f32 = 400.0;
+const WHEEL_PERIOD: f32 = 400.0;
+/// Luminance from red, green and blue (Rec. 709), and the least a
+/// pigment's colors get (darker ones have the wheel added).
+const LUMA: [f64; 3] = [0.2126, 0.7152, 0.0722];
+const MIN_LUMA: f64 = 0.05;
+/// How much a particle's place shifts it along the colors; the cubic
+/// ease's first half's factor.
+const MORPH_SHIFT: f64 = 0.1;
+const EASE_IN: f32 = 4.0;
+/// A uuid pigment's two colors' saturation and brightness ranges.
+const UUID_SAT1: (f32, f32) = (0.4, 0.8);
+const UUID_BRI1: (f32, f32) = (0.7, 1.0);
+const UUID_SAT2: (f32, f32) = (0.7, 1.0);
+const UUID_BRI2: (f32, f32) = (0.2, 0.7);
+/// The hue circle's sectors (`hsvToRgb`).
+const SECTORS: i32 = 6;
+
 fn provider(item: &str) -> Option<Provider> {
     let path = item.strip_prefix(crate::ids::prefixes::NAMESPACE)?;
     Some(match path {
         "default_colorizer" => Provider::Solid(0xab65eb),
-        "ancient_colorizer" => Provider::Morph(ANCIENT.to_vec(), 600.0),
+        "ancient_colorizer" => Provider::Morph(ANCIENT.to_vec(), ANCIENT_PERIOD),
         "uuid_colorizer" => return None, // needs the owner; see `color`
         _ => {
             if let Some(c) = path.strip_prefix("dye_colorizer_") {
                 Provider::Solid(DYES.iter().find(|(n, _)| *n == c)?.1)
             } else {
                 let t = path.strip_prefix("pride_colorizer_")?;
-                Provider::Morph(PRIDE.iter().find(|(n, _)| *n == t)?.1.to_vec(), 400.0)
+                Provider::Morph(
+                    PRIDE.iter().find(|(n, _)| *n == t)?.1.to_vec(),
+                    PRIDE_PERIOD,
+                )
             }
         }
     })
@@ -125,16 +149,17 @@ impl Pigment {
             Some(Provider::Solid(c)) => c,
             Some(Provider::Morph(c, period)) => morph(&c, time / period, pos),
             None if self.item == Items::UUID_COLORIZER => {
-                morph(&uuid_colors(&self.owner), time / 400.0, pos)
+                morph(&uuid_colors(&self.owner), time / PRIDE_PERIOD, pos)
             }
             // ColorProvider.MISSING
             None => 0xff00dc,
         };
         let (mut r, mut g, mut b) = ((raw >> 16) & 0xff, (raw >> 8) & 0xff, raw & 0xff);
-        let lum = (0.2126 * r as f64 + 0.7152 * g as f64 + 0.0722 * b as f64) / 255.0;
-        if lum < 0.05 {
+        let lum =
+            (LUMA[0] * r as f64 + LUMA[1] * g as f64 + LUMA[2] * b as f64) / f64::from(u8::MAX);
+        if lum < MIN_LUMA {
             const WHEEL: [u32; 6] = [0x200000, 0x202000, 0x002000, 0x002020, 0x000020, 0x200020];
-            let m = morph(&WHEEL, time / 20.0 / 20.0, pos);
+            let m = morph(&WHEEL, time / WHEEL_PERIOD, pos);
             r += (m >> 16) & 0xff;
             g += (m >> 8) & 0xff;
             b += m & 0xff;
@@ -148,12 +173,13 @@ fn morph(colors: &[u32], time: f32, pos: Vec3) -> u32 {
     if colors.is_empty() {
         return 0;
     }
-    let shift = (pos.x * 0.1 + pos.y * 0.1 + pos.z * 0.1) as f32;
+    let shift = ((pos.x + pos.y + pos.z) * MORPH_SHIFT) as f32;
     let f_idx = (time + shift).rem_euclid(1.0) * colors.len() as f32;
     let base = f_idx.floor() as usize;
     let t_raw = f_idx - base as f32;
+    // Cubic ease in and out.
     let t = if t_raw < 0.5 {
-        4.0 * t_raw * t_raw * t_raw
+        EASE_IN * t_raw * t_raw * t_raw
     } else {
         1.0 - (-2.0 * t_raw + 2.0).powi(3) / 2.0
     };
@@ -162,7 +188,7 @@ fn morph(colors: &[u32], time: f32, pos: Vec3) -> u32 {
     let lerp = |shift: u32| {
         let a = ((start >> shift) & 0xff) as f32;
         let b = ((end >> shift) & 0xff) as f32;
-        ((a + t * (b - a)) as u32).min(255)
+        ((a + t * (b - a)) as u32).min(u32::from(u8::MAX))
     };
     (lerp(16) << 16) | (lerp(8) << 8) | lerp(0)
 }
@@ -175,11 +201,11 @@ fn uuid_colors(owner: &str) -> Vec<u32> {
     let least = u64::from_str_radix(hex.get(16..32).unwrap_or("0"), 16).unwrap_or(0);
     let mut rand = JavaRandom::new((least ^ most) as i64);
     let hue1 = rand.next_float();
-    let sat1 = rand.next_float_in(0.4, 0.8);
-    let bri1 = rand.next_float_in(0.7, 1.0);
+    let sat1 = rand.next_float_in(UUID_SAT1.0, UUID_SAT1.1);
+    let bri1 = rand.next_float_in(UUID_BRI1.0, UUID_BRI1.1);
     let hue2 = rand.next_float();
-    let sat2 = rand.next_float_in(0.7, 1.0);
-    let bri2 = rand.next_float_in(0.2, 0.7);
+    let sat2 = rand.next_float_in(UUID_SAT2.0, UUID_SAT2.1);
+    let bri2 = rand.next_float_in(UUID_BRI2.0, UUID_BRI2.1);
     vec![hsv_to_rgb(hue1, sat1, bri1), hsv_to_rgb(hue2, sat2, bri2)]
 }
 
@@ -233,8 +259,8 @@ impl JavaRandom {
 
 /// `Mth.hsvToRgb`.
 fn hsv_to_rgb(h: f32, s: f32, v: f32) -> u32 {
-    let i = ((h * 6.0) as i32).rem_euclid(6);
-    let f = h * 6.0 - i as f32;
+    let i = ((h * SECTORS as f32) as i32).rem_euclid(SECTORS);
+    let f = h * SECTORS as f32 - i as f32;
     let p = v * (1.0 - s);
     let q = v * (1.0 - f * s);
     let t = v * (1.0 - (1.0 - f) * s);
@@ -246,7 +272,8 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> u32 {
         4 => (t, p, v),
         _ => (v, p, q),
     };
-    let c = |x: f32| ((x * 255.0) as i32).clamp(0, 255) as u32;
+    let full = i32::from(u8::MAX);
+    let c = |x: f32| ((x * full as f32) as i32).clamp(0, full) as u32;
     (c(r) << 16) | (c(g) << 8) | c(b)
 }
 
