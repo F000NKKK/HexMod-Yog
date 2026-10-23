@@ -29,7 +29,9 @@ mod tests;
 
 pub use blocks::create_fluid;
 pub use entities::{Potion, create_sentinel, potion};
-pub use flight::{FlightAbility, flight_of, tick_flight};
+pub use flight::{
+    AMBIENCE_CHANCE, AMBIENCE_VOLUME, FINISH_VOLUME, FlightAbility, flight_of, tick_flight,
+};
 pub use items::craft_battery;
 pub use motion::{assert_teleportable, teleport_by};
 

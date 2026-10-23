@@ -239,6 +239,6 @@ const ORIGIN_UP: Spray = Spray::look((0.0, 1.0, 0.0), 0.5, PI * 0.1, 5);
 const ORIGIN_DOWN: Spray = Spray::look((0.0, -1.0, 0.0), 1.5, PI * 0.25, 5);
 /// How loud running out is, how often (a chance a tick) and how loud the
 /// wind is.
-const FINISH_VOLUME: f32 = 2.0;
-const AMBIENCE_CHANCE: f64 = 0.02;
-const AMBIENCE_VOLUME: f32 = 0.2;
+pub const FINISH_VOLUME: f32 = 2.0;
+pub const AMBIENCE_CHANCE: f64 = 0.02;
+pub const AMBIENCE_VOLUME: f32 = 0.2;

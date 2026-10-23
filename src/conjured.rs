@@ -69,37 +69,64 @@ pub fn conjured(dim: &str, pos: BlockPos, light: bool, pigment: Pigment) {
 }
 
 fn color(p: &Pigment, time: f32, near: Vec3) -> u32 {
-    let jitter = Vec3::new(random(), random(), random()) * (random() * 3.0);
+    let jitter = Vec3::new(random(), random(), random()) * (random() * COLOR_JITTER);
     p.color(time, near + jitter)
 }
+
+/// `random()` spread evenly over `-spread..spread`.
+fn jitter(spread: f64) -> f64 {
+    (random() * 2.0 - 1.0) * spread
+}
+
+/// How far a sparkle's place strays for its color, and the time its
+/// color's taken at (a random point of the pigment's cycle, ticks).
+const COLOR_JITTER: f64 = 3.0;
+const COLOR_TIME: f64 = 16384.0;
+/// A conjured light's sparkles: how often, how far from its middle, their
+/// drift aside and up (least, most).
+const LIGHT_CHANCE: f64 = 0.5;
+const LIGHT_SPOT: f64 = 0.05;
+const LIGHT_DRIFT: f64 = 0.005;
+const LIGHT_RISE: (f64, f64) = (-0.002, 0.02);
+/// A conjured block's sparkles: how often, their drift.
+const BLOCK_CHANCE: f64 = 0.2;
+const BLOCK_DRIFT: f64 = 0.02;
+/// Stepping on a conjured block: the block under the feet (this far
+/// below them), the sparks a step, how far round the feet, how high on
+/// the block (from, plus up to), their drift.
+const FEET_DEPTH: f64 = 0.01;
+const STEP_SPARKS: u32 = 3;
+const STEP_SPREAD: f64 = 0.3;
+const STEP_HEIGHT: (f64, f64) = (0.95, 0.05);
+const STEP_DRIFT: f64 = 0.02;
 
 /// `particleEffect` (each tick, the client's `animateTick`).
 fn sparkle(dim: &str, pos: BlockPos, light: bool, p: &Pigment) {
     let (x, y, z) = (pos.0 as f64, pos.1 as f64, pos.2 as f64);
-    let c = color(p, (random() * 16384.0) as f32, Vec3::default());
-    let r = |a: f64, b: f64| a + random() * (b - a);
+    let c = color(p, (random() * COLOR_TIME) as f32, Vec3::default());
     if light {
-        if random() < 0.5 {
+        if random() < LIGHT_CHANCE {
             let at = Vec3::new(
-                x + 0.45 + random() * 0.1,
-                y + 0.45 + random() * 0.1,
-                z + 0.45 + random() * 0.1,
+                x + 0.5 + jitter(LIGHT_SPOT),
+                y + 0.5 + jitter(LIGHT_SPOT),
+                z + 0.5 + jitter(LIGHT_SPOT),
             );
-            spawn_dust(
-                dim,
-                at,
-                Vec3::new(r(-0.005, 0.005), r(-0.002, 0.02), r(-0.005, 0.005)),
-                c,
+            let (rise_low, rise_high) = LIGHT_RISE;
+            let vel = Vec3::new(
+                jitter(LIGHT_DRIFT),
+                rise_low + random() * (rise_high - rise_low),
+                jitter(LIGHT_DRIFT),
             );
+            spawn_dust(dim, at, vel, c);
         }
-    } else if random() < 0.2 {
+    } else if random() < BLOCK_CHANCE {
         let at = Vec3::new(x + random(), y + random(), z + random());
-        spawn_dust(
-            dim,
-            at,
-            Vec3::new(r(-0.02, 0.02), r(-0.02, 0.02), r(-0.02, 0.02)),
-            c,
+        let vel = Vec3::new(
+            jitter(BLOCK_DRIFT),
+            jitter(BLOCK_DRIFT),
+            jitter(BLOCK_DRIFT),
         );
+        spawn_dust(dim, at, vel, c);
     }
 }
 
@@ -164,26 +191,24 @@ pub fn register(registry: &mut Registry) {
         }
         let below = (
             e.x.floor() as i32,
-            (e.y - 0.01).floor() as i32,
+            (e.y - FEET_DEPTH).floor() as i32,
             e.z.floor() as i32,
         );
         let hit = KNOWN.lock().get(&(e.dimension.clone(), below)).cloned();
         if let Some((false, pigment)) = hit {
-            for _ in 0..3 {
-                let c = color(
-                    &pigment,
-                    (now_ticks() % 16384) as f32,
-                    Vec3::new(e.x, e.y, e.z),
-                );
+            for _ in 0..STEP_SPARKS {
+                let time = (now_ticks() % COLOR_TIME as u64) as f32;
+                let c = color(&pigment, time, Vec3::new(e.x, e.y, e.z));
+                let (base, rise) = STEP_HEIGHT;
                 let at = Vec3::new(
-                    e.x + random() * 0.6 - 0.3,
-                    below.1 as f64 + random() * 0.05 + 0.95,
-                    e.z + random() * 0.6 - 0.3,
+                    e.x + jitter(STEP_SPREAD),
+                    below.1 as f64 + base + random() * rise,
+                    e.z + jitter(STEP_SPREAD),
                 );
                 let vel = Vec3::new(
-                    random() * 0.04 - 0.02,
-                    random() * 0.02,
-                    random() * 0.04 - 0.02,
+                    jitter(STEP_DRIFT),
+                    random() * STEP_DRIFT,
+                    jitter(STEP_DRIFT),
                 );
                 spawn_dust(&e.dimension, at, vel, c);
             }

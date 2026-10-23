@@ -10,10 +10,13 @@
 //! gliding pose a turn of the body, and the glider's hitbox and eyes an
 //! elytra flier's.
 
+use crate::casting::ops::spells::{AMBIENCE_CHANCE, AMBIENCE_VOLUME, FINISH_VOLUME};
 use std::collections::HashMap;
+use std::f32::consts::FRAC_PI_4;
 use std::f32::consts::PI;
 use std::time::{Duration, Instant};
 use yog_api::sync::{LazyLock, Mutex};
+use yog_api::yog_ids::gamemode;
 
 use yog_api::Registry;
 use yog_api::body::{self, Anchor, BoneOp, Frame, Mat4, Ops, Rig, TravelFrame};
@@ -39,9 +42,6 @@ const GRACE_PERIOD: i32 = 20;
 /// How high the spell throws the target (blocks per tick).
 pub const LIFT: f64 = 1.5;
 /// Chance per tick of the wings' hum.
-const AMBIENCE_CHANCE: f64 = 0.02;
-const AMBIENCE_VOLUME: f32 = 0.2;
-const FINISH_VOLUME: f32 = 2.0;
 /// `checkSlowFallDistance`: falling slower than this (blocks per tick)
 /// doesn't count as falling.
 const SLOW_FALL: f64 = -0.5;
@@ -49,6 +49,35 @@ const SLOW_FALL: f64 = -0.5;
 const FIREWORK: &str = yog_api::vanilla::items::FIREWORK_ROCKET;
 /// `FireworkRocketEntity`: lifetime = 10 × (1 + flight) + 0–5 + 0–6 ticks.
 const ROCKET_TICKS_PER_FLIGHT: i32 = 10;
+/// A rocket's random extra ticks (two rolls); its launch's volume; its
+/// push each tick (`FireworkRocketEntity`: along the look, toward the look
+/// this fast, eased by the last).
+const ROCKET_EXTRA: (u8, u8) = (6, 7);
+const LAUNCH_VOLUME: f32 = 3.0;
+const ROCKET_PUSH: (f32, f32, f32) = (0.1, 1.5, 0.5);
+/// The glide's trail.
+const GLIDE_TRAIL: Spray = Spray::look((0.0, -0.2, 0.0), 0.4, std::f64::consts::FRAC_PI_2, 3);
+/// `ElytraModel`'s left wing: at rest (15°, 0, -15°), gliding (20° up),
+/// how a dive folds it, crouched (40°, 5°, -45°, dropped 3), and how fast
+/// it eases to where it's going.
+const WING_REST: body::Vec3 = body::Vec3::new(0.261_799_4, 0.0, -0.261_799_4);
+const WING_GLIDE_X: f32 = 0.349_065_84;
+const WING_DIVE: f32 = 1.5;
+const WING_CROUCH_X: f32 = 0.698_131_7;
+const WING_CROUCH_Y: f32 = 0.087_266_46;
+const WING_CROUCH: body::Vec3 = body::Vec3::new(WING_CROUCH_X, WING_CROUCH_Y, -FRAC_PI_4);
+const WING_CROUCH_DROP: f32 = 3.0;
+const WING_EASE: f32 = 0.1;
+/// The body leans into a glide over this many ticks squared, to a right
+/// angle; the limbs follow the glide after these ticks.
+const LEAN_IN: f32 = 100.0;
+const RIGHT_ANGLE: f32 = 90.0;
+const LIMBS_AFTER: f32 = 4.0;
+/// `HumanoidModel`'s limbs: the speed they slow from, their swing's rate,
+/// a leg's swing.
+const LIMB_SPEED: f32 = 0.2;
+const LIMB_SWING: f32 = 0.6662;
+const LEG_SWING: f32 = 1.4;
 
 /// A glider's hitbox and eye height (`Pose.FALL_FLYING`): width, height,
 /// eyes, in blocks.
@@ -139,14 +168,7 @@ fn tick() {
                 1.0,
             );
         }
-        Spray {
-            pos,
-            vel: Vec3::new(0.0, -0.2, 0.0),
-            fuzziness: 0.4,
-            spread: std::f64::consts::FRAC_PI_2,
-            count: 3,
-        }
-        .spawn(dim, &get_pigment(&uuid));
+        Spray { pos, ..GLIDE_TRAIL }.spawn(dim, &get_pigment(&uuid));
     }
 }
 
@@ -176,9 +198,11 @@ fn rocket(e: &yog_api::event::player::action::UseItem) -> bool {
         .get("Fireworks")
         .and_then(|f| f.get_i64("Flight"))
         .unwrap_or(0) as i32;
-    let ticks =
-        ROCKET_TICKS_PER_FLIGHT * (1 + flight) + (random() * 6.0) as i32 + (random() * 7.0) as i32;
-    if info.gamemode != "creative" {
+    let (more, more_still) = ROCKET_EXTRA;
+    let ticks = ROCKET_TICKS_PER_FLIGHT * (1 + flight)
+        + (random() * f64::from(more)) as i32
+        + (random() * f64::from(more_still)) as i32;
+    if info.gamemode != gamemode::CREATIVE {
         stack.count -= 1;
         stack.save(&e.player_name);
     }
@@ -192,7 +216,7 @@ fn rocket(e: &yog_api::event::player::action::UseItem) -> bool {
             p.dimension,
             (p.pos.x, p.pos.y, p.pos.z),
             yog_api::vanilla::sounds::ENTITY_FIREWORK_ROCKET_LAUNCH,
-            3.0,
+            LAUNCH_VOLUME,
             1.0,
         );
     }
@@ -222,7 +246,7 @@ impl Seen {
         Seen {
             gliding: false,
             since: f32::NAN,
-            wing: body::Vec3::new(0.2617994, 0.0, -0.2617994),
+            wing: WING_REST,
             boost: 0,
             was_jumping: false,
             asked: None,
@@ -262,15 +286,15 @@ fn ask(s: &mut Seen, on: bool) {
 /// `ElytraModel.setupAnim`: the left wing's turn and drop, for a body
 /// gliding or crouching or neither.
 fn wing_target(f: &Frame, gliding: bool) -> (body::Vec3, f32) {
-    let rest = body::Vec3::new(0.2617994, 0.0, -0.2617994);
+    let rest = WING_REST;
     if gliding {
         let mut k = 1.0;
         if f.velocity.y < 0.0 {
-            k = 1.0 - (-f.velocity.normalize().y).powf(1.5);
+            k = 1.0 - (-f.velocity.normalize().y).powf(WING_DIVE);
         }
         return (
             body::Vec3::new(
-                k * 0.34906584 + (1.0 - k) * rest.x,
+                k * WING_GLIDE_X + (1.0 - k) * rest.x,
                 0.0,
                 k * (-PI / 2.0) + (1.0 - k) * rest.z,
             ),
@@ -278,7 +302,7 @@ fn wing_target(f: &Frame, gliding: bool) -> (body::Vec3, f32) {
         );
     }
     if f.has(entity_flags::SNEAKING) {
-        return (body::Vec3::new(0.6981317, 0.08726646, -PI / 4.0), 3.0);
+        return (WING_CROUCH, WING_CROUCH_DROP);
     }
     (rest, 0.0)
 }
@@ -286,8 +310,8 @@ fn wing_target(f: &Frame, gliding: bool) -> (body::Vec3, f32) {
 /// `PlayerRenderer.setupRotations` while fall-flying: the body leans into
 /// the glide and turns toward where it flies.
 fn glide_turn(f: &Frame, ticks: f32) -> Mat4 {
-    let lean = (ticks * ticks / 100.0).clamp(0.0, 1.0);
-    let mut m = Mat4::rotation_x((lean * (-90.0 - f.pitch)).to_radians());
+    let lean = (ticks * ticks / LEAN_IN).clamp(0.0, 1.0);
+    let mut m = Mat4::rotation_x((lean * (-RIGHT_ANGLE - f.pitch)).to_radians());
     let (yaw, pitch) = ((f.body_yaw + f.head_yaw).to_radians(), f.pitch.to_radians());
     let view = body::Vec3::new(
         -yaw.sin() * pitch.cos(),
@@ -308,18 +332,18 @@ fn glide_turn(f: &Frame, ticks: f32) -> Mat4 {
 /// looks ahead, and the limbs swing less the faster the flight.
 fn glide_limbs(ops: &mut Ops, f: &Frame) {
     let head = BoneOp {
-        rotation: body::Vec3::new(-PI / 4.0, f.head_yaw.to_radians(), 0.0),
+        rotation: body::Vec3::new(-FRAC_PI_4, f.head_yaw.to_radians(), 0.0),
         set_rotation: true,
         ..Default::default()
     };
     ops.bone("head", &head);
     ops.bone("hat", &head);
-    let speed = f.velocity.dot(f.velocity) / 0.2;
+    let speed = f.velocity.dot(f.velocity) / LIMB_SPEED;
     let slow = (speed * speed * speed).max(1.0);
     let k = 1.0 / slow - 1.0;
-    let swing = f.limb_swing * 0.6662;
+    let swing = f.limb_swing * LIMB_SWING;
     let arm = |phase: f32| (swing + phase).cos() * f.limb_amount * k;
-    let leg = |phase: f32| (swing + phase).cos() * 1.4 * f.limb_amount * k;
+    let leg = |phase: f32| (swing + phase).cos() * LEG_SWING * f.limb_amount * k;
     for (parts, x) in [
         (["right_arm", "right_sleeve"], arm(PI)),
         (["left_arm", "left_sleeve"], arm(0.0)),
@@ -351,7 +375,7 @@ fn draw(f: &Frame, ops: &mut Ops) {
         s.since = f.age;
     }
     let (target, drop) = wing_target(f, s.gliding);
-    s.wing = s.wing + (target - s.wing) * 0.1;
+    s.wing = s.wing + (target - s.wing) * WING_EASE;
     let Some(model) = body::model(Models::BODY_ALTIORA) else {
         return;
     };
@@ -373,7 +397,7 @@ fn draw(f: &Frame, ops: &mut Ops) {
     if s.gliding {
         let ticks = f.age - s.since;
         ops.root(&glide_turn(f, ticks));
-        if ticks > 4.0 {
+        if ticks > LIMBS_AFTER {
             glide_limbs(ops, f);
         }
     }
@@ -402,7 +426,8 @@ fn travel(f: &TravelFrame) -> Option<body::Vec3> {
     let mut v = f.velocity;
     if s.boost > 0 {
         s.boost -= 1;
-        v = v + f.look * 0.1 + (f.look * 1.5 - v) * 0.5;
+        let (push, pull, ease) = ROCKET_PUSH;
+        v = v + f.look * push + (f.look * pull - v) * ease;
     }
     Some(body::movement::elytra(&TravelFrame {
         velocity: v,
