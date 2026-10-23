@@ -20,6 +20,20 @@ use crate::math::Vec3;
 const RAYCAST_DISTANCE: f64 = 32.0;
 
 pub fn actions() -> Vec<Action> {
+    [
+        looks(),
+        circles_and_media(),
+        selectors(),
+        comparisons(),
+        sentinels(),
+    ]
+    .into_iter()
+    .flatten()
+    .collect()
+}
+
+/// The caster, entities' places and motion, raycasts.
+fn looks() -> Vec<Action> {
     actions! {
         "get_caster" NE "qaq" => konst [env] {
             match env.caster_info() {
@@ -53,6 +67,12 @@ pub fn actions() -> Vec<Action> {
                 .filter(|(info, _)| env.is_entity_in_range(info))
                 .map(|(info, uuid)| Iota::Entity(EntityRef { uuid, name: info.name }))
         };
+    }
+}
+
+/// Media left, and the spell circle cast in.
+fn circles_and_media() -> Vec<Action> {
+    actions! {
         "get_media" W "dde" => konst [env] {
             let raw = i64::MAX - env.extract_media(i64::MAX, true);
             raw as f64 / DUST as f64
@@ -64,14 +84,19 @@ pub fn actions() -> Vec<Action> {
         };
         "circle/bounds/min" SW "eaqwqaewdd" => konst [env] {
             let m = circle(env)?.min;
-            Vec3::new(m.0 as f64 + 0.5, m.1 as f64 + 0.5, m.2 as f64 + 0.5)
+            block_center(m)
         };
         "circle/bounds/max" W "aqwqawaaqa" => konst [env] {
             // The bounds box ends past the max block.
             let m = circle(env)?.max;
-            Vec3::new(m.0 as f64 + 0.5, m.1 as f64 + 0.5, m.2 as f64 + 0.5)
+            block_center(m)
         };
+    }
+}
 
+/// Entities at a place, or in a zone of it.
+fn selectors() -> Vec<Action> {
+    actions! {
         "get_entity" SE "qqqqqdaqa" => konst [env, pos: Vec3] { entity_at(env, pos, |_| true) };
         "get_entity/animal" SE "qqqqqdaqaawa" => konst [env, pos: Vec3] { entity_at(env, pos, is_animal) };
         "get_entity/monster" SE "qqqqqdaqaawq" => konst [env, pos: Vec3] { entity_at(env, pos, is_monster) };
@@ -89,7 +114,12 @@ pub fn actions() -> Vec<Action> {
         "zone_entity/not_player" NE "eeeeewaqaawe" => konst [env, pos: Vec3, r: PosDouble] { zone(env, pos, r.0, is_player, true) };
         "zone_entity/living" SE "qqqqqwdeddwd" => konst [env, pos: Vec3, r: PosDouble] { zone(env, pos, r.0, is_living, false) };
         "zone_entity/not_living" NE "eeeeewaqaawd" => konst [env, pos: Vec3, r: PosDouble] { zone(env, pos, r.0, is_living, true) };
+    }
+}
 
+/// Blocks, entities and held items compared.
+fn comparisons() -> Vec<Action> {
+    actions! {
         "compare_block/lenient" NW "qqqqqeqeeeee" => konst [env, a: Block, b: Block] {
             env.assert_pos_in_range(a.0)?;
             env.assert_pos_in_range(b.0)?;
@@ -114,7 +144,12 @@ pub fn actions() -> Vec<Action> {
             let (x, y) = (held_item(env, &a, 1)?, held_item(env, &b, 0)?);
             x.id == y.id && x.nbt == y.nbt
         };
+    }
+}
 
+/// The caster's sentinel, and whether a player flies.
+fn sentinels() -> Vec<Action> {
+    actions! {
         "sentinel/get_pos" E "waeawaede" => konst(DUST / 10) [env] {
             sentinel(env)?
         };

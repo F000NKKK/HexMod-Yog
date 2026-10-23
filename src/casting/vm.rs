@@ -143,6 +143,15 @@ pub struct Vm {
     pub env: CastEnv,
 }
 
+/// A `FrameForEach`'s fields, borrowed.
+struct ForEach<'a> {
+    data: &'a Arc<Vec<Iota>>,
+    data_idx: usize,
+    code: &'a Arc<Vec<Iota>>,
+    base: &'a Option<Vec<Iota>>,
+    acc: &'a Vec<Iota>,
+}
+
 impl Vm {
     pub fn new(image: Image, env: CastEnv) -> Self {
         Vm { image, env }
@@ -240,76 +249,23 @@ impl Vm {
                 list,
                 idx,
                 metacasting,
-            } => {
-                let Some(iota) = list.get(*idx) else {
-                    return CastResult {
-                        cont,
-                        image: None,
-                        effects: Vec::new(),
-                        kind: ResolvedType::Evaluated,
-                        sound: Sound::Hermes,
-                    };
-                };
-                let new_cont = if idx + 1 < list.len() {
-                    cont.push(Frame::Evaluate {
-                        list: list.clone(),
-                        idx: idx + 1,
-                        metacasting: *metacasting,
-                    })
-                } else {
-                    cont
-                };
-                let mut update = self.execute_inner(iota, new_cont);
-                if *metacasting && update.sound != Sound::Mishap {
-                    update.sound = Sound::Hermes;
-                }
-                update
-            }
+            } => self.evaluate_list(list, *idx, *metacasting, cont),
             Frame::ForEach {
                 data,
                 data_idx,
                 code,
                 base,
                 acc,
-            } => {
-                let (mut stack, new_acc) = match base {
-                    None => (self.image.stack.clone(), acc.clone()),
-                    Some(b) => {
-                        let mut a = acc.clone();
-                        a.extend(self.image.stack.iter().cloned());
-                        (b.clone(), a)
-                    }
-                };
-                let (top, image, cont) = match data.get(*data_idx) {
-                    Some(item) => {
-                        let cont = cont
-                            .push(Frame::ForEach {
-                                data: data.clone(),
-                                data_idx: data_idx + 1,
-                                code: code.clone(),
-                                base: Some(stack.clone()),
-                                acc: new_acc,
-                            })
-                            .push(Frame::Evaluate {
-                                list: code.clone(),
-                                idx: 0,
-                                metacasting: true,
-                            });
-                        (item.clone(), self.image.clone().with_used_op(), cont)
-                    }
-                    None => (Iota::List(new_acc), self.image.clone(), cont),
-                };
-                stack.push(top);
-                let mut image = image.with_reset_escape();
-                image.stack = stack;
-                CastResult {
-                    cont,
-                    image: Some(image),
-                    effects: Vec::new(),
-                    kind: ResolvedType::Evaluated,
-                    sound: Sound::Thoth,
-                }
-            }
+            } => self.for_each(
+                ForEach {
+                    data,
+                    data_idx: *data_idx,
+                    code,
+                    base,
+                    acc,
+                },
+                cont,
+            ),
             Frame::FinishEval => CastResult {
                 cont,
                 image: None,
@@ -317,6 +273,81 @@ impl Vm {
                 kind: ResolvedType::Evaluated,
                 sound: Sound::Nothing,
             },
+        }
+    }
+
+    /// `FrameEvaluate`: the iota at `idx` of `list`, the rest after.
+    fn evaluate_list(
+        &mut self,
+        list: &Arc<Vec<Iota>>,
+        idx: usize,
+        metacasting: bool,
+        cont: Cont,
+    ) -> CastResult {
+        let Some(iota) = list.get(idx) else {
+            return CastResult {
+                cont,
+                image: None,
+                effects: Vec::new(),
+                kind: ResolvedType::Evaluated,
+                sound: Sound::Hermes,
+            };
+        };
+        let new_cont = if idx + 1 < list.len() {
+            cont.push(Frame::Evaluate {
+                list: list.clone(),
+                idx: idx + 1,
+                metacasting,
+            })
+        } else {
+            cont
+        };
+        let mut update = self.execute_inner(iota, new_cont);
+        if metacasting && update.sound != Sound::Mishap {
+            update.sound = Sound::Hermes;
+        }
+        update
+    }
+
+    /// `FrameForEach`: the code run on the next datum, what earlier runs
+    /// left gathered; at the end, all of it as a list.
+    fn for_each(&mut self, f: ForEach<'_>, cont: Cont) -> CastResult {
+        let (mut stack, new_acc) = match f.base {
+            None => (self.image.stack.clone(), f.acc.clone()),
+            Some(b) => {
+                let mut a = f.acc.clone();
+                a.extend(self.image.stack.iter().cloned());
+                (b.clone(), a)
+            }
+        };
+        let (top, image, cont) = match f.data.get(f.data_idx) {
+            Some(item) => {
+                let cont = cont
+                    .push(Frame::ForEach {
+                        data: f.data.clone(),
+                        data_idx: f.data_idx + 1,
+                        code: f.code.clone(),
+                        base: Some(stack.clone()),
+                        acc: new_acc,
+                    })
+                    .push(Frame::Evaluate {
+                        list: f.code.clone(),
+                        idx: 0,
+                        metacasting: true,
+                    });
+                (item.clone(), self.image.clone().with_used_op(), cont)
+            }
+            None => (Iota::List(new_acc), self.image.clone(), cont),
+        };
+        stack.push(top);
+        let mut image = image.with_reset_escape();
+        image.stack = stack;
+        CastResult {
+            cont,
+            image: Some(image),
+            effects: Vec::new(),
+            kind: ResolvedType::Evaluated,
+            sound: Sound::Thoth,
         }
     }
 
