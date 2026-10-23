@@ -6,6 +6,7 @@
 //! `pattern_page.yui` (title, picture, `input → output`, text) and calls
 //! [`draw`] for the picture.
 
+use yog_api::ui::Rect;
 use yog_api::yog_data::Value;
 use yog_api::{GfxContext, Registry};
 
@@ -24,9 +25,20 @@ const START_DOT: u32 = 0xff_5b7bd7;
 /// Grid dots: the outline color at half alpha.
 const GRID_DOT: u32 = 0x80_d2c8c8;
 
+/// The book's sizes are for a box this high; they scale with it: the
+/// stroke, the padding, `HexPatternPoints`' base scale (shrunk by the
+/// second), and the dots' sizes of the inner stroke.
+const BOOK_BOX: f32 = 64.0;
+const STROKE: f32 = 4.0;
+const PAD: f32 = 4.0;
+const BASE_SCALE: f32 = 16.0;
+const BASE_SHRINK: f32 = 1.5;
+const START_DOT_SIZE: f32 = 0.8;
+const GRID_DOT_SIZE: f32 = 0.4;
+
 pub fn register(registry: &mut Registry) {
     registry.on_book_page(DRAWER, |gfx, data, [x, y, w, h]| {
-        draw(gfx, &patterns(data), x, y, w, h)
+        draw(gfx, &patterns(data), Rect::new(x, y, w, h))
     });
 }
 
@@ -55,9 +67,9 @@ pub fn patterns(data: &Value) -> Vec<HexPattern> {
 
 /// The patterns' meshes for the `w`×`h` box at `x, y`. The book's sizes are
 /// for a 64-pixel-high box; they scale with `h`.
-pub fn mesh(patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) -> Mesh {
-    let px = h / 64.0;
-    let stroke = 4.0 * px;
+pub fn mesh(patterns: &[HexPattern], Rect { x, y, w, h }: Rect) -> Mesh {
+    let px = h / BOOK_BOX;
+    let stroke = STROKE * px;
     let mut mesh = Mesh::new();
     let n = patterns.len().max(1);
     let cols = (n as f32).sqrt().ceil() as usize;
@@ -79,9 +91,9 @@ pub fn mesh(patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) -> Mesh {
         for p in &zappy {
             (x0, x1, y0, y1) = (x0.min(p.x), x1.max(p.x), y0.min(p.y), y1.max(p.y));
         }
-        let base = 16.0 / 1.5 * px;
+        let base = BASE_SCALE / BASE_SHRINK * px;
         let (bw, bh) = ((x1 - x0) * base, (y1 - y0) * base);
-        let pad = 4.0 * px + stroke;
+        let pad = PAD * px + stroke;
         let scale = 1f32.min((cell_h - pad) / bh).min((cell_w - pad) / bw);
         let fin = base * scale;
         let (iw, ih) = (bw * scale + pad, bh * scale + pad);
@@ -96,16 +108,16 @@ pub fn mesh(patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) -> Mesh {
         draw_line_seq(&mut mesh, &line, Line::solid(stroke, OUTER));
         draw_line_seq(&mut mesh, &line, Line::solid(stroke * INNER_SHARE, INNER));
         let dot = stroke * INNER_SHARE;
-        draw_spot(&mut mesh, at(dots[0]), 0.8 * dot, START_DOT);
+        draw_spot(&mut mesh, at(dots[0]), START_DOT_SIZE * dot, START_DOT);
         for &d in &dots[1..] {
-            draw_spot(&mut mesh, at(d), 0.4 * dot, GRID_DOT);
+            draw_spot(&mut mesh, at(d), GRID_DOT_SIZE * dot, GRID_DOT);
         }
     }
     mesh
 }
 
-pub fn draw(gfx: &GfxContext, patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) {
-    mesh(patterns, x, y, w, h).draw(gfx);
+pub fn draw(gfx: &GfxContext, patterns: &[HexPattern], r: Rect) {
+    mesh(patterns, r).draw(gfx);
 }
 
 #[cfg(test)]
@@ -137,8 +149,8 @@ mod tests {
         let p = patterns(&data(
             r#"{ patterns: [ { startdir: "EAST", signature: "qaq" }, { startdir: "EAST", signature: "w" } ] }"#,
         ));
-        let one = mesh(&p[..1], 0.0, 0.0, 116.0, 64.0);
-        let two = mesh(&p, 0.0, 0.0, 116.0, 64.0);
+        let one = mesh(&p[..1], Rect::new(0.0, 0.0, 116.0, 64.0));
+        let two = mesh(&p, Rect::new(0.0, 0.0, 116.0, 64.0));
         assert!(one.vertex_count() > 0 && two.vertex_count() > one.vertex_count());
     }
 
@@ -152,7 +164,7 @@ mod tests {
         let p = patterns(&data(
             r#"{ patterns: [ { startdir: "NORTH_EAST", signature: "qaq" }, { startdir: "EAST", signature: "aa" }, { startdir: "EAST", signature: "qaqqqqq" } ] }"#,
         ));
-        let m = mesh(&p, 0.0, 0.0, 116.0 * 4.0, 64.0 * 4.0);
+        let m = mesh(&p, Rect::new(0.0, 0.0, 116.0 * 4.0, 64.0 * 4.0));
         let text: Vec<String> = m.vertices().iter().map(|v| v.to_string()).collect();
         std::fs::write(out, text.join(" ")).unwrap();
     }

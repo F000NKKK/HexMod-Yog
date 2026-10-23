@@ -106,9 +106,17 @@ fn take_line(
     (line, Vec::new())
 }
 
-/// Draws `segs` with the line's top-left at `x, y`: words in `color` (a
-/// shadow under them when `shadow`), runes in it too.
-pub fn draw(gfx: &GfxContext, segs: &[Segment], x: f32, y: f32, color: u32, shadow: bool) {
+/// How a line of runes and words is drawn: its color, and whether words
+/// have a shadow.
+#[derive(Clone, Copy)]
+pub struct Ink {
+    pub color: u32,
+    pub shadow: bool,
+}
+
+/// Draws `segs` with the line's top-left at `top_left`: words in `ink`,
+/// runes in its color too.
+pub fn draw(gfx: &GfxContext, segs: &[Segment], Vec2 { x, y }: Vec2, Ink { color, shadow }: Ink) {
     let d2 = gfx.draw2d();
     let width_of = |t: &str| d2.text_width(t, "");
     let mut mesh = Mesh::new();
@@ -116,7 +124,7 @@ pub fn draw(gfx: &GfxContext, segs: &[Segment], x: f32, y: f32, color: u32, shad
     for seg in segs {
         match seg {
             Segment::Words(w) => d2.text(w, Vec2::new(at, y), Color(color), shadow),
-            Segment::Rune(p) => mesh_rune(&mut mesh, p, at, y, RUNE_HEIGHT, color),
+            Segment::Rune(p) => mesh_rune(&mut mesh, p, Vec2::new(at, y), RUNE_HEIGHT, color),
         }
         at += seg_width(seg, &width_of);
     }

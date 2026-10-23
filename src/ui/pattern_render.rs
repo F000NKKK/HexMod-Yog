@@ -12,6 +12,7 @@ use crate::item::holder;
 use crate::snbt::Nbt;
 
 use super::render_lib::{Line, Mesh, Vec2, draw_line_seq, draw_spot, get_centered_pattern};
+use super::rune_text::Ink;
 use crate::math::HexPattern;
 
 /// `PatternColors.DEFAULT_PATTERN_COLOR`: inner stroke, outer stroke.
@@ -45,7 +46,7 @@ pub fn register(registry: &mut Registry) {
             |gfx, item, snbt, [x, y, w, h]| {
                 if let Some((pattern, paper)) = tooltip(item, snbt) {
                     gfx.draw2d().image(paper, Rect::new(x, y, w, h));
-                    draw_pattern(gfx, &pattern, x, y, w, h);
+                    draw_pattern(gfx, &pattern, Rect::new(x, y, w, h));
                 }
             },
         );
@@ -81,13 +82,15 @@ fn register_hex_tooltips(registry: &mut Registry) {
                     return;
                 };
                 for (i, line) in lines.iter().enumerate() {
+                    let at = Vec2::new(x, y + i as f32 * HEX_TOOLTIP_LINE);
                     super::rune_text::draw(
                         gfx,
                         line,
-                        x,
-                        y + i as f32 * HEX_TOOLTIP_LINE,
-                        color,
-                        true,
+                        at,
+                        Ink {
+                            color,
+                            shadow: true,
+                        },
                     );
                 }
             },
@@ -95,9 +98,12 @@ fn register_hex_tooltips(registry: &mut Registry) {
     }
 }
 
+/// The game font's average character width, in pixels.
+const APPROX_CHAR_WIDTH: f32 = 6.0;
+
 /// The font's width of `text`, near enough to lay a tooltip out before it's drawn.
 fn approx_width(text: &str) -> f32 {
-    text.chars().count() as f32 * 6.0
+    text.chars().count() as f32 * APPROX_CHAR_WIDTH
 }
 
 /// A stored hex as lines of words and runes, and its color; `None` when
@@ -132,24 +138,31 @@ fn tooltip(item: &str, snbt: &str) -> Option<(HexPattern, &'static str)> {
     Some((holder::written_pattern(item, &nbt)?, paper))
 }
 
+/// A pattern in a box: its least scale, and at least this share of the
+/// box's smaller side; its grid dots' size of its scale, and how much
+/// bigger than its line's dot; its stroke (`StrokeSettings.fromStroke(0.8/16)`).
+const MIN_SCALE: f32 = 16.0;
+const SCALE_SHARE: f32 = 4.0;
+const DOT_SHARE: f32 = 0.08;
+const GRID_DOT_SIZE: f32 = 1.6;
+const STROKE_SHARE: f32 = 0.8 / 16.0;
+/// A rune: how much wider than tall it may be (least, most), how flat a
+/// pattern counts as a line, its starting dot.
+const RUNE_ASPECT: (f32, f32) = (0.5, 3.0);
+const FLAT: f32 = 0.01;
+const RUNE_DOT: f32 = 0.9;
+
 /// Adds `pattern`, centred in the `w`×`h` box at `x, y`, to `mesh`: a pale
 /// outline under a dark stroke (`stroke` thick), a dot on every point it
 /// visits and the starting dot.
-pub fn mesh_pattern(
-    mesh: &mut Mesh,
-    pattern: &HexPattern,
-    x: f32,
-    y: f32,
-    w: f32,
-    h: f32,
-    stroke: f32,
-) {
-    let (scale, pts) = get_centered_pattern(pattern, w, h, 16.0_f32.max(w.min(h) / 4.0));
-    let center = Vec2::new(x + w / 2.0, y + h / 2.0);
+pub fn mesh_pattern(mesh: &mut Mesh, pattern: &HexPattern, r: Rect, stroke: f32) {
+    let min_size = MIN_SCALE.max(r.w.min(r.h) / SCALE_SHARE);
+    let (scale, pts) = get_centered_pattern(pattern, r.w, r.h, min_size);
+    let center = Vec2::new(r.x + r.w / 2.0, r.y + r.h / 2.0);
     let pts: Vec<Vec2> = pts.into_iter().map(|p| p + center).collect();
-    let dot = (scale * 0.08).max(1.0);
+    let dot = (scale * DOT_SHARE).max(1.0);
     for &p in &pts {
-        draw_spot(mesh, p, dot * 1.6, GRID_DOTS);
+        draw_spot(mesh, p, dot * GRID_DOT_SIZE, GRID_DOTS);
     }
     draw_line_seq(mesh, &pts, Line::solid(stroke * 2.0, OUTER_COLOR));
     draw_line_seq(mesh, &pts, Line::solid(stroke, INNER_COLOR));
@@ -158,28 +171,27 @@ pub fn mesh_pattern(
     }
 }
 
-/// Draws `pattern` centred in the `w`×`h` box at `x, y` (GUI pixels).
-pub fn draw_pattern(gfx: &GfxContext, pattern: &HexPattern, x: f32, y: f32, w: f32, h: f32) {
+/// Draws `pattern` centred in box `r` (GUI pixels).
+pub fn draw_pattern(gfx: &GfxContext, pattern: &HexPattern, r: Rect) {
     let mut mesh = Mesh::new();
-    // `StrokeSettings.fromStroke(0.8/16)` of the box.
-    mesh_pattern(&mut mesh, pattern, x, y, w, h, w.min(h) * 0.8 / 16.0);
+    mesh_pattern(&mut mesh, pattern, r, r.w.min(r.h) * STROKE_SHARE);
     mesh.draw(gfx);
 }
 
 /// How wide `pattern` is as a rune `h` tall in a line of text.
 pub fn rune_width(pattern: &HexPattern, h: f32) -> f32 {
     let (w, ht) = extent(&super::render_lib::to_lines(pattern, 1.0, Vec2::ZERO));
-    let aspect = if ht < 0.01 {
-        3.0
+    let aspect = if ht < FLAT {
+        RUNE_ASPECT.1
     } else {
-        (w / ht).clamp(0.5, 3.0)
+        (w / ht).clamp(RUNE_ASPECT.0, RUNE_ASPECT.1)
     };
     (h * aspect).ceil()
 }
 
 /// Adds `pattern` as a rune `h` tall in a line of text (its top-left at
 /// `x, y`, [`rune_width`] wide): its stroke in `color`.
-pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, h: f32, color: u32) {
+pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, Vec2 { x, y }: Vec2, h: f32, color: u32) {
     let w = rune_width(pattern, h);
     let pts = super::render_lib::to_lines(pattern, 1.0, Vec2::ZERO);
     let (pw, ph) = extent(&pts);
@@ -189,7 +201,7 @@ pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, h: f32, 
             (a.min(p.x), b.min(p.y))
         });
     // A pixel's margin all round, the stroke inside it.
-    let scale = ((w - 2.0) / pw.max(0.01)).min((h - 2.0) / ph.max(0.01));
+    let scale = ((w - 2.0) / pw.max(FLAT)).min((h - 2.0) / ph.max(FLAT));
     let off = Vec2::new(x + (w - pw * scale) / 2.0, y + (h - ph * scale) / 2.0);
     let pts: Vec<Vec2> = pts
         .iter()
@@ -197,7 +209,7 @@ pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, h: f32, 
         .collect();
     draw_line_seq(mesh, &pts, Line::solid(1.0, color));
     if let Some(&first) = pts.first() {
-        draw_spot(mesh, first, 0.9, color);
+        draw_spot(mesh, first, RUNE_DOT, color);
     }
 }
 
@@ -277,7 +289,12 @@ mod tests {
     fn a_pattern_fills_its_box() {
         let p = HexPattern::from_angles("waqaw", HexDir::East).unwrap();
         let mut mesh = Mesh::new();
-        mesh_pattern(&mut mesh, &p, 0.0, 0.0, TOOLTIP_SIZE, TOOLTIP_SIZE, 6.4);
+        mesh_pattern(
+            &mut mesh,
+            &p,
+            Rect::new(0.0, 0.0, TOOLTIP_SIZE, TOOLTIP_SIZE),
+            6.4,
+        );
         assert!(mesh.vertex_count() > 0);
     }
 }

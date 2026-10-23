@@ -98,11 +98,11 @@ impl Simplex {
     }
 
     fn value(&self, x: f64, y: f64, z: f64) -> f64 {
-        let s = (x + y + z) * (1.0 / 3.0);
+        let s = (x + y + z) * SKEW;
         let i = (x + s).floor() as i32;
         let j = (y + s).floor() as i32;
         let k = (z + s).floor() as i32;
-        let t = (i + j + k) as f64 * (1.0 / 6.0);
+        let t = (i + j + k) as f64 * UNSKEW;
         let x0 = x - (i as f64 - t);
         let y0 = y - (j as f64 - t);
         let z0 = z - (k as f64 - t);
@@ -121,7 +121,7 @@ impl Simplex {
         } else {
             (0, 1, 0, 1, 1, 0)
         };
-        let g = 1.0 / 6.0;
+        let g = UNSKEW;
         let (x1, y1, z1) = (x0 - i1 as f64 + g, y0 - j1 as f64 + g, z0 - k1 as f64 + g);
         let (x2, y2, z2) = (
             x0 - i2 as f64 + 2.0 * g,
@@ -134,12 +134,22 @@ impl Simplex {
         let g1 = self.p(ii + i1 + self.p(jj + j1 + self.p(kk + k1))) % 12;
         let g2 = self.p(ii + i2 + self.p(jj + j2 + self.p(kk + k2))) % 12;
         let g3 = self.p(ii + 1 + self.p(jj + 1 + self.p(kk + 1))) % 12;
-        32.0 * (Self::corner(g0, x0, y0, z0, 0.6)
-            + Self::corner(g1, x1, y1, z1, 0.6)
-            + Self::corner(g2, x2, y2, z2, 0.6)
-            + Self::corner(g3, x3, y3, z3, 0.6))
+        SCALE
+            * (Self::corner(g0, x0, y0, z0, FALLOFF)
+                + Self::corner(g1, x1, y1, z1, FALLOFF)
+                + Self::corner(g2, x2, y2, z2, FALLOFF)
+                + Self::corner(g3, x3, y3, z3, FALLOFF))
     }
 }
+
+/// 3D simplex noise's skew to the grid and back (F3, G3), the corners'
+/// falloff radius², and the scale bringing it to about -1..1.
+const SKEW: f64 = 1.0 / 3.0;
+const UNSKEW: f64 = 1.0 / 6.0;
+const FALLOFF: f64 = 0.6;
+const SCALE: f64 = 32.0;
+/// `getNoise`: how it stretches its input.
+const NOISE_SCALE: f64 = 0.6;
 
 fn simplex() -> &'static Simplex {
     static NOISE: OnceLock<Simplex> = OnceLock::new();
@@ -148,7 +158,7 @@ fn simplex() -> &'static Simplex {
 
 /// `RenderLib.getNoise`: mostly within -0.5..0.5.
 pub fn get_noise(x: f64, y: f64, z: f64) -> f64 {
-    simplex().value(x * 0.6, y * 0.6, z * 0.6) / 2.0
+    simplex().value(x * NOISE_SCALE, y * NOISE_SCALE, z * NOISE_SCALE) / 2.0
 }
 
 #[cfg(test)]

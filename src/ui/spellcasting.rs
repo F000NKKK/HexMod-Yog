@@ -637,7 +637,11 @@ fn draw_desc(
     y: f32,
     color: u32,
 ) {
-    super::rune_text::draw(gfx, &desc.segs, x, y, color, true);
+    let ink = super::rune_text::Ink {
+        color,
+        shadow: true,
+    };
+    super::rune_text::draw(gfx, &desc.segs, Vec2::new(x, y), ink);
     if desc.cut {
         let alpha = color & 0xFF00_0000;
         let end = x + super::rune_text::width(&desc.segs, width_of);
