@@ -1,4 +1,4 @@
-//! Hex Casting's sound events (`HexSounds`, `assets/hexcasting/sounds.json`).
+//! Hex Casting's sound events (`HexSounds`): their ids, each a `.ysound` under `resources/sound/`.
 
 pub const CASTING_PATTERN_START: &str = "hexcasting:casting.pattern.start";
 pub const CASTING_PATTERN_ADD_SEGMENT: &str = "hexcasting:casting.pattern.add_segment";
