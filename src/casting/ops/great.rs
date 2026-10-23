@@ -7,7 +7,7 @@ use crate::casting::args::{Ent, ItemEnt, Living, Mob, Player, PosDouble};
 use crate::casting::env::{CastEnv, Spray, Stack, random, to_ypos};
 use crate::casting::mishap::{BlockPos, MResult, Mishap};
 use crate::casting::ops::spells::{
-    assert_teleportable, craft_battery, create_fluid, create_sentinel, potion, teleport_by,
+    Potion, assert_teleportable, craft_battery, create_fluid, create_sentinel, potion, teleport_by,
 };
 use crate::casting::vm::Spell;
 use crate::content::Blocks;
@@ -47,19 +47,19 @@ pub fn actions() -> Vec<Action> {
         "brainsweep" NE "qeqwqwqwqwqeqaeqeaqeqaeqaqded" => spell [env, img; mob: Mob, v: Vec3] { brainsweep(env, mob, v) };
         "craft/battery" SW "aqqqaqwwaqqqqqeqaqqqawwqwqwqwqwqw" => spell [env, img; e: ItemEnt] { craft_battery(env, e) };
         "potion/regeneration" NW "qqqqaawawaedd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), vanilla::effects::REGENERATION, DUST, true)
+            potion(env, e, dur.0, Some(&pot), Potion { effect: vanilla::effects::REGENERATION, base: DUST, cubic: true })
         };
         "potion/night_vision" W "qqqaawawaeqdd" => spell [env, img; e: Living, dur: PosDouble] {
-            potion(env, e, dur.0, None, vanilla::effects::NIGHT_VISION, DUST / 5, false)
+            potion(env, e, dur.0, None, Potion { effect: vanilla::effects::NIGHT_VISION, base: DUST / 5, cubic: false })
         };
         "potion/absorption" SW "qqaawawaeqqdd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), vanilla::effects::ABSORPTION, DUST, true)
+            potion(env, e, dur.0, Some(&pot), Potion { effect: vanilla::effects::ABSORPTION, base: DUST, cubic: true })
         };
         "potion/haste" SE "qaawawaeqqqdd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), vanilla::effects::HASTE, DUST / 3, true)
+            potion(env, e, dur.0, Some(&pot), Potion { effect: vanilla::effects::HASTE, base: DUST / 3, cubic: true })
         };
         "potion/strength" E "aawawaeqqqqdd" => spell [env, img; e: Living, dur: PosDouble, pot: Iota] {
-            potion(env, e, dur.0, Some(&pot), vanilla::effects::STRENGTH, DUST / 3, true)
+            potion(env, e, dur.0, Some(&pot), Potion { effect: vanilla::effects::STRENGTH, base: DUST / 3, cubic: true })
         };
     }
 }
