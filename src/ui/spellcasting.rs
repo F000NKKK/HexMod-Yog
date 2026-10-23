@@ -20,7 +20,7 @@ use view::close;
 pub use view::{ID, register};
 
 use std::collections::HashSet;
-use std::sync::{Arc, Mutex, MutexGuard, Once};
+use yog_api::sync::{Arc, Mutex, MutexGuard, Once};
 
 use yog_api::GfxContext;
 use yog_api::client::{self, SoundHandle, ui_flags};
@@ -526,7 +526,7 @@ static SESSION: Mutex<Session> = Mutex::new(Session {
 });
 
 fn session() -> MutexGuard<'static, Session> {
-    SESSION.lock().unwrap_or_else(|e| e.into_inner())
+    SESSION.lock()
 }
 
 /// Draws the grid and takes the pointer — see the [module docs](self).
@@ -646,7 +646,7 @@ fn draw_desc(
 
 /// 0..1, for the stroke sounds' pitch.
 fn random() -> f32 {
-    use std::sync::atomic::{AtomicU64, Ordering};
+    use yog_api::sync::atomic::{AtomicU64, Ordering};
     static STATE: AtomicU64 = AtomicU64::new(0);
     let mut x = STATE.load(Ordering::Relaxed);
     if x == 0 {

@@ -214,7 +214,12 @@ pub fn read_lore(player: &str) {
     else {
         return;
     };
-    yog_api::event::sound::play_to_player(player, crate::res::SoundEvents::LORE_FRAGMENT_READ, 1.0, 1.0);
+    yog_api::event::sound::play_to_player(
+        player,
+        crate::res::SoundEvents::LORE_FRAGMENT_READ,
+        1.0,
+        1.0,
+    );
     let unread: Vec<&str> = LORE
         .into_iter()
         .filter(|id| !env.has_advancement(id))

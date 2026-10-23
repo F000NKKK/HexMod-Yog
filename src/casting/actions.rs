@@ -7,7 +7,7 @@
 //! same whatever way they're drawn — they're looked up by signature.
 
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, OnceLock};
+use yog_api::sync::{Arc, Mutex, OnceLock};
 
 use crate::casting::cont::Cont;
 use crate::casting::env::{CastEnv, MOD_ID, random};
@@ -377,7 +377,7 @@ impl PerWorld {
 pub fn per_world() -> Arc<PerWorld> {
     static CACHE: Mutex<Option<Arc<PerWorld>>> = Mutex::new(None);
     let world_dir = yog_api::event::game::world_dir().unwrap_or_default();
-    let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
+    let mut cache = CACHE.lock();
     if let Some(pw) = cache.as_ref()
         && pw.world_dir == world_dir
     {

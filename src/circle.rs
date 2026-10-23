@@ -8,7 +8,7 @@
 //! keyed by position.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::{LazyLock, Mutex};
+use yog_api::sync::{LazyLock, Mutex};
 
 use yog_api::storage::Store;
 use yog_api::vanilla;
@@ -494,7 +494,6 @@ struct KeptKnown {
 fn save_known() {
     let known: Vec<KeptKnown> = KNOWN
         .lock()
-        .unwrap()
         .iter()
         .map(|((dim, pos), k)| KeptKnown {
             dim: dim.clone(),
@@ -511,7 +510,7 @@ fn load_known() {
     let kept: Vec<KeptKnown> = yog_api::storage::world()
         .map(|s| s.get_or_default(KNOWN_KEY))
         .unwrap_or_default();
-    let mut known = KNOWN.lock().unwrap();
+    let mut known = KNOWN.lock();
     known.clear();
     for KeptKnown { dim, pos, id } in kept {
         let i = impetus(&dim, pos);
@@ -691,8 +690,8 @@ pub fn start(dim: &str, pos: BlockPos, caster: Option<Caster>) {
             imp.run = Some(run);
             imp.display = None;
             set_energized(dim, pos, &part, true);
-            if let Some(k) = KNOWN.lock().unwrap().get_mut(&(dim.to_owned(), pos)) {
-                k.due = Some(*TICKS.lock().unwrap() + speed);
+            if let Some(k) = KNOWN.lock().get_mut(&(dim.to_owned(), pos)) {
+                k.due = Some(*TICKS.lock() + speed);
             }
         }
     }
@@ -970,13 +969,12 @@ fn tick_look(dim: &str, pos: BlockPos) {
 
 pub fn tick() {
     let now = {
-        let mut t = TICKS.lock().unwrap();
+        let mut t = TICKS.lock();
         *t += 1;
         *t
     };
     let known: Vec<((String, BlockPos), Known)> = KNOWN
         .lock()
-        .unwrap()
         .iter()
         .map(|(k, v)| (k.clone(), v.clone()))
         .collect();
@@ -986,14 +984,14 @@ pub fn tick() {
         if now.is_multiple_of(20)
             && yog_api::event::block::info(&dim, to_ypos(pos)).is_some_and(|b| b.block_id() != k.id)
         {
-            KNOWN.lock().unwrap().remove(&(dim.clone(), pos));
+            KNOWN.lock().remove(&(dim.clone(), pos));
             forget_impetus(&dim, pos);
             changed = true;
             continue;
         }
         if k.due.is_some_and(|d| now >= d) {
             let due = tick_run(&dim, pos, now);
-            if let Some(e) = KNOWN.lock().unwrap().get_mut(&(dim.clone(), pos)) {
+            if let Some(e) = KNOWN.lock().get_mut(&(dim.clone(), pos)) {
                 e.due = due;
             }
         }
@@ -1005,7 +1003,7 @@ pub fn tick() {
                     .as_deref()
                     == Some("true");
                 if powered != k.powered {
-                    if let Some(e) = KNOWN.lock().unwrap().get_mut(&(dim.clone(), pos)) {
+                    if let Some(e) = KNOWN.lock().get_mut(&(dim.clone(), pos)) {
                         e.powered = powered;
                     }
                     if powered {
@@ -1061,7 +1059,7 @@ fn slate_item_nbt(pattern: Option<&HexPattern>) -> String {
 pub fn register(registry: &mut Registry) {
     registry.on::<yog_api::event::server::life::Started, _>(|_, _| {
         load_known();
-        *TICKS.lock().unwrap() = 0;
+        *TICKS.lock() = 0;
     });
     registry.on::<yog_api::event::server::game::Tick, _>(|_, _| tick());
 
@@ -1082,10 +1080,7 @@ pub fn register(registry: &mut Registry) {
                         .map(|slot| crate::casting::env::Stack::read(&ev.player_name, slot))
                         .find(|s| s.id == Blocks::SLATE)
                         .and_then(|s| holder::written_pattern(&s.id, &s.nbt));
-                    PLACING
-                        .lock()
-                        .unwrap()
-                        .insert(ev.player_name.clone(), pattern);
+                    PLACING.lock().insert(ev.player_name.clone(), pattern);
                 }
             }
             _ => {
@@ -1110,7 +1105,7 @@ pub fn register(registry: &mut Registry) {
                     );
                 }
                 if k == Kind::Slate {
-                    let pattern = PLACING.lock().unwrap().remove(&ev.player_name).flatten();
+                    let pattern = PLACING.lock().remove(&ev.player_name).flatten();
                     set_slate_pattern(&ev.dimension, pos, pattern.as_ref());
                     crate::render::slate_changed(&ev.dimension, pos, pattern.as_ref());
                 }
@@ -1119,7 +1114,7 @@ pub fn register(registry: &mut Registry) {
                     let powered = yog_api::event::block::property(&ev.dimension, ev.pos, "powered")
                         .as_deref()
                         == Some("true");
-                    KNOWN.lock().unwrap().insert(
+                    KNOWN.lock().insert(
                         (ev.dimension.clone(), pos),
                         Known {
                             id: ev.block_id.clone(),
@@ -1197,7 +1192,7 @@ pub fn register(registry: &mut Registry) {
             let mut imp = impetus(&ev.dimension, pos);
             end(&ev.dimension, &mut imp);
             forget_impetus(&ev.dimension, pos);
-            KNOWN.lock().unwrap().remove(&(ev.dimension.clone(), pos));
+            KNOWN.lock().remove(&(ev.dimension.clone(), pos));
             save_known();
         }
         true

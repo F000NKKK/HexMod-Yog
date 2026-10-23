@@ -1,7 +1,7 @@
 //! The casting VM (Hex Casting's `CastingVM`, `CastResult`,
 //! `OperatorSideEffect` and `HexEvalSounds`).
 
-use std::sync::Arc;
+use yog_api::sync::Arc;
 
 use crate::casting::actions::{self, Lookup};
 use crate::casting::cont::{Cont, Frame};

@@ -12,8 +12,8 @@
 
 use std::collections::HashMap;
 use std::f32::consts::PI;
-use std::sync::{LazyLock, Mutex};
 use std::time::{Duration, Instant};
+use yog_api::sync::{LazyLock, Mutex};
 
 use yog_api::Registry;
 use yog_api::body::{self, Anchor, BoneOp, Frame, Mat4, Ops, Rig, TravelFrame};
@@ -71,7 +71,7 @@ fn show(uuid: &str, state: Option<u8>) {
 /// `OpAltiora`'s spell: up into the air, wings on.
 pub fn give(uuid: &str) {
     yog_api::event::entity::add_velocity(uuid, (0.0, LIFT, 0.0));
-    SERVER.lock().unwrap_or_else(|e| e.into_inner()).insert(
+    SERVER.lock().insert(
         uuid.to_owned(),
         Wings {
             grace: GRACE_PERIOD,
@@ -83,33 +83,19 @@ pub fn give(uuid: &str) {
 }
 
 fn take(uuid: &str) {
-    if SERVER
-        .lock()
-        .unwrap_or_else(|e| e.into_inner())
-        .remove(uuid)
-        .is_some()
-    {
+    if SERVER.lock().remove(uuid).is_some() {
         yog_api::event::entity::set_dimensions(uuid, None.map(|(w, h, e)| [w, h, e]));
         show(uuid, None);
     }
 }
 
 fn gliding(uuid: &str) -> bool {
-    SERVER
-        .lock()
-        .unwrap_or_else(|e| e.into_inner())
-        .get(uuid)
-        .is_some_and(|w| w.gliding)
+    SERVER.lock().get(uuid).is_some_and(|w| w.gliding)
 }
 
 /// `OpAltiora.checkPlayerCollision`, every tick.
 fn tick() {
-    let uuids: Vec<String> = SERVER
-        .lock()
-        .unwrap_or_else(|e| e.into_inner())
-        .keys()
-        .cloned()
-        .collect();
+    let uuids: Vec<String> = SERVER.lock().keys().cloned().collect();
     for uuid in uuids {
         let Some(info) = yog_api::event::entity::info(&uuid) else {
             take(&uuid);
@@ -120,7 +106,7 @@ fn tick() {
         let landed =
             info.has(entity_flags::ON_GROUND) || info.has(entity_flags::HORIZONTAL_COLLISION);
         let (over, glides, fell) = {
-            let mut map = SERVER.lock().unwrap_or_else(|e| e.into_inner());
+            let mut map = SERVER.lock();
             let Some(w) = map.get_mut(&uuid) else {
                 continue;
             };
@@ -354,7 +340,7 @@ fn glide_limbs(ops: &mut Ops, f: &Frame) {
 
 /// The wings and the gliding pose (`AltioraLayer`, the elytra's pose).
 fn draw(f: &Frame, ops: &mut Ops) {
-    let mut map = CLIENT.lock().unwrap_or_else(|e| e.into_inner());
+    let mut map = CLIENT.lock();
     let Some(data) = f.data(DATA) else {
         map.remove(&f.uuid);
         return;
@@ -397,7 +383,7 @@ fn draw(f: &Frame, ops: &mut Ops) {
 /// flight (pushed by rockets), folded on the ground.
 fn travel(f: &TravelFrame) -> Option<body::Vec3> {
     let data = body::entity_data(&f.uuid, DATA)?;
-    let mut map = CLIENT.lock().unwrap_or_else(|e| e.into_inner());
+    let mut map = CLIENT.lock();
     let s = map.entry(f.uuid.clone()).or_insert_with(Seen::new);
     s.update(&data);
     let jumped = f.jumping && !s.was_jumping;
@@ -444,7 +430,7 @@ pub fn register(registry: &mut Registry) {
             return;
         }
         let changed = {
-            let mut map = SERVER.lock().unwrap_or_else(|e| e.into_inner());
+            let mut map = SERVER.lock();
             let Some(w) = map.get_mut(&info.uuid) else {
                 return;
             };
@@ -468,11 +454,7 @@ pub fn register(registry: &mut Registry) {
         let Ok(uuid) = std::str::from_utf8(uuid) else {
             return;
         };
-        if let Some(s) = CLIENT
-            .lock()
-            .unwrap_or_else(|e| e.into_inner())
-            .get_mut(uuid)
-        {
+        if let Some(s) = CLIENT.lock().get_mut(uuid) {
             s.boost = u16::from_le_bytes([a, b]) as i32;
         }
     });

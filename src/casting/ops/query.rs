@@ -3,7 +3,7 @@
 //! circles,environment,types}`, `OpGetSentinel*`).
 
 use std::collections::HashMap;
-use std::sync::Mutex;
+use yog_api::sync::Mutex;
 
 use yog_api::core::{EntityInfo, entity_flags as ef};
 use yog_api::vanilla;
@@ -271,7 +271,7 @@ static PLAYER_POSITIONS: Mutex<Option<Positions>> = Mutex::new(None);
 
 /// `PlayerPositionRecorder.updateAllPlayers`, every server tick.
 pub fn record_players() {
-    let mut map = PLAYER_POSITIONS.lock().unwrap_or_else(|e| e.into_inner());
+    let mut map = PLAYER_POSITIONS.lock();
     let map = map.get_or_insert_with(HashMap::new);
     let mut seen = HashMap::new();
     for name in yog_api::event::player::online() {
@@ -289,7 +289,7 @@ pub fn record_players() {
 
 fn velocity(info: &EntityInfo, uuid: &str) -> Vec3 {
     if info.has(ef::PLAYER) {
-        let map = PLAYER_POSITIONS.lock().unwrap_or_else(|e| e.into_inner());
+        let map = PLAYER_POSITIONS.lock();
         return match map.as_ref().and_then(|m| m.get(uuid)) {
             None => Vec3::ZERO,
             Some((last, None)) => Vec3::from_tuple(info.pos) - *last,

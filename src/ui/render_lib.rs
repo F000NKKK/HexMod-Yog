@@ -6,8 +6,8 @@
 
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
+use yog_api::sync::{Mutex, OnceLock};
 
 use yog_api::GfxContext;
 use yog_api::gfx_core::{DataType, DrawMode, blend};
@@ -259,7 +259,7 @@ impl Mesh {
         if self.verts.is_empty() {
             return;
         }
-        let mut guard = GL.lock().unwrap_or_else(|e| e.into_inner());
+        let mut guard = GL.lock();
         if guard.is_none() {
             *guard = Gl::new(gfx);
         }

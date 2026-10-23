@@ -6,7 +6,7 @@
 //! sparkles are colored dust, sent from the server.
 
 use std::collections::HashMap;
-use std::sync::{LazyLock, Mutex};
+use yog_api::sync::{LazyLock, Mutex};
 
 use yog_api::{EventPhase, Registry};
 
@@ -20,8 +20,11 @@ use crate::math::Vec3;
 const RANGE: f64 = 32.0;
 const KEY: &str = "conjured.index";
 
-static KNOWN: LazyLock<Mutex<HashMap<(String, BlockPos), (bool, Pigment)>>> =
-    LazyLock::new(Default::default);
+/// A conjured block by its dimension and position: whether it's a light,
+/// and its pigment.
+type Known = HashMap<(String, BlockPos), (bool, Pigment)>;
+
+static KNOWN: LazyLock<Mutex<Known>> = LazyLock::new(Default::default);
 static TICKS: Mutex<u64> = Mutex::new(0);
 
 /// A conjured block, as it's kept with the world.
@@ -36,7 +39,6 @@ struct Kept {
 fn save() {
     let known: Vec<Kept> = KNOWN
         .lock()
-        .unwrap()
         .iter()
         .map(|((dim, pos), (light, pigment))| Kept {
             dim: dim.clone(),
@@ -54,7 +56,7 @@ fn load() {
     let kept: Vec<Kept> = yog_api::storage::world()
         .map(|s| s.get_or_default(KEY))
         .unwrap_or_default();
-    *KNOWN.lock().unwrap() = kept
+    *KNOWN.lock() = kept
         .into_iter()
         .map(|k| ((k.dim, k.pos), (k.light, k.pigment)))
         .collect();
@@ -62,10 +64,7 @@ fn load() {
 
 /// `BlockConjured.setColor`: a block was conjured with `pigment`.
 pub fn conjured(dim: &str, pos: BlockPos, light: bool, pigment: Pigment) {
-    KNOWN
-        .lock()
-        .unwrap()
-        .insert((dim.to_owned(), pos), (light, pigment));
+    KNOWN.lock().insert((dim.to_owned(), pos), (light, pigment));
     save();
 }
 
@@ -106,7 +105,7 @@ fn sparkle(dim: &str, pos: BlockPos, light: bool, p: &Pigment) {
 
 fn tick() {
     let now = {
-        let mut t = TICKS.lock().unwrap();
+        let mut t = TICKS.lock();
         *t += 1;
         *t
     };
@@ -119,7 +118,6 @@ fn tick() {
         .collect();
     let known: Vec<((String, BlockPos), (bool, Pigment))> = KNOWN
         .lock()
-        .unwrap()
         .iter()
         .map(|(k, v)| (k.clone(), v.clone()))
         .collect();
@@ -146,7 +144,7 @@ fn tick() {
         sparkle(&dim, pos, light, &pigment);
     }
     if !gone.is_empty() {
-        let mut known = KNOWN.lock().unwrap();
+        let mut known = KNOWN.lock();
         for k in gone {
             known.remove(&k);
         }
@@ -169,11 +167,7 @@ pub fn register(registry: &mut Registry) {
             (e.y - 0.01).floor() as i32,
             e.z.floor() as i32,
         );
-        let hit = KNOWN
-            .lock()
-            .unwrap()
-            .get(&(e.dimension.clone(), below))
-            .cloned();
+        let hit = KNOWN.lock().get(&(e.dimension.clone(), below)).cloned();
         if let Some((false, pigment)) = hit {
             for _ in 0..3 {
                 let c = color(
@@ -199,5 +193,5 @@ pub fn register(registry: &mut Registry) {
 }
 
 fn now_ticks() -> u64 {
-    *TICKS.lock().unwrap()
+    *TICKS.lock()
 }

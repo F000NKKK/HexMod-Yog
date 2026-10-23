@@ -2,7 +2,6 @@
 //! packaged-item and circle variants): who casts it, what's in range, what
 //! media pays for it, and what a mishap does to the caster.
 
-
 use yog_api::core::{EntityInfo, entity_flags};
 use yog_api::event::particle::ParticleOptions;
 use yog_api::vanilla;

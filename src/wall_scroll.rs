@@ -6,7 +6,7 @@
 //! stroke order.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::{LazyLock, Mutex};
+use yog_api::sync::{LazyLock, Mutex};
 
 use yog_api::Registry;
 use yog_api::body::{self, Anchor, Color, Frame, Look, Mode, Ops, Quad};
@@ -116,7 +116,7 @@ fn draw(f: &Frame, ops: &mut Ops) {
     let readable = shows_stroke_order(f.data(STROKE_ORDER));
     let seed = seed(f.pos, &h);
     let key = (h.nbt.clone(), readable, size, seed);
-    let mut drawn = DRAWN.lock().unwrap_or_else(|e| e.into_inner());
+    let mut drawn = DRAWN.lock();
     if drawn.get(&f.uuid).is_none_or(|d| d.key != key) {
         if drawn.len() >= DRAWN_MAX {
             drawn.clear();

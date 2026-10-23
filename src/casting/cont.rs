@@ -2,7 +2,7 @@
 //! `SpellContinuation` and its frames). A persistent linked list, so Iris'
 //! Gambit can put "the rest of the hex" on the stack as an iota.
 
-use std::sync::Arc;
+use yog_api::sync::Arc;
 
 use crate::iota::{Iota, read_stack, write_stack};
 use crate::wire::{Reader, Writer};

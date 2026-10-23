@@ -6,7 +6,7 @@
 //! The server works the lines out (it has the impetuses and shelves) and
 //! sends them to the player; the client draws them right of the crosshair.
 
-use std::sync::Mutex;
+use yog_api::sync::Mutex;
 
 use yog_api::ui::{Color, Vec2};
 use yog_api::vanilla;
@@ -24,6 +24,8 @@ use crate::wire::{Reader, Writer};
 /// Server → client: the lines to show (none: nothing).
 pub const CH_LENS: &str = "hexcasting:lens";
 /// How far the lens sees, as a hand reaches.
+/// Digits a thousands separator groups.
+const DIGIT_GROUP: usize = 3;
 const REACH: f64 = 5.0;
 /// Every so many ticks the lines are worked out again.
 const EVERY: u64 = 2;
@@ -145,7 +147,7 @@ fn dust_amount(v: f64) -> String {
     let digits = whole.abs().to_string();
     let mut grouped = String::new();
     for (i, c) in digits.chars().enumerate() {
-        if i > 0 && (digits.len() - i) % 3 == 0 {
+        if i > 0 && (digits.len() - i).is_multiple_of(DIGIT_GROUP) {
             grouped.push(',');
         }
         grouped.push(c);
@@ -386,14 +388,14 @@ fn has_lens(player: &str) -> bool {
 
 pub fn tick() {
     let now = {
-        let mut t = TICKS.lock().unwrap();
+        let mut t = TICKS.lock();
         *t += 1;
         *t
     };
     if !now.is_multiple_of(EVERY) {
         return;
     }
-    let mut sent = SENT.lock().unwrap();
+    let mut sent = SENT.lock();
     for name in yog_api::event::player::online() {
         let mut found = Vec::new();
         if has_lens(&name)
@@ -430,7 +432,7 @@ static SHOWN: Mutex<Vec<Line>> = Mutex::new(Vec::new());
 /// The lines right of the crosshair, bottom-aligned on it: an item, then
 /// its text wrapped to 40 % of the screen.
 fn draw(gfx: &GfxContext) {
-    let lines = SHOWN.lock().unwrap().clone();
+    let lines = SHOWN.lock().clone();
     if lines.is_empty() {
         return;
     }
@@ -482,12 +484,12 @@ fn draw(gfx: &GfxContext) {
 pub fn register(registry: &mut Registry) {
     registry.on::<yog_api::event::server::game::Tick, _>(|_, _| tick());
     registry.on::<yog_api::event::player::session::Leave, _>(|e, _| {
-        SENT.lock().unwrap().retain(|(n, _)| *n != e.player_name);
+        SENT.lock().retain(|(n, _)| *n != e.player_name);
         true
     });
     registry.on_client_packet(CH_LENS, |ev| {
         if let Some(lines) = decode(&ev.payload) {
-            *SHOWN.lock().unwrap() = lines;
+            *SHOWN.lock() = lines;
         }
     });
     registry.on_hud_render(draw);

@@ -1,7 +1,7 @@
 //! Escaping, parentheses, meta-evaluation and the Ravenmind
 //! (`casting/actions/{escaping,eval,local}`).
 
-use std::sync::Arc;
+use yog_api::sync::Arc;
 
 use crate::casting::actions::{Action, actions};
 use crate::casting::args::{Arg, PosInt, evaluatable};

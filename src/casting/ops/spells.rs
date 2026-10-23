@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::f64::consts::PI;
-use std::sync::Mutex;
+use yog_api::sync::Mutex;
 
 use yog_api::core::Face;
 use yog_api::event::particle::ParticleOptions;
@@ -1002,7 +1002,7 @@ fn store_flight(uuid: &str, f: Option<&FlightAbility>) {
 
 /// The flight a player was granted, if any.
 pub fn flight_of(uuid: &str) -> Option<FlightAbility> {
-    let mut map = FLIGHTS.lock().unwrap_or_else(|e| e.into_inner());
+    let mut map = FLIGHTS.lock();
     let map = map.get_or_insert_with(HashMap::new);
     map.entry(uuid.to_owned())
         .or_insert_with(|| load_flight(uuid))
@@ -1014,7 +1014,7 @@ fn set_flight(uuid: &str, f: Option<FlightAbility>, persist: bool) {
     if persist {
         store_flight(uuid, f.as_ref());
     }
-    let mut map = FLIGHTS.lock().unwrap_or_else(|e| e.into_inner());
+    let mut map = FLIGHTS.lock();
     map.get_or_insert_with(HashMap::new)
         .insert(uuid.to_owned(), f);
 }

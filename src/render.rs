@@ -6,7 +6,7 @@
 //! the client draws them with the world's camera.
 
 use std::collections::HashMap;
-use std::sync::{LazyLock, Mutex};
+use yog_api::sync::{LazyLock, Mutex};
 
 use yog_api::gfx_core::{DrawMode, blend};
 use yog_api::gfx_gl::{Buffer, ShaderProgram, VertexArray};
@@ -48,8 +48,12 @@ struct Slate {
 }
 
 /// Every slate with a pattern, by dimension and position (the server's).
-static SLATES: LazyLock<Mutex<HashMap<(String, (i32, i32, i32)), HexPattern>>> =
-    LazyLock::new(Default::default);
+/// A block by its dimension and position.
+type At = (String, (i32, i32, i32));
+/// What a player was last sent: the slates' bytes and the sentinel's.
+type Sent = (Vec<u8>, Vec<u8>);
+
+static SLATES: LazyLock<Mutex<HashMap<At, HexPattern>>> = LazyLock::new(Default::default);
 /// Where they're kept in the world store.
 const SLATES_KEY: &str = "render_slates";
 
@@ -64,7 +68,6 @@ struct KeptSlate {
 fn save_slates() {
     let slates: Vec<KeptSlate> = SLATES
         .lock()
-        .unwrap()
         .iter()
         .map(|((dim, pos), p)| KeptSlate {
             dim: dim.clone(),
@@ -81,7 +84,7 @@ fn load_slates() {
     let kept: Vec<KeptSlate> = yog_api::storage::world()
         .map(|s| s.get_or_default(SLATES_KEY))
         .unwrap_or_default();
-    *SLATES.lock().unwrap() = kept
+    *SLATES.lock() = kept
         .into_iter()
         .filter_map(|k| Some(((k.dim, k.pos), HexPattern::from_serialized(&k.pattern)?)))
         .collect();
@@ -95,7 +98,7 @@ pub fn shelf_changed(dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPatter
 /// A slate was placed with `pattern`, or broken (`None`).
 pub fn slate_changed(dim: &str, pos: (i32, i32, i32), pattern: Option<&HexPattern>) {
     {
-        let mut slates = SLATES.lock().unwrap();
+        let mut slates = SLATES.lock();
         match pattern {
             Some(p) => slates.insert((dim.to_owned(), pos), p.clone()),
             None => slates.remove(&(dim.to_owned(), pos)),
@@ -193,20 +196,20 @@ fn decode_sentinel(b: &[u8]) -> Option<Option<Shown>> {
 // ── the server ──────────────────────────────────────────────────────────────
 
 /// What each player was last sent: slates, sentinel.
-static SENT: LazyLock<Mutex<HashMap<String, (Vec<u8>, Vec<u8>)>>> = LazyLock::new(Default::default);
+static SENT: LazyLock<Mutex<HashMap<String, Sent>>> = LazyLock::new(Default::default);
 static TICKS: Mutex<u64> = Mutex::new(0);
 
 fn tick() {
     let now = {
-        let mut t = TICKS.lock().unwrap();
+        let mut t = TICKS.lock();
         *t += 1;
         *t
     };
     if !now.is_multiple_of(EVERY) {
         return;
     }
-    let slates = SLATES.lock().unwrap().clone();
-    let mut sent = SENT.lock().unwrap();
+    let slates = SLATES.lock().clone();
+    let mut sent = SENT.lock();
     for name in yog_api::event::player::online() {
         let Some(p) = yog_api::event::player::info(&name) else {
             continue;
@@ -339,10 +342,11 @@ fn slate_triangles(s: &Slate, out: &mut Vec<f32>) {
     draw_line_seq(&mut mesh, &pts, STROKE * 2.0 * UNIT, outer, outer, false);
     draw_line_seq(&mut mesh, &pts, STROKE * UNIT, inner, inner, false);
     let (origin, right, up) = slate_plane(s);
-    for v in mesh.vertices().chunks_exact(6) {
-        let (px, py) = (v[0] / UNIT - 0.5, 0.5 - v[1] / UNIT);
+    // A 2D vertex: x, y, then its color.
+    for &[x, y, r, g, b, a] in mesh.vertices().as_chunks::<6>().0 {
+        let (px, py) = (x / UNIT - 0.5, 0.5 - y / UNIT);
         let p = origin + right * px as f64 + up * py as f64;
-        out.extend_from_slice(&[p.x as f32, p.y as f32, p.z as f32, v[2], v[3], v[4], v[5]]);
+        out.extend_from_slice(&[p.x as f32, p.y as f32, p.z as f32, r, g, b, a]);
     }
 }
 
@@ -459,11 +463,11 @@ fn client_ticks() -> f32 {
 }
 
 fn draw(gfx: &GfxContext) {
-    let seen = SEEN.lock().unwrap();
+    let seen = SEEN.lock();
     if seen.slate_mesh.is_empty() && seen.sentinel.is_none() {
         return;
     }
-    let mut gl = GL.lock().unwrap();
+    let mut gl = GL.lock();
     if gl.is_none() {
         let Ok(prog) = gfx.create_shader(VERT, FRAG) else {
             return;
@@ -485,18 +489,11 @@ fn draw(gfx: &GfxContext) {
         [cam[0] - base[0], cam[1] - base[1], cam[2] - base[2]],
     );
     let local = |v: &[f32]| -> Vec<f32> {
-        v.chunks_exact(7)
-            .flat_map(|c| {
-                [
-                    c[0] - base[0],
-                    c[1] - base[1],
-                    c[2] - base[2],
-                    c[3],
-                    c[4],
-                    c[5],
-                    c[6],
-                ]
-            })
+        // A world vertex: x, y, z, then its color.
+        v.as_chunks::<7>()
+            .0
+            .iter()
+            .flat_map(|&[x, y, z, r, g, b, a]| [x - base[0], y - base[1], z - base[2], r, g, b, a])
             .collect()
     };
     gfx.set_blend(true, blend::SRC_ALPHA, blend::ONE_MINUS_SRC_ALPHA);
@@ -535,12 +532,12 @@ pub fn register(registry: &mut Registry) {
     registry.on::<yog_api::event::server::life::Started, _>(|_, _| load_slates());
     registry.on::<yog_api::event::server::game::Tick, _>(|_, _| tick());
     registry.on::<yog_api::event::player::session::Leave, _>(|e, _| {
-        SENT.lock().unwrap().remove(&e.player_name);
+        SENT.lock().remove(&e.player_name);
         true
     });
     registry.on_client_packet(CH_SLATES, |ev| {
         if let Some((dim, slates)) = decode_slates(&ev.payload) {
-            let mut seen = SEEN.lock().unwrap();
+            let mut seen = SEEN.lock();
             let mut mesh = Vec::new();
             for s in &slates {
                 slate_triangles(s, &mut mesh);
@@ -564,7 +561,7 @@ pub fn register(registry: &mut Registry) {
     });
     registry.on_client_packet(CH_SENTINEL, |ev| {
         if let Some(s) = decode_sentinel(&ev.payload) {
-            SEEN.lock().unwrap().sentinel = s;
+            SEEN.lock().sentinel = s;
         }
     });
     registry.on_world_render(draw);
@@ -616,7 +613,7 @@ mod tests {
         let mut out = Vec::new();
         slate_triangles(&s, &mut out);
         assert!(!out.is_empty());
-        for v in out.chunks_exact(7) {
+        for v in out.as_chunks::<7>().0 {
             assert!(
                 (v[1] - (1.0 / 16.0 + 0.002)).abs() < 1e-4,
                 "on the plate's top: {}",

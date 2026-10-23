@@ -2,7 +2,7 @@
 //! seeded with `SingleThreadedRandomSource(9001)` (Hex Casting's
 //! `RenderLib.NOISE`), bit-for-bit, so the lines shake like the original's.
 
-use std::sync::OnceLock;
+use yog_api::sync::OnceLock;
 
 /// `java.util.Random`'s LCG as Minecraft's `SingleThreadedRandomSource`
 /// (`BitRandomSource` rules for `nextInt`/`nextDouble`).
