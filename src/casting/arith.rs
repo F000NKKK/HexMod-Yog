@@ -170,10 +170,30 @@ fn tolerates_any(x: &Iota, l: &[Iota]) -> bool {
     l.iter().any(|y| x.tolerates(y))
 }
 
+/// Each arithmetic in the order the original tries them.
+type Arith = fn(&str, &[Iota]) -> MResult<Option<Vec<Iota>>>;
+const ARITHMETICS: [Arith; 6] = [
+    double_arith,
+    vec3_arith,
+    list_arith,
+    bool_arith,
+    list_set_arith,
+    bitwise_arith,
+];
+
 /// The operator `op` on `a` (deepest first); `Ok(None)` if no arithmetic
 /// takes these types.
 pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
-    // DoubleArithmetic
+    for arith in ARITHMETICS {
+        if let Some(out) = arith(op, a)? {
+            return Ok(Some(out));
+        }
+    }
+    Ok(None)
+}
+
+/// `DoubleArithmetic`: numbers.
+fn double_arith(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     if let Some(d) = nums(a) {
         match d.len() {
             1 => {
@@ -189,8 +209,11 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
             _ => {}
         }
     }
+    Ok(None)
+}
 
-    // Vec3Arithmetic
+/// `Vec3Arithmetic`: vectors, and numbers made one.
+fn vec3_arith(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     if op == "construct_vec"
         && let Some(d) = nums(a)
     {
@@ -238,8 +261,11 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
             _ => {}
         }
     }
+    Ok(None)
+}
 
-    // ListArithmetic
+/// `ListArithmetic`: lists as sequences.
+fn list_arith(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     match (op, a) {
         ("index", [Iota::List(l), Iota::Double(i)]) => {
             let idx = round_long(*i);
@@ -304,8 +330,11 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
         }
         _ => {}
     }
+    Ok(None)
+}
 
-    // BoolArithmetic
+/// `BoolArithmetic`, and comparing numbers.
+fn bool_arith(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     if let Some(b) = bools(a) {
         match (op, b.as_slice()) {
             ("and", [x, y]) => return one(Iota::Bool(*x && *y)),
@@ -329,8 +358,11 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
             _ => {}
         }
     }
+    Ok(None)
+}
 
-    // ListSetArithmetic
+/// `ListSetArithmetic`: lists as sets.
+fn list_set_arith(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     match (op, a) {
         ("and", [Iota::List(x), Iota::List(y)]) => {
             return one(Iota::List(
@@ -358,8 +390,11 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
         }
         _ => {}
     }
+    Ok(None)
+}
 
-    // BitwiseSetArithmetic
+/// `BitwiseSetArithmetic`: numbers as bits.
+fn bitwise_arith(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
     if let Some(d) = nums(a) {
         let l: Vec<i64> = d.iter().map(|x| round_long(*x)).collect();
         match (op, l.as_slice()) {
@@ -370,7 +405,6 @@ pub fn apply(op: &str, a: &[Iota]) -> MResult<Option<Vec<Iota>>> {
             _ => {}
         }
     }
-
     Ok(None)
 }
 
