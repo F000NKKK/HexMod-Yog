@@ -2,9 +2,9 @@
 //! packaged-item and circle variants): who casts it, what's in range, what
 //! media pays for it, and what a mishap does to the caster.
 
-use std::sync::atomic::{AtomicU8, Ordering};
 
 use yog_api::core::{EntityInfo, entity_flags};
+use yog_api::event::particle::ParticleOptions;
 use yog_api::vanilla;
 
 use crate::casting::mishap::{BlockPos, MResult, Mishap, ShownItem, item_name};
@@ -214,43 +214,16 @@ fn random_on_sphere() -> Vec3 {
     Vec3::new(r * th.cos(), y, r * th.sin())
 }
 
-/// 0: not tried yet, 1: `dust{color:[…]}` (1.20.5+), 2: `dust r g b s`.
-static DUST_SYNTAX: AtomicU8 = AtomicU8::new(0);
-
-/// One colored dust particle moving along `vel`.
+/// One conjured particle (`ConjureParticleOptions`) in `color` moving along `vel`.
 pub fn spawn_dust(dim: &str, pos: Vec3, vel: Vec3, color: u32) {
-    let (r, g, b) = (
-        ((color >> 16) & 0xff) as f64 / 255.0,
-        ((color >> 8) & 0xff) as f64 / 255.0,
-        (color & 0xff) as f64 / 255.0,
+    yog_api::event::particle::spawn_particles(
+        dim,
+        (pos.x, pos.y, pos.z),
+        ParticleOptions::colored(crate::res::Particles::CONJURE_PARTICLE, color),
+        0,
+        (vel.x, vel.y, vel.z),
+        1.0,
     );
-    let new = || format!("minecraft:dust{{color:[{r:.3}f,{g:.3}f,{b:.3}f],scale:1.0f}}");
-    let old = || format!("minecraft:dust {r:.3} {g:.3} {b:.3} 1.0");
-    let send = |ty: &str| {
-        yog_api::event::particle::spawn_particles(
-            dim,
-            (pos.x, pos.y, pos.z),
-            ty,
-            0,
-            (vel.x, vel.y, vel.z),
-            1.0,
-        )
-    };
-    match DUST_SYNTAX.load(Ordering::Relaxed) {
-        1 => {
-            send(&new());
-        }
-        2 => {
-            send(&old());
-        }
-        _ => {
-            if send(&new()) {
-                DUST_SYNTAX.store(1, Ordering::Relaxed);
-            } else if send(&old()) {
-                DUST_SYNTAX.store(2, Ordering::Relaxed);
-            }
-        }
-    }
 }
 
 /// A spell circle's run (`CircleExecutionState`), for the circle env.

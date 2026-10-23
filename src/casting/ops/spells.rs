@@ -5,6 +5,7 @@ use std::f64::consts::PI;
 use std::sync::Mutex;
 
 use yog_api::core::Face;
+use yog_api::event::particle::ParticleOptions;
 use yog_api::vanilla;
 
 use crate::akashic;
@@ -426,7 +427,7 @@ fn smoke(env: &CastEnv, here: BlockPos) {
             here.1 as f64 + j(),
             here.2 as f64 + j(),
         ),
-        vanilla::particles::SMOKE,
+        ParticleOptions::plain(vanilla::particles::SMOKE),
         2,
         (0.0, 0.05, 0.0),
         0.0,
@@ -715,7 +716,7 @@ fn beep(env: &mut CastEnv, at: Vec3, instrument: usize, note: i64) {
     yog_api::event::particle::spawn_particles(
         &env.dim,
         (at.x, at.y + 0.2, at.z),
-        vanilla::particles::NOTE,
+        ParticleOptions::plain(vanilla::particles::NOTE),
         0,
         (note as f64 / 24.0, 0.0, 0.0),
         1.0,
