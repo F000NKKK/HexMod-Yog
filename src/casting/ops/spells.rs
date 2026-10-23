@@ -437,7 +437,8 @@ fn smoke(env: &CastEnv, here: BlockPos) {
 /// `OpDestroyFluid`: drains a cauldron, or soaks up fluid like a sponge.
 fn destroy_fluid(env: &mut CastEnv, base: BlockPos) {
     let id = env.block_id(base);
-    if id != vanilla::blocks::CAULDRON && id.starts_with("minecraft:") && id.ends_with("cauldron") {
+    let filled = yog_api::yog_ids::game_path(&id).is_some_and(|p| p.ends_with("cauldron"));
+    if id != vanilla::blocks::CAULDRON && filled {
         yog_api::event::world::set_block(&env.dim, to_ypos(base), vanilla::blocks::CAULDRON);
         return;
     }

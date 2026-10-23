@@ -247,7 +247,7 @@ fn entity(iota: &Iota, rev: usize, flags: u32, deny: u32, name: &str) -> MResult
 
 impl Arg for Ent {
     fn get(iota: &Iota, rev: usize, _env: &CastEnv) -> MResult<Self> {
-        entity(iota, rev, 0, 0, "entity")
+        entity(iota, rev, 0, 0, yog_api::yog_ids::kind::ENTITY)
     }
 }
 

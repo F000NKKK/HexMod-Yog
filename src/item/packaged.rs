@@ -40,7 +40,7 @@ pub fn write_hex(
     match pigment {
         Some(p) => {
             let mut c = Nbt::default();
-            c.set("item", Nbt::str(p.item.clone()));
+            c.set(yog_api::yog_ids::word::ITEM, Nbt::str(p.item.clone()));
             c.set("owner", Nbt::str(p.owner.clone()));
             stack.nbt.set(TAG_PIGMENT, c);
         }
@@ -68,7 +68,7 @@ pub fn clear_hex(stack: &mut Stack) {
 pub fn pigment(stack: &Stack) -> Option<Pigment> {
     let c = stack.nbt.get(TAG_PIGMENT)?;
     Some(Pigment {
-        item: c.get_str("item")?.to_owned(),
+        item: c.get_str(yog_api::yog_ids::word::ITEM)?.to_owned(),
         owner: c.get_str("owner").unwrap_or_default().to_owned(),
     })
 }

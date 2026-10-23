@@ -504,8 +504,7 @@ fn entity_name(e: &EntityRef) -> Text {
 
 /// An item's name from its id (`item.<ns>.<path>`).
 pub fn item_name(id: &str) -> Text {
-    let (ns, path) = id.split_once(':').unwrap_or(("minecraft", id));
-    Text::key(format!("item.{ns}.{}", path.replace('/', ".")))
+    Text::key(yog_api::yog_ids::lang_key(yog_api::yog_ids::kind::ITEM, id))
 }
 
 /// `MishapDivideByZero.translate`.

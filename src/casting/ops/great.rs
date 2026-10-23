@@ -233,7 +233,7 @@ fn sweepee_matches(mob: &Ent, want: &Sweepee) -> bool {
                 return false;
             };
             let p = data.get_str("profession").unwrap_or_default();
-            let p = p.strip_prefix("minecraft:").unwrap_or(p);
+            let p = yog_api::yog_ids::game_path(p).unwrap_or(p);
             profession.is_none_or(|want| want == p) && data.get_i64("level").unwrap_or(0) >= *level
         }
     }

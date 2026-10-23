@@ -90,9 +90,10 @@ impl Action {
         Text::key(format!("hexcasting.action.{MOD_ID}:{}", self.id))
     }
 
-    /// The pattern as the book draws it.
-    pub fn pattern(&self) -> HexPattern {
-        HexPattern::from_angles(self.sig, self.dir).expect("valid signature")
+    /// The pattern as the book draws it (none for a signature that isn't
+    /// one: every action's is, as a test checks).
+    pub fn pattern(&self) -> Option<HexPattern> {
+        HexPattern::from_angles(self.sig, self.dir)
     }
 
     /// `operateInParens`: by default, the pattern is just collected.
@@ -225,6 +226,8 @@ macro_rules! action {
     };
     (@konst ($id:literal, $dir:ident, $sig:literal) [$cost:expr]
         [$env:ident $(, $arg:ident : $ty:ty)* $(,)?] $body:block) => {{
+        // One shape for every action: one without arguments leaves the counter
+        // and `out`'s `mut` unused, and a cost already an `i64` is cast again.
         #[allow(unused_variables, unused_mut, unused_assignments, clippy::unnecessary_cast)]
         fn op(
             env: &mut $crate::casting::env::CastEnv,
@@ -247,6 +250,7 @@ macro_rules! action {
     }};
     (@spell ($id:literal, $dir:ident, $sig:literal) []
         [$env:ident, $img:ident $(; $($arg:ident : $ty:ty),* $(,)?)?] $body:block) => {{
+        // One shape for every spell: one without arguments leaves the counter unused.
         #[allow(unused_variables, unused_mut, unused_assignments)]
         fn op(
             env: &mut $crate::casting::env::CastEnv,
@@ -398,7 +402,7 @@ pub fn per_world() -> Arc<PerWorld> {
     let by_sig = all()
         .iter()
         .filter(|a| a.great())
-        .map(|a| (alt_drawing(&a.pattern(), seed).signature(), a))
+        .filter_map(|a| Some((alt_drawing(&a.pattern()?, seed).signature(), a)))
         .collect();
     let pw = Arc::new(PerWorld {
         world_dir,
@@ -412,8 +416,8 @@ pub fn per_world() -> Arc<PerWorld> {
 /// How a great spell is drawn in this world (`getCanonicalStrokesPerWorld`).
 pub fn per_world_pattern(id: &str) -> Option<HexPattern> {
     let a = by_id(id)?;
-    a.great()
-        .then(|| alt_drawing(&a.pattern(), per_world().seed))
+    let pattern = a.pattern().filter(|_| a.great())?;
+    Some(alt_drawing(&pattern, per_world().seed))
 }
 
 /// `EulerPathFinder.findAltDrawing`: another way to draw the same shape,
@@ -642,6 +646,13 @@ mod tests {
         for a in crate::casting::ops::interop::pehkui() {
             assert!(HexPattern::from_angles(a.sig, a.dir).is_some(), "{}", a.id);
             assert!(!sigs.contains(a.sig), "{} clashes", a.id);
+        }
+    }
+
+    #[test]
+    fn every_signature_is_a_pattern() {
+        for a in all() {
+            assert!(a.pattern().is_some(), "{}: {}", a.id, a.sig);
         }
     }
 

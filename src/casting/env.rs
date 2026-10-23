@@ -27,7 +27,7 @@ const ENLIGHTENING_HEALTH_LEFT: f64 = 1.0;
 const WASTEFUL_MEDIA: i64 = 89_000;
 const BIG_CAST_MEDIA: i64 = 6_400_000;
 /// The attribute a player's health bar is.
-const MAX_HEALTH: &str = "minecraft:generic.max_health";
+const MAX_HEALTH: &str = yog_api::yog_ids::attribute::MAX_HEALTH;
 /// `HexConfig.server().maxOpCount()`.
 pub const MAX_OP_COUNT: i64 = 100_000;
 /// `PlayerBasedCastEnv.DEFAULT_AMBIT_RADIUS` / `DEFAULT_SENTINEL_RADIUS`.
@@ -447,8 +447,10 @@ impl CastEnv {
     /// A block's name (`block.<ns>.<path>`).
     pub fn block_name(&self, pos: BlockPos) -> Text {
         let id = self.block_id(pos);
-        let (ns, path) = id.split_once(':').unwrap_or(("minecraft", &id));
-        Text::key(format!("block.{ns}.{}", path.replace('/', ".")))
+        Text::key(yog_api::yog_ids::lang_key(
+            yog_api::yog_ids::kind::BLOCK,
+            &id,
+        ))
     }
 
     // ── ambit ──────────────────────────────────────────────────────────────

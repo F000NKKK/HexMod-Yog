@@ -782,7 +782,9 @@ fn step(dim: &str, imp: &mut Impetus, at: BlockPos) -> bool {
                 }
                 Some((pos, dir)) => {
                     sfx(dim, run.current, Some((imp, at)), true);
-                    let run = imp.run.as_mut().expect("running");
+                    let Some(run) = imp.run.as_mut() else {
+                        return false;
+                    };
                     run.current = pos;
                     run.entered_from = dir;
                     // Ops count afresh after each slate.

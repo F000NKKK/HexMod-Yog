@@ -65,7 +65,7 @@ impl IotaType {
             IotaType::Bool => "boolean",
             IotaType::Double => "double",
             IotaType::Vec3 => "vec3",
-            IotaType::Entity => "entity",
+            IotaType::Entity => yog_api::yog_ids::kind::ENTITY,
             IotaType::List => "list",
             IotaType::Pattern => "pattern",
             // (sic) — the original's lang key.

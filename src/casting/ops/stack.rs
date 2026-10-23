@@ -39,20 +39,25 @@ fn stack_len(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult
 /// top down to `-n`).
 fn fisherman(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
+    let not_enough = Mishap::NotEnoughArgs {
+        expected: 2,
+        got: stack.len(),
+    };
     if stack.len() < 2 {
-        return Err(Mishap::NotEnoughArgs {
-            expected: 2,
-            got: stack.len(),
-        });
+        return Err(not_enough);
     }
-    let x = stack.pop().unwrap();
+    let Some(x) = stack.pop() else {
+        return Err(not_enough);
+    };
     let max = stack.len() as i64 - 1;
     let depth = int_between(&x, 0, -max, max)?;
     if depth >= 0 {
         let fish = stack.remove(stack.len() - 1 - depth as usize);
         stack.push(fish);
     } else {
-        let lure = stack.pop().unwrap();
+        let Some(lure) = stack.pop() else {
+            return Err(not_enough);
+        };
         let at = (stack.len() as i64 + depth) as usize;
         stack.insert(at, lure);
     }
@@ -62,20 +67,22 @@ fn fisherman(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult
 /// `OpFishermanButItCopies`.
 fn fisherman_copy(_: &mut CastEnv, mut image: Image, cont: &Cont) -> MResult<OpResult> {
     let stack = &mut image.stack;
-    if stack.len() < 2 {
-        return Err(Mishap::NotEnoughArgs {
-            expected: 2,
-            got: stack.len(),
-        });
-    }
+    let not_enough = Mishap::NotEnoughArgs {
+        expected: 2,
+        got: stack.len(),
+    };
     let max = stack.len() as i64 - 2;
-    let depth = int_between(stack.last().unwrap(), 0, -max, max)?;
-    stack.pop();
+    let (Some(x), true) = (stack.pop(), !stack.is_empty()) else {
+        return Err(not_enough);
+    };
+    let depth = int_between(&x, 0, -max, max)?;
     if depth >= 0 {
         let fish = stack[stack.len() - 1 - depth as usize].clone();
         stack.push(fish);
     } else {
-        let lure = stack.last().unwrap().clone();
+        let Some(lure) = stack.last().cloned() else {
+            return Err(not_enough);
+        };
         let at = (stack.len() as i64 - 1 + depth) as usize;
         stack.insert(at, lure);
     }

@@ -197,7 +197,8 @@ impl EntityHolder {
     }
 }
 
-const CUSTOM_DATA: &str = "minecraft:custom_data";
+/// The item component a stack's own data is kept in (1.20.5 on).
+const CUSTOM_DATA: &str = yog_api::yog_ids::id!(yog_api::yog_ids::ns::MINECRAFT, "custom_data");
 
 /// The item an entity holds, if it's one that may hold an iota.
 pub fn entity_stack(uuid: &str, type_id: &str) -> Option<(Stack, EntityHolder)> {
@@ -227,7 +228,7 @@ pub fn entity_stack(uuid: &str, type_id: &str) -> Option<(Stack, EntityHolder)> 
             let tag = if modern {
                 item.get("components").and_then(|c| c.get(CUSTOM_DATA))
             } else {
-                item.get("tag")
+                item.get(yog_api::yog_ids::word::TAG)
             };
             let stack = Stack {
                 slot: 0,
@@ -273,7 +274,7 @@ pub fn save_entity_stack(uuid: &str, stack: &Stack, how: EntityHolder) {
                     .set(CUSTOM_DATA, stack.nbt.clone());
             } else {
                 item.set("Count", Nbt::Num(format!("{}b", stack.count)));
-                item.set("tag", stack.nbt.clone());
+                item.set(yog_api::yog_ids::word::TAG, stack.nbt.clone());
             }
             let mut root = Nbt::default();
             root.set("Item", item);

@@ -4,8 +4,6 @@
 //! Numbers keep their literal text (with the type suffix), so a compound
 //! read and written back is unchanged.
 
-use std::fmt::Write as _;
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Nbt {
     Compound(Vec<(String, Nbt)>),
@@ -98,12 +96,29 @@ impl Nbt {
         }
     }
 
-    /// The compound under `key`, created if missing.
+    /// The compound under `key`, created if missing (this made a compound
+    /// first if it isn't one).
     pub fn compound_mut(&mut self, key: &str) -> &mut Nbt {
-        if !matches!(self.get(key), Some(Nbt::Compound(_))) {
-            self.set(key, Nbt::default());
+        if !matches!(self, Nbt::Compound(_)) {
+            *self = Nbt::default();
         }
-        self.get_mut(key).expect("just set")
+        match self {
+            Nbt::Compound(e) => {
+                let i = match e.iter().position(|(k, _)| k == key) {
+                    Some(i) => i,
+                    None => {
+                        e.push((key.to_string(), Nbt::default()));
+                        e.len() - 1
+                    }
+                };
+                if !matches!(e[i].1, Nbt::Compound(_)) {
+                    e[i].1 = Nbt::default();
+                }
+                &mut e[i].1
+            }
+            // Made a compound above.
+            other => other,
+        }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -186,7 +201,8 @@ impl Nbt {
             Nbt::List { prefix, items } => {
                 out.push('[');
                 if !prefix.is_empty() {
-                    let _ = write!(out, "{prefix};");
+                    out.push_str(prefix);
+                    out.push(';');
                 }
                 for (i, v) in items.iter().enumerate() {
                     if i > 0 {
