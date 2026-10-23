@@ -53,7 +53,7 @@ pub fn actions() -> Vec<Action> {
             Ok(Spell::new(DUST, vec![], move |env, _| {
                 akashic::add_new_datum(&env.dim, pos, &key, &datum);
                 let c = Vec3::center_of(pos);
-                yog_api::event::sound::play(&env.dim, (c.x, c.y, c.z), crate::sounds::SCROLL_SCRIBBLE, 1.0, 0.8);
+                yog_api::event::sound::play(&env.dim, (c.x, c.y, c.z), crate::res::SoundEvents::SCROLL_SCRIBBLE, 1.0, 0.8);
             }))
         };
     }

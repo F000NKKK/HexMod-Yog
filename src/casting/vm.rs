@@ -31,11 +31,11 @@ impl Sound {
     pub fn id(self) -> Option<&'static str> {
         Some(match self {
             Sound::Nothing | Sound::Mute => return None,
-            Sound::Normal => crate::sounds::CASTING_CAST_NORMAL,
-            Sound::Spell => crate::sounds::CASTING_CAST_SPELL,
-            Sound::Hermes => crate::sounds::CASTING_CAST_HERMES,
-            Sound::Thoth => crate::sounds::CASTING_CAST_THOTH,
-            Sound::Mishap => crate::sounds::CASTING_CAST_FAIL,
+            Sound::Normal => crate::res::SoundEvents::CASTING_CAST_NORMAL,
+            Sound::Spell => crate::res::SoundEvents::CASTING_CAST_SPELL,
+            Sound::Hermes => crate::res::SoundEvents::CASTING_CAST_HERMES,
+            Sound::Thoth => crate::res::SoundEvents::CASTING_CAST_THOTH,
+            Sound::Mishap => crate::res::SoundEvents::CASTING_CAST_FAIL,
         })
     }
 }

@@ -37,11 +37,11 @@ const MAX_MEDIA: i64 = 9_000_000_000_000_000_000;
 const MAX_LOOK: i32 = 30;
 const LOOK_RANGE: f64 = 20.0;
 
-const SOUND_FIND_BLOCK: &str = crate::sounds::SPELLCIRCLE_FIND_BLOCK;
-const SOUND_FAIL: &str = crate::sounds::SPELLCIRCLE_FAIL;
-const SOUND_LOOK_TICK: &str = crate::sounds::IMPETUS_FLETCHER_TICK;
-const SOUND_REDSTONE_DING: &str = crate::sounds::IMPETUS_REDSTONE_REGISTER;
-const SOUND_REDSTONE_CLEAR: &str = crate::sounds::IMPETUS_REDSTONE_CLEAR;
+const SOUND_FIND_BLOCK: &str = crate::res::SoundEvents::SPELLCIRCLE_FIND_BLOCK;
+const SOUND_FAIL: &str = crate::res::SoundEvents::SPELLCIRCLE_FAIL;
+const SOUND_LOOK_TICK: &str = crate::res::SoundEvents::IMPETUS_FLETCHER_TICK;
+const SOUND_REDSTONE_DING: &str = crate::res::SoundEvents::IMPETUS_REDSTONE_REGISTER;
+const SOUND_REDSTONE_CLEAR: &str = crate::res::SoundEvents::IMPETUS_REDSTONE_CLEAR;
 
 // ── directions ──────────────────────────────────────────────────────────────
 

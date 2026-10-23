@@ -82,7 +82,7 @@ fn dust(ev: &Interact) -> bool {
         yog_api::event::sound::play(
             e.dimension,
             (e.pos.x, e.pos.y, e.pos.z),
-            crate::sounds::SCROLL_DUST,
+            crate::res::SoundEvents::SCROLL_DUST,
             1.0,
             1.0,
         );

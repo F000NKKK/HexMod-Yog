@@ -23,7 +23,6 @@ pub mod math;
 pub mod protocol;
 pub mod render;
 pub mod snbt;
-pub mod sounds;
 pub mod text;
 pub mod ui;
 pub mod wall_scroll;

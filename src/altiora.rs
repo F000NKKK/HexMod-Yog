@@ -22,7 +22,7 @@ use yog_api::core::entity_flags;
 use crate::casting::env::{SLOT_OFFHAND, Spray, Stack, get_pigment, random};
 use crate::content::Models;
 use crate::math::Vec3;
-use crate::sounds;
+use crate::res::SoundEvents;
 
 /// Entity data on a player: `[WINGS | GLIDING]`, absent without wings.
 pub const DATA: &str = "hexcasting:altiora";
@@ -135,7 +135,7 @@ fn tick() {
             yog_api::event::sound::play(
                 dim,
                 (pos.x, pos.y, pos.z),
-                sounds::FLIGHT_FINISH,
+                SoundEvents::FLIGHT_FINISH,
                 FINISH_VOLUME,
                 1.0,
             );
@@ -148,7 +148,7 @@ fn tick() {
             yog_api::event::sound::play(
                 dim,
                 (pos.x, pos.y, pos.z),
-                sounds::FLIGHT_AMBIENCE,
+                SoundEvents::FLIGHT_AMBIENCE,
                 AMBIENCE_VOLUME,
                 1.0,
             );

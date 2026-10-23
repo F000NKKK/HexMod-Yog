@@ -1122,7 +1122,7 @@ pub fn tick_flight() {
             yog_api::event::sound::play(
                 dim,
                 (pos.x, pos.y, pos.z),
-                crate::sounds::FLIGHT_FINISH,
+                crate::res::SoundEvents::FLIGHT_FINISH,
                 2.0,
                 1.0,
             );
@@ -1181,7 +1181,7 @@ pub fn tick_flight() {
             yog_api::event::sound::play(
                 dim,
                 (pos.x, pos.y, pos.z),
-                crate::sounds::FLIGHT_AMBIENCE,
+                crate::res::SoundEvents::FLIGHT_AMBIENCE,
                 0.2,
                 1.0,
             );

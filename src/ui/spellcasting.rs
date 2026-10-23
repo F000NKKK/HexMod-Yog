@@ -46,9 +46,9 @@ const BOX_COLOR: u32 = 0x50_303030;
 /// `ChatFormatting.GRAY`, the "..." after a cut-off iota.
 const ELLIPSIS_COLOR: u32 = 0xFF_AAAAAA;
 
-const SOUND_AMBIANCE: &str = crate::sounds::CASTING_AMBIANCE;
-const SOUND_START: &str = crate::sounds::CASTING_PATTERN_START;
-const SOUND_ADD_SEGMENT: &str = crate::sounds::CASTING_PATTERN_ADD_SEGMENT;
+const SOUND_AMBIANCE: &str = crate::res::SoundEvents::CASTING_AMBIANCE;
+const SOUND_START: &str = crate::res::SoundEvents::CASTING_PATTERN_START;
+const SOUND_ADD_SEGMENT: &str = crate::res::SoundEvents::CASTING_PATTERN_ADD_SEGMENT;
 
 /// Introspection, Consideration-of-N and Interjection: their EVALUATED
 /// patterns can still be undone by Evanition.

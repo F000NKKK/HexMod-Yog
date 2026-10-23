@@ -13,9 +13,9 @@ use crate::text::Text;
 use crate::wire::Reader;
 
 /// The abacus' click.
-const SOUND_ABACUS: &str = "hexcasting:abacus";
+const SOUND_ABACUS: &str = crate::res::SoundEvents::ABACUS;
 /// Its reset.
-const SOUND_ABACUS_SHAKE: &str = crate::sounds::ABACUS_SHAKE;
+const SOUND_ABACUS_SHAKE: &str = crate::res::SoundEvents::ABACUS_SHAKE;
 
 /// `ItemPackagedHex.use`, for the hand holding `item_id`.
 pub fn use_packaged(player: &str, item_id: &str) {
@@ -214,7 +214,7 @@ pub fn read_lore(player: &str) {
     else {
         return;
     };
-    yog_api::event::sound::play_to_player(player, crate::sounds::LORE_FRAGMENT_READ, 1.0, 1.0);
+    yog_api::event::sound::play_to_player(player, crate::res::SoundEvents::LORE_FRAGMENT_READ, 1.0, 1.0);
     let unread: Vec<&str> = LORE
         .into_iter()
         .filter(|id| !env.has_advancement(id))

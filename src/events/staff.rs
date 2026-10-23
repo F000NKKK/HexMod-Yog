@@ -79,7 +79,7 @@ pub fn use_staff(player: &str, sneaking: bool) {
     };
     if sneaking {
         clear(&info.uuid);
-        yog_api::event::sound::play_to_player(player, crate::sounds::STAFF_RESET, 1.0, 1.0);
+        yog_api::event::sound::play_to_player(player, crate::res::SoundEvents::STAFF_RESET, 1.0, 1.0);
     }
     let image = image(&info.uuid);
     let gui = OpenGui {
