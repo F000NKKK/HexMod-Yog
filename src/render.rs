@@ -15,7 +15,7 @@ use yog_api::{GfxContext, Registry, split_state};
 use crate::casting::env::{get_pigment, get_sentinel, to_ypos};
 use crate::item::pigment::Pigment;
 use crate::math::{HexPattern, Vec3};
-use crate::ui::render_lib::{Mesh, Vec2, draw_line_seq, get_centered_pattern, screen_col};
+use crate::ui::render_lib::{Line, Mesh, Vec2, draw_line_seq, get_centered_pattern, screen_col};
 use crate::wire::{Reader, Writer};
 
 /// Server → client: the slates near the player.
@@ -339,8 +339,8 @@ fn slate_triangles(s: &Slate, out: &mut Vec<f32>) {
     } else {
         (INNER, OUTER)
     };
-    draw_line_seq(&mut mesh, &pts, STROKE * 2.0 * UNIT, outer, outer, false);
-    draw_line_seq(&mut mesh, &pts, STROKE * UNIT, inner, inner, false);
+    draw_line_seq(&mut mesh, &pts, Line::solid(STROKE * 2.0 * UNIT, outer));
+    draw_line_seq(&mut mesh, &pts, Line::solid(STROKE * UNIT, inner));
     let (origin, right, up) = slate_plane(s);
     // A 2D vertex: x, y, then its color.
     for &[x, y, r, g, b, a] in mesh.vertices().as_chunks::<6>().0 {

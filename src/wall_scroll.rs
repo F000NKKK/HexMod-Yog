@@ -20,7 +20,8 @@ use crate::math::HexPattern;
 use crate::snbt::Nbt;
 use crate::ui::pattern_render::{INNER_COLOR, OUTER_COLOR, STARTING_DOT};
 use crate::ui::render_lib::{
-    Mesh, Vec2, draw_line_seq, draw_spot, find_dup_indices, make_zappy, to_lines,
+    INNER_SHARE, Line, Mesh, Vec2, draw_line_seq, draw_spot, find_dup_indices, static_zappy,
+    to_lines,
 };
 
 /// Entity data: the scroll shows its stroke order (`SHOWS_STROKE_ORDER`), saved with it.
@@ -248,17 +249,10 @@ fn paper_quads(size: f32) -> Vec<Quad> {
 const PAD: f64 = 2.0 / 16.0;
 const STROKE: f64 = 0.8 / 16.0;
 const OUTER_WIDTH: f64 = STROKE;
-const INNER_WIDTH: f64 = STROKE * 2.0 / 5.0;
+const INNER_WIDTH: f64 = STROKE * INNER_SHARE as f64;
 const START_DOT: f64 = 0.8 * INNER_WIDTH;
 /// `PositionSettings.paddedSquare`'s base scale: points this far apart.
 const BASE_SCALE: f64 = 0.25;
-/// `ZappySettings.STATIC` and `.READABLE`: hops, variance, flow irregularity;
-/// readability offset and last segment's share when readable.
-const HOPS: i32 = 10;
-const VARIANCE: f32 = 0.5;
-const FLOW_IRREGULAR: f32 = 0.2;
-const READABLE_OFFSET: f32 = 0.2;
-const READABLE_SEGMENT: f32 = 0.8;
 /// `PatternRenderer`'s layers out of the paper, and the pattern's own gap
 /// (`renderPattern`'s z).
 const OUTER_Z: f32 = 0.0005;
@@ -271,23 +265,7 @@ const PATTERN_Z: f32 = -1.0 / 16.0 - 0.01;
 fn fitted_points(pattern: &HexPattern, readable: bool, seed: f64) -> (Vec<Vec2>, Vec<Vec2>) {
     let dots = to_lines(pattern, 1.0, Vec2::ZERO);
     let dups: HashSet<usize> = find_dup_indices(pattern.positions());
-    let (offset, last) = if readable {
-        (READABLE_OFFSET, READABLE_SEGMENT)
-    } else {
-        (0.0, 1.0)
-    };
-    let zappy = make_zappy(
-        &dots,
-        Some(&dups),
-        HOPS,
-        VARIANCE,
-        0.0,
-        FLOW_IRREGULAR,
-        offset,
-        last,
-        seed,
-        0.0,
-    );
+    let zappy = static_zappy(&dots, &dups, readable, seed);
     let (mut min_x, mut min_y, mut max_x, mut max_y) =
         (f64::MAX, f64::MAX, f64::MIN_POSITIVE, f64::MIN_POSITIVE);
     for p in &zappy {
@@ -353,24 +331,10 @@ fn pattern_quads(
         layers.push((color, quads));
     };
     layer(OUTER_COLOR, OUTER_Z, &|m| {
-        draw_line_seq(
-            m,
-            &zappy,
-            OUTER_WIDTH as f32,
-            OUTER_COLOR,
-            OUTER_COLOR,
-            false,
-        )
+        draw_line_seq(m, &zappy, Line::solid(OUTER_WIDTH as f32, OUTER_COLOR))
     });
     layer(INNER_COLOR, INNER_Z, &|m| {
-        draw_line_seq(
-            m,
-            &zappy,
-            INNER_WIDTH as f32,
-            INNER_COLOR,
-            INNER_COLOR,
-            false,
-        )
+        draw_line_seq(m, &zappy, Line::solid(INNER_WIDTH as f32, INNER_COLOR))
     });
     if readable && let Some(&first) = dots.first() {
         layer(STARTING_DOT, DOT_Z, &|m| {

@@ -11,7 +11,7 @@ use crate::content::Items;
 use crate::item::holder;
 use crate::snbt::Nbt;
 
-use super::render_lib::{Mesh, Vec2, draw_line_seq, draw_spot, get_centered_pattern};
+use super::render_lib::{Line, Mesh, Vec2, draw_line_seq, draw_spot, get_centered_pattern};
 use crate::math::HexPattern;
 
 /// `PatternColors.DEFAULT_PATTERN_COLOR`: inner stroke, outer stroke.
@@ -151,8 +151,8 @@ pub fn mesh_pattern(
     for &p in &pts {
         draw_spot(mesh, p, dot * 1.6, GRID_DOTS);
     }
-    draw_line_seq(mesh, &pts, stroke * 2.0, OUTER_COLOR, OUTER_COLOR, false);
-    draw_line_seq(mesh, &pts, stroke, INNER_COLOR, INNER_COLOR, false);
+    draw_line_seq(mesh, &pts, Line::solid(stroke * 2.0, OUTER_COLOR));
+    draw_line_seq(mesh, &pts, Line::solid(stroke, INNER_COLOR));
     if let Some(&first) = pts.first() {
         draw_spot(mesh, first, dot * 2.0, STARTING_DOT);
     }
@@ -195,7 +195,7 @@ pub fn mesh_rune(mesh: &mut Mesh, pattern: &HexPattern, x: f32, y: f32, h: f32, 
         .iter()
         .map(|p| Vec2::new((p.x - min_x) * scale, (p.y - min_y) * scale) + off)
         .collect();
-    draw_line_seq(mesh, &pts, 1.0, color, color, false);
+    draw_line_seq(mesh, &pts, Line::solid(1.0, color));
     if let Some(&first) = pts.first() {
         draw_spot(mesh, first, 0.9, color);
     }

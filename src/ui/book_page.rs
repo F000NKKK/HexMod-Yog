@@ -10,7 +10,8 @@ use yog_api::yog_data::Value;
 use yog_api::{GfxContext, Registry};
 
 use super::render_lib::{
-    Mesh, Vec2, coord_to_px, draw_line_seq, draw_spot, find_dup_indices, make_zappy,
+    INNER_SHARE, Line, Mesh, Vec2, coord_to_px, draw_line_seq, draw_spot, find_dup_indices,
+    static_zappy,
 };
 use crate::math::{HexDir, HexPattern};
 
@@ -72,7 +73,7 @@ pub fn mesh(patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) -> Mesh {
             .map(|&p| coord_to_px(p, 1.0, Vec2::new(0.0, 0.0)))
             .collect();
         let dups = find_dup_indices(pos.iter().copied());
-        let zappy = make_zappy(&dots, Some(&dups), 10, 0.5, 0.0, 0.2, 0.2, 0.8, 0.0, 0.0);
+        let zappy = static_zappy(&dots, &dups, true, 0.0);
         // HexPatternPoints: fit into the cell (padding 2, base scale 16).
         let (mut x0, mut y0, mut x1, mut y1) = (f32::MAX, f32::MAX, f32::MIN, f32::MIN);
         for p in &zappy {
@@ -92,9 +93,9 @@ pub fn mesh(patterns: &[HexPattern], x: f32, y: f32, w: f32, h: f32) -> Mesh {
         );
         let at = |p: Vec2| Vec2::new(cx + (p.x - x0) * fin + off_x, cy + (p.y - y0) * fin + off_y);
         let line: Vec<Vec2> = zappy.iter().map(|&p| at(p)).collect();
-        draw_line_seq(&mut mesh, &line, stroke, OUTER, OUTER, false);
-        draw_line_seq(&mut mesh, &line, stroke * 2.0 / 5.0, INNER, INNER, false);
-        let dot = stroke * 2.0 / 5.0;
+        draw_line_seq(&mut mesh, &line, Line::solid(stroke, OUTER));
+        draw_line_seq(&mut mesh, &line, Line::solid(stroke * INNER_SHARE, INNER));
+        let dot = stroke * INNER_SHARE;
         draw_spot(&mut mesh, at(dots[0]), 0.8 * dot, START_DOT);
         for &d in &dots[1..] {
             draw_spot(&mut mesh, at(d), 0.4 * dot, GRID_DOT);
