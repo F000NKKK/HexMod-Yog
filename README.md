@@ -13,9 +13,9 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-1.99-orange.svg)](https://www.rust-lang.org/)
 
-![Fabric](https://img.shields.io/badge/Fabric-1.20.1%20%7C%201.21.1-success)
-![Forge](https://img.shields.io/badge/Forge-1.20.1%20%7C%201.21.1-success)
-![NeoForge](https://img.shields.io/badge/NeoForge-1.20.1%20%7C%201.21.1-success)
+![Fabric](https://img.shields.io/badge/Fabric-1.20.1%20%7C%201.21.1%20%7C%2026.2-success)
+![Forge](https://img.shields.io/badge/Forge-1.20.1%20%7C%201.21.1%20%7C%2026.2-success)
+![NeoForge](https://img.shields.io/badge/NeoForge-1.20.1%20%7C%201.21.1%20%7C%2026.2-success)
 
 🇺🇸 **English** | 🇷🇺 [Русский](README.ru.md)
 
@@ -35,8 +35,8 @@ vectors and lists, build and run other hexes, and cast spells that move,
 break, conjure and transform things.
 
 The port runs on the [Yog Mod Loader](https://github.com/F000NKKK/Yog-Mod-Loader).
-One `.yog` file works on Fabric, Forge and NeoForge, for Minecraft 1.20.1 and
-1.21.1. The casting VM, the iota types, every action and the casting grid
+One `.yog` file works on Fabric, Forge and NeoForge, for Minecraft 1.20.1,
+1.21.1 and 26.2. The casting VM, the iota types, every action and the casting grid
 are written from scratch in Rust, and follow the original's behaviour,
 media costs, mishaps and pattern signatures.
 
@@ -92,8 +92,8 @@ media costs, mishaps and pattern signatures.
 
 ### ⚙️ Built on Yog
 
-- **One file, six targets**: a single `.yog` loads on Fabric, Forge and
-  NeoForge for 1.20.1 and 1.21.1.
+- **One file, nine targets**: a single `.yog` loads on Fabric, Forge and
+  NeoForge for 1.20.1, 1.21.1 and 26.2.
 - **Native code**: the mod is a Rust `cdylib` built for Linux, Windows and
   macOS. It runs in-process with no JVM bytecode of its own.
 - **Generic loader APIs only**: everything Hex Casting needed from the
@@ -184,7 +184,7 @@ casts the stored hex.
 
 1. Install the [Yog Mod Loader](https://github.com/F000NKKK/Yog-Mod-Loader)
    for your loader (Fabric, Forge or NeoForge) and Minecraft version
-   (1.20.1 or 1.21.1).
+   (1.20.1, 1.21.1 or 26.2).
 2. Drop `HexMod-Yog.yog` into `<game dir>/yog-mods/`.
 3. Start the game. New players receive the Hex Notebook and an Oak Staff.
 
