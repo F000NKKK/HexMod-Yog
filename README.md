@@ -208,22 +208,11 @@ To build against a local checkout of `yog-api` instead of crates.io, set
 
 ## 🚧 Status
 
-Active development. Implemented: the VM, all non-circle patterns, every
-spell and great spell, media items, iota storage items and the Akashic
-Library. Not yet ported:
-
-- **Spell circles** (impetuses, directrices, slates as a circuit). They
-  need block-state properties (facing, energized) that the loader can't
-  declare yet.
-- **Custom potion effects** (Enlarge Grid, Shrink Grid) and **loot
-  injection** (scrolls and cyphers in chests). The loader has no API to
-  register these yet.
-- **Smaller gaps**:
-  - Altiora's gliding pose;
-  - pigment-colored conjured blocks;
-  - item cooldowns;
-  - teleporting passengers;
-  - Pehkui interop.
+Active development. Ported: the VM, every pattern and spell, the great
+spells, spell circles (impetuses, directrices, slates), media and iota
+storage items, the Akashic Library, the grid-size potion effects, scrolls
+and cyphers in loot, Altiora, pigment-colored conjured blocks, item
+cooldowns, and Pehkui interop when Pehkui is loaded.
 
 ## 🙏 Credits
 

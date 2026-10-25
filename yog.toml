@@ -7,6 +7,10 @@ description = "@Strings.mod_description"
 authors     = ["F000NK", "Yog Team", "gamma-delta (original Hex Casting)", "FallingColors & HexMod contributors (original Hex Casting)"]
 license     = "MIT"
 
+[network]
+# The casting grid, shift-scrolling a held item and altiora tell the server what the player does.
+to_server = true
+
 [dependencies]
 yog-api = "0.104.1"
 yog-kit = "0.15.0"
