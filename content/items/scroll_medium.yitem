@@ -1,1 +1,1 @@
-YOGD	name)@Items.scroll_mediumtooltip3@Items.scroll_medium.desc	itemhangsentity=@entity:hexcasting:wall_scroll	sizemodelparentgeneratedtextureslayer0_@texture:hexcasting:item/scroll_pristine_medium
+SDAT	name1@res:Items.scroll_mediumtooltip;@res:Items.scroll_medium.desc	itemhangsentity=@entity:hexcasting:wall_scroll	sizemodelparentgeneratedtextureslayer0_@texture:hexcasting:item/scroll_pristine_medium

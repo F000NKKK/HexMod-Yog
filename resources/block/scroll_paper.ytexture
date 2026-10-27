@@ -1,3 +1,3 @@
-YOGDcomment¥Not packed into the blocks atlas: the wall scroll draws this picture
+SDATcomment¥Not packed into the blocks atlas: the wall scroll draws this picture
 itself (wall_scroll.rs), so it stays a file of its own â€” the blocks'
-models still find it in block/, a folder the game's atlas takes whole.image?@BlockImages.block.scroll_paper
+models still find it in block/, a folder the game's atlas takes whole.imageG@res:BlockImages.block.scroll_paper
