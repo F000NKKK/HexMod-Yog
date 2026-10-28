@@ -12,6 +12,6 @@ license     = "MIT"
 to_server = true
 
 [dependencies]
-yog-api = "0.105.0"
-yog-kit = "0.16.0"
+yog-api = "0.109.0"
+yog-kit = "0.20.0"
 uuid = "1.23.3"
