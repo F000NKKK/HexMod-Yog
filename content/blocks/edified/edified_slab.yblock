@@ -1,1 +1,1 @@
-SDAT	kind	slab	tagsyog:slabs!yog:wooden_slabs	name1@res:Blocks.edified_slabblockhardnessresistancesound	wood	toolaxeoccludes	baseA@block:hexcasting:edified_planksmodeltexturesbottomQ@texture:hexcasting:block/edified_plankstop(	side(
+SDAT	kind	tags	nameblockmodel	slabyog:slabs!yog:wooden_slabs1@res:Blocks.edified_slabhardnessresistancesound	tooloccludes	base’’	woodaxeA@block:hexcasting:edified_plankstexturesbottomtop	sideQ@texture:hexcasting:block/edified_planks66

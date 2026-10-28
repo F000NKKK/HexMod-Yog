@@ -1,1 +1,2 @@
-SDATcomment—Scrolls of this world's great spells: from -3 to 3 of them, none below one.	kindloot_modifieridscrolls_3tablesU@loot_table:minecraft:chests/shipwreck_map[@loot_table:minecraft:chests/bastion_treasure]@loot_table:minecraft:chests/end_city_treasureadd	item/@item:hexcasting:scrollcountfunction9hexcasting:per_world_pattern
+SDATcomment	kindidtablesadd—Scrolls of this world's great spells: from -3 to 3 of them, none below one.loot_modifierscrolls_3U@loot_table:minecraft:chests/shipwreck_map[@loot_table:minecraft:chests/bastion_treasure]@loot_table:minecraft:chests/end_city_treasure	itemcountfunction/@item:hexcasting:scroll
+9hexcasting:per_world_pattern

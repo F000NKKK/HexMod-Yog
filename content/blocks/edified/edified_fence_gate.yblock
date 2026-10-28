@@ -1,1 +1,1 @@
-SDAT	kindfence_gate	tagsyog:fence_gates	name=@res:Blocks.edified_fence_gateblockhardnessresistancesound	wood	toolaxeoccludessetdark_oakmodeltexturestextureQ@texture:hexcasting:block/edified_planks
+SDAT	kind	tags	nameblockmodelfence_gateyog:fence_gates=@res:Blocks.edified_fence_gatehardnessresistancesound	tooloccludesset’’	woodaxedark_oaktexturestextureQ@texture:hexcasting:block/edified_planks

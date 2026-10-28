@@ -1,1 +1,1 @@
-SDATid%dye_colorizer_cyan	name;@res:Items.dye_colorizer_cyan	itemstack_sizemodelparentgeneratedtextureslayer0W@texture:hexcasting:item/colorizer/dye_cyan
+SDAT	id	name	itemmodel%dye_colorizer_cyan;@res:Items.dye_colorizer_cyanstack_size‘parenttexturesgeneratedlayer0W@texture:hexcasting:item/colorizer/dye_cyan

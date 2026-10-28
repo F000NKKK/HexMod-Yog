@@ -1,1 +1,1 @@
-SDATid'dye_colorizer_brown	name=@res:Items.dye_colorizer_brown	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/colorizer/dye_brown
+SDAT	id	name	itemmodel'dye_colorizer_brown=@res:Items.dye_colorizer_brownstack_size‘parenttexturesgeneratedlayer0Y@texture:hexcasting:item/colorizer/dye_brown

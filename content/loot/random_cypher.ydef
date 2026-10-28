@@ -1,2 +1,2 @@
-SDATcommentå`hexcasting:random_cypher`: exactly one ancient cypher with one of the old
-hexes â€” for `/loot` and other tables.	kindloot_tableidrandom_cypheradd	item?@item:hexcasting:ancient_cypherfunction-hexcasting:ancient_hex
+SDAT	comment	kindidaddå`hexcasting:random_cypher`: exactly one ancient cypher with one of the old
+hexes â€” for `/loot` and other tables.loot_tablerandom_cypher	itemfunction?@item:hexcasting:ancient_cypher-hexcasting:ancient_hex

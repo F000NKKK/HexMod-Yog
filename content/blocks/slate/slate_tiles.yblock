@@ -1,1 +1,1 @@
-SDAT	tagsslate_blocks	name/@res:Blocks.slate_tilesblockhardnessresistancesoundstone	toolpickaxerequires_toolmodelparentcube_alltexturesallU@texture:hexcasting:block/deco/slate_tiles
+SDAT		tags	nameblockmodelslate_blocks/@res:Blocks.slate_tileshardnessresistancesound	toolrequires_tool’”stonepickaxeparenttexturescube_allallU@texture:hexcasting:block/deco/slate_tiles

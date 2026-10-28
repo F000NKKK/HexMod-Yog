@@ -1,1 +1,1 @@
-SDATmodelparent+minecraft:item/potion	itempotioneffectseffect?@effect:hexcasting:enlarge_gridduration 8
+SDATmodel	itemparent+minecraft:item/potionpotioneffectseffectduration?@effect:hexcasting:enlarge_grid 8

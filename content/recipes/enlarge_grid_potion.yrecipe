@@ -1,1 +1,1 @@
-SDAT	typebrewing	from1@item:yog:potion/awkwardingredient=@item:hexcasting:amethyst_dustresult;@item:hexcasting:enlarge_grid
+SDAT		type	fromingredientresultbrewing1@item:yog:potion/awkward=@item:hexcasting:amethyst_dust;@item:hexcasting:enlarge_grid

@@ -1,1 +1,1 @@
-SDATid/hexcasting:sub_sandwich	typeshapedpattern SA C  B keyA=@item:minecraft:amethyst_shardB+@item:minecraft:breadC7@item:minecraft:cooked_beefS+@item:minecraft:stickresult;@item:hexcasting:sub_sandwichcategory	misc
+SDATid	typepatternkeyresultcategory/hexcasting:sub_sandwichshaped SA C  B 	ABCS=@item:minecraft:amethyst_shard+@item:minecraft:bread7@item:minecraft:cooked_beef+@item:minecraft:stick;@item:hexcasting:sub_sandwich	misc

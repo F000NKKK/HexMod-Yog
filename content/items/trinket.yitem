@@ -1,1 +1,1 @@
-SDAT	name%@res:Items.trinkettooltip/@res:Items.trinket.desc	itemstack_sizemodelparentgeneratedtextureslayer0A@texture:hexcasting:item/trinket
+SDAT		nametooltip	itemmodel%@res:Items.trinket/@res:Items.trinket.descstack_size‘parenttexturesgeneratedlayer0A@texture:hexcasting:item/trinket

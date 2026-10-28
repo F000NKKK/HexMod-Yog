@@ -1,2 +1,1 @@
-SDATid=hexcasting:dye_colorizer_black	typeshapedpattern D DCD
-keyC3@item:minecraft:black_dyeD=@item:hexcasting:amethyst_dustresultI@item:hexcasting:dye_colorizer_blackcategory	misc
+SDATid	typepatternkeyresultcategory=hexcasting:dye_colorizer_blackshaped D DCD(CD3@item:minecraft:black_dye=@item:hexcasting:amethyst_dustI@item:hexcasting:dye_colorizer_black	misc

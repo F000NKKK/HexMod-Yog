@@ -1,1 +1,1 @@
-SDAT	name3@res:Items.jeweler_hammertooltip=@res:Items.jeweler_hammer.desc	itemstack_sizedurability²modelparenthandheldtextureslayer0O@texture:hexcasting:item/jeweler_hammer
+SDAT		nametooltip	itemmodel3@res:Items.jeweler_hammer=@res:Items.jeweler_hammer.descstack_sizedurability‘²parenttextureshandheldlayer0O@texture:hexcasting:item/jeweler_hammer

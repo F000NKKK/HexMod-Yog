@@ -1,1 +1,2 @@
-SDAT	name1@res:Items.scroll_mediumtooltip;@res:Items.scroll_medium.desc	itemhangsentity=@entity:hexcasting:wall_scroll	sizemodelparentgeneratedtextureslayer0_@texture:hexcasting:item/scroll_pristine_medium
+SDAT		nametooltip	itemmodel1@res:Items.scroll_medium;@res:Items.scroll_medium.deschangsentity	size=@entity:hexcasting:wall_scroll
+parenttexturesgeneratedlayer0_@texture:hexcasting:item/scroll_pristine_medium

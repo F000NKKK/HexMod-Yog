@@ -1,2 +1,1 @@
-SDATid;hexcasting:dye_colorizer_lime	typeshapedpattern D DCD
-keyC1@item:minecraft:lime_dyeD=@item:hexcasting:amethyst_dustresultG@item:hexcasting:dye_colorizer_limecategory	misc
+SDATid	typepatternkeyresultcategory;hexcasting:dye_colorizer_limeshaped D DCD(CD1@item:minecraft:lime_dye=@item:hexcasting:amethyst_dustG@item:hexcasting:dye_colorizer_lime	misc

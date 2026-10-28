@@ -1,5 +1,2 @@
-SDATcommentÕAn edified tree, grown by Edify Sapling: edified logs, one in nine
-amethyst-veined, under amethyst leaves.	kind	treeid+amethyst_edified_tree%min_clipped_heighttrunkblocksblock;@block:hexcasting:edified_logweightM@block:hexcasting:edified_log_amethystshapefancybase_height
-random_a
-random_bleavesS@block:hexcasting:amethyst_edified_leavesradiusoffset
-height
+SDATcomment	kindid%min_clipped_heighttrunkleavesÕAn edified tree, grown by Edify Sapling: edified logs, one in nine
+amethyst-veined, under amethyst leaves.	tree+amethyst_edified_tree–blocksshapebase_heightrandom_arandom_bblockweight;@block:hexcasting:edified_log˜M@block:hexcasting:edified_log_amethyst‘fancy••“radiusoffsetheightS@block:hexcasting:amethyst_edified_leaves2‘••

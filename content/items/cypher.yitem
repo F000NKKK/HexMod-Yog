@@ -1,1 +1,1 @@
-SDAT	name#@res:Items.cyphertooltip-@res:Items.cypher.desc	itemstack_sizemodelparentgeneratedtextureslayer0?@texture:hexcasting:item/cypher
+SDAT		nametooltip	itemmodel#@res:Items.cypher-@res:Items.cypher.descstack_size‘parenttexturesgeneratedlayer0?@texture:hexcasting:item/cypher

@@ -1,1 +1,1 @@
-SDAT	name+@res:Items.thehexbooktooltip5@res:Items.thehexbook.desc	itemstack_sizemodelparentgeneratedtextureslayer0G@texture:hexcasting:item/thehexbook
+SDAT		nametooltip	itemmodel+@res:Items.thehexbook5@res:Items.thehexbook.descstack_size‘parenttexturesgeneratedlayer0G@texture:hexcasting:item/thehexbook

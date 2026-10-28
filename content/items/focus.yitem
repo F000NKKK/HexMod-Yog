@@ -1,1 +1,1 @@
-SDAT	name!@res:Items.focustooltip+@res:Items.focus.desc	itemstack_sizemodelparentgeneratedtextureslayer0I@texture:hexcasting:item/focus_empty
+SDAT		nametooltip	itemmodel!@res:Items.focus+@res:Items.focus.descstack_size‘parenttexturesgeneratedlayer0I@texture:hexcasting:item/focus_empty

@@ -1,2 +1,2 @@
-SDATcommentÛ`hexcasting:random_scroll`: exactly one scroll of this world's great
-spells â€” for `/loot` and other tables.	kindloot_tableidrandom_scrolladd	item/@item:hexcasting:scrollfunction9hexcasting:per_world_pattern
+SDAT	comment	kindidaddÛ`hexcasting:random_scroll`: exactly one scroll of this world's great
+spells â€” for `/loot` and other tables.loot_tablerandom_scroll	itemfunction/@item:hexcasting:scroll9hexcasting:per_world_pattern

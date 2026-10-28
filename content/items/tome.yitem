@@ -1,1 +1,1 @@
-SDAT	name@res:Items.tometooltip)@res:Items.tome.desc	itemstack_sizemodelparentgeneratedtextureslayer0;@texture:hexcasting:item/tome
+SDAT		nametooltip	itemmodel@res:Items.tome)@res:Items.tome.descstack_size‘parenttexturesgeneratedlayer0;@texture:hexcasting:item/tome

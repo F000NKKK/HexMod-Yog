@@ -1,1 +1,1 @@
-SDAT	name%@res:Items.batterytooltip/@res:Items.battery.desc	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/phial/phial_small_0
+SDAT		nametooltip	itemmodel%@res:Items.battery/@res:Items.battery.descstack_size‘parenttexturesgeneratedlayer0Y@texture:hexcasting:item/phial/phial_small_0

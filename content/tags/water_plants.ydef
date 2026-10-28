@@ -1,1 +1,1 @@
-SDATcommentƒPlants that grow under water (Create Water treats them as water).	kindtagofblockidwater_plantsvalues+@block:minecraft:kelp7@block:minecraft:kelp_plant3@block:minecraft:seagrass=@block:minecraft:tall_seagrass
+SDATcomment	kindofidvaluesƒPlants that grow under water (Create Water treats them as water).tagblockwater_plants+@block:minecraft:kelp7@block:minecraft:kelp_plant3@block:minecraft:seagrass=@block:minecraft:tall_seagrass

@@ -1,1 +1,1 @@
-SDAT	name#@res:Items.abacustooltip-@res:Items.abacus.desc	itemstack_sizemodelparentgeneratedtextureslayer0?@texture:hexcasting:item/abacus
+SDAT		nametooltip	itemmodel#@res:Items.abacus-@res:Items.abacus.descstack_size‘parenttexturesgeneratedlayer0?@texture:hexcasting:item/abacus

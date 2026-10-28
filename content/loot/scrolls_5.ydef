@@ -1,3 +1,4 @@
-SDATcommentõWhoever finds these deserves a lot of scrolls.
-Scrolls of this world's great spells: from -5 to 5 of them, none below one.	kindloot_modifieridscrolls_5tables[@loot_table:minecraft:chests/woodland_mansion_@loot_table:minecraft:chests/stronghold_libraryadd	item/@item:hexcasting:scrollcount	
-function9hexcasting:per_world_pattern
+SDATcomment	kindidtablesaddõWhoever finds these deserves a lot of scrolls.
+Scrolls of this world's great spells: from -5 to 5 of them, none below one.loot_modifierscrolls_5[@loot_table:minecraft:chests/woodland_mansion_@loot_table:minecraft:chests/stronghold_library	itemcountfunction/@item:hexcasting:scroll
+	
+9hexcasting:per_world_pattern

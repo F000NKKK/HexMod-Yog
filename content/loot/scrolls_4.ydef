@@ -1,2 +1,3 @@
-SDATcomment™Ancient cities keep amethyst; pillagers, it seems, keep scrolls.
-Scrolls of this world's great spells: from -4 to 4 of them, none below one.	kindloot_modifieridscrolls_4tablesS@loot_table:minecraft:chests/ancient_city[@loot_table:minecraft:chests/pillager_outpostadd	item/@item:hexcasting:scrollcountfunction9hexcasting:per_world_pattern
+SDATcomment	kindidtablesadd™Ancient cities keep amethyst; pillagers, it seems, keep scrolls.
+Scrolls of this world's great spells: from -4 to 4 of them, none below one.loot_modifierscrolls_4S@loot_table:minecraft:chests/ancient_city[@loot_table:minecraft:chests/pillager_outpost	itemcountfunction/@item:hexcasting:scroll
+9hexcasting:per_world_pattern

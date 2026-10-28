@@ -1,1 +1,1 @@
-SDATid%dye_colorizer_pink	name;@res:Items.dye_colorizer_pink	itemstack_sizemodelparentgeneratedtextureslayer0W@texture:hexcasting:item/colorizer/dye_pink
+SDAT	id	name	itemmodel%dye_colorizer_pink;@res:Items.dye_colorizer_pinkstack_size‘parenttexturesgeneratedlayer0W@texture:hexcasting:item/colorizer/dye_pink

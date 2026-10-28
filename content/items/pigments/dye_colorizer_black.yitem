@@ -1,1 +1,1 @@
-SDATid'dye_colorizer_black	name=@res:Items.dye_colorizer_black	itemstack_sizemodelparentgeneratedtextureslayer0Y@texture:hexcasting:item/colorizer/dye_black
+SDAT	id	name	itemmodel'dye_colorizer_black=@res:Items.dye_colorizer_blackstack_size‘parenttexturesgeneratedlayer0Y@texture:hexcasting:item/colorizer/dye_black
